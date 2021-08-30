@@ -2,15 +2,17 @@ clear all;
 close all;
 clc;
 
+%%These are local folder
 % folder_name='C:\Data\dedalus\IFSC_2D_without_shear\';
-folder_name='C:\Data\dedalus\IFSC_2D_with_shear\';
-
+%folder_name='C:\Data\dedalus\IFSC_2D_with_shear\';
+folder_name='/rc_scratch/chli3324/dedalus_12072802/';
 % file_name='IFSC_2D_without_shear_s1_random';
 % file_name='IFSC_2D_without_shear_s1_small_domain';
 
 % file_name='IFSC_2D_without_shear_s1_elevator_short';
 % file_name='IFSC_2D_without_shear_s1_elevator_long';
-file_name='IFSC_2D_with_shear_s1';
+% file_name='IFSC_2D_with_shear_s1';
+file_name='IFSC_2D_without_shear_s1';
 h5_name=[folder_name,file_name,'.h5'];
 h5disp(h5_name);
 x=h5read(h5_name,'/scales/x/1.0');
