@@ -41,7 +41,7 @@ class flag(object):
     def governing_equation(self,domain):
         if self.flow == 'IFSC_2D_without_shear':
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
-            problem.parameters['Ra_ratio']=flag.Ra_ratio
+            problem.parameters['Ra_ratio']=self.Ra_ratio
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
@@ -51,6 +51,9 @@ class flag(object):
             problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + w =0")
         # This is assumed to be doubly periodic, no boundary conditions
         elif self.flow == "IFSC_2D_with_shear":
+            problem = de.IVP(domain,variables=['p','u','w','S','T'])
+            problem.parameters['ks']=self.ks
+            problem.parameters['F_sin']=self.F_sin
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
