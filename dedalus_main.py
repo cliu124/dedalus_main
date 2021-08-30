@@ -1,6 +1,5 @@
 import numpy as np
 from mpi4py import MPI
-import time
 import pathlib
 #from IPython import display
 from dedalus import public as de
@@ -19,14 +18,11 @@ shutil.rmtree('analysis',ignore_errors=True)
 logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
 flag.Ra_ratio=1.1
-flag.name='IFSC_2D_without_shear'
-flag.path='./'
-
-flag.current_path='/projects/chli3324/dedalus/'
 flag.flow='IFSC_2D_without_shear'
+flag.name=flag.flow
 flag.A_elevator=1
 flag.A_noise=0
-flag.A_shear=1
+flag.A_shear=0
 
 k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
 
@@ -36,17 +32,11 @@ grid_l_opt=8
 flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
 flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 
+u_L=1
 flag.ks=2*np.pi/flag.Lz
-flag.print_screen()
+flag.F_sin=u_L/flag.ks**2
+flag.print_screen(logger)
 
-#tau=0.01
-#Pr=7
-
-#R_rho=1/tau/flag.Ra_ratio
-
-
-#Ri=1/1000*Pr*(1-1/R_rho)/tau**2/ks**2
-Ri=1
 domain=flag.build_domain()
 problem=flag.governing_equation(domain)
 
@@ -56,35 +46,21 @@ solver =  problem.build_solver(ts)
 
 flag.initial_condition(domain,solver)
 
-solver.stop_sim_time = 1
-solver.stop_wall_time = np.inf
-solver.stop_iteration = np.inf
+solver.stop_sim_time = 1000
+flag.post_store_dt=10;
 
-#initial_dt = 0.02*Lx/nx
-initial_dt=0.2*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)
+if flag.flow == 'IFSC_2D_without_shear':
+    initial_dt = 0.02*flag.Lx/flag.Nx
+elif flag.flow == 'IFSC_2D_with_shear':
+    #This CFL is used for the finger with shear...
+    initial_dt=0.2*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)
+
+
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
-cfl.add_velocities(('u','w'))
 
-analysis = solver.evaluator.add_file_handler(flag.name,sim_dt=0.1)
-analysis.add_task('S')
-analysis.add_task('u')
-analysis.add_task('w')
-analysis.add_task('T')
+flag.post_store(solver)
 
-logger.info('Starting loop')
-start_time=time.time()
-while solver.ok:
-    dt = cfl.compute_dt()    
-    solver.step(dt)
-    if solver.iteration % 10 == 0:
-        logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
-
-end_time = time.time()
-
-# Print statistics
-logger.info('Run time: %f' %(end_time-start_time))
-logger.info('Iterations: %i' %solver.iteration)
-logger.info('Run time: %f cpu-hr' %((end_time-start_time)/60/60*domain.dist.comm_cart.size))
+flag.run(solver,cfl,domain,logger)
 
 #merge process data
 post.merge_process_files(flag.name,cleanup=True)
@@ -143,3 +119,12 @@ flag.print_file()
 
 #print the information for post-processing
 #print(subprocess.check_output("find IFSC_2D_without_shear", shell=True).decode())
+
+
+#tau=0.01
+#Pr=7
+
+#R_rho=1/tau/flag.Ra_ratio
+
+
+#Ri=1/1000*Pr*(1-1/R_rho)/tau**2/ks**2

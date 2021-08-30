@@ -1,5 +1,6 @@
 import numpy as np
 from dedalus import public as de
+import time
 
 
 class flag(object):
@@ -16,15 +17,18 @@ class flag(object):
         self.flow='not_defined'
         
         self.Ra_ratio=1# the parameter for IFSC
+        
+        self.post_store_dt=10
         self.ks=1# parameter for the large scale shear in IFSC with shear
         self.F_sin=1# amplitude for the large scale shear in IFSC with shear
         
         self.current_path='./'#This is the current folder path that might need to be specified is run on cluster
     
-    def print_screen(self):
+    def print_screen(self,logger):
         flag_attrs=vars(self)
-        print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
-    
+        #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
+        logger.info(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
+
     def print_file(self):
         flag_text=open(self.current_path+self.name+'/flag.txt','w+')
         flag_attrs=vars(self)
@@ -39,30 +43,36 @@ class flag(object):
         return domain
 
     def governing_equation(self,domain):
-        if self.flow == 'IFSC_2D_without_shear':
+        if self.flow in ['IFSC_2D_without_shear','IFSC_2D_with_shear']:
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
             problem.parameters['Ra_ratio']=self.Ra_ratio
+            if self.flow == 'IFSC_2D_without_shear':
+                problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = 0", condition="(nx!=0) or (nz!=0)")
+            elif self.flow == 'IFSC_2D_with_shear':
+                ##specify the background shear... this is kolmogorov type shear... 
+                problem.parameters['ks']=self.ks
+                problem.parameters['F_sin']=self.F_sin
+                problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)", condition="(nx!=0) or (nz!=0)")
+
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
             problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) +w =-u*dx(S)-w*dz(S) ")
-            problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = 0", condition="(nx!=0) or (nz!=0)")
             problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")
             problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + w =0")
         # This is assumed to be doubly periodic, no boundary conditions
-        elif self.flow == "IFSC_2D_with_shear":
-            problem = de.IVP(domain,variables=['p','u','w','S','T'])
-            problem.parameters['ks']=self.ks
-            problem.parameters['F_sin']=self.F_sin
-            problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-            problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
-            problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
-            problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) +w =-u*dx(S)-w*dz(S) ")
-            problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)", condition="(nx!=0) or (nz!=0)")
-            problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")
-            problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + w =0")
+        #elif self.flow == "IFSC_2D_with_shear":
+        #    problem = de.IVP(domain,variables=['p','u','w','S','T'])
+            
+        #    problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+        #    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+        #    problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
+        #    problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) +w =-u*dx(S)-w*dz(S) ")
+        #    problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")
+        #    problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + w =0")
             #this is triple periodic, no boundary conditions.
         elif self.flow == "channel":
+            problem.parameters['Re']=self.Re
             problem.add_equation("dx(u) + dy(v)+wz=0")
             problem.add_equation("dt(u) - 1/Re*(dx(dx(u)) + dy(dy(u)) + dz(uz) ) + dx(p) = -u*dx(u) - v*dy(u) - w*uz + 2/Re")
             problem.add_equation("dt(v) - 1/Re*(dx(dx(v)) + dy(dy(v)) + dz(vz) ) + dy(p) = -u*dx(v) - v*dy(v) - w*vz")
@@ -82,6 +92,7 @@ class flag(object):
         return problem
 
     def initial_condition(self,domain,solver):
+        #This initial condition also need to be modified
         if self.flow in ['IFSC_2D_without_shear', 'IFSC_2D_with_shear']:
     
             x = domain.grid(0)
@@ -104,5 +115,33 @@ class flag(object):
             T['g'] = -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x) + self.A_noise*noise
             p['g'] = self.A_noise*noise
 
+    def run(self,solver,cfl,domain,logger):
+        ##This CFL condition need to be modified for different simulation configuration.
+        if self.flow in ['IFSC_2D_without_shear', 'IFSC_2D_with_shear']:
+            cfl.add_velocities(('u','w'))
 
+        logger.info('Starting loop')
+        solver.stop_wall_time = np.inf
+        solver.stop_iteration = np.inf
+        start_time=time.time()
+        while solver.ok:
+            dt = cfl.compute_dt()    
+            solver.step(dt)
+            if solver.iteration % 10 == 0:
+                logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
+        
+        end_time = time.time()
+        # Print statistics
+        logger.info('Run time: %f' %(end_time-start_time))
+        logger.info('Iterations: %i' %solver.iteration)
+        logger.info('Run time: %f cpu-hr' %((end_time-start_time)/60/60*domain.dist.comm_cart.size))
 
+        
+    def post_store(self,solver):
+        #This post-processing variable need to be modified for different flow configuration
+        if self.flow in ['IFSC_2D_without_shear','IFSC_2D_with_shear']:
+            analysis = solver.evaluator.add_file_handler(self.name,sim_dt=self.post_store_dt)
+            analysis.add_task('S')
+            analysis.add_task('u')
+            analysis.add_task('w')
+            analysis.add_task('T')
