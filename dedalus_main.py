@@ -22,16 +22,12 @@ flag.Ra_ratio=1.1
 flag.name='IFSC_2D_without_shear'
 flag.path='./'
 
-flag.print_screen()
 flag.current_path='/projects/chli3324/dedalus/'
 flag.flow='IFSC_2D_without_shear'
 flag.A_elevator=1
 flag.A_noise=0
 flag.A_shear=1
-tau=0.01
-Pr=7
 
-R_rho=1/tau/flag.Ra_ratio
 k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
 
 Lx2d = 32
@@ -41,6 +37,13 @@ flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
 flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 
 flag.ks=2*np.pi/flag.Lz
+flag.print_screen()
+
+#tau=0.01
+#Pr=7
+
+#R_rho=1/tau/flag.Ra_ratio
+
 
 #Ri=1/1000*Pr*(1-1/R_rho)/tau**2/ks**2
 Ri=1

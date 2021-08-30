@@ -33,8 +33,8 @@ class flag(object):
         
     def build_domain(self):
         if self.flow in ['IFSC_2D_without_shear', 'IFSC_2D_with_shear']:
-            x_basis = de.Fourier('x', flag.Nx, interval=(0,flag.Lx), dealias=3/2)
-            z_basis = de.Fourier('z', flag.Nz, interval=(0,flag.Lz), dealias=3/2)
+            x_basis = de.Fourier('x', self.Nx, interval=(0,self.Lx), dealias=3/2)
+            z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         return domain
 
