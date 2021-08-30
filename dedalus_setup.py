@@ -1,6 +1,7 @@
 import numpy as np
 from dedalus import public as de
 
+
 class flag(object):
     def __init__(self):
         self.Lx=np.pi
