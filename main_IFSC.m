@@ -12,7 +12,7 @@ clc;
 %folder_name='C:\Data\dedalus\IFSC_2D_with_shear\';
 %folder_name='C:\Data\dedalus\dedalus_12073090\IFSC_2D_without_shear\';
 %folder_name='C:\Data\dedalus\dedalus_12075689\IFSC_2D_with_shear\';
-folder_name='C:\Data\dedalus\dedalus_12080274\IFSC_2D_without_shear\';
+folder_name='C:\Data\dedalus\dedalus_12080412\IFSC_2D_without_shear\';
 
 % folder_name='C:\Data\dedalus\dedalus_12075689\IFSC_2D_with_shear\';
 
