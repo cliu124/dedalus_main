@@ -32,7 +32,7 @@ class flag(object):
 
     def print_file(self):
         flag_text=open(self.current_path+self.name+'/flag.txt','w+')
-        flag_attrs=vars(self)
+        flag_attrs=vars(self,file=flag_text)
         print(', Attributes: Value,\n,')
         print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()),file=flag_text)
         flag_text.close()
