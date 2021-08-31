@@ -34,7 +34,7 @@ flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 
 u_L=1
 flag.ks=2*np.pi/flag.Lz
-flag.F_sin=u_L/flag.ks**2
+flag.F_sin=u_L*flag.ks**2
 flag.print_screen(logger)
 
 domain=flag.build_domain()

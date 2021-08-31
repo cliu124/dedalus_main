@@ -1,0 +1,32 @@
+classdef IFSC_post
+    %IFSC_POST Summary of this class goes here
+    %   Detailed explanation goes here
+    
+    properties
+        Property1
+    end
+    
+    methods
+        function obj = IFSC_post(h5_name)
+            %IFSC_POST Construct an instance of this class
+            %   Detailed explanation goes here
+            h5disp(h5_name);
+            obj.x=h5read(h5_name,'/scales/x/1.0');
+            Nx=length(x);
+            z=h5read(h5_name,'/scales/z/1.0');
+            Nz=length(z);
+            t=h5read(h5_name,'/scales/sim_time');
+            kx_list=h5read(h5_name,'/scales/kx');
+            kz_list=h5read(h5_name,'/scales/kz');
+            Lx=max(x)-min(x)+x(2);
+            Lz=max(z)-min(z)+z(2);
+        end
+        
+        function outputArg = method1(obj,inputArg)
+            %METHOD1 Summary of this method goes here
+            %   Detailed explanation goes here
+            outputArg = obj.Property1 + inputArg;
+        end
+    end
+end
+

@@ -27,11 +27,13 @@ class flag(object):
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
+        logger.info(', Attributes: Value,\n,')
         logger.info(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
 
     def print_file(self):
         flag_text=open(self.current_path+self.name+'/flag.txt','w+')
         flag_attrs=vars(self)
+        print(', Attributes: Value,\n,')
         print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()),file=flag_text)
         flag_text.close()
         
@@ -144,12 +146,12 @@ class flag(object):
             analysis.add_task('S',layout='g',name='S')
             #analysis.add_task('T',layout='g',name='T')
             #analysis.add_task('u',layout='g',name='u')
-            #analysis.add_task('w',layout='g',name='w')
+            analysis.add_task('w',layout='g',name='w')
             
             analysis.add_task("S",layout='c',name='S_coeff')
             #analysis.add_task("T",layout='c',name='T_coeff')
             #analysis.add_task("u",layout='c',name='u_coeff')
-            #analysis.add_task("w",layout='c',name='w_coeff')
+            analysis.add_task("w",layout='c',name='w_coeff')
 
             #analysis.add_system(solver.state,layout = 'c')
 
