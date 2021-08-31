@@ -10,9 +10,9 @@ clc;
 %%These are local folder
 % folder_name='C:\Data\dedalus\IFSC_2D_without_shear\';
 %folder_name='C:\Data\dedalus\IFSC_2D_with_shear\';
-%folder_name='C:\Data\dedalus\dedalus_12073090\IFSC_2D_without_shear\';
-%folder_name='C:\Data\dedalus\dedalus_12075689\IFSC_2D_with_shear\';
-folder_name='C:\Data\dedalus\dedalus_12080412\IFSC_2D_without_shear\';
+folder_name='C:\Data\dedalus\dedalus_12073090\IFSC_2D_without_shear\';
+% folder_name='C:\Data\dedalus\dedalus_12075689\IFSC_2D_with_shear\';
+% folder_name='C:\Data\dedalus\dedalus_12080489\IFSC_2D_without_shear\';
 
 % folder_name='C:\Data\dedalus\dedalus_12075689\IFSC_2D_with_shear\';
 
@@ -23,7 +23,7 @@ folder_name='C:\Data\dedalus\dedalus_12080412\IFSC_2D_without_shear\';
 % file_name='IFSC_2D_without_shear_s1_elevator_short';
 % file_name='IFSC_2D_without_shear_s1_elevator_long';
 % file_name='IFSC_2D_with_shear_s1';
-file_name='IFSC_2D_with_shear_s1';
+file_name='IFSC_2D_without_shear_s1';
 h5_name=[folder_name,file_name,'.h5'];
 
 
@@ -33,7 +33,13 @@ h5_name=[folder_name,file_name,'.h5'];
 S=h5read(h5_name,'/tasks/S');
 S_coeff=h5read(h5_name,'/tasks/S_coeff');
 S_coeff=S_coeff.r+1i*S_coeff.i;
-
+flag.Ra_ratio=1.1;
+IFSC_post_my=IFSC_post(h5_name,flag);
+IFSC_post_my.snapshot_S();
+IFSC_post_my.E_S_time();
+IFSC_post_my.spectrum_S();
+IFSC_post_my.spectrum_S_average();
+error('1')
 
 Ra_ratio=1.1;
 lambda_opt=sqrt(1/2*(-2-Ra_ratio+sqrt(Ra_ratio^2+8*Ra_ratio)))*(3*Ra_ratio-sqrt(Ra_ratio^2+8*Ra_ratio))/(sqrt(Ra_ratio^2+8*Ra_ratio)-Ra_ratio);

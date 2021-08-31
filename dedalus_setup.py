@@ -34,7 +34,7 @@ class flag(object):
         flag_text=open(self.current_path+self.name+'/flag.txt','w+')
         flag_attrs=vars(self)
         print(', Attributes: 123,\n ------\n-------\n------',file=flag_text)
-        print(', test: 123 \n --------',file=flag_text)
+        print(', test: 123,',file=flag_text)
         print(', '+', '.join("%s: %s, \n" % item for item in flag_attrs.items()),file=flag_text)
         flag_text.close()
         
