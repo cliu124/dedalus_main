@@ -26,8 +26,8 @@ flag.A_shear=0
 
 k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
 
-Lx2d = 96
-Lz2d = 32
+Lx2d = 32
+Lz2d = 96
 grid_l_opt=8
 flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
 flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
@@ -35,6 +35,12 @@ flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 u_L=1
 flag.ks=2*np.pi/flag.Lz*2
 flag.F_sin=u_L*flag.ks**2
+flag.post_store_dt=20;
+flag.stop_sim_time=2000;
+
+flag.print_screen(logger)
+
+
 
 domain=flag.build_domain()
 problem=flag.governing_equation(domain)
@@ -45,8 +51,7 @@ solver =  problem.build_solver(ts)
 
 flag.initial_condition(domain,solver)
 
-solver.stop_sim_time = 2000
-flag.post_store_dt=20;
+solver.stop_sim_time = flag.stop_sim_time
 
 if flag.flow == 'IFSC_2D_without_shear':
     initial_dt = 0.02*flag.Lx/flag.Nx
@@ -58,7 +63,6 @@ elif flag.flow == 'IFSC_2D_with_shear':
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
 
 flag.post_store(solver)
-flag.print_screen(logger)
 
 flag.run(solver,cfl,domain,logger)
 

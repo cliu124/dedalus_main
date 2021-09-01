@@ -18,7 +18,8 @@ class flag(object):
         
         self.Ra_ratio=1# the parameter for IFSC
         
-        self.post_store_dt=10
+        self.post_store_dt=1
+        self.stop_sim_time=1
         self.ks=1# parameter for the large scale shear in IFSC with shear
         self.F_sin=1# amplitude for the large scale shear in IFSC with shear
         
@@ -31,7 +32,7 @@ class flag(object):
         logger.info(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
 
     def print_file(self):
-        flag_text=open(self.current_path+self.name+'/flag.txt','w+')
+        flag_text=open(self.current_path+'/analysis'+'/flag.txt','w+')
         flag_attrs=vars(self)
         print(', Attributes: 123,\n ------\n-------\n------',file=flag_text)
         print(', test: 123,',file=flag_text)
