@@ -143,7 +143,7 @@ class flag(object):
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
         if self.flow in ['IFSC_2D_without_shear','IFSC_2D_with_shear']:
-            analysis = solver.evaluator.add_file_handler(self.name,sim_dt=self.post_store_dt)
+            analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_task('S',layout='g',name='S')
             #analysis.add_task('T',layout='g',name='T')
             #analysis.add_task('u',layout='g',name='u')

@@ -10,7 +10,6 @@ clc;
 %%These are local folder
 % folder_name='C:\Data\dedalus\IFSC_2D_without_shear\';
 %folder_name='C:\Data\dedalus\IFSC_2D_with_shear\';
-folder_name='C:\Data\dedalus\dedalus_12073090\IFSC_2D_without_shear\';
 % folder_name='C:\Data\dedalus\dedalus_12075689\IFSC_2D_with_shear\';
 % folder_name='C:\Data\dedalus\dedalus_12080489\IFSC_2D_without_shear\';
 
@@ -23,22 +22,44 @@ folder_name='C:\Data\dedalus\dedalus_12073090\IFSC_2D_without_shear\';
 % file_name='IFSC_2D_without_shear_s1_elevator_short';
 % file_name='IFSC_2D_without_shear_s1_elevator_long';
 % file_name='IFSC_2D_with_shear_s1';
-file_name='IFSC_2D_without_shear_s1';
-h5_name=[folder_name,file_name,'.h5'];
+
+% folder_name='C:\Data\dedalus\dedalus_12073090\IFSC_2D_without_shear\';
+% file_name='IFSC_2D_without_shear_s1';
+% folder_name='C:\Data\dedalus\dedalus_12075689\IFSC_2D_with_shear\';
+% file_name='IFSC_2D_with_shear_s1';
+
+slurm_num={'12073090',...
+    '12073116',...
+    '12075689',...
+    '12083149',...
+    '12083150',...
+    '12083221',...
+    '12083491'
+    }
+
+for slurm_ind=7%1:length(slurm_num)
+    
+    h5_name=['C:\Data\dedalus\dedalus_',...
+        slurm_num{slurm_ind},...
+        '\analysis\analysis_s1.h5'];
+    % file_name='';
+    % h5_name=[folder_name,file_name,'.h5'];
 
 
-% u=h5read(h5_name,'/tasks/u');
-% w=h5read(h5_name,'/tasks/w');
-% T=h5read(h5_name,'/tasks/T');
-S=h5read(h5_name,'/tasks/S');
-S_coeff=h5read(h5_name,'/tasks/S_coeff');
-S_coeff=S_coeff.r+1i*S_coeff.i;
-flag.Ra_ratio=1.1;
-IFSC_post_my=IFSC_post(h5_name,flag);
-IFSC_post_my.snapshot_S();
-IFSC_post_my.E_S_time();
-IFSC_post_my.spectrum_S();
-IFSC_post_my.spectrum_S_average();
+    % u=h5read(h5_name,'/tasks/u');
+    % w=h5read(h5_name,'/tasks/w');
+    % T=h5read(h5_name,'/tasks/T');
+    S=h5read(h5_name,'/tasks/S');
+    S_coeff=h5read(h5_name,'/tasks/S_coeff');
+    S_coeff=S_coeff.r+1i*S_coeff.i;
+    flag.Ra_ratio=1.1;
+    set(0,'DefaultFigureVisible','on')
+    IFSC_post_my=IFSC_post(h5_name,flag);
+    IFSC_post_my=IFSC_post_my.E_S_time();
+    IFSC_post_my=IFSC_post_my.spectrum_S_average();
+    IFSC_post_my=IFSC_post_my.snapshot_S();
+    IFSC_post_my=IFSC_post_my.spectrum_S_snapshot();
+end
 error('1')
 
 Ra_ratio=1.1;

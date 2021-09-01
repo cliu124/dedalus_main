@@ -18,7 +18,7 @@ shutil.rmtree('analysis',ignore_errors=True)
 logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
 flag.Ra_ratio=1.1
-flag.flow='IFSC_2D_without_shear'
+flag.flow='IFSC_2D_with_shear'
 flag.name=flag.flow
 flag.A_elevator=1
 flag.A_noise=0
@@ -26,16 +26,15 @@ flag.A_shear=0
 
 k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
 
-Lx2d = 32
+Lx2d = 96
 Lz2d = 32
 grid_l_opt=8
 flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
 flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 
 u_L=1
-flag.ks=2*np.pi/flag.Lz
+flag.ks=2*np.pi/flag.Lz*2
 flag.F_sin=u_L*flag.ks**2
-flag.print_screen(logger)
 
 domain=flag.build_domain()
 problem=flag.governing_equation(domain)
@@ -46,24 +45,25 @@ solver =  problem.build_solver(ts)
 
 flag.initial_condition(domain,solver)
 
-solver.stop_sim_time = 1000
-flag.post_store_dt=10;
+solver.stop_sim_time = 2000
+flag.post_store_dt=20;
 
 if flag.flow == 'IFSC_2D_without_shear':
     initial_dt = 0.02*flag.Lx/flag.Nx
 elif flag.flow == 'IFSC_2D_with_shear':
     #This CFL is used for the finger with shear...
-    initial_dt=0.2*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)
+    initial_dt=0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)
 
 
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
 
 flag.post_store(solver)
+flag.print_screen(logger)
 
 flag.run(solver,cfl,domain,logger)
 
 #merge process data
-post.merge_process_files(flag.name,cleanup=True)
+post.merge_process_files('analysis',cleanup=True)
 flag.print_file()
 
 

@@ -52,7 +52,7 @@ classdef IFSC_post
             obj.Lz=max(obj.z_list)-min(obj.z_list)+obj.z_list(2);
         end
         
-        function snapshot_S(obj)
+        function obj=snapshot_S(obj)
             obj.S=h5read(obj.h5_name,'/tasks/S');
 
             for t_ind=1:length(obj.t_list)
@@ -69,27 +69,51 @@ classdef IFSC_post
             end
         end
         
-        function spectrum_S_snapshot(obj)
+        function obj=spectrum_S_snapshot(obj)
             S_coeff=h5read(obj.h5_name,'/tasks/S_coeff');
             obj.S_coeff=S_coeff.r+1i*S_coeff.i;
             for t_ind=1:length(obj.t_list)
+                clear data plot_config;
                 data{1}.x=obj.kx_list/obj.k_opt;
                 data{1}.y=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
-                data{1}.z=log10(abs(obj.S_coeff(1:obj.Nz/2,:,t_ind)));
+                data{1}.z=log10(abs(obj.S_coeff(1:obj.Nz/2,:,t_ind)).^2);
                 plot_config.zlim_list=[1,-3,0];
                 plot_config.xlim_list=[1,0,2];
-                plot_config.ylim_list=[1,-2,2];
+                plot_config.ylim_list=[1,0,2];
+                plot_config.xtick_list=[1,0,1,2];
+                plot_config.ytick_list=[1,0,1,2];
                 plot_config.ztick_list=[1,-3,-2,-1,0];
                 plot_config.print_size=[1,1100,900];
+                plot_config.loglog=[0,0];
+                %plot_config.xtick_list=[0.01,0.1,1,10];
+                
                 plot_config.label_list={1,'$k/k_{opt}$','$m/k_{opt}$'};
                 plot_config.colormap='white_zero';
-                plot_config.name=[obj.h5_name(1:end-3),'_spectrum_S_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
+                plot_config.name=[obj.h5_name(1:end-3),'_spectrum_S_2D_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
                 plot_contour(data,plot_config);
+                
+                dx=diff(obj.kx_list); dx=dx(1);
+                dz=diff(obj.kz_list); dz=dz(1);
+                
+                data{1}.x=obj.kx_list/obj.k_opt;
+                data{1}.y=2*dz*sum(abs(obj.S_coeff(1:obj.Nz/2,:,t_ind)).^2,1);
+                data{2}.x=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
+                data{2}.y=2*dx*sum(abs(obj.S_coeff(1:obj.Nz/2,:,t_ind)).^2,2);
+                plot_config.loglog=[1,1];
+                plot_config.ytick_list=[1,0.001,0.01,0.1,1,10,100,1000];
+                plot_config.ylim_list=[0];%,0.1,10];
+                plot_config.xtick_list=[1,0.001,0.01,0.1,1,10,100];
+                plot_config.label_list={1,'$k_x/k_{opt}$ or $k_z/k_{opt}$',''};
+                plot_config.legend_list={1,'$\int E_S(k_x,k_z)dk_z$','$\int E_S(k_x,k_z)d k_x$'};
+                plot_config.name=[obj.h5_name(1:end-3),'_spectrum_S_1D_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
+
+                plot_line(data,plot_config);
+                
             end
            
         end
         
-        function spectrum_S_average(obj)
+        function obj=spectrum_S_average(obj)
             %%This function plot the 
             %%plot the overall spectrum
             S_coeff=h5read(obj.h5_name,'/tasks/S_coeff');
@@ -104,16 +128,17 @@ classdef IFSC_post
             [val,max_ind]=max(obj.E_S);
 %             t_grow=obj.t_list(1:max_ind);
             
-            spectrum_S_average=mean(abs(obj.S_coeff(1:obj.Nz/2,:,3*max_ind:end)),3);
+            spectrum_S_average=mean(abs(obj.S_coeff(1:obj.Nz/2,:,3*max_ind:end)).^2,3);
             data{1}.z=log10(spectrum_S_average);
             plot_config.zlim_list=[1,-3,0];
             plot_config.xlim_list=[1,0,2];
             plot_config.ylim_list=[1,0,2];
+            plot_config.loglog=[0,0];
             plot_config.ztick_list=[1,-3,-2,-1,0];
             plot_config.print_size=[1,1100,900];
             plot_config.label_list={1,'$k/k_{opt}$','$m/k_{opt}$'};
             plot_config.colormap='white_zero';
-            plot_config.name=[obj.h5_name(1:end-3),'_spectrum_S_time_average.png'];
+            plot_config.name=[obj.h5_name(1:end-3),'_spectrum_S_2D_time_average.png'];
             plot_contour(data,plot_config);
             
             dx=diff(obj.kx_list); dx=dx(1);
@@ -128,9 +153,14 @@ classdef IFSC_post
              plot_config.ylim_list=[0];%,0.1,10];
             plot_config.label_list={1,'$k_x/k_{opt}$ or $k_z/k_{opt}$',''};
             plot_config.legend_list={1,'$\int E_S(k_x,k_z)dk_z$','$\int E_S(k_x,k_z)d k_x$'};
+            plot_config.name=[obj.h5_name(1:end-3),'_spectrum_S_1D_time_average.png'];
             plot_line(data,plot_config);
         end
-        function E_S_time(obj,elevator_growth_rate)
+        
+        
+        
+        
+        function obj=E_S_time(obj,elevator_growth_rate)
             if nargin<2 || isempty(elevator_growth_rate)
                 elevator_growth_rate=0;    
                 %flag.mean='laminar_cou';   %%default value of flag_mean if not given, just set the laminar  flow.
