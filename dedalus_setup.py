@@ -61,12 +61,20 @@ class flag(object):
                 problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = 0", condition="(nx!=0) or (nz!=0)")
             elif self.flow == 'IFSC_2D_with_shear':
                 ##specify the background shear... this is kolmogorov type shear... 
+                ##This is the amplitude and wavenumber of the fundamental frequency forcing
                 problem.parameters['ks']=self.ks
                 problem.parameters['F_sin']=self.F_sin
+                
+                ##Amplitude of the other frequency
                 problem.parameters['F_sin_2ks']=self.F_sin_2ks
                 problem.parameters['F_sin_3ks']=self.F_sin_3ks
                 problem.parameters['F_sin_4ks']=self.F_sin_4ks
-                problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z)+F_sin_3ks*sin(3*ks*z)+F_sin_4ks*sin(4*ks*z)", condition="(nx!=0) or (nz!=0)")
+                
+                ##phase of other frequency
+                problem.parameters['phase_2ks']=self.phase_2ks
+                problem.parameters['phase_3ks']=self.phase_3ks
+                problem.parameters['phase_4ks']=self.phase_4ks
+                problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks)", condition="(nx!=0) or (nz!=0)")
 
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
