@@ -1,4 +1,4 @@
-function plot_contour(data,plot_config)
+function frame=plot_contour(data,plot_config)
 
 %%%This plot is used to plot the contour.
 %%Input: data, is a cell, each cell is a structure containing x, y, z field
@@ -46,7 +46,7 @@ function plot_contour(data,plot_config)
 field_all={'label_list','title_list','xlim_list','ylim_list','colormap',...
   'xtick_list','ytick_list','ztick_list','name','zlim_list','loglog','print_size','print','resolution','panel_num','marker_face_index','contour_line',...
   'axis_2','label_list_2','xlim_list_2','ylim_list_2','xtick_list_2','ytick_list_2','loglog_2','x_reverse','y_reverse','fontsize','markersize','linewidth','format','xticklabels_list','yticklabels_list','axis_equal',...
-  'xtick_visible','ytick_visible','colormap_discrete' }; %%Update 2021/02/25, add the option that I can remove the tick...
+  'xtick_visible','ytick_visible','colormap_discrete','visible' }; %%Update 2021/02/25, add the option that I can remove the tick...
 %%Add the default field for the plotting with double axis. Update: 2019/08/20
 %%add the property to setup the fontsize, the default value is 40.
 %%add 
@@ -54,14 +54,19 @@ field_all={'label_list','title_list','xlim_list','ylim_list','colormap',...
 field_default={{0},{0},0,0,'jet',...
     0,0,0,'test',0,[0,0],0,1,300,1,zeros(length(data)),0,...
     0,{0},0,0,0,0,[0,0],0,0,40,9,1.5,'png',{0},{0},0,...
-    1,1,0};%%Add the default field for the plotting with double axis. Update: 2019/08/20
+    1,1,0,1};%%Add the default field for the plotting with double axis. Update: 2019/08/20
 field_no_list=find(~isfield(plot_config,field_all)); %%fine whether there is already the field in the plot_config
 for i=field_no_list
   plot_config.(field_all{i})=field_default{i};
 end
 
 close all;
-figure(1)%%Plot these lines trying to reproduce figure 4 in Ahmadi et al. (2018)
+if plot_config.visible
+    h=figure;%%Plot these lines trying to reproduce figure 4 in Ahmadi et al. (2018)
+else
+    h=figure('Visible','Off');
+end
+
 set(gcf,'color','white');
 
 
@@ -453,5 +458,8 @@ if plot_config.print
              print(gcf,'-depsc','-tiff',strcat('-r',num2str(plot_config.resolution)),plot_config.name);
     end
 end
+
+frame=getframe(h);
+
 end
 

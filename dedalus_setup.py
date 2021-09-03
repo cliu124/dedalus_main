@@ -22,6 +22,13 @@ class flag(object):
         self.stop_sim_time=1
         self.ks=1# parameter for the large scale shear in IFSC with shear
         self.F_sin=1# amplitude for the large scale shear in IFSC with shear
+        self.F_sin_2ks=0
+        self.F_sin_3ks=0
+        self.F_sin_4ks=0
+        
+        self.phase_2ks=0
+        self.phase_3ks=0
+        self.phase_4ks=0
         
         self.current_path='./'#This is the current folder path that might need to be specified is run on cluster
     
@@ -56,7 +63,10 @@ class flag(object):
                 ##specify the background shear... this is kolmogorov type shear... 
                 problem.parameters['ks']=self.ks
                 problem.parameters['F_sin']=self.F_sin
-                problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)", condition="(nx!=0) or (nz!=0)")
+                problem.parameters['F_sin_2ks']=self.F_sin_2ks
+                problem.parameters['F_sin_3ks']=self.F_sin_3ks
+                problem.parameters['F_sin_4ks']=self.F_sin_4ks
+                problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z)+F_sin_3ks*sin(3*ks*z)+F_sin_4ks*sin(4*ks*z)", condition="(nx!=0) or (nz!=0)")
 
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
@@ -114,7 +124,12 @@ class flag(object):
             
             k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
             w['g'] = self.A_elevator*np.sin(k_opt*x) + self.A_noise*noise
-            u['g'] = self.A_noise*noise + self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)
+            u['g'] = self.A_noise*noise \
+                + self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
+                + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
+                + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
+                + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
+                
             S['g'] = -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x) + self.A_noise*noise
             T['g'] = -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x) + self.A_noise*noise
             p['g'] = self.A_noise*noise
@@ -147,12 +162,12 @@ class flag(object):
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_task('S',layout='g',name='S')
             #analysis.add_task('T',layout='g',name='T')
-            #analysis.add_task('u',layout='g',name='u')
+            analysis.add_task('u',layout='g',name='u')
             analysis.add_task('w',layout='g',name='w')
             
             analysis.add_task("S",layout='c',name='S_coeff')
             #analysis.add_task("T",layout='c',name='T_coeff')
-            #analysis.add_task("u",layout='c',name='u_coeff')
+            analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
 
             #analysis.add_system(solver.state,layout = 'c')

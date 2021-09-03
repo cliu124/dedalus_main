@@ -26,15 +26,29 @@ flag.A_shear=0
 
 k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
 
-Lx2d = 32
-Lz2d = 96
+Lx2d = 8
+Lz2d = 24
 grid_l_opt=8
 flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
 flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 
 u_L=1
+u_L_2ks=0
+u_L_3ks=0
+u_L_4ks=0
+
 flag.ks=2*np.pi/flag.Lz*2
+
 flag.F_sin=u_L*flag.ks**2
+flag.F_sin_2ks=u_L_2ks*(2*flag.ks)**2
+flag.F_sin_3ks=u_L_3ks*(3*flag.ks)**2
+flag.F_sin_4ks=u_L_4ks*(4*flag.ks)**2
+
+flag.phase_2ks=0
+flag.phase_3ks=0
+flag.phase_4ks=0
+
+
 flag.post_store_dt=20;
 flag.stop_sim_time=2000;
 

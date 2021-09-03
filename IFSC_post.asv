@@ -338,10 +338,10 @@ classdef IFSC_post
         
         function obj=S_x_ave(obj)
             data{1}.x=obj.t_list;
-            data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{1}.y=obj.z_list/obj.;
             obj.S=h5read(obj.h5_name,'/tasks/S');
             data{1}.z=squeeze(mean(obj.S,2));
-            plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+            plot_config.label_list={1,'$t$','$z$'};
             plot_config.colormap='bluewhitered';
             plot_config.print_size=[1,1200,1200];
             plot_config.print=obj.print;
@@ -352,10 +352,10 @@ classdef IFSC_post
         
         function obj=w_x_ave(obj)
             data{1}.x=obj.t_list;
-            data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{1}.y=obj.z_list;
             obj.w=h5read(obj.h5_name,'/tasks/w');
             data{1}.z=squeeze(mean(obj.w,2));
-            plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+            plot_config.label_list={1,'$t$','$z$'};
             plot_config.colormap='bluewhitered';
             plot_config.print_size=[1,1200,1200];
             plot_config.print=obj.print;

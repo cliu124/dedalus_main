@@ -1,4 +1,4 @@
-function plot_line(data,plot_config)
+function frame=plot_line(data,plot_config)
 %plot_line Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -57,8 +57,8 @@ function plot_line(data,plot_config)
 %%---------Set default input:
 field_all={'label_list','title_list','xlim_list','ylim_list','legend_list',...
   'xtick_list','ytick_list','name','Markerindex','user_color_style_marker_list'...
-  ,'print_size','print','resolution','loglog','marker_face_index','fontsize','fontsize_legend','markersize','linewidth','xticklabels_list','yticklabels_list'}; %%add the linewidth flag and default value is 1.5
-field_default={{0},{0},0,0,{0},0,0,'test',1,0,0,1,300,[0,0],zeros(length(data)),40,40,12,1.5,{0},{0}};
+  ,'print_size','print','resolution','loglog','marker_face_index','fontsize','fontsize_legend','markersize','linewidth','xticklabels_list','yticklabels_list','visible'}; %%add the linewidth flag and default value is 1.5
+field_default={{0},{0},0,0,{0},0,0,'test',1,0,0,1,300,[0,0],zeros(length(data)),40,40,12,1.5,{0},{0},1};
 field_no_list=find(~isfield(plot_config,field_all)); %%fine whether there is already the field in the plot_config
 for i=field_no_list
   plot_config.(field_all{i})=field_default{i};
@@ -80,7 +80,14 @@ switch plot_config.Markerindex
     disp('Please input correct marker index');
 end
 close all;
-figure(1)%%Plot these lines trying to reproduce figure 4 in Ahmadi et al. (2018)
+
+if plot_config.visible
+    h=figure;%%Plot these lines trying to reproduce figure 4 in Ahmadi et al. (2018)
+else
+    h=figure('Visible','Off');
+end
+
+%h=figure(1)%%Plot these lines trying to reproduce figure 4 in Ahmadi et al. (2018)
 set(gcf,'color','white');
 
 %%The data are stored as the column vector
@@ -155,5 +162,8 @@ if plot_config.print
     set(gcf,'PaperPositionMode', 'auto');
     print(gcf,'-dpng',strcat('-r',num2str(plot_config.resolution)),plot_config.name);
 end
+
+frame=getframe(h);
+
 end
 
