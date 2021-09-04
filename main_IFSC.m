@@ -48,28 +48,47 @@ slurm_num={'12073090',... %%without shear, 32*32, A_elevator=1, A_noise=0
     '12089740',...%%with shear, 32*32, A_elevator=1, A_noise=0, A_shear=1, long time up to 20000
     '12089741',...%%with shear, 32*96, A_elevator=1, A_noise=0.01
     '12090288',...%%with shear 8*8, A_elevator=1, A_noise=0.01, A_shear=0
+    '12099609',...%%with shear 8*24, ks=2*2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 0.001240885014416157
+    '12099641',...%%with shear 8*24, ks=2*2pi/Lz, A_elevator=1, A_noise=0.01, u_L=0.1, F_sin: 0.0001240885014416157
+    '12099647',...%%with shear 8*24, ks=2*2pi/Lz, A_elevator=1, A_noise=0.01, u_L=0.01, F_sin: 0.00001240885014416157
+    '12099955',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=0.01, F_sin: 3.1022125360403927e-06, 
+    '12099956',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=0.1, F_sin: 3.1022125360403927e-05, 
+    '12099957',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 3.1022125360403927e-04, 
+    '12100768',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 3.1022125360403927e-04, F_sin_2ks: 0.001240885014416157, 
+    '12100769',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 0.00031022125360403925, F_sin_2ks: 0.001240885014416157, F_sin_3ks: 0.0027919912824363536, 
+    '12100793',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 0.00031022125360403925, F_sin_2ks: 0.001240885014416157, F_sin_3ks: 0.0027919912824363536, F_sin_4ks: 0.004963540057664628, 
+    '12100794',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 3.1022125360403927e-04, F_sin_2ks: 0.001240885014416157, phase_2ks: pi/2
+    '12100795',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 0.00031022125360403925, F_sin_2ks: 0.001240885014416157, phase_2ks: pi/4
     'end'};
 %     '12089742',...
 
 flag.print=1;
 flag.video=1;
 flag.visible=1;
-for slurm_ind=length(slurm_num)-1%-3:length(slurm_num)-1
+for slurm_ind=10:length(slurm_num)-1%-3:length(slurm_num)-1
     %%change the path into D... just store data in the external disk...
     h5_name=['D:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...
         '\analysis\analysis_s1.h5'];
 
-    set(0,'DefaultFigureVisible','on')
-    IFSC_post_my=IFSC_post(h5_name,flag);
-    IFSC_post_my=IFSC_post_my.S_x_ave();
-    IFSC_post_my=IFSC_post_my.w_x_ave();
-    %IFSC_post_my=IFSC_post_my.spectrum_TKE_average();
-    IFSC_post_my=IFSC_post_my.E_S_time();
-    IFSC_post_my=IFSC_post_my.spectrum_S_average();
-    IFSC_post_my.print=0; IFSC_post_my.visible=0;
-    IFSC_post_my=IFSC_post_my.snapshot_S();
-    IFSC_post_my=IFSC_post_my.spectrum_S_snapshot();
+     set(0,'DefaultFigureVisible','on')
+     IFSC_post_my{slurm_ind}=IFSC_post(h5_name,flag);
+     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_x_ave();
+     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.w_x_ave();
+     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
+     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
+%     %IFSC_post_my=IFSC_post_my.spectrum_TKE_average();
+%     IFSC_post_my=IFSC_post_my.E_S_time();
+%     IFSC_post_my=IFSC_post_my.spectrum_S_average();
+%     IFSC_post_my.print=0; IFSC_post_my.visible=0;
+%     IFSC_post_my=IFSC_post_my.snapshot_S();
+%     IFSC_post_my=IFSC_post_my.spectrum_S_snapshot();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_laminar();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_TKE_time();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.uS_ave();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.wS_ave();
+
 end
 
 
