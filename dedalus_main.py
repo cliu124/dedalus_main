@@ -37,7 +37,7 @@ u_L_2ks=0
 u_L_3ks=0
 u_L_4ks=0
 
-flag.ks=2*np.pi/flag.Lz*2
+flag.ks=2*np.pi/flag.Lz
 
 flag.F_sin=u_L*flag.ks**2
 flag.F_sin_2ks=u_L_2ks*(2*flag.ks)**2

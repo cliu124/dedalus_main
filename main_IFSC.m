@@ -65,7 +65,7 @@ slurm_num={'12073090',... %%without shear, 32*32, A_elevator=1, A_noise=0
 flag.print=1;
 flag.video=1;
 flag.visible=1;
-for slurm_ind=10:length(slurm_num)-1%-3:length(slurm_num)-1
+for slurm_ind=length(slurm_num)-10:length(slurm_num)-1%-3:length(slurm_num)-1
     %%change the path into D... just store data in the external disk...
     h5_name=['D:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...
@@ -86,8 +86,11 @@ for slurm_ind=10:length(slurm_num)-1%-3:length(slurm_num)-1
     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_laminar();
     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_TKE_time();
     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
-    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.uS_ave();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.wS_ave();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.uS_x_ave();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.wS_x_ave();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_total_xt_ave();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.T_total_xt_ave();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_total_xt_ave();
 
 end
 

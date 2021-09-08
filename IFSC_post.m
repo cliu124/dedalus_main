@@ -508,7 +508,7 @@ classdef IFSC_post
             plot_contour(data,plot_config);
         end
         
-        function obj=uS_ave(obj)
+        function obj=uS_x_ave(obj)
             %%plot the streamwise averaged uS
             %%as a function of z (vertical axis) and time
             %%Here, u is fluctuations that need to call u_fluctuation_read.
@@ -527,7 +527,7 @@ classdef IFSC_post
             plot_contour(data,plot_config);
         end
         
-        function obj=wS_ave(obj)
+        function obj=wS_x_ave(obj)
             %%plot the streamwise averaged wS
             %%as a function of z (vertical axis) and time
             
@@ -545,6 +545,60 @@ classdef IFSC_post
             plot_contour(data,plot_config);
         end
         
+        function obj=S_total_xt_ave(obj)
+            S=h5read(obj.h5_name,'/tasks/S');
+            data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{1}.x=obj.z_list;
+            data{2}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{2}.x=squeeze(mean(mean(S,2),3))+obj.z_list;
+            plot_config.ylim_list=[1,min(data{1}.y),max(data{1}.y)];
+            plot_config.label_list={1,'','$z/l_{opt}$'};
+            plot_config.legend_list={1,'$\bar{S}$','$\bar{S}+S$'}
+            plot_config.print_size=[1,1200,1200];
+            plot_config.print=obj.print;
+            plot_config.name=[obj.h5_name(1:end-3),'_S_total_xt_ave.png'];
+            plot_line(data,plot_config);
+        end
+        
+        function obj=T_total_xt_ave(obj)
+%             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+            T=h5read(obj.h5_name,'/tasks/T');
+            data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{1}.x=obj.z_list;
+            data{2}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{2}.x=squeeze(mean(mean(T,2),3))+obj.z_list;
+            plot_config.ylim_list=[1,min(data{1}.y),max(data{1}.y)];
+            plot_config.label_list={1,'','$z/l_{opt}$'};
+            plot_config.legend_list={1,'$\bar{T}$','$\bar{T}+T$'}
+            plot_config.print_size=[1,1200,1200];
+            plot_config.print=obj.print;
+            plot_config.name=[obj.h5_name(1:end-3),'_T_total_xt_ave.png'];
+            plot_line(data,plot_config);
+        end
+        
+        function obj=u_total_xt_ave(obj)
+            u=h5read(obj.h5_name,'/tasks/u');
+            syms z;
+            u_laminar=obj.F_sin/obj.ks^2*sin(obj.ks*z)...
+                      +obj.F_sin_2ks/(2*obj.ks)^2*sin(2*obj.ks*z+obj.phase_2ks)...
+                      +obj.F_sin_3ks/(3*obj.ks)^2*sin(3*obj.ks*z+obj.phase_3ks)...
+                      +obj.F_sin_4ks/(4*obj.ks)^2*sin(4*obj.ks*z+obj.phase_4ks);
+            u_laminar_num=double(subs(u_laminar,z,obj.z_list));
+            
+            
+            data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{1}.x=u_laminar_num;
+            
+            data{2}.y=obj.z_list/(2*pi/obj.k_opt);
+            data{2}.x=squeeze(mean(mean(u,2),3));
+            plot_config.ylim_list=[1,min(data{1}.y),max(data{1}.y)];
+            plot_config.label_list={1,'','$z/l_{opt}$'};
+            plot_config.legend_list={1,'$\bar{U}$','$\bar{U}+u$'};
+            plot_config.print_size=[1,1200,1200];
+            plot_config.print=obj.print;
+            plot_config.name=[obj.h5_name(1:end-3),'_u_total_xt_ave.png'];
+            plot_line(data,plot_config);
+        end
         
     end
 end
