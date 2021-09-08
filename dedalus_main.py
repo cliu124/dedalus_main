@@ -21,7 +21,7 @@ flag.Ra_ratio=1.1
 flag.flow='IFSC_2D_with_shear'
 flag.name=flag.flow
 flag.A_elevator=1
-flag.A_noise=0
+flag.A_noise=0.01
 flag.A_shear=0
 
 k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
@@ -71,7 +71,7 @@ if flag.flow == 'IFSC_2D_without_shear':
     initial_dt = 0.02*flag.Lx/flag.Nx
 elif flag.flow == 'IFSC_2D_with_shear':
     #This CFL is used for the finger with shear...
-    initial_dt=0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)
+    initial_dt=np.min([0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2),0.02*flag.Lx/flag.Nx])
 
 
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)

@@ -59,13 +59,20 @@ slurm_num={'12073090',... %%without shear, 32*32, A_elevator=1, A_noise=0
     '12100793',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 0.00031022125360403925, F_sin_2ks: 0.001240885014416157, F_sin_3ks: 0.0027919912824363536, F_sin_4ks: 0.004963540057664628, 
     '12100794',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 3.1022125360403927e-04, F_sin_2ks: 0.001240885014416157, phase_2ks: pi/2
     '12100795',...%%with shear 8*24, ks=2pi/Lz, A_elevator=1, A_noise=0.01, u_L=1, F_sin: 0.00031022125360403925, F_sin_2ks: 0.001240885014416157, phase_2ks: pi/4
+    '12131253',...%%with shear, 8*24, ks: 0.4227143741061175, A_elevator=1, A_noise=0, u_L=1,
+    '12131254',...%%with shear, 8*24, ks: 0.10567859352652938, A_elevator=1, A_noise=0, u_L=1,
+    '12131256',...%%with shear, 8*24, ks: 0.07045239568435291, A_elevator=1, A_noise=0, u_L=1,
+    '12131257',...%%with shear, 8*24, ks: 0.21135718705305875, A_elevator=1, A_noise=0, u_L=1,
+    '12131258',...%%with shear, 8*24, ks: 0.05283929676326469, A_elevator=1, A_noise=0, u_L=1,
+    '12131259',...%%with shear, 8*24, ks: 0.035226197842176454, A_elevator=1, A_noise=0, u_L=1,
+    '12131260',...%%with shear, 8*24, ks=ks: 0.017613098921088227, A_elevator=1, A_noise=0, u_L=1,
     'end'};
 %     '12089742',...
 
 flag.print=1;
 flag.video=1;
 flag.visible=1;
-for slurm_ind=length(slurm_num)-10:length(slurm_num)-1%-3:length(slurm_num)-1
+for slurm_ind=length(slurm_num)-7:length(slurm_num)-1%-3:length(slurm_num)-1
     %%change the path into D... just store data in the external disk...
     h5_name=['D:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...
@@ -73,25 +80,26 @@ for slurm_ind=length(slurm_num)-10:length(slurm_num)-1%-3:length(slurm_num)-1
 
      set(0,'DefaultFigureVisible','on')
      IFSC_post_my{slurm_ind}=IFSC_post(h5_name,flag);
-     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_x_ave();
-     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.w_x_ave();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_x_ave();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.w_x_ave();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
      %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
-     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
-%     %IFSC_post_my=IFSC_post_my.spectrum_TKE_average();
-%     IFSC_post_my=IFSC_post_my.E_S_time();
-%     IFSC_post_my=IFSC_post_my.spectrum_S_average();
-%     IFSC_post_my.print=0; IFSC_post_my.visible=0;
-%     IFSC_post_my=IFSC_post_my.snapshot_S();
-%     IFSC_post_my=IFSC_post_my.spectrum_S_snapshot();
-    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_laminar();
-    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_TKE_time();
-    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
-    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.uS_x_ave();
-    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.wS_x_ave();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_total_xt_ave();
-    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.T_total_xt_ave();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_S_time();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_S_average();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_total_xt_ave();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.T_total_xt_ave();
     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_total_xt_ave();
-
+    
+     IFSC_post_my{slurm_ind}.print=0; IFSC_post_my{slurm_ind}.visible=0;
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.snapshot_S();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_S_snapshot();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_laminar();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_TKE_time();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.uS_x_ave();
+    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.wS_x_ave();
+    
 end
 
 
