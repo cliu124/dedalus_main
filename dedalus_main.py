@@ -17,7 +17,7 @@ shutil.rmtree('analysis',ignore_errors=True)
 
 logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
-flag.Ra_ratio=1.1
+flag.Ra_ratio=5
 flag.flow='IFSC_2D_with_shear'
 flag.name=flag.flow
 flag.A_elevator=1
@@ -68,10 +68,10 @@ flag.initial_condition(domain,solver)
 solver.stop_sim_time = flag.stop_sim_time
 
 if flag.flow == 'IFSC_2D_without_shear':
-    initial_dt = 0.02*flag.Lx/flag.Nx
+    initial_dt = 0.02*flag.Lx/flag.Nx/flag.Ra_ratio**2
 elif flag.flow == 'IFSC_2D_with_shear':
     #This CFL is used for the finger with shear...
-    initial_dt=np.min([0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2),0.02*flag.Lx/flag.Nx])
+    initial_dt=np.min([0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio**2,0.02*flag.Lx/flag.Nx/flag.Ra_ratio**2])
 
 
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
