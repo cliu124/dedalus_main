@@ -32,6 +32,12 @@ class flag(object):
         
         self.current_path='./'#This is the current folder path that might need to be specified is run on cluster
     
+        #These two values as one corresponds to the salf finger
+        #If both of them are set as -1, then we have the diffusive regime
+        ##IFSC should also apply in that regime...
+        self.dy_T_mean=1
+        self.dy_S_mean=1
+    
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -57,6 +63,9 @@ class flag(object):
         if self.flow in ['IFSC_2D_without_shear','IFSC_2D_with_shear']:
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
             problem.parameters['Ra_ratio']=self.Ra_ratio
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
+            
             if self.flow == 'IFSC_2D_without_shear':
                 problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = 0", condition="(nx!=0) or (nz!=0)")
             elif self.flow == 'IFSC_2D_with_shear':
@@ -79,9 +88,9 @@ class flag(object):
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
-            problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) +w =-u*dx(S)-w*dz(S) ")
+            problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
             problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")
-            problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + w =0")
+            problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =0")
         # This is assumed to be doubly periodic, no boundary conditions
         #elif self.flow == "IFSC_2D_with_shear":
         #    problem = de.IVP(domain,variables=['p','u','w','S','T'])

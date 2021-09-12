@@ -70,14 +70,18 @@ slurm_num={'12073090',... %%without shear, 32*32, A_elevator=1, A_noise=0
     '12132197',...%with shear, 8*24, ks: 0.017613098921088227, A_elevator=1, A_noise=0.01, u_L=10^{-5}, F_sin: 3.1022125360403926e-09, 
     '12132206',...%with shear, 8*24, ks: 0.017613098921088227, A_elevator=1, A_noise=0.01, u_L=10^{-4}, F_sin: 3.1022125360403926e-08, 
     '12132211',...%with shear 8*24, ks: 0.017613098921088227,A_elevator=1, A_noise=0.01, u_L=10^{-3}, F_sin: 3.1022125360403926e-07, 
-    '12132400',...%%with shear 8*24, ks: 0.017613098921088227,A_elevator=1, A_noise=0.01, u_L=1, Ra_ratio=5
+    '12132414',...%%with shear 8*24, ks: 0.017613098921088227,A_elevator=1, A_noise=0.01, u_L=1, Ra_ratio=5
+    '12132615',...%%with shear, 8*24, ks: 0.017613098921088227,A_elevator=1, A_noise=0.01, u_L=10, Ra_ratio=1.1
+    '12132761',...%%with shear, 8*24,  ks: 0.017613098921088227,A_elevator=1, A_noise=0.01, u_L=10, Ra_ratio=2, time up to 1000
+    '12132764',...%%with shear, 8*24, ks: 0.017613098921088227,A_elevator=1, A_noise=0.01, u_L=1, Ra_ratio=5, time up to 500
+    '12135159',...%%with shear, 8*24, ks=0.0176, A_elevator=1, A_noise=0.01, u_
     'end'};
 %     '12089742',...
 
 flag.print=1;
 flag.video=1;
 flag.visible=1;
-for slurm_ind=length(slurm_num)-1%-3:length(slurm_num)-1
+for slurm_ind=length(slurm_num)-3:length(slurm_num)-1
     %%change the path into D... just store data in the external disk...
     h5_name=['D:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...

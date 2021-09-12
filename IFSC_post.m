@@ -126,7 +126,7 @@ classdef IFSC_post
                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
                 data{1}.z=obj.S(:,:,t_ind);
                 plot_config.fontsize=28;
-                plot_config.zlim_list=[1,-3.5,3.5];
+                plot_config.zlim_list=[0,-3.5,3.5];
                 plot_config.label_list={1,'$x/l_{opt}$','$z/l_{opt}$'};
                 plot_config.colormap='bluewhitered';%bluewhitered
                 plot_config.print_size=[1,1200,1200];

@@ -48,6 +48,10 @@ flag.phase_2ks=0
 flag.phase_3ks=0
 flag.phase_4ks=0
 
+#These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
+flag.dy_T_mean=1
+flag.dy_S_mean=1
+
 
 flag.post_store_dt=20;
 flag.stop_sim_time=2000;
