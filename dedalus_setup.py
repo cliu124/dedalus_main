@@ -125,8 +125,10 @@ class flag(object):
             
             #Update 2021/09/12, change the language to specify the background shear
             #test whether these amplitude of shear is zero....
+            
+            ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
             if self.F_sin*self.F_sin_2ks*self.F_sin_3ks*self.F_sin_4ks == 0:
-                problem.add_equation("dt(u)- Pr*(dx(dx(u))+dz(dz(u)) ) + Pr*dx(p) = -u*dx(u)-w*dz(u)", condition="(nx!=0) or (nz!=0)")
+                problem.add_equation("dt(u)- Pr*(dx(dx(u))+dz(dz(u)) ) + Pr*dx(p) = -u*dx(u)-w*dz(u)")
             else:
                 ##specify the background shear... this is kolmogorov type shear... 
                 ##This is the amplitude and wavenumber of the fundamental frequency forcing
@@ -142,7 +144,7 @@ class flag(object):
                 problem.parameters['phase_2ks']=self.phase_2ks
                 problem.parameters['phase_3ks']=self.phase_3ks
                 problem.parameters['phase_4ks']=self.phase_4ks
-                problem.add_equation("dt(u) - Pr*(dx(dx(u))+dz(dz(u)) ) +Pr*dx(p) = -u*dx(u)-w*dz(u)+ Pr*(F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))", condition="(nx!=0) or (nz!=0)")
+                problem.add_equation("dt(u) - Pr*(dx(dx(u))+dz(dz(u)) ) +Pr*dx(p) = -u*dx(u)-w*dz(u)+ Pr*(F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
 
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             #problem.add_equation("u=0",condition="(nx==0) and (nz==0)") #Note that for the primitive equation,,, this singularity for u momentum is not there...
