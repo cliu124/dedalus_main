@@ -18,28 +18,6 @@ shutil.rmtree('analysis',ignore_errors=True)
 logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
 
-#------------select the flow configuration and special parameters for each
-flag.flow='double_diffusive_2D'
-if flag.flow == 'IFSC_2D':
-    #This CFL is used for the finger with shear...
-    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
-    flag.Ra_ratio=200 ##This is the special parameter for the Rayleigh ratio
-    flag.dy_T_mean=-1
-    flag.dy_S_mean=-1
-    u_L=9444.9
-    
-elif flag.flow == 'double_diffusive_2D':
-    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
-    flag.tau=0.01
-    flag.Pr=10
-    flag.R_rho_T2S=0.5
-    flag.dy_T_mean=-1
-    flag.dy_S_mean=-1
-    u_L=9444.9*flag.tau
-#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
-
-
-
 #-------setup the grid points
 ##These are general setup
 #k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
@@ -78,6 +56,26 @@ flag.F_sin_4ks=u_L_4ks*(4*flag.ks)**2
 flag.phase_2ks=0
 flag.phase_3ks=0
 flag.phase_4ks=0
+
+#------------select the flow configuration and special parameters for each
+flag.flow='double_diffusive_2D'
+if flag.flow == 'IFSC_2D':
+    #This CFL is used for the finger with shear...
+    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+    flag.Ra_ratio=200 ##This is the special parameter for the Rayleigh ratio
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    u_L=9444.9
+    
+elif flag.flow == 'double_diffusive_2D':
+    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+    flag.tau=0.01
+    flag.Pr=10
+    flag.R_rho_T2S=0.5
+    flag.dy_T_mean=-1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
+    flag.dy_S_mean=-1
+    u_L=9444.9*flag.tau
+
 
 #-----------------setup storing for post-processing
 flag.post_store_dt=0.0001;
