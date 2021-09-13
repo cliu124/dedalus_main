@@ -45,7 +45,8 @@ classdef IFSC_post
         A_noise=0;
         A_shear=0;
         
-        
+        dy_T_mean=1;
+        dy_S_mean=1;
         
         %%This is the optimal wavenumber that I need to compute from
         %%Rayleigh ratio

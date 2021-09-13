@@ -17,22 +17,30 @@ shutil.rmtree('analysis',ignore_errors=True)
 
 logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
-flag.Ra_ratio=5
+flag.Ra_ratio=200
 flag.flow='IFSC_2D_with_shear'
 flag.name=flag.flow
-flag.A_elevator=1
+flag.A_elevator=0
 flag.A_noise=0.01
 flag.A_shear=0
 
-k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
+##These are general setup
+#k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
+#Lx2d = 8
+#Lz2d = 24
+#grid_l_opt=8
+#flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
+#flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 
-Lx2d = 8
-Lz2d = 24
-grid_l_opt=8
-flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
-flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
+##These are setup for testing the layering based on Radko (2016)
+flag.Lz=2*np.pi/0.0593
+flag.Lx=2*flag.Lz
+flag.Nz=384/4
+flag.Nx=768/4
 
-u_L=1
+
+
+u_L=9444.9
 u_L_2ks=0
 u_L_3ks=0
 u_L_4ks=0
@@ -49,12 +57,12 @@ flag.phase_3ks=0
 flag.phase_4ks=0
 
 #These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
-flag.dy_T_mean=1
-flag.dy_S_mean=1
+flag.dy_T_mean=-1
+flag.dy_S_mean=-1
 
 
-flag.post_store_dt=20;
-flag.stop_sim_time=2000;
+flag.post_store_dt=0.0001;
+flag.stop_sim_time=0.001;
 
 flag.print_screen(logger)
 
@@ -75,7 +83,7 @@ if flag.flow == 'IFSC_2D_without_shear':
     initial_dt = 0.02*flag.Lx/flag.Nx/flag.Ra_ratio**2
 elif flag.flow == 'IFSC_2D_with_shear':
     #This CFL is used for the finger with shear...
-    initial_dt=np.min([0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio**2,0.02*flag.Lx/flag.Nx/flag.Ra_ratio**2])
+    initial_dt=np.min([0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,0.02*flag.Lx/flag.Nx/flag.Ra_ratio])
 
 
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
