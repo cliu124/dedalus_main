@@ -18,6 +18,22 @@ shutil.rmtree('analysis',ignore_errors=True)
 logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
 
+
+#-------setup the grid points
+##These are general setup
+#k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
+#Lx2d = 8
+#Lz2d = 24
+#grid_l_opt=8
+#flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
+#flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
+
+##These are setup for testing the layering based on Radko (2016)
+flag.Lz=2*np.pi/0.0593
+flag.Lx=2*flag.Lz
+flag.Nz=64
+flag.Nx=128
+
 #------------select the flow configuration and special parameters for each
 flag.flow='double_diffusive_2D'
 
@@ -44,7 +60,7 @@ elif flag.flow == 'double_diffusive_2D':
     u_L=9444.9*flag.tau
     flag.ks=2*np.pi/flag.Lz
     flag.F_sin=u_L*flag.ks**2
-    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2),flag.Lx/flag.Nx])
 
     #u_L=9444.9*flag.tau
 
@@ -64,20 +80,6 @@ flag.phase_3ks=0
 flag.phase_4ks=0
 
 
-#-------setup the grid points
-##These are general setup
-#k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
-#Lx2d = 8
-#Lz2d = 24
-#grid_l_opt=8
-#flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
-#flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
-
-##These are setup for testing the layering based on Radko (2016)
-flag.Lz=2*np.pi/0.0593
-flag.Lx=2*flag.Lz
-flag.Nz=64
-flag.Nx=128
 
 #-----------------parameter for initial condition
 flag.A_elevator=0
