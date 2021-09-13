@@ -78,9 +78,11 @@ class flag(object):
             
             #Update 2021/09/12, change the language to specify the background shear
             #test whether these amplitude of shear is zero....
-            if self.F_sin*self.F_sin_2ks*self.F_sin_3ks*self.F_sin_4ks == 0:
+            if self.F_sin == 0:
+                print('without shear')
                 problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = 0", condition="(nx!=0) or (nz!=0)")
             else:
+                print('with shear')
                 ##specify the background shear... this is kolmogorov type shear... 
                 ##This is the amplitude and wavenumber of the fundamental frequency forcing
                 problem.parameters['ks']=self.ks
@@ -127,9 +129,11 @@ class flag(object):
             #test whether these amplitude of shear is zero....
             
             ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
-            if self.F_sin*self.F_sin_2ks*self.F_sin_3ks*self.F_sin_4ks == 0:
+            if self.F_sin == 0:
+                print('without shear')
                 problem.add_equation("dt(u)- Pr*(dx(dx(u))+dz(dz(u)) ) + Pr*dx(p) = -u*dx(u)-w*dz(u)")
             else:
+                print('with shear')
                 ##specify the background shear... this is kolmogorov type shear... 
                 ##This is the amplitude and wavenumber of the fundamental frequency forcing
                 problem.parameters['ks']=self.ks
