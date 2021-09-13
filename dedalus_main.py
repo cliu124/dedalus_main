@@ -29,13 +29,13 @@ flag=dedalus_setup.flag()
 #flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
 
 ##These are setup for testing the layering based on Radko (2016)
-flag.Lz=2*np.pi/0.0593
-flag.Lx=2*flag.Lz
-flag.Nz=64
-flag.Nx=128
+flag.Lz=2*np.pi/0.3337
+flag.Lx=flag.Lz
+flag.Nz=32
+flag.Nx=32
 
 #------------select the flow configuration and special parameters for each
-flag.flow='double_diffusive_2D'
+flag.flow='IFSC_2D'
 
 if flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
@@ -43,7 +43,8 @@ if flag.flow == 'IFSC_2D':
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
     #setup the uL and the ks, F_sin and dt...
-    u_L=9444.9
+    #u_L=9444.9
+    u_L=531.126
     flag.ks=2*np.pi/flag.Lz
     flag.F_sin=u_L*flag.ks**2
     initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
@@ -57,7 +58,8 @@ elif flag.flow == 'double_diffusive_2D':
     flag.dy_T_mean=-1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
     flag.dy_S_mean=-1
     #setup the uL and the ks, F_sin and dt...
-    u_L=9444.9*flag.tau
+    #u_L=9444.9*flag.tau
+    u_L=531.126*flag.tau
     flag.ks=2*np.pi/flag.Lz
     flag.F_sin=u_L*flag.ks**2
     initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2),flag.Lx/flag.Nx])
@@ -84,11 +86,11 @@ flag.phase_4ks=0
 #-----------------parameter for initial condition
 flag.A_elevator=0
 flag.A_noise=0.01
-flag.A_shear=0
+flag.A_shear=1
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=0.0001;
-flag.stop_sim_time=0.001;
+flag.post_store_dt=0.001;
+flag.stop_sim_time=0.01;
 
 #------------ print these parameters in the screen
 flag.print_screen(logger)

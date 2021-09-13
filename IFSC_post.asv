@@ -481,8 +481,6 @@ classdef IFSC_post
                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
             else
-                data{1}.y=obj.z_list;
-                plot_config.label_list={1,'$t$','$z$'};
             end
             data{1}.z=squeeze(mean(obj.u_fluctuation,2));
             plot_config.colormap='bluewhitered';
@@ -503,15 +501,10 @@ classdef IFSC_post
             %%as a function of z (vertical axis) and time
 
             data{1}.x=obj.t_list;
-            if strcmp(obj.flow(1:7),'IFSC_2D')
-                data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-                plot_config.label_list={1,'$t$','$z/l_{opt}$'};
-            else
-                data{1}.y=obj.z_list;
-                plot_config.label_list={1,'$t$','$z$'};
-            end
+            data{1}.y=obj.z_list/(2*pi/obj.k_opt);
             obj.w=h5read(obj.h5_name,'/tasks/w');
             data{1}.z=squeeze(mean(obj.w,2));
+            plot_config.label_list={1,'$t$','$z/l_{opt}$'};
             plot_config.colormap='bluewhitered';
             plot_config.print_size=[1,1200,1200];
             plot_config.print=obj.print;
@@ -530,13 +523,7 @@ classdef IFSC_post
             %%as a function of z (vertical axis) and time
 
             data{1}.x=obj.t_list;
-            if strcmp(obj.flow(1:7),'IFSC_2D')
-                data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-                plot_config.label_list={1,'$t$','$z/l_{opt}$'};
-            else
-                data{1}.y=obj.z_list;
-                plot_config.label_list={1,'$t$','$z$'};
-            end
+            data{1}.y=obj.z_list/(2*pi/obj.k_opt);
             obj.S=h5read(obj.h5_name,'/tasks/S');
             data{1}.z=squeeze(mean(obj.S,2));
             plot_config.label_list={1,'$t$','$z/l_{opt}$'};

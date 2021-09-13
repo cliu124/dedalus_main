@@ -76,13 +76,11 @@ slurm_num={'12073090',... %%without shear, 32*32, A_elevator=1, A_noise=0
     '12132764',...%%with shear, 8*24, ks: 0.017613098921088227,A_elevator=1, A_noise=0.01, u_L=1, Ra_ratio=5, time up to 500
     '12135159',...%%with shear, 8*24, ks=0.0176, A_elevator=1, A_noise=0.01, u_
     '12135442',...%%without shear, 8*24, Ra_ratio=5
-    '12136350',...
+    '12135952',...
     '12135952',...
     '12136034',...
-    '12135952',...
-    '12136034',...
-    '12136409',...
     '12136695',...
+    '12137313',...
     'end'};
 %     '12089742',...
 
@@ -98,24 +96,23 @@ for slurm_ind=length(slurm_num)-1:length(slurm_num)-1
      set(0,'DefaultFigureVisible','on')
      IFSC_post_my{slurm_ind}=IFSC_post(h5_name,flag);
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_x_ave();
-     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.w_x_ave();
+     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.w_x_ave();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
-     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
-     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
+     %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_S_time();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_S_average();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_total_xt_ave();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.T_total_xt_ave();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_total_xt_ave();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.T_total_xt_ave();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.S_total_xt_ave();
     
      IFSC_post_my{slurm_ind}.print=0; IFSC_post_my{slurm_ind}.visible=0;
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.snapshot_S();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_S_snapshot();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_laminar();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_TKE_time();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.uS_x_ave();
-    IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.wS_x_ave();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_laminar();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_TKE_time();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.uS_x_ave();
+    %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.wS_x_ave();
     
 end
 
