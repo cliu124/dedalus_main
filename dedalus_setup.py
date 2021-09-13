@@ -22,7 +22,7 @@ class flag(object):
         #double_diffusive_2D
         self.flow='not_defined'
         
-        self.Ra_ratio=1# the parameter for IFSC
+        self.Ra_ratio=1.1# the parameter for IFSC... fix this default value as 1.1... although not used for double diffusive.. Ra_ratio=1 will cause division by zero error.
         
         self.post_store_dt=1
         self.stop_sim_time=1
