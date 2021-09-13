@@ -20,28 +20,32 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 flag.flow='double_diffusive_2D'
+
 if flag.flow == 'IFSC_2D':
-    #This CFL is used for the finger with shear...
+    #setup basic parameter for inertial free salt finger
+    flag.Ra_ratio=200 ##This is the special parameter for the Rayleigh ratio
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
     #setup the uL and the ks, F_sin and dt...
     u_L=9444.9
     flag.ks=2*np.pi/flag.Lz
     flag.F_sin=u_L*flag.ks**2
     initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
-    flag.Ra_ratio=200 ##This is the special parameter for the Rayleigh ratio
-    flag.dy_T_mean=-1
-    flag.dy_S_mean=-1
+
     
 elif flag.flow == 'double_diffusive_2D':
-    #setup the uL and the ks, F_sin and dt...
-    u_L=9444.9*flag.tau
-    flag.ks=2*np.pi/flag.Lz
-    flag.F_sin=u_L*flag.ks**2
-    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+    #setup basic parameter for inertial free salt finger
     flag.tau=0.01
     flag.Pr=10
     flag.R_rho_T2S=0.5
     flag.dy_T_mean=-1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
     flag.dy_S_mean=-1
+    #setup the uL and the ks, F_sin and dt...
+    u_L=9444.9*flag.tau
+    flag.ks=2*np.pi/flag.Lz
+    flag.F_sin=u_L*flag.ks**2
+    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+
     #u_L=9444.9*flag.tau
 
 #--------------setup the background shear
