@@ -17,13 +17,30 @@ shutil.rmtree('analysis',ignore_errors=True)
 
 logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
-flag.Ra_ratio=200
-flag.flow='IFSC_2D_with_shear'
-flag.name=flag.flow
-flag.A_elevator=0
-flag.A_noise=0.01
-flag.A_shear=0
 
+#------------select the flow configuration and special parameters for each
+flag.flow='double_diffusive_2D'
+if flag.flow == 'IFSC_2D':
+    #This CFL is used for the finger with shear...
+    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+    flag.Ra_ratio=200 ##This is the special parameter for the Rayleigh ratio
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    u_L=9444.9
+    
+elif flag.flow == 'double_diffusive_2D':
+    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+    flag.tau=0.01
+    flag.Pr=10
+    flag.R_rho_T2S=0.5
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    u_L=9444.9*flag.tau
+#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
+
+
+
+#-------setup the grid points
 ##These are general setup
 #k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
 #Lx2d = 8
@@ -35,12 +52,18 @@ flag.A_shear=0
 ##These are setup for testing the layering based on Radko (2016)
 flag.Lz=2*np.pi/0.0593
 flag.Lx=2*flag.Lz
-flag.Nz=384/4
-flag.Nx=768/4
+flag.Nz=64
+flag.Nx=128
+
+#-----------------parameter for initial condition
+flag.A_elevator=0
+flag.A_noise=0.01
+flag.A_shear=0
 
 
+#--------------setup the background shear
 
-u_L=9444.9
+
 u_L_2ks=0
 u_L_3ks=0
 u_L_4ks=0
@@ -56,43 +79,26 @@ flag.phase_2ks=0
 flag.phase_3ks=0
 flag.phase_4ks=0
 
-#These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
-flag.dy_T_mean=-1
-flag.dy_S_mean=-1
-
-
+#-----------------setup storing for post-processing
 flag.post_store_dt=0.0001;
 flag.stop_sim_time=0.001;
 
+#------------ print these parameters in the screen
 flag.print_screen(logger)
 
 
-
+#---------main loop to run the dedalus 
 domain=flag.build_domain()
 problem=flag.governing_equation(domain)
-
 ts = de.timesteppers.RK443
-
 solver =  problem.build_solver(ts)
-
 flag.initial_condition(domain,solver)
-
 solver.stop_sim_time = flag.stop_sim_time
-
-if flag.flow == 'IFSC_2D_without_shear':
-    initial_dt = 0.02*flag.Lx/flag.Nx/flag.Ra_ratio**2
-elif flag.flow == 'IFSC_2D_with_shear':
-    #This CFL is used for the finger with shear...
-    initial_dt=np.min([0.02*flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,0.02*flag.Lx/flag.Nx/flag.Ra_ratio])
-
-
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
-
 flag.post_store(solver)
-
 flag.run(solver,cfl,domain,logger)
 
-#merge process data
+#-----------merge process data
 post.merge_process_files('analysis',cleanup=True)
 flag.print_file()
 

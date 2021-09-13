@@ -9,11 +9,17 @@ class flag(object):
         self.Lx=np.pi
         self.Lz=np.pi
         self.Ly=np.pi
-        self.Nx=16
-        self.Ny=16
-        self.Nz=16
-        self.spectral_z='Fourier'
-        self.name='test'
+        self.Nx=0 ##these default values are zero.. this can avoid some error if I forget to setup the grid point numbers
+        self.Ny=0
+        self.Nz=0
+        
+        ##option for self.flow that has been developed:
+        #delete the old IFSC_2D_with_shear and IFSC_2D_without_shear option.. these two has been unified together..
+        #Update 2021/09/13: also add the option of double_diffusive_2D
+        #
+        
+        #IFSC_2D
+        #double_diffusive_2D
         self.flow='not_defined'
         
         self.Ra_ratio=1# the parameter for IFSC
@@ -21,7 +27,7 @@ class flag(object):
         self.post_store_dt=1
         self.stop_sim_time=1
         self.ks=1# parameter for the large scale shear in IFSC with shear
-        self.F_sin=1# amplitude for the large scale shear in IFSC with shear
+        self.F_sin=0# amplitude for the large scale shear in IFSC with shear
         self.F_sin_2ks=0
         self.F_sin_3ks=0
         self.F_sin_4ks=0
@@ -38,6 +44,10 @@ class flag(object):
         self.dy_T_mean=1
         self.dy_S_mean=1
     
+        ##These three parameters are used for the double diffusive convection in primitive variable...
+        self.R_rho_T2S=1
+        self.tau=1
+        self.Pr=1
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -53,22 +63,24 @@ class flag(object):
         flag_text.close()
         
     def build_domain(self):
-        if self.flow in ['IFSC_2D_without_shear', 'IFSC_2D_with_shear']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D']:
             x_basis = de.Fourier('x', self.Nx, interval=(0,self.Lx), dealias=3/2)
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         return domain
 
     def governing_equation(self,domain):
-        if self.flow in ['IFSC_2D_without_shear','IFSC_2D_with_shear']:
+        if self.flow in ['IFSC_2D']:
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
             problem.parameters['Ra_ratio']=self.Ra_ratio
             problem.parameters['dy_T_mean']=self.dy_T_mean
             problem.parameters['dy_S_mean']=self.dy_S_mean
             
-            if self.flow == 'IFSC_2D_without_shear':
+            #Update 2021/09/12, change the language to specify the background shear
+            #test whether these amplitude of shear is zero....
+            if self.F_sin*self.F_sin_2ks*self.F_sin_3ks*self.F_sin_4ks == 0:
                 problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = 0", condition="(nx!=0) or (nz!=0)")
-            elif self.flow == 'IFSC_2D_with_shear':
+            else:
                 ##specify the background shear... this is kolmogorov type shear... 
                 ##This is the amplitude and wavenumber of the fundamental frequency forcing
                 problem.parameters['ks']=self.ks
@@ -102,6 +114,44 @@ class flag(object):
         #    problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")
         #    problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + w =0")
             #this is triple periodic, no boundary conditions.
+            
+        elif self.flow =='double_diffusive_2D':
+            problem = de.IVP(domain,variables=['p','u','w','S','T'])
+            problem.parameters['R_rho_T2S']=self.R_rho_T2S
+            problem.parameters['tau']=self.tau
+            problem.parameters['Pr']=self.Pr
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
+            
+            #Update 2021/09/12, change the language to specify the background shear
+            #test whether these amplitude of shear is zero....
+            if self.F_sin*self.F_sin_2ks*self.F_sin_3ks*self.F_sin_4ks == 0:
+                problem.add_equation("dt(u)- Pr*(dx(dx(u))+dz(dz(u)) ) + Pr*dx(p) = -u*dx(u)-w*dz(u)", condition="(nx!=0) or (nz!=0)")
+            else:
+                ##specify the background shear... this is kolmogorov type shear... 
+                ##This is the amplitude and wavenumber of the fundamental frequency forcing
+                problem.parameters['ks']=self.ks
+                problem.parameters['F_sin']=self.F_sin
+                
+                ##Amplitude of the other frequency
+                problem.parameters['F_sin_2ks']=self.F_sin_2ks
+                problem.parameters['F_sin_3ks']=self.F_sin_3ks
+                problem.parameters['F_sin_4ks']=self.F_sin_4ks
+                
+                ##phase of other frequency
+                problem.parameters['phase_2ks']=self.phase_2ks
+                problem.parameters['phase_3ks']=self.phase_3ks
+                problem.parameters['phase_4ks']=self.phase_4ks
+                problem.add_equation("dt(u) - Pr*(dx(dx(u))+dz(dz(u)) ) +Pr*dx(p) = -u*dx(u)-w*dz(u)+ Pr*(F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))", condition="(nx!=0) or (nz!=0)")
+
+            problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+            #problem.add_equation("u=0",condition="(nx==0) and (nz==0)") #Note that for the primitive equation,,, this singularity for u momentum is not there...
+            problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
+            problem.add_equation("dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
+            problem.add_equation(" dt(w) - Pr*( dx(dx(w)) + dz(dz(w)) ) + Pr*dz(p) -Pr*(T-S/R_rho_T2S)  =-u*dx(w)-w*dz(w)")
+            problem.add_equation(" dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =-u*dx(T)-w*dz(T)")
+       
+            
         elif self.flow == "channel":
             problem.parameters['Re']=self.Re
             problem.add_equation("dx(u) + dy(v)+wz=0")
@@ -124,7 +174,7 @@ class flag(object):
 
     def initial_condition(self,domain,solver):
         #This initial condition also need to be modified
-        if self.flow in ['IFSC_2D_without_shear', 'IFSC_2D_with_shear']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D']:
     
             x = domain.grid(0)
             z = domain.grid(1)
@@ -153,7 +203,7 @@ class flag(object):
 
     def run(self,solver,cfl,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
-        if self.flow in ['IFSC_2D_without_shear', 'IFSC_2D_with_shear']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D']:
             cfl.add_velocities(('u','w'))
 
         logger.info('Starting loop')
@@ -163,7 +213,7 @@ class flag(object):
         while solver.ok:
             dt = cfl.compute_dt()    
             solver.step(dt)
-            if solver.iteration % 10 == 0:
+            if solver.iteration % 100 == 0:
                 logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
         
         end_time = time.time()
@@ -175,7 +225,7 @@ class flag(object):
         
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
-        if self.flow in ['IFSC_2D_without_shear','IFSC_2D_with_shear']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_task('S',layout='g',name='S')
             analysis.add_task('T',layout='g',name='T')
