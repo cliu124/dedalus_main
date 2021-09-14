@@ -128,6 +128,8 @@ classdef IFSC_post
             %%plot the snapshot of salinity and generate video if any
             obj.S=h5read(obj.h5_name,'/tasks/S');
 
+            S_max=max(max(max(obj.S)));
+            S_min=min(min(min(obj.S)));
             for t_ind=1:length(obj.t_list)
                 data{1}.z=obj.S(:,:,t_ind);
                 if strcmp(obj.flow(1:7),'IFSC_2D')
@@ -140,7 +142,7 @@ classdef IFSC_post
                     plot_config.label_list={1,'$x$','$z$'};
                 end
                 plot_config.fontsize=28;
-                plot_config.zlim_list=[0,-3.5,3.5];
+                plot_config.zlim_list=[1,S_min,S_max];
                 plot_config.colormap='bluewhitered';%bluewhitered
                 plot_config.print_size=[1,1200,1200];
                 plot_config.name=[obj.h5_name(1:end-3),'_snapshot_S_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];

@@ -19,32 +19,35 @@ logger = logging.getLogger(__name__)
 flag=dedalus_setup.flag()
 
 
-#-------setup the grid points
-##These are general setup
-#k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
-#Lx2d = 8
-#Lz2d = 24
-#grid_l_opt=8
-#flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
-#flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
-
-##These are setup for testing the layering based on Radko (2016)
-flag.Lz=2*np.pi/0.3337
-flag.Lx=flag.Lz
-flag.Nz=32
-flag.Nx=32
 
 #------------select the flow configuration and special parameters for each
 flag.flow='IFSC_2D'
 
 if flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
-    flag.Ra_ratio=200 ##This is the special parameter for the Rayleigh ratio
-    flag.dy_T_mean=-1
-    flag.dy_S_mean=-1
+    flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio
+    flag.dy_T_mean=1
+    flag.dy_S_mean=1
+    
+    
+    #-------setup the grid points
+    ##These are general setup
+    k_opt=(1/2*(-2-flag.Ra_ratio+np.sqrt(flag.Ra_ratio**2+8*flag.Ra_ratio)))**(1/4)
+    Lx2d = 8
+    Lz2d = 24
+    grid_l_opt=8
+    flag.Lx, flag.Lz = (Lx2d*2*np.pi/k_opt, Lz2d*2*np.pi/k_opt)
+    flag.Nx, flag.Nz = (grid_l_opt*Lx2d,grid_l_opt*Lz2d)
+    
+    ##These are setup for testing the layering based on Radko (2016)
+    #flag.Lz=2*np.pi/0.3337
+    #flag.Lx=flag.Lz
+    #flag.Nz=32
+    #flag.Nx=32
+
     #setup the uL and the ks, F_sin and dt...
     #u_L=9444.9
-    u_L=531.126
+    u_L=50
     flag.ks=2*np.pi/flag.Lz
     flag.F_sin=u_L*flag.ks**2
     initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
@@ -84,13 +87,13 @@ flag.phase_4ks=0
 
 
 #-----------------parameter for initial condition
-flag.A_elevator=0
+flag.A_elevator=1
 flag.A_noise=0.01
-flag.A_shear=1
+flag.A_shear=0
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=0.001;
-flag.stop_sim_time=0.01;
+flag.post_store_dt=0.5;
+flag.stop_sim_time=100;
 
 #------------ print these parameters in the screen
 flag.print_screen(logger)
