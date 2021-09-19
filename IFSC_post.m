@@ -376,6 +376,28 @@ classdef IFSC_post
             plot_config.print=obj.print;
             plot_config.visible=obj.visible;
             plot_line(data,plot_config);
+            
+            
+            data{1}.x=obj.t_list;
+            data{1}.y=obj.E_S;
+            for t_ind=1:length(obj.t_list)
+                data{2}.x=data{1}.x(t_ind);
+                data{2}.y=data{1}.y(t_ind);
+                plot_config.Markerindex=3;
+                plot_config.user_color_style_marker_list={'k-','rsquare'};
+            
+                plot_config.fontsize=28;
+                plot_config.print_size=[1,1200,1200];
+                plot_config.print=0;
+                plot_config.visible=0;
+                E_S_time(t_ind)=plot_line(data,plot_config);
+            end
+            if obj.video
+               plot_config.name=[obj.h5_name(1:end-3),'_E_S_t_video.avi'];
+               plot_video(E_S_time,plot_config);
+            end
+            
+            
         end
         
         
