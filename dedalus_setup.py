@@ -242,9 +242,9 @@ class flag(object):
                 print(eig_val)
                 print('Eigenvector')
                 print(eig_vec_max)
-                w['g'] =w['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
-                T['g'] =T['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[1])
-                S['g'] =S['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[2])
+                w['g'] =w['g'] + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                T['g'] =T['g'] + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[1])
+                S['g'] =S['g'] + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[2])
 
                 
     def run(self,solver,cfl,domain,logger):

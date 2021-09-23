@@ -21,7 +21,7 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='IFSC_2D'
+flag.flow='double_diffusive_2D'
 
 if flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
@@ -66,14 +66,14 @@ elif flag.flow == 'double_diffusive_2D':
     flag.dy_S_mean=-1
     
     ##These are setup for testing the layering based on Radko (2016)
-    Lx2d = 4
-    Lz2d = 4
+    Lx2d = 1
+    Lz2d = 1
     flag.ks=1
 
     flag.Lz=Lx2d*2*np.pi/flag.ks
     flag.Lx=flag.Lz
-    flag.Nz=Lx2d*8
-    flag.Nx=Lz2d*8
+    flag.Nz=Lx2d*32
+    flag.Nx=Lz2d*32
     
     #setup the uL and the ks, F_sin and dt...
     #u_L=9444.9*flag.tau
