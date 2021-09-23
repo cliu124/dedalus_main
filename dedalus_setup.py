@@ -231,9 +231,9 @@ class flag(object):
                 
                 #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
                 #This should work for both finger regime and diffusive regime..
-                A=[[-k2*self.Pr, self.Pr, -self.Pr],
+                A=[[-k2*self.Pr, self.Pr, -self.Pr/self.R_rho_T2S],
                     [-self.dy_T_mean, -k2, 0],
-                    [-self.dy_S_mean/self.R_rho_T2S, 0, -self.tau*k2]];
+                    [-self.dy_S_mean, 0, -self.tau*k2]];
                 #Compute eigenvalue and eigenvector of 
                 
                 eig_val,eig_vec=np.linalg.eig(A) #use linear algebra package to compute eigenvalue

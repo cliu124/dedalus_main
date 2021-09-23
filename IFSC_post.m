@@ -374,9 +374,9 @@ classdef IFSC_post
                     plot_config.legend_list={1,'Simulation','Linear stability'};
                 elseif strcmp(obj.flow,'double_diffusive_2D')
                     k2=obj.k_elevator^2;
-                    A=[-k2*obj.Pr, obj.Pr, -obj.Pr;
+                    A=[-k2*obj.Pr, obj.Pr, -obj.Pr/obj.R_rho_T2S;
                         -obj.dy_T_mean, -k2, 0;
-                        -obj.dy_S_mean/obj.R_rho_T2S, 0, -obj.tau*k2];
+                        -obj.dy_S_mean, 0, -obj.tau*k2];
                     
                     [lambda]=eig(A);
                     [val,lambda_max_ind]=max(real(lambda));
@@ -384,6 +384,8 @@ classdef IFSC_post
                     for t_ind=1:length(obj.t_list)
                         data{2}.y(t_ind)=sum(sum(real(obj.S(:,:,1)*exp(lambda_max*obj.t_list(t_ind))).^2))/obj.Nx/obj.Nz/2;
                     end
+                    %data{2}.y=obj.E_S(1)*exp(2*lambda_max*(obj.t_list));
+
                     data{2}.x=obj.t_list;
 
                     plot_config.legend_list={1,'Simulation','Linear stability'};
