@@ -205,26 +205,27 @@ class flag(object):
             rand = np.random.RandomState(seed=23)
             noise = rand.standard_normal(gshape)[slices]
             
+            ##Add the random noise
+            u0=self.A_noise*noise
+            w0=self.A_noise*noise
+            S0=self.A_noise*noise
+            T0=self.A_noise*noise
+            p0=self.A_noise*noise
             #Add the background shear
-            u['g'] = self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
+            u0 = u0+ self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
                 + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
                 + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
                 + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
             
-            ##Add the random noise
-            u['g']=u['g']+self.A_noise*noise
-            w['g']=w['g']+self.A_noise*noise
-            S['g']=S['g']+self.A_noise*noise
-            T['g']=T['g']+self.A_noise*noise
-            p['g']=p['g']+self.A_noise*noise
+           
             
             if self.flow=='IFSC_2D':
                 k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
     
-                w['g'] =w['g'] +self.A_elevator*np.sin(k_opt*x)
+                w0 =w0 +self.A_elevator*np.sin(k_opt*x)
       
-                S['g'] =S['g'] -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
-                T['g'] =T['g'] -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+                S0 =S0 -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+                T0 =T0 -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
             elif self.flow=='double_diffusive_2D':
                 k2=self.k_elevator**2
                 
@@ -242,11 +243,17 @@ class flag(object):
                 print(eig_val)
                 print('Eigenvector')
                 print(eig_vec_max)
-                w['g'] =w['g'] + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
-                T['g'] =T['g'] + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[1])
-                S['g'] =S['g'] + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[2])
+                w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[1])
+                S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[2])
+                print(w0)
 
-                
+        u['g']=u0
+        w['g']=w0
+        T['g']=T0
+        S['g']=S0
+        p['g']=p0
+           
     def run(self,solver,cfl,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
         if self.flow in ['IFSC_2D','double_diffusive_2D']:
