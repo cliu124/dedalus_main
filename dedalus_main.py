@@ -61,13 +61,13 @@ elif flag.flow == 'double_diffusive_2D':
     #setup basic parameter for inertial free salt finger
     flag.tau=0.01
     flag.Pr=10
-    flag.R_rho_T2S=0.99
-    flag.dy_T_mean=-1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
-    flag.dy_S_mean=-1
+    flag.R_rho_T2S=2
+    flag.dy_T_mean=1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
+    flag.dy_S_mean=1
     
     ##These are setup for testing the layering based on Radko (2016)
-    Lx2d = 1
-    Lz2d = 1
+    Lx2d = 4
+    Lz2d = 4
     flag.ks=1
 
     flag.Lz=Lx2d*2*np.pi/flag.ks
