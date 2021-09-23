@@ -68,7 +68,7 @@ elif flag.flow == 'double_diffusive_2D':
     ##These are setup for testing the layering based on Radko (2016)
     Lx2d = 4
     Lz2d = 4
-    flag.ks=1
+    flag.ks=0.5
 
     flag.Lz=Lx2d*2*np.pi/flag.ks
     flag.Lx=flag.Lz
@@ -83,7 +83,7 @@ elif flag.flow == 'double_diffusive_2D':
     
     #Here, use the np.divide so divide by zero will give Inf...
     initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
-    print(initial_dt)
+    #print(initial_dt)
     #u_L=9444.9*flag.tau
     
     #-----------------parameter for initial condition

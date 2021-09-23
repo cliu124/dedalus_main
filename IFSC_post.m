@@ -46,6 +46,8 @@ classdef IFSC_post
         A_shear=0;
         
         k_elevator=0; %%This is the mode for the setting elevator mode in primitive equations
+        lambda_elevator=0; %%Store the growth rate of the elevator mode...
+        
         
         dy_T_mean=1;
         dy_S_mean=1;
@@ -365,10 +367,10 @@ classdef IFSC_post
             plot_config.label_list={1,'$t$','$E_S$'};
             plot_config.legend_list={0};
             if elevator_growth_rate
+                [val,max_ind]=max(obj.E_S);
+                t_grow=obj.t_list(1:max_ind);
+                data{2}.x=t_grow;
                 if strcmp(obj.flow,'IFSC_2D')
-                    [val,max_ind]=max(obj.E_S);
-                    t_grow=obj.t_list(1:max_ind);
-                    data{2}.x=t_grow;
                     lambda_opt=2*pi/obj.k_opt;
                     data{2}.y=obj.E_S(max_ind)*exp(2*lambda_opt*(t_grow-max(t_grow)));
                     plot_config.legend_list={1,'Simulation','Linear stability'};
@@ -381,12 +383,11 @@ classdef IFSC_post
                     [lambda]=eig(A);
                     [val,lambda_max_ind]=max(real(lambda));
                     lambda_max=lambda(lambda_max_ind);
-                    for t_ind=1:length(obj.t_list)
-                        data{2}.y(t_ind)=sum(sum(real(obj.S(:,:,1)*exp(lambda_max*obj.t_list(t_ind))).^2))/obj.Nx/obj.Nz/2;
+                    for t_ind=1:length(t_grow)
+                        data{2}.y(t_ind)=sum(sum(real(obj.S(:,:,1)*exp(lambda_max*t_grow(t_ind))).^2))/obj.Nx/obj.Nz/2;
                     end
                     %data{2}.y=obj.E_S(1)*exp(2*lambda_max*(obj.t_list));
-
-                    data{2}.x=obj.t_list;
+                    %data{2}.x=obj.t_list;
 
                     plot_config.legend_list={1,'Simulation','Linear stability'};
                 end

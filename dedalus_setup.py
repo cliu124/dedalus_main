@@ -54,7 +54,7 @@ class flag(object):
         self.A_noise=0
         self.A_shear=0        
         
-        
+        self.lambda_elevator=0
         
         
         
@@ -239,14 +239,16 @@ class flag(object):
                 eig_val,eig_vec=np.linalg.eig(A) #use linear algebra package to compute eigenvalue
                 eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
                 eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
-                print('Eigenvalue')
-                print(eig_val)
-                print('Eigenvector')
-                print(eig_vec_max)
+                
+                self.lambda_elevator=eig_val[eig_val_max_ind]
+                #print('Eigenvalue')
+                #print(eig_val)
+                #print('Eigenvector')
+                #print(eig_vec_max)
                 w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
                 T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[1])
                 S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[2])
-                print(w0)
+                #print(w0)
 
         u['g']=u0
         w['g']=w0
