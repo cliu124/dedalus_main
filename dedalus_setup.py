@@ -48,6 +48,16 @@ class flag(object):
         self.R_rho_T2S=1
         self.tau=1
         self.Pr=1
+        
+        self.A_elevator=0
+        self.k_elevator=0.5
+        self.A_noise=0
+        self.A_shear=0        
+        
+        
+        
+        
+        
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -195,18 +205,43 @@ class flag(object):
             rand = np.random.RandomState(seed=23)
             noise = rand.standard_normal(gshape)[slices]
             
-            k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
-            w['g'] = self.A_elevator*np.sin(k_opt*x) + self.A_noise*noise
-            u['g'] = self.A_noise*noise \
-                + self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
+            #Add the background shear
+            u['g'] = self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
                 + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
                 + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
                 + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
+            
+            ##Add the random noise
+            u['g']=u['g']+self.A_noise*noise
+            w['g']=w['g']+self.A_noise*noise
+            S['g']=S['g']+self.A_noise*noise
+            T['g']=T['g']+self.A_noise*noise
+            p['g']=p['g']+self.A_noise*noise
+            
+            if self.flow=='IFSC_2D':
+                k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
+    
+                w['g'] =w['g'] +self.A_elevator*np.sin(k_opt*x)
+      
+                S['g'] =S['g'] -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+                T['g'] =T['g'] -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+            elif self.flow=='double_diffusive_2D':
+                k2=self.k_elevator**2
                 
-            S['g'] = -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x) + self.A_noise*noise
-            T['g'] = -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x) + self.A_noise*noise
-            p['g'] = self.A_noise*noise
+                #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
+                #This should work for both finger regime and diffusive regime..
+                A=[[-k2*self.Pr, self.Pr, -self.Pr],
+                    [-self.dy_T_mean, -k2, 0],
+                    [-self.dy_S_mean/self.R_rho_T2S, 0, -self.tau*k2]];
+                #Compute eigenvalue and eigenvector of 
+                eig_val,eig_vec=np.linalg.eig(A) #use linear algebra package to compute eigenvalue
+                eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
+                eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
+                w['g'] =w['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                T['g'] =T['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[1])
+                S['g'] =S['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[2])
 
+                
     def run(self,solver,cfl,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
         if self.flow in ['IFSC_2D','double_diffusive_2D']:

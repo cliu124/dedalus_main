@@ -77,16 +77,19 @@ elif flag.flow == 'double_diffusive_2D':
     
     #setup the uL and the ks, F_sin and dt...
     #u_L=9444.9*flag.tau
-    u_L=531.126*flag.tau
+    #u_L=531.126*flag.tau
+    u_L=0
     flag.F_sin=u_L*flag.ks**2
-    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2),flag.Lx/flag.Nx])
-
+    
+    #Here, use the np.divide so divide by zero will give Inf...
+    initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
     #u_L=9444.9*flag.tau
     
     #-----------------parameter for initial condition
     flag.A_elevator=0
-    flag.A_noise=0.01
-    flag.A_shear=1
+    flag.k_elevator=0.5
+    flag.A_noise=0
+    flag.A_shear=0
 
 #--------------setup the background shear
 
@@ -107,8 +110,8 @@ flag.phase_4ks=0
 
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=0.5;
-flag.stop_sim_time=100;
+flag.post_store_dt=0.1;
+flag.stop_sim_time=1;
 
 #------------ print these parameters in the screen
 flag.print_screen(logger)
