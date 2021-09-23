@@ -61,17 +61,17 @@ elif flag.flow == 'double_diffusive_2D':
     #setup basic parameter for inertial free salt finger
     flag.tau=0.01
     flag.Pr=10
-    flag.R_rho_T2S=0.5
+    flag.R_rho_T2S=0.99
     flag.dy_T_mean=-1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
     flag.dy_S_mean=-1
     
     ##These are setup for testing the layering based on Radko (2016)
     Lx2d = 4
     Lz2d = 4
-    flag.ks=0.3337
+    flag.ks=1
 
     flag.Lz=Lx2d*2*np.pi/flag.ks
-    flag.Lx=Lz2d*flag.Lz
+    flag.Lx=flag.Lz
     flag.Nz=Lx2d*8
     flag.Nx=Lz2d*8
     
@@ -83,10 +83,11 @@ elif flag.flow == 'double_diffusive_2D':
     
     #Here, use the np.divide so divide by zero will give Inf...
     initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+    print(initial_dt)
     #u_L=9444.9*flag.tau
     
     #-----------------parameter for initial condition
-    flag.A_elevator=0
+    flag.A_elevator=0.1
     flag.k_elevator=0.5
     flag.A_noise=0
     flag.A_shear=0

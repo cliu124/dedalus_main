@@ -101,6 +101,7 @@ slurm_num={'12073090',... %%without shear, 32*32, A_elevator=1, A_noise=0
     '12183054',...
     '12200160',...
     '12203442',...
+    '12210427',...
     'end'};
 %     '12089742',...
 
@@ -122,7 +123,7 @@ for slurm_ind=length(slurm_num)-1:length(slurm_num)-1
      %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.w_x_ave();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_fluctuation_x_ave();
      %IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_TKE_average();
-     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_S_time();
+     IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.E_S_time(1);
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.spectrum_S_average();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.u_total_xt_ave();
      IFSC_post_my{slurm_ind}=IFSC_post_my{slurm_ind}.T_total_xt_ave();

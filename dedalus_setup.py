@@ -234,9 +234,14 @@ class flag(object):
                     [-self.dy_T_mean, -k2, 0],
                     [-self.dy_S_mean/self.R_rho_T2S, 0, -self.tau*k2]];
                 #Compute eigenvalue and eigenvector of 
+                
                 eig_val,eig_vec=np.linalg.eig(A) #use linear algebra package to compute eigenvalue
                 eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
                 eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
+                print('Eigenvalue')
+                print(eig_val)
+                print('Eigenvector')
+                print(eig_vec_max)
                 w['g'] =w['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
                 T['g'] =T['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[1])
                 S['g'] =S['g'] + self.A_elevator*np.sin(self.k_elevator*x)*np.real(eig_vec_max[2])
