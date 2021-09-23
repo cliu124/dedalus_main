@@ -245,9 +245,9 @@ class flag(object):
                 #print(eig_val)
                 #print('Eigenvector')
                 #print(eig_vec_max)
-                w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
-                T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[1])
-                S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x)*eig_vec_max[2])
+                w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
+                S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
                 #print(w0)
 
         u['g']=u0

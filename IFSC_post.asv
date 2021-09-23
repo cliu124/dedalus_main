@@ -384,7 +384,7 @@ classdef IFSC_post
                     [val,lambda_max_ind]=max(real(diag(lambda)));
                     lambda_max=lambda(lambda_max_ind);
                     for t_ind=1:length(t_grow)
-                        data{2}.y(t_ind)=sum(sum(obj.S(:,:,1)*real(exp(lambda_max*t_grow(t_ind))).^2))/obj.Nx/obj.Nz/2;
+                        data{2}.y(t_ind)=sum(sum(real(obj.S(:,:,1)*exp(lambda_max*t_grow(t_ind))).^2))/obj.Nx/obj.Nz/2;
                     end
                     %data{2}.y=obj.E_S(1)*exp(2*lambda_max*(obj.t_list));
                     %data{2}.x=obj.t_list;
