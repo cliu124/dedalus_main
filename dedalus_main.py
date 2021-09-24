@@ -127,11 +127,11 @@ flag.initial_condition(domain,solver)
 solver.stop_sim_time = flag.stop_sim_time
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
 flag.post_store(solver)
+flag.print_file() #move print file to here.
 flag.run(solver,cfl,domain,logger)
 
 #-----------merge process data
 post.merge_process_files('analysis',cleanup=True)
-flag.print_file()
 
 
 # Create bases and domain

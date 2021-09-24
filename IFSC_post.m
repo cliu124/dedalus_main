@@ -71,6 +71,7 @@ classdef IFSC_post
         
         %%Data I want to store after post-processing
         S; %%snapshot of salnity
+        T; %%temperature...
         w; %%snapshot of u
         u; %%snapshot of w
         u_fluctuation; %%this minus the laminar base flow
@@ -80,6 +81,7 @@ classdef IFSC_post
         u_coeff; %%fourier coefficient of w
         
         E_S; %%salnity potential energy
+        E_T;
         TKE_time; %%turbulence kinematic energy... I need to remove the laminar background flow of Kolmogorov type
         spectrum_TKE;
         
@@ -358,7 +360,7 @@ classdef IFSC_post
                     %error('The flag_mean is missing.')
             end
             obj.S=h5read(obj.h5_name,'/tasks/S');
-
+            
             for t_ind=1:length(obj.t_list)
                 obj.E_S(t_ind)=sum(sum(obj.S(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
             end
@@ -369,7 +371,11 @@ classdef IFSC_post
             if elevator_growth_rate
                 [val,max_ind]=max(obj.E_S);
                 t_grow=obj.t_list(1:max_ind);
-                data{2}.x=t_grow;
+                if max_ind==1
+                    data{2}.x=obj.t_list;
+                else
+                    data{2}.x=t_grow;
+                end
                 if strcmp(obj.flow,'IFSC_2D')
                     lambda_opt=2*pi/obj.k_opt;
                     data{2}.y=obj.E_S(max_ind)*exp(2*lambda_opt*(t_grow-max(t_grow)));
@@ -382,9 +388,13 @@ classdef IFSC_post
                     
                     [vec,lambda]=eig(A);
                     [val,lambda_max_ind]=max(real(diag(lambda)));
-                    lambda_max=lambda(lambda_max_ind);
-                    for t_ind=1:length(t_grow)
-                        data{2}.y(t_ind)=sum(sum(obj.S(:,:,1)*real(exp(lambda_max*t_grow(t_ind))).^2))/obj.Nx/obj.Nz/2;
+                    lambda_max=lambda(lambda_max_ind,lambda_max_ind);
+                    vec_max=vec(:,lambda_max_ind);
+                    S_vec_max=vec_max(3);
+                    for t_ind=1:length(data{2}.x)
+                        S2_LST=(obj.S(:,:,1)*real(exp(lambda_max*data{2}.x(t_ind))) ...
+                            -obj.S(:,:,1)/real(S_vec_max)*imag(S_vec_max)*imag(exp(lambda_max*data{2}.x(t_ind)))).^2;
+                        data{2}.y(t_ind)=sum(sum(S2_LST))/obj.Nx/obj.Nz/2;
                     end
                     %data{2}.y=obj.E_S(1)*exp(2*lambda_max*(obj.t_list));
                     %data{2}.x=obj.t_list;
@@ -399,6 +409,11 @@ classdef IFSC_post
             plot_config.visible=obj.visible;
             plot_line(data,plot_config);
             
+            plot_config.name=[obj.h5_name(1:end-3),'_E_S_loglog.png'];
+%             plot_config.label_list={1,'$t$','$\textrm{log}_{10}(E_S)$'};
+            plot_config.loglog=[0,1];
+            plot_line(data,plot_config);
+
             
             data{1}.x=obj.t_list;
             data{1}.y=obj.E_S;
@@ -412,6 +427,10 @@ classdef IFSC_post
                 plot_config.print_size=[1,1200,1200];
                 plot_config.print=0;
                 plot_config.visible=0;
+                plot_config.legend_list={0};
+                plot_config.loglog=[0,0];
+                plot_config.label_list={1,'$t$','$E_S$'};
+
                 E_S_time(t_ind)=plot_line(data,plot_config);
             end
             if obj.video
@@ -419,6 +438,93 @@ classdef IFSC_post
                plot_video(E_S_time,plot_config);
             end
             
+            
+        end
+        
+        function obj=E_T_time(obj,elevator_growth_rate)
+            %%Plot the salinity potential energy as a function over time
+            
+            
+            if nargin<2 || isempty(elevator_growth_rate)
+                elevator_growth_rate=0;    
+                %flag.mean='laminar_cou';   %%default value of flag_mean if not given, just set the laminar  flow.
+                    %error('The flag_mean is missing.')
+            end
+            obj.T=h5read(obj.h5_name,'/tasks/T');
+            
+            for t_ind=1:length(obj.t_list)
+                obj.E_T(t_ind)=sum(sum(obj.T(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
+            end
+            data{1}.x=obj.t_list;
+            data{1}.y=obj.E_T;
+            plot_config.label_list={1,'$t$','$E_T$'};
+            plot_config.legend_list={0};
+            if elevator_growth_rate
+                [val,max_ind]=max(obj.E_T);
+                t_grow=obj.t_list(1:max_ind);
+                if max_ind==1
+                    data{2}.x=obj.t_list;
+                else
+                    data{2}.x=t_grow;
+                end
+                if strcmp(obj.flow,'IFSC_2D')
+                    lambda_opt=2*pi/obj.k_opt;
+                    data{2}.y=obj.E_T(max_ind)*exp(2*lambda_opt*(t_grow-max(t_grow)));
+                    plot_config.legend_list={1,'Simulation','Linear stability'};
+                elseif strcmp(obj.flow,'double_diffusive_2D')
+                    k2=obj.k_elevator^2;
+                    A=[-k2*obj.Pr, obj.Pr, -obj.Pr/obj.R_rho_T2S;
+                        -obj.dy_T_mean, -k2, 0;
+                        -obj.dy_S_mean, 0, -obj.tau*k2];
+                    
+                    [vec,lambda]=eig(A);
+                    [val,lambda_max_ind]=max(real(diag(lambda)));
+                    lambda_max=lambda(lambda_max_ind,lambda_max_ind);
+                    vec_max=vec(:,lambda_max_ind);
+                    T_vec_max=vec_max(2);
+                    for t_ind=1:length(data{2}.x)
+                        T2_LST=(obj.T(:,:,1)*real(exp(lambda_max*data{2}.x(t_ind))) ...
+                          -obj.T(:,:,1)/real(T_vec_max)*imag(T_vec_max)*imag(exp(lambda_max*data{2}.x(t_ind)))).^2;
+                        data{2}.y(t_ind)=sum(sum(T2_LST))/obj.Nx/obj.Nz/2;
+                    end
+                    %data{2}.y=obj.E_S(1)*exp(2*lambda_max*(obj.t_list));
+                    %data{2}.x=obj.t_list;
+
+                    plot_config.legend_list={1,'Simulation','Linear stability'};
+                end
+            end
+            plot_config.name=[obj.h5_name(1:end-3),'_E_T.png'];
+            plot_config.Markerindex=3;
+            plot_config.user_color_style_marker_list={'k-','bo--'};
+            plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
+            plot_line(data,plot_config);
+            
+            plot_config.name=[obj.h5_name(1:end-3),'_E_T_loglog.png'];
+%             plot_config.label_list={1,'$t$','$\textrm{log}_{10}(E_T)$'};
+            plot_config.loglog=[0,1];
+            plot_line(data,plot_config);
+
+            
+            data{1}.x=obj.t_list;
+            data{1}.y=obj.E_T;
+            for t_ind=1:length(obj.t_list)
+                data{2}.x=data{1}.x(t_ind);
+                data{2}.y=data{1}.y(t_ind);
+                plot_config.Markerindex=3;
+                plot_config.user_color_style_marker_list={'k-','rsquare'};
+            
+                plot_config.fontsize=28;
+                plot_config.print_size=[1,1200,1200];
+                plot_config.print=0;
+                plot_config.visible=0;
+                plot_config.legend_list={0};
+                E_T_time(t_ind)=plot_line(data,plot_config);
+            end
+            if obj.video
+               plot_config.name=[obj.h5_name(1:end-3),'_E_T_t_video.avi'];
+               plot_video(E_T_time,plot_config);
+            end
             
         end
         
