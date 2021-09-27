@@ -192,7 +192,7 @@ class flag(object):
 
     def initial_condition(self,domain,solver):
         if not pathlib.Path('restart.h5').exists():
-
+            print('setup initial condition')
             #This initial condition also need to be modified
             if self.flow in ['IFSC_2D','double_diffusive_2D']:
         
@@ -259,8 +259,11 @@ class flag(object):
             T['g']=T0
             S['g']=S0
             p['g']=p0
-              
-        write, last_dt = solver.load_state('restart.h5', -1)
+            
+        else:
+            #Restart
+            print('restart')
+            write, last_dt = solver.load_state('restart.h5', -1)
 
         
         
