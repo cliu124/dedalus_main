@@ -1,6 +1,7 @@
 import numpy as np
 from dedalus import public as de
 import time
+import pathlib
 
 
 class flag(object):
@@ -109,12 +110,13 @@ class flag(object):
                 problem.parameters['phase_4ks']=self.phase_4ks
                 problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks)", condition="(nx!=0) or (nz!=0)")
 
+            problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")            
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
-            problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
-            problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")
             problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =0")
+            problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
+
         # This is assumed to be doubly periodic, no boundary conditions
         #elif self.flow == "IFSC_2D_with_shear":
         #    problem = de.IVP(domain,variables=['p','u','w','S','T'])
@@ -160,11 +162,11 @@ class flag(object):
                 problem.parameters['phase_4ks']=self.phase_4ks
                 problem.add_equation("dt(u) - Pr*(dx(dx(u))+dz(dz(u)) ) +Pr*dx(p) = -u*dx(u)-w*dz(u)+ Pr*(F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
 
-            problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             #problem.add_equation("u=0",condition="(nx==0) and (nz==0)") #Note that for the primitive equation,,, this singularity for u momentum is not there...
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
-            problem.add_equation("dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
+            problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation(" dt(w) - Pr*( dx(dx(w)) + dz(dz(w)) ) + Pr*dz(p) -Pr*(T-S/R_rho_T2S)  =-u*dx(w)-w*dz(w)")
+            problem.add_equation("dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
             problem.add_equation(" dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =-u*dx(T)-w*dz(T)")
        
             
@@ -189,73 +191,79 @@ class flag(object):
         return problem
 
     def initial_condition(self,domain,solver):
-        #This initial condition also need to be modified
-        if self.flow in ['IFSC_2D','double_diffusive_2D']:
-    
-            x = domain.grid(0)
-            z = domain.grid(1)
-            u = solver.state['u']
-            w = solver.state['w']
-            S = solver.state['S']
-            p = solver.state['p']
-            T = solver.state['T']
-            
-            gshape = domain.dist.grid_layout.global_shape(scales=1)
-            slices = domain.dist.grid_layout.slices(scales=1)
-            rand = np.random.RandomState(seed=23)
-            noise = rand.standard_normal(gshape)[slices]
-            
-            ##Add the random noise
-            u0=self.A_noise*noise
-            w0=self.A_noise*noise
-            S0=self.A_noise*noise
-            T0=self.A_noise*noise
-            p0=self.A_noise*noise
-            #Add the background shear
-            u0 = u0+ self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
-                + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
-                + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
-                + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
-            
-           
-            
-            if self.flow=='IFSC_2D':
-                k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
-    
-                w0 =w0 +self.A_elevator*np.sin(k_opt*x)
-      
-                S0 =S0 -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
-                T0 =T0 -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
-            elif self.flow=='double_diffusive_2D':
-                k2=self.k_elevator**2
-                
-                #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
-                #This should work for both finger regime and diffusive regime..
-                A=[[-k2*self.Pr, self.Pr, -self.Pr/self.R_rho_T2S],
-                    [-self.dy_T_mean, -k2, 0],
-                    [-self.dy_S_mean, 0, -self.tau*k2]];
-                #Compute eigenvalue and eigenvector of 
-                
-                eig_val,eig_vec=np.linalg.eig(A) #use linear algebra package to compute eigenvalue
-                eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
-                eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
-                
-                self.lambda_elevator=eig_val[eig_val_max_ind]
-                #print('Eigenvalue')
-                #print(eig_val)
-                #print('Eigenvector')
-                #print(eig_vec_max)
-                w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
-                T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
-                S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
-                #print(w0)
+        if not pathlib.Path('restart.h5').exists():
 
-        u['g']=u0
-        w['g']=w0
-        T['g']=T0
-        S['g']=S0
-        p['g']=p0
-           
+            #This initial condition also need to be modified
+            if self.flow in ['IFSC_2D','double_diffusive_2D']:
+        
+                x = domain.grid(0)
+                z = domain.grid(1)
+                u = solver.state['u']
+                w = solver.state['w']
+                S = solver.state['S']
+                p = solver.state['p']
+                T = solver.state['T']
+                
+                gshape = domain.dist.grid_layout.global_shape(scales=1)
+                slices = domain.dist.grid_layout.slices(scales=1)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
+                
+                ##Add the random noise
+                u0=self.A_noise*noise
+                w0=self.A_noise*noise
+                S0=self.A_noise*noise
+                T0=self.A_noise*noise
+                p0=self.A_noise*noise
+                #Add the background shear
+                u0 = u0+ self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
+                    + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
+                    + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
+                    + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
+                
+               
+                
+                if self.flow=='IFSC_2D':
+                    k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
+        
+                    w0 =w0 +self.A_elevator*np.sin(k_opt*x)
+          
+                    S0 =S0 -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+                    T0 =T0 -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+                elif self.flow=='double_diffusive_2D':
+                    k2=self.k_elevator**2
+                    
+                    #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
+                    #This should work for both finger regime and diffusive regime..
+                    A=[[-k2*self.Pr, self.Pr, -self.Pr/self.R_rho_T2S],
+                        [-self.dy_T_mean, -k2, 0],
+                        [-self.dy_S_mean, 0, -self.tau*k2]];
+                    #Compute eigenvalue and eigenvector of 
+                    
+                    eig_val,eig_vec=np.linalg.eig(A) #use linear algebra package to compute eigenvalue
+                    eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
+                    eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
+                    
+                    self.lambda_elevator=eig_val[eig_val_max_ind]
+                    #print('Eigenvalue')
+                    #print(eig_val)
+                    #print('Eigenvector')
+                    #print(eig_vec_max)
+                    w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                    T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
+                    S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
+                    #print(w0)
+    
+            u['g']=u0
+            w['g']=w0
+            T['g']=T0
+            S['g']=S0
+            p['g']=p0
+              
+        write, last_dt = solver.load_state('restart.h5', -1)
+
+        
+        
     def run(self,solver,cfl,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
         if self.flow in ['IFSC_2D','double_diffusive_2D']:

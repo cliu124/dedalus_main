@@ -370,9 +370,12 @@ classdef IFSC_post
             plot_config.legend_list={0};
             if elevator_growth_rate
                 [val,max_ind]=max(obj.E_S);
+                [~,ind_100]=min(abs(obj.t_list-100));
                 t_grow=obj.t_list(1:max_ind);
                 if max_ind==1
                     data{2}.x=obj.t_list;
+                elseif max_ind>ind_100
+                    data{2}.x=obj.t_list(1:ind_100);
                 else
                     data{2}.x=t_grow;
                 end
@@ -461,9 +464,12 @@ classdef IFSC_post
             plot_config.legend_list={0};
             if elevator_growth_rate
                 [val,max_ind]=max(obj.E_T);
+                [~,ind_100]=min(abs(obj.t_list-100));
                 t_grow=obj.t_list(1:max_ind);
                 if max_ind==1
                     data{2}.x=obj.t_list;
+                elseif max_ind>ind_100
+                    data{2}.x=obj.t_list(1:ind_100);
                 else
                     data{2}.x=t_grow;
                 end
