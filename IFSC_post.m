@@ -395,8 +395,8 @@ classdef IFSC_post
                     vec_max=vec(:,lambda_max_ind);
                     S_vec_max=vec_max(3);
                     for t_ind=1:length(data{2}.x)
-                        S2_LST=(obj.S(:,:,1)*real(exp(lambda_max*data{2}.x(t_ind))) ...
-                            -obj.S(:,:,1)/real(S_vec_max)*imag(S_vec_max)*imag(exp(lambda_max*data{2}.x(t_ind)))).^2;
+                        S2_LST=(obj.S(:,:,1)*real(exp(lambda_max*(data{2}.x(t_ind)-data{2}.x(1)))) ...
+                            -obj.S(:,:,1)/real(S_vec_max)*imag(S_vec_max)*imag(exp(lambda_max*(data{2}.x(t_ind)-data{2}.x(1))))).^2;
                         data{2}.y(t_ind)=sum(sum(S2_LST))/obj.Nx/obj.Nz/2;
                     end
                     %data{2}.y=obj.E_S(1)*exp(2*lambda_max*(obj.t_list));
@@ -489,8 +489,8 @@ classdef IFSC_post
                     vec_max=vec(:,lambda_max_ind);
                     T_vec_max=vec_max(2);
                     for t_ind=1:length(data{2}.x)
-                        T2_LST=(obj.T(:,:,1)*real(exp(lambda_max*data{2}.x(t_ind))) ...
-                          -obj.T(:,:,1)/real(T_vec_max)*imag(T_vec_max)*imag(exp(lambda_max*data{2}.x(t_ind)))).^2;
+                        T2_LST=(obj.T(:,:,1)*real(exp(lambda_max*(data{2}.x(t_ind)-data{2}.x(1)))) ...
+                          -obj.T(:,:,1)/real(T_vec_max)*imag(T_vec_max)*imag(exp(lambda_max*(data{2}.x(t_ind)-data{2}.x(t_ind))))).^2;
                         data{2}.y(t_ind)=sum(sum(T2_LST))/obj.Nx/obj.Nz/2;
                     end
                     %data{2}.y=obj.E_S(1)*exp(2*lambda_max*(obj.t_list));

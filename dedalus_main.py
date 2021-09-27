@@ -61,25 +61,26 @@ elif flag.flow == 'double_diffusive_2D':
     #setup basic parameter for inertial free salt finger
     flag.tau=0.01
     flag.Pr=10
-    flag.R_rho_T2S=2
-    flag.dy_T_mean=1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
-    flag.dy_S_mean=1
+    flag.R_rho_T2S=0.5
+    flag.dy_T_mean=-1#-------------These values as 1 corresponds to salt finger and -1 corresponds to diffusive regime
+    flag.dy_S_mean=-1
     
     ##These are setup for testing the layering based on Radko (2016)
-    Lx2d = 4
-    Lz2d = 4
-    flag.ks=0.5
+    Lx2d = 1
+    Lz2d = 2
+    flag.ks=0.0593
+    #u_L=0.0593
+    u_L=9444.9*flag.tau
+    flag.F_sin=u_L*flag.ks**2
 
     flag.Lz=Lx2d*2*np.pi/flag.ks
     flag.Lx=flag.Lz
-    flag.Nz=Lx2d*32
-    flag.Nx=Lz2d*32
+    flag.Nz=Lx2d*128
+    flag.Nx=Lz2d*128
     
     #setup the uL and the ks, F_sin and dt...
-    #u_L=9444.9*flag.tau
     #u_L=531.126*flag.tau
-    u_L=0
-    flag.F_sin=u_L*flag.ks**2
+    #u_L=0
     
     #Here, use the np.divide so divide by zero will give Inf...
     initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
@@ -87,10 +88,10 @@ elif flag.flow == 'double_diffusive_2D':
     #u_L=9444.9*flag.tau
     
     #-----------------parameter for initial condition
-    flag.A_elevator=0.1
-    flag.k_elevator=0.5
-    flag.A_noise=0
-    flag.A_shear=0
+    #flag.A_elevator=0.1
+    #flag.k_elevator=0.5
+    flag.A_noise=1
+    flag.A_shear=1
 
 #--------------setup the background shear
 
@@ -111,8 +112,8 @@ flag.phase_4ks=0
 
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=0.1;
-flag.stop_sim_time=1;
+flag.post_store_dt=1;
+flag.stop_sim_time=10;
 
 #------------ print these parameters in the screen
 flag.print_screen(logger)

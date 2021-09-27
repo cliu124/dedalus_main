@@ -253,7 +253,10 @@ class flag(object):
                     T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
                     S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
                     #print(w0)
-    
+                    ##This is sample code to setup the initial condition as whatever I want...
+                    #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
+                    #S['g']=S0[slices]
+            
             u['g']=u0
             w['g']=w0
             T['g']=T0
@@ -297,12 +300,12 @@ class flag(object):
             analysis.add_task('T',layout='g',name='T')
             analysis.add_task('u',layout='g',name='u')
             analysis.add_task('w',layout='g',name='w')
-            analysis.add_task('p',layout='p',name='p')
+            analysis.add_task('p',layout='g',name='p')
             
             analysis.add_task("S",layout='c',name='S_coeff')
             analysis.add_task("T",layout='c',name='T_coeff')
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
-            analysis.add_task("p",layour='c',name='p_coeff')
+            analysis.add_task("p",layout='c',name='p_coeff')
             #analysis.add_system(solver.state,layout = 'c')
 
