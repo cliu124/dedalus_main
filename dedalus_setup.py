@@ -297,11 +297,12 @@ class flag(object):
             analysis.add_task('T',layout='g',name='T')
             analysis.add_task('u',layout='g',name='u')
             analysis.add_task('w',layout='g',name='w')
+            analysis.add_task('p',layout='p',name='p')
             
             analysis.add_task("S",layout='c',name='S_coeff')
             analysis.add_task("T",layout='c',name='T_coeff')
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
-
+            analysis.add_task("p",layour='c',name='p_coeff')
             #analysis.add_system(solver.state,layout = 'c')
 
