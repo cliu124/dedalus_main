@@ -132,7 +132,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #map to the extended parameter in double_diffusive_shear_2D
         flag.Re=0
         flag.Pe_T=0
-        flag.Pe_S=0
+        flag.Pe_S=1
         flag.tau=1 #Set this as zero if remove salinity diffusivity
         flag.Ra_T=1
         flag.Ra_S2T=Ra_ratio
@@ -149,7 +149,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #map to the extended parameter in double_diffusive_shear_2D
         flag.Re=1/Sc
         flag.Pe_T=0
-        flag.Pe_S=0
+        flag.Pe_S=1
         flag.tau=1 #Set this as zero if remove salinity diffusivity
         flag.Ra_T=1
         flag.Ra_S2T=Ra_ratio

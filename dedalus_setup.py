@@ -279,8 +279,6 @@ class flag(object):
                     + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
                     + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
                 
-               
-                
                 if self.flow=='IFSC_2D':
                     k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
         
@@ -326,6 +324,7 @@ class flag(object):
                     
                     #Update 2021/10/05, use the scipy package of the linalg. This can also solve the generalized eigenvalue problem
                     eig_val,eig_vec=linalg.eig(A,B) #use linear algebra package to compute eigenvalue
+                    eig_val[np.isinf(eig_val)]=-np.inf
                     eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
                     eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
                     

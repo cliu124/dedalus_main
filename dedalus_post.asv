@@ -429,11 +429,11 @@ classdef dedalus_post
                     %data{2}.x=obj.t_list;
                 elseif strcmp(obj.flow,'double_diffusive_shear_2D')
                     k2=obj.k_elevator^2;
-                    A=[-k2, obj.Ra_T, -obj.Ra_S2T;
+                    A=[-k2, obj.Pr, -obj.Pr/obj.R_rho_T2S;
                         -obj.dy_T_mean, -k2, 0;
                         -obj.dy_S_mean, 0, -obj.tau*k2];
-                    B=diag([obj.Re,obj.Pe_T,obj.Pe_S]);
-                    [vec,lambda]=eig(A,B);
+                    B=[]
+                    [vec,lambda]=eig(A);
                     [val,lambda_max_ind]=max(real(diag(lambda)));
                     lambda_max=lambda(lambda_max_ind,lambda_max_ind);
                     vec_max=vec(:,lambda_max_ind);
