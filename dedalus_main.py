@@ -109,6 +109,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.tau=tau #Set this as zero if remove salinity diffusivity
         flag.Ra_T=1
         flag.Ra_S2T=1/R_rho_T2S
+        
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
     elif flag.flow_sub_double_diffusive_shear_2D == 'IFSC_2D':
     ##parameter for 
         Ra_ratio=1.1 ##parameter of IFSC
@@ -121,6 +124,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Ra_T=1
         flag.Ra_S2T=Ra_ratio
         
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
     elif flag.flow_sub_double_diffusive_shear_2D == 'MRBC':
         Ra_ratio=1.1
         Sc=1
@@ -133,6 +138,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Ra_T=1
         flag.Ra_S2T=Ra_ratio
     
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
     elif flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive_shear_Radko2016':
         Pr=10
         tau=0.01
@@ -147,6 +154,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.tau=tau
         flag.Ra_T=4*np.pi*Ri/(1/R_rho_T2S-1)*Pr/Pe**2
         flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+        
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
 #--------------setup the background shear
