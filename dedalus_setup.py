@@ -176,6 +176,9 @@ class flag(object):
             problem.parameters['Ra_T']=self.Ra_T
             problem.parameters['Ra_S2T']=self.Ra_S2T
             problem.parameters['tau']=self.tau
+            problem.parameters['Pr']=self.Pr
+            problem.parameters['R_rho_T2S']=self.R_rho_T2S
+
 
             problem.parameters['dy_T_mean']=self.dy_T_mean
             problem.parameters['dy_S_mean']=self.dy_S_mean
@@ -186,11 +189,12 @@ class flag(object):
             ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
             if self.F_sin == 0:
                 print('without shear')
-                if self.Re == 0:
-                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))",condition="(nx!=0) or (nz!=0)")
-                    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
-                else:
-                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))")
+                problem.add_equation("dt(u)- Pr*(dx(dx(u))+dz(dz(u)) ) + Pr*dx(p) = -u*dx(u)-w*dz(u)")
+                #if self.Re == 0:
+                #    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))",condition="(nx!=0) or (nz!=0)")
+                #    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                #else:
+                #    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))")
             else:
                 print('with shear')
                 ##specify the background shear... this is kolmogorov type shear... 
@@ -208,18 +212,26 @@ class flag(object):
                 problem.parameters['phase_3ks']=self.phase_3ks
                 problem.parameters['phase_4ks']=self.phase_4ks
                 
-                if self.Re == 0:
-                    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
-                    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
-                else:
-                    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+                problem.add_equation("dt(u) - Pr*(dx(dx(u))+dz(dz(u)) ) +Pr*dx(p) = -u*dx(u)-w*dz(u)+ Pr*(F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
 
-            #problem.add_equation("u=0",condition="(nx==0) and (nz==0)") #Note that for the primitive equation,,, this singularity for u momentum is not there...
+                #if self.Re == 0:
+                #    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
+                #    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                #else:
+                #    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-            problem.add_equation(" Re*dt(w) - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =Re*( -u*dx(w)-w*dz(w) )")
-            problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*dz(T) )")
-            problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*dz(S) ) ")
+            problem.add_equation(" dt(w) - Pr*( dx(dx(w)) + dz(dz(w)) ) + Pr*dz(p) -Pr*(T-S/R_rho_T2S)  =-u*dx(w)-w*dz(w)")
+            problem.add_equation("dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
+            problem.add_equation(" dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =-u*dx(T)-w*dz(T)")
+       
+            #problem.add_equation("u=0",condition="(nx==0) and (nz==0)") #Note that for the primitive equation,,, this singularity for u momentum is not there...
+            #problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
+            #problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+            #problem.add_equation(" Re*dt(w) - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =Re*( -u*dx(w)-w*dz(w) )")
+            #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*dz(T) )")
+            #problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*dz(S) ) ")
 
         
         elif self.flow == "channel":
@@ -238,7 +250,7 @@ class flag(object):
             problem.add_bc("right(v) = 0")
             problem.add_bc("right(w) = 0", condition="(nx !=0) or (ny !=0)")
             problem.add_bc("right(p) = 0", condition="(nx == 0) and (ny == 0)")
-        elif self.flow=='not_defined':
+        else:
             raise TypeError('flag.flow is not defined yet') 
         return problem
 
