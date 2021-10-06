@@ -246,7 +246,7 @@ class flag(object):
         if not pathlib.Path('restart.h5').exists():
             print('setup initial condition')
             #This initial condition also need to be modified
-            if self.flow in ['IFSC_2D','double_diffusive_2D']:
+            if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
         
                 x = domain.grid(0)
                 z = domain.grid(1)
