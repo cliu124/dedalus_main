@@ -1,0 +1,4 @@
+1. The line 153-157 and 133 in dedalus_setup.py type the primitive equations (2D)
+2. To run dedalus, it needs to firstly install dedalus following the manual https://dedalus-project.readthedocs.io/en/latest/pages/installation.html. I install using conda and it need to add two lines to fix one bug that is not updaed in conda installation. This can be done by modifying source code following https://github.com/DedalusProject/dedalus/commit/f90efeee18f5f5f667233db7467e46932e66d9e3#diff-509b072af85614a4ff01dec7f8cbfb998b342f4ed437d7055ce080219871e613
+3. To run dedalus on blanca, put dedalus_setup.py, dedalus_main.py, and submit_dedalus in one folder, modify /chli3324 in submit_dedalus as the folder name you have access, and then submit
+4. Before submit job in blanca, it need to load the module by: module load slurm/blanca

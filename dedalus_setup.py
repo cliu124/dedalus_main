@@ -2,6 +2,7 @@ import numpy as np
 from dedalus import public as de
 import time
 import pathlib
+from scipy import linalg
 
 
 class flag(object):
@@ -50,15 +51,21 @@ class flag(object):
         self.tau=1
         self.Pr=1
         
+        ##These six parameters are used for the double_diffusive_shear_2D. This is the most general formulation that has six parameters
+        self.Re=1 #The Reynolds number appearing in front of the inertial term in momentum
+        self.Pe_T=1 #The Peclet number appearing in front of the inertial term in temperature
+        self.Pe_S=1 #The Peclet number appearing in front of the inertial term in salinity
+        self.Ra_T=1 #The Rayleigh number appearing in front of the temperature term, defined as Ra_T=g\alpha T_z L^4/\nu \kappa_T
+        self.Ra_S2T=1 #The Rayleigh number appearing in front of the salinity term, this is defined based salintiy over temperature, thus Ra_T=g\beta S_z L^4/\nu \kappa_T
+        self.tau=1 #This is the diffusivity ratio, \kappa_S/\kappa_T 
+        
         self.A_elevator=0
         self.k_elevator=0.5
         self.A_noise=0
         self.A_shear=0        
         
         self.lambda_elevator=0
-        
-        
-        
+                
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -74,7 +81,7 @@ class flag(object):
         flag_text.close()
         
     def build_domain(self):
-        if self.flow in ['IFSC_2D','double_diffusive_2D']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
             x_basis = de.Fourier('x', self.Nx, interval=(0,self.Lx), dealias=3/2)
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
@@ -117,19 +124,8 @@ class flag(object):
             problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =0")
             problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
 
-        # This is assumed to be doubly periodic, no boundary conditions
-        #elif self.flow == "IFSC_2D_with_shear":
-        #    problem = de.IVP(domain,variables=['p','u','w','S','T'])
             
-        #    problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-        #    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
-        #    problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
-        #    problem.add_equation("dt(S) - (dx(dx(S)) + dz(dz(S))) +w =-u*dx(S)-w*dz(S) ")
-        #    problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")
-        #    problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + w =0")
-            #this is triple periodic, no boundary conditions.
-            
-        elif self.flow =='double_diffusive_2D':
+        elif self.flow in ['double_diffusive_2D']:
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
             problem.parameters['R_rho_T2S']=self.R_rho_T2S
             problem.parameters['tau']=self.tau
@@ -169,7 +165,60 @@ class flag(object):
             problem.add_equation("dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =-u*dx(S)-w*dz(S) ")
             problem.add_equation(" dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =-u*dx(T)-w*dz(T)")
        
+        elif self.flow in ['double_diffusive_shear_2D']:
+            problem = de.IVP(domain,variables=['p','u','w','S','T'])
+            problem.parameters['Re']=self.Re
+            problem.parameters['Pe_T']=self.Pe_T
+            problem.parameters['Pe_S']=self.Pe_S
+            problem.parameters['Ra_T']=self.Ra_T
+            problem.parameters['Ra_S2T']=self.Ra_S2T
+            problem.parameters['tau']=self.tau
+
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
             
+            #Update 2021/09/12, change the language to specify the background shear
+            #test whether these amplitude of shear is zero....
+            
+            ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
+            if self.F_sin == 0:
+                print('without shear')
+                if self.Re == 0:
+                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                else:
+                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))")
+            else:
+                print('with shear')
+                ##specify the background shear... this is kolmogorov type shear... 
+                ##This is the amplitude and wavenumber of the fundamental frequency forcing
+                problem.parameters['ks']=self.ks
+                problem.parameters['F_sin']=self.F_sin
+                
+                ##Amplitude of the other frequency
+                problem.parameters['F_sin_2ks']=self.F_sin_2ks
+                problem.parameters['F_sin_3ks']=self.F_sin_3ks
+                problem.parameters['F_sin_4ks']=self.F_sin_4ks
+                
+                ##phase of other frequency
+                problem.parameters['phase_2ks']=self.phase_2ks
+                problem.parameters['phase_3ks']=self.phase_3ks
+                problem.parameters['phase_4ks']=self.phase_4ks
+                
+                if self.Re == 0:
+                    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                else:
+                    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+
+            #problem.add_equation("u=0",condition="(nx==0) and (nz==0)") #Note that for the primitive equation,,, this singularity for u momentum is not there...
+            problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
+            problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+            problem.add_equation(" Re*dt(w) - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =Re*( -u*dx(w)-w*dz(w) )")
+            problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*dz(T) )")
+            problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*dz(S) ) ")
+
+        
         elif self.flow == "channel":
             problem.parameters['Re']=self.Re
             problem.add_equation("dx(u) + dy(v)+wz=0")
@@ -230,7 +279,7 @@ class flag(object):
           
                     S0 =S0 -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
                     T0 =T0 -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
-                elif self.flow=='double_diffusive_2D':
+                elif self.flow in ['double_diffusive_2D']:
                     k2=self.k_elevator**2
                     
                     #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
@@ -240,15 +289,11 @@ class flag(object):
                         [-self.dy_S_mean, 0, -self.tau*k2]];
                     #Compute eigenvalue and eigenvector of 
                     
-                    eig_val,eig_vec=np.linalg.eig(A) #use linear algebra package to compute eigenvalue
+                    eig_val,eig_vec=linalg.eig(A) #use linear algebra package to compute eigenvalue
                     eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
                     eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
                     
                     self.lambda_elevator=eig_val[eig_val_max_ind]
-                    #print('Eigenvalue')
-                    #print(eig_val)
-                    #print('Eigenvector')
-                    #print(eig_vec_max)
                     w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
                     T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
                     S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
@@ -256,7 +301,35 @@ class flag(object):
                     ##This is sample code to setup the initial condition as whatever I want...
                     #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
                     #S['g']=S0[slices]
-            
+                elif self.flow in ['double_diffusive_shear_2D']:
+                    k2=self.k_elevator**2
+                    
+                    #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
+                    #This should work for both finger regime and diffusive regime..
+                    #This is the eigenvalue problem only for no shear case....
+                    A=[[-k2, self.Ra_T, -self.Ra_S2T],
+                        [-self.dy_T_mean, -k2, 0],
+                        [-self.dy_S_mean, 0, -self.tau*k2]]
+                    B=[[self.Re, 0,0],
+                       [0,self.Pe_T, 0],
+                       [0,0,self.Pe_S]];
+                    #Compute eigenvalue and eigenvector of 
+                    
+                    #Update 2021/10/05, use the scipy package of the linalg. This can also solve the generalized eigenvalue problem
+                    eig_val,eig_vec=linalg.eig(A,B) #use linear algebra package to compute eigenvalue
+                    eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
+                    eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
+                    
+                    self.lambda_elevator=eig_val[eig_val_max_ind]
+                    w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                    T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
+                    S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
+                    #print(w0)
+                    ##This is sample code to setup the initial condition as whatever I want...
+                    #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
+                    #S['g']=S0[slices]
+                    
+                    
             u['g']=u0
             w['g']=w0
             T['g']=T0
@@ -294,7 +367,7 @@ class flag(object):
         
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
-        if self.flow in ['IFSC_2D','double_diffusive_2D']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_task('S',layout='g',name='S')
             analysis.add_task('T',layout='g',name='T')
@@ -307,5 +380,4 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
-            #analysis.add_system(solver.state,layout = 'c')
 
