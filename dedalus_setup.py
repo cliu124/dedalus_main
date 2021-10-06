@@ -187,7 +187,7 @@ class flag(object):
             if self.F_sin == 0:
                 print('without shear')
                 if self.Re == 0:
-                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) + dx(p) = 0",condition="(nx!=0) or (nz!=0)")
                     problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                 else:
                     problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(dz(u)) ) + dx(p) = Re*( -u*dx(u)-w*dz(u))")
@@ -209,15 +209,23 @@ class flag(object):
                 problem.parameters['phase_4ks']=self.phase_4ks
                 
                 if self.Re == 0:
-                    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
                     problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                 else:
                     problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
 
+            if self.Re ==0:
+                problem.add_equation("- ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+            else:
+                problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*( -u*dx(w)-w*dz(w) )")
+
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-            problem.add_equation(" Re*dt(w) - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =Re*( -u*dx(w)-w*dz(w) )")
-            problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*dz(T) )")
+            if self.Pe_T == 0:
+                problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =0")
+            else:
+                problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*dz(T) )")
+
             problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*dz(S) ) ")
 
         elif self.flow == "channel":
