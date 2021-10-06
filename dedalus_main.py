@@ -95,7 +95,17 @@ elif flag.flow == 'double_diffusive_2D':
     flag.A_shear=1
 
 elif flag.flow == 'double_diffusive_shear_2D':
-    
+    ##These are setup for testing the layering based on Radko (2016)
+    Lx2d = 4
+    Lz2d = 4
+    flag.ks=0.5
+    flag.Lz=Lx2d*2*np.pi/flag.ks
+    flag.Lx=Lz2d*2*np.pi/flag.ks
+    flag.Nz=Lx2d*32
+    flag.Nx=Lz2d*32
+    u_L=0
+    initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+
     if flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive':
         ##parameter for Radko (2013) type
         Pr=10
@@ -114,7 +124,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.dy_S_mean=1
         
         flag.A_elevator=0.1
-        flag.k_elevator=0.5
+        flag.k_elevator=flag.ks
     elif flag.flow_sub_double_diffusive_shear_2D == 'IFSC':
     ##parameter for 
         Ra_ratio=1.1 ##parameter of IFSC
