@@ -22,7 +22,7 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 flag.flow='double_diffusive_shear_2D'
-flag.flow_sub_double_diffusive_shear_2D='double_diffusive_2D'
+flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
 
 if flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
@@ -96,7 +96,7 @@ elif flag.flow == 'double_diffusive_2D':
 
 elif flag.flow == 'double_diffusive_shear_2D':
     
-    if flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive_2D':
+    if flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive':
         ##parameter for Radko (2013) type
         Pr=10
         tau=0.01
@@ -112,7 +112,10 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         flag.dy_T_mean=1
         flag.dy_S_mean=1
-    elif flag.flow_sub_double_diffusive_shear_2D == 'IFSC_2D':
+        
+        flag.A_elevator=0.1
+        flag.k_elevator=0.5
+    elif flag.flow_sub_double_diffusive_shear_2D == 'IFSC':
     ##parameter for 
         Ra_ratio=1.1 ##parameter of IFSC
         
@@ -126,6 +129,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         flag.dy_T_mean=1
         flag.dy_S_mean=1
+        
+        flag.A_elevator=0.1
+        flag.k_elevator=0.5
     elif flag.flow_sub_double_diffusive_shear_2D == 'MRBC':
         Ra_ratio=1.1
         Sc=1
@@ -140,7 +146,10 @@ elif flag.flow == 'double_diffusive_shear_2D':
     
         flag.dy_T_mean=1
         flag.dy_S_mean=1
-    elif flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive_shear_Radko2016':
+        
+        flag.A_elevator=0.1
+        flag.k_elevator=0.5
+    elif flag.flow_sub_double_diffusive_shear_2D == 'shear_Radko2016':
         Pr=10
         tau=0.01
         R_rho_T2S=0.5
@@ -157,6 +166,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         flag.dy_T_mean=1
         flag.dy_S_mean=1
+        
+        #flag.A_elevator=0.1
+        #flag.k_elevator=0.5
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
 #--------------setup the background shear
