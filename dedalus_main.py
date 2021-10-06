@@ -21,7 +21,8 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='double_diffusive_2D'
+flag.flow='double_diffusive_shear_2D'
+flag.flow_sub_double_diffusive_shear_2D='double_diffusive_2D'
 
 if flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
@@ -93,22 +94,75 @@ elif flag.flow == 'double_diffusive_2D':
     flag.A_noise=1
     flag.A_shear=1
 
+elif flag.flow == 'double_diffusive_shear_2D':
+    
+    if flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive_2D':
+        ##parameter for Radko (2013) type
+        Pr=10
+        tau=0.01
+        R_rho_T2S=2
+        
+        #map to the extended parameter in double_diffusive_shear_2D
+        flag.Re=1/Pr
+        flag.Pe_T=1
+        flag.Pe_S=1
+        flag.tau=tau #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=1
+        flag.Ra_S2T=1/R_rho_T2S
+    elif flag.flow_sub_double_diffusive_shear_2D == 'IFSC_2D':
+    ##parameter for 
+        Ra_ratio=1.1 ##parameter of IFSC
+        
+        #map to the extended parameter in double_diffusive_shear_2D
+        flag.Re=0
+        flag.Pe_T=0
+        flag.Pe_S=0
+        flag.tau=1 #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=1
+        flag.Ra_S2T=Ra_ratio
+        
+    elif flag.flow_sub_double_diffusive_shear_2D == 'MRBC':
+        Ra_ratio=1.1
+        Sc=1
+        
+        #map to the extended parameter in double_diffusive_shear_2D
+        flag.Re=1/Sc
+        flag.Pe_T=0
+        flag.Pe_S=0
+        flag.tau=1 #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=1
+        flag.Ra_S2T=Ra_ratio
+    
+    elif flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive_shear_Radko2016':
+        Pr=10
+        tau=0.01
+        R_rho_T2S=0.5
+        Pe=100
+        Ri=10
+        
+        #map to the extended parameter in double_diffusive_shear_2D
+        flag.Re=Pe/Pr
+        flag.Pe_T=Pe
+        flag.Pe_S=Pe
+        flag.tau=tau
+        flag.Ra_T=4*np.pi*Ri/(1/R_rho_T2S-1)*Pr/Pe**2
+        flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    else:
+        raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
 #--------------setup the background shear
 
-u_L_2ks=0
-u_L_3ks=0
-u_L_4ks=0
+#u_L_2ks=0
+#u_L_3ks=0
+#u_L_4ks=0
 
 
-flag.F_sin_2ks=u_L_2ks*(2*flag.ks)**2
-flag.F_sin_3ks=u_L_3ks*(3*flag.ks)**2
-flag.F_sin_4ks=u_L_4ks*(4*flag.ks)**2
+#flag.F_sin_2ks=u_L_2ks*(2*flag.ks)**2
+#flag.F_sin_3ks=u_L_3ks*(3*flag.ks)**2
+#flag.F_sin_4ks=u_L_4ks*(4*flag.ks)**2
 
-flag.phase_2ks=0
-flag.phase_3ks=0
-flag.phase_4ks=0
-
-
+#flag.phase_2ks=0
+#flag.phase_3ks=0
+#flag.phase_4ks=0
 
 
 #-----------------setup storing for post-processing

@@ -57,12 +57,15 @@ class flag(object):
         self.Pe_S=1 #The Peclet number appearing in front of the inertial term in salinity
         self.Ra_T=1 #The Rayleigh number appearing in front of the temperature term, defined as Ra_T=g\alpha T_z L^4/\nu \kappa_T
         self.Ra_S2T=1 #The Rayleigh number appearing in front of the salinity term, this is defined based salintiy over temperature, thus Ra_T=g\beta S_z L^4/\nu \kappa_T
-        self.tau=1 #This is the diffusivity ratio, \kappa_S/\kappa_T 
+        #self.tau=1 #This tau is not necessary as it has been defined... #This is the diffusivity ratio, \kappa_S/\kappa_T 
         
         self.A_elevator=0
         self.k_elevator=0.5
         self.A_noise=0
         self.A_shear=0        
+        
+        self.flow_sub_double_diffusive_shear_2D='double_diffusive_2D'
+
         
         self.lambda_elevator=0
                 

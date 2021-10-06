@@ -87,6 +87,16 @@ classdef dedalus_post
         TKE_time; %%turbulence kinematic energy... I need to remove the laminar background flow of Kolmogorov type
         spectrum_TKE;
         
+        flow_sub_double_diffusive_shear_2D;
+        
+        Re=1; %#The Reynolds number appearing in front of the inertial term in momentum
+        Pe_T=1; %#The Peclet number appearing in front of the inertial term in temperature
+        Pe_S=1; %#The Peclet number appearing in front of the inertial term in salinity
+        Ra_T=1; %#The Rayleigh number appearing in front of the temperature term, defined as Ra_T=g\alpha T_z L^4/\nu \kappa_T
+        Ra_S2T=1; %#The Rayleigh number appearing in front of the salinity term, this is defined based salintiy over temperature, thus Ra_T=g\beta S_z L^4/\nu \kappa_T
+        %tau=1; %This tau has been defined before %#This is the diffusivity ratio, \kappa_S/\kappa_T 
+        
+        
         wS;
         uS;
         uT;
