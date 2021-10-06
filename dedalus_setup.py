@@ -214,7 +214,6 @@ class flag(object):
                 else:
                     problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
 
-            problem.add_equation("u=0",condition="(nx==0) and (nz==0)") #Note that for the primitive equation,,, this singularity for u momentum is not there...
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation(" Re*dt(w) - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =Re*( -u*dx(w)-w*dz(w) )")
