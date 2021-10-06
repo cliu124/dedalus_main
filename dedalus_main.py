@@ -106,7 +106,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
     u_L=0
     initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
 
-    if flag.flow_sub_double_diffusive_shear_2D == 'double_diffusive':
+    if flag.flow_sub_double_diffusive_shear_2D == 'primitive_Radko2013':
         ##parameter for Radko (2013) type
         Pr=10
         tau=0.01
@@ -125,9 +125,30 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         flag.A_elevator=0.1
         flag.k_elevator=flag.ks
+        
+    elif flag.flow_sub_double_diffusive_shear_2D == 'primitive_IFSC_unit_tuS':
+        ##parameter for primitive equations
+        Pr=10
+        tau=0.01
+        R_rho_T2S=50
+        
+        #map to the extended parameter in primitive_IFSC_unit_tus
+        flag.Re=tau/Pr
+        flag.Pe_T=tau
+        flag.Pe_S=1
+        flag.tau=1 #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=1
+        flag.Ra_S2T=1/R_rho_T2S/tau
+        
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
+        
+        flag.A_elevator=0.1
+        flag.k_elevator=flag.ks
+        
     elif flag.flow_sub_double_diffusive_shear_2D == 'IFSC':
     ##parameter for 
-        Ra_ratio=1.1 ##parameter of IFSC
+        Ra_ratio=2 ##parameter of IFSC
         
         #map to the extended parameter in double_diffusive_shear_2D
         flag.Re=0

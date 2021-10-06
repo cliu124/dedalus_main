@@ -434,6 +434,8 @@ classdef dedalus_post
                         -obj.dy_S_mean, 0, -obj.tau*k2];
                     B=diag([obj.Re,obj.Pe_T,obj.Pe_S]);
                     [vec,lambda]=eig(A,B);
+                    lambda(isinf(lambda)|isnan(lambda)) = -Inf;
+
                     [val,lambda_max_ind]=max(real(diag(lambda)));
                     lambda_max=lambda(lambda_max_ind,lambda_max_ind);
                     vec_max=vec(:,lambda_max_ind);
