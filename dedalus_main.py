@@ -25,6 +25,7 @@ flag.flow='double_diffusive_shear_2D'
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
 flag.flow_sub_double_diffusive_shear_2D='IFSC'
 flag.flow_sub_double_diffusive_shear_2D='MRBC'
+flag.flow_sub_double_diffusive_shear_2D='Stokes'
 flag.flow_sub_double_diffusive_shear_2D='primitive_IFSC_unit_tuS'
 flag.flow_sub_double_diffusive_shear_2D='shear_Radko2016'
 
@@ -168,7 +169,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_elevator=0.1
         flag.k_elevator=0.5
     elif flag.flow_sub_double_diffusive_shear_2D == 'MRBC':
-        Ra_ratio=1.1
+        Ra_ratio=2
         Sc=1
         
         #map to the extended parameter in double_diffusive_shear_2D
@@ -184,6 +185,25 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         flag.A_elevator=0.1
         flag.k_elevator=0.5
+    elif flag.flow_sub_double_diffusive_shear_2D == 'Stokes':
+        #map to the extended parameter in double_diffusive_shear_2D
+        Ra_ratio=2
+        tau=0.01
+        
+        flag.Re=0
+        flag.Pe_T=tau
+        flag.Pe_S=1
+        flag.tau=1 #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=1
+        flag.Ra_S2T=Ra_ratio
+    
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
+        
+        flag.A_elevator=0.1
+        flag.k_elevator=0.5
+        
+        
     elif flag.flow_sub_double_diffusive_shear_2D == 'shear_Radko2016':
         flag.ks=2*np.pi
         flag.Lx=64
