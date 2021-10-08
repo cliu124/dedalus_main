@@ -23,6 +23,10 @@ flag=dedalus_setup.flag()
 #------------select the flow configuration and special parameters for each
 flag.flow='double_diffusive_shear_2D'
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
+flag.flow_sub_double_diffusive_shear_2D='IFSC'
+flag.flow_sub_double_diffusive_shear_2D='MRBC'
+flag.flow_sub_double_diffusive_shear_2D='primitive_IFSC_unit_tuS'
+flag.flow_sub_double_diffusive_shear_2D='shear_Radko2016'
 
 if flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
@@ -96,13 +100,13 @@ elif flag.flow == 'double_diffusive_2D':
 
 elif flag.flow == 'double_diffusive_shear_2D':
     ##These are setup for testing the layering based on Radko (2016)
-    Lx2d = 4
-    Lz2d = 4
+    Lx2d = 16
+    Lz2d = 16
     flag.ks=0.5
-    flag.Lz=Lx2d*2*np.pi/flag.ks
-    flag.Lx=Lz2d*2*np.pi/flag.ks
-    flag.Nz=Lx2d*32
-    flag.Nx=Lz2d*32
+    flag.Lx=Lx2d*2*np.pi/flag.ks
+    flag.Lz=Lz2d*2*np.pi/flag.ks
+    flag.Nx=Lx2d*16
+    flag.Nz=Lz2d*16
     u_L=0
     initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
 
@@ -124,7 +128,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.dy_S_mean=1
         
         flag.A_elevator=0.1
-        flag.k_elevator=flag.ks
+        flag.k_elevator=0.5
         
     elif flag.flow_sub_double_diffusive_shear_2D == 'primitive_IFSC_unit_tuS':
         ##parameter for primitive equations
@@ -144,7 +148,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.dy_S_mean=1
         
         flag.A_elevator=0.1
-        flag.k_elevator=flag.ks
+        flag.k_elevator=0.5
         
     elif flag.flow_sub_double_diffusive_shear_2D == 'IFSC':
     ##parameter for 
@@ -181,6 +185,15 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_elevator=0.1
         flag.k_elevator=0.5
     elif flag.flow_sub_double_diffusive_shear_2D == 'shear_Radko2016':
+        flag.ks=2*np.pi
+        flag.Lx=64
+        flag.Lz=1
+        flag.Nz=16
+        flag.Nx=512
+        u_L=1
+        flag.F_sin=u_L*flag.ks*flag.ks
+        initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+        
         Pr=10
         tau=0.01
         R_rho_T2S=0.5
@@ -192,12 +205,14 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_T=Pe
         flag.Pe_S=Pe
         flag.tau=tau
-        flag.Ra_T=4*np.pi*Ri/(1/R_rho_T2S-1)*Pr/Pe**2
+        flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pr/Pe**2
         flag.Ra_S2T=flag.Ra_T/R_rho_T2S
         
-        flag.dy_T_mean=1
-        flag.dy_S_mean=1
+        flag.dy_T_mean=-1
+        flag.dy_S_mean=-1
         
+        flag.A_noise=0.1
+        flag.A_shear=1
         #flag.A_elevator=0.1
         #flag.k_elevator=0.5
     else:
@@ -219,8 +234,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=1;
-flag.stop_sim_time=10;
+flag.post_store_dt=0.5;
+flag.stop_sim_time=200;
 
 #------------ print these parameters in the screen
 flag.print_screen(logger)

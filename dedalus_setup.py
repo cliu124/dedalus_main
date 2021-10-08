@@ -297,7 +297,7 @@ class flag(object):
                     #Compute eigenvalue and eigenvector of 
                     
                     eig_val,eig_vec=linalg.eig(A) #use linear algebra package to compute eigenvalue
-                    eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
+                    eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
                     eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
                     
                     self.lambda_elevator=eig_val[eig_val_max_ind]
@@ -325,7 +325,7 @@ class flag(object):
                     #Update 2021/10/05, use the scipy package of the linalg. This can also solve the generalized eigenvalue problem
                     eig_val,eig_vec=linalg.eig(A,B) #use linear algebra package to compute eigenvalue
                     eig_val[np.isinf(eig_val)]=-np.inf
-                    eig_val_max_ind=np.argmax(eig_val) #compute the index of the eigenvalue
+                    eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
                     eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
                     
                     self.lambda_elevator=eig_val[eig_val_max_ind]
