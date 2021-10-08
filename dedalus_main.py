@@ -28,6 +28,8 @@ flag.flow_sub_double_diffusive_shear_2D='MRBC'
 flag.flow_sub_double_diffusive_shear_2D='Stokes'
 flag.flow_sub_double_diffusive_shear_2D='primitive_IFSC_unit_tuS'
 flag.flow_sub_double_diffusive_shear_2D='shear_Radko2016'
+flag.shear_Radko2016_reduced='primitive'
+
 
 if flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
@@ -221,8 +223,19 @@ elif flag.flow == 'double_diffusive_shear_2D':
         Ri=10
         
         #map to the extended parameter in double_diffusive_shear_2D
-        flag.Re=Pe/Pr
-        flag.Pe_T=Pe
+        if flag.shear_Radko2016_reduced =='primitive':
+            flag.Re=Pe/Pr
+            flag.Pe_T=Pe
+        elif flag.shear_Radko2016_reduced =='IFSC':
+            flag.Re=0
+            flag.Pe_T=0
+        elif flag.shear_Radko2016_reduced =='MRBC':
+            flag.Re=Pe/Pr
+            flag.Pe_T=0
+        elif flag.shear_Radko2016_reduced =='Stokes':
+            flag.Re=0
+            flag.Pe_T=Pe
+
         flag.Pe_S=Pe
         flag.tau=tau
         flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pr/Pe**2

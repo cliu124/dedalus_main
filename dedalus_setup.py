@@ -65,7 +65,7 @@ class flag(object):
         self.A_shear=0        
         
         self.flow_sub_double_diffusive_shear_2D='double_diffusive_2D'
-
+        self.shear_Radko2016_reduced='primitive'
         
         self.lambda_elevator=0
                 
