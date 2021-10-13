@@ -172,7 +172,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.k_elevator=0.5
     elif flag.flow_sub_double_diffusive_shear_2D == 'MRBC':
         Ra_ratio=2
-        Sc=1
+        Sc=1000
         
         #map to the extended parameter in double_diffusive_shear_2D
         flag.Re=1/Sc
@@ -210,11 +210,11 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.ks=2*np.pi
         flag.Lx=64
         flag.Lz=1
-        flag.Nz=16
+        flag.Nz=24
         flag.Nx=512
         u_L=1
         flag.F_sin=u_L*flag.ks*flag.ks
-        initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+        initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L)/100,flag.Lx/flag.Nx])
         
         Pr=10
         tau=0.01
@@ -238,13 +238,13 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
         flag.Pe_S=Pe
         flag.tau=tau
-        flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pr/Pe**2
+        flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
         flag.Ra_S2T=flag.Ra_T/R_rho_T2S
         
         flag.dy_T_mean=-1
         flag.dy_S_mean=-1
         
-        flag.A_noise=0.1
+        flag.A_noise=0.001
         flag.A_shear=1
         #flag.A_elevator=0.1
         #flag.k_elevator=0.5

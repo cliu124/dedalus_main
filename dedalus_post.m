@@ -88,6 +88,7 @@ classdef dedalus_post
         spectrum_TKE;
         
         flow_sub_double_diffusive_shear_2D;
+        shear_Radko2016_reduced;
         
         Re=1; %#The Reynolds number appearing in front of the inertial term in momentum
         Pe_T=1; %#The Peclet number appearing in front of the inertial term in temperature
