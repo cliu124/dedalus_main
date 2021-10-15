@@ -123,6 +123,8 @@ classdef DDC_LST
         M;
         
         operator='v_omega_y'; %%set the flag for operator..
+        
+        darcy=0; %%if 1, then we need to change the viscosity term based on the darcy law... Note that this is only for momentum equation
     end
     
     methods
@@ -327,11 +329,16 @@ classdef DDC_LST
                        zero_bc, zero_bc, obj.Pe_T*I_bc, zero_bc;
                        zero_bc, zero_bc, zero_bc, obj.Pe_S*I_bc];
                 case 'uvwpTS'
+                    
                     for mean_elevator_W_ind=1:length(obj.mean_elevator_amp_list{2})
+                        if obj.darcy
+                            Diagterm=-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Re-I_bc;
+                        else
+                            Diagterm=-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Re+(D2_bc-K2*I_bc);
+                        end
                         if K2>0.000001
                             switch obj.mean
                                 case {'kolmogorov','no'}
-                                    Diagterm=-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Re+(D2_bc-K2*I_bc);
                                     obj.A(:,:,mean_elevator_W_ind)=[Diagterm, -diag(d_U_bar(:,mean_elevator_W_ind))*obj.Re, zero_bc, -1i*obj.kx*I_bc, zero_bc, zero_bc;...
                                           zero_bc, Diagterm, zero_bc,     -D1_bc, obj.Ra_T*I_bc, -obj.Ra_S2T*I_bc;...
                                           zero_bc, zero_bc, Diagterm,     -1i*obj.kz*I_bc, zero_bc, zero_bc; ...
@@ -339,7 +346,6 @@ classdef DDC_LST
                                           zero_bc, -obj.dy_T_mean*I_bc, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T+(D2_bc-K2*I_bc), zero_bc;
                                           zero_bc, -obj.dy_S_mean*I_bc, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*(D2_bc-K2*I_bc)]; 
                                 case 'elevator'
-                                    Diagterm=-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Re+(D2_bc-K2*I_bc);
                                     obj.A(:,:,mean_elevator_W_ind)=[Diagterm, -diag(d_U_bar(:,mean_elevator_W_ind))*obj.Re, zero_bc, -1i*obj.kx*I_bc, obj.Ra_T*I_bc, -obj.Ra_S2T*I_bc;...
                                           zero_bc, Diagterm, zero_bc,     -D1_bc, zero_bc,zero_bc;...
                                           zero_bc, zero_bc, Diagterm,     -1i*obj.kz*I_bc, zero_bc, zero_bc; ...
@@ -347,7 +353,6 @@ classdef DDC_LST
                                           -obj.dy_T_mean*I_bc, -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*obj.Pe_T, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T+(D2_bc-K2*I_bc), zero_bc;
                                           -obj.dy_S_mean*I_bc, -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*obj.Pe_S, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*(D2_bc-K2*I_bc)]; 
                                     
-
                                 otherwise
                                     error('obj.mean not supported in this case');
                             end
@@ -357,7 +362,6 @@ classdef DDC_LST
                             error('This branch has not been fully debug.. set a larger kx')
                             switch obj.mean
                                 case {'kolmogorov','no'}
-                                    Diagterm=(D2_bc-K2*I_bc);
                                     obj.A(:,:,mean_elevator_W_ind)=[Diagterm, -diag(d_U_bar(:,mean_elevator_W_ind)), zero_bc, zero_bc, zero_bc, zero_bc;...
                                           zero_bc, Diagterm, zero_bc,     -zero_bc, obj.Ra_T*zero_bc, -obj.Ra_S2T*zero_bc;...
                                           zero_bc, zero_bc, Diagterm,     -zero_bc, zero_bc, zero_bc; ...
@@ -365,7 +369,6 @@ classdef DDC_LST
                                           zero_bc, -obj.dy_T_mean*I_bc, zero_bc, zero_bc,(D2_bc-K2*I_bc), zero_bc;
                                           zero_bc, -obj.dy_S_mean*I_bc, zero_bc, zero_bc, zero_bc,obj.tau*(D2_bc-K2*I_bc)]; 
                                 case 'elevator'
-                                    Diagterm=(D2_bc-K2*I_bc);
                                      obj.A(:,:,mean_elevator_W_ind)=[Diagterm, -diag(d_U_bar(:,mean_elevator_W_ind)), zero_bc, zero_bc, zero_bc, zero_bc;...
                                           zero_bc, Diagterm, zero_bc,     -zero_bc, obj.Ra_T*I_bc, -obj.Ra_S2T*I_bc;...
                                           zero_bc, zero_bc, Diagterm,     -zero_bc, zero_bc, zero_bc; ...
@@ -396,8 +399,12 @@ classdef DDC_LST
         end
         
         function obj=LST(obj)
-            if strcmp(obj.mean,'elevator')
+            if strcmp(obj.mean,'elevator') && obj.grid_diff{2}(2) == 2*pi 
+                %%This require the mean flow is the elevator mode and we do
+                %%not specify any user defined domain size.. it remain
+                %%2pi...
                 %%make the grid adaptive to the elevator mode...
+                %get 2 times the wavelength of elevator mode
                 obj.grid_diff{2}(2)=2*pi/obj.mean_elevator_kx_local;
             end
             obj=grid_diff_fourier(obj); %%setup the fourier grid
@@ -740,7 +747,7 @@ classdef DDC_LST
 %                 obj.elevator_eig_vec_max=obj_elevator.eig_vec_max; %%copy this to the obj which will be used later ...
             elseif strcmp(obj.mean_elevator_kx,'max')
                 %%For this case, solve the relation in 
-                obj_elevator.kx_list=linspace(0,2,50);
+                obj_elevator.kx_list=linspace(0.01,2,50);
                 obj_elevator=obj_elevator.solve_kxkz();
                 [obj.elevator_lambda_max,kx_max_ind]=max(real(cell2mat(obj_elevator.eig_val_max_list)));
                 obj_elevator.kx=obj_elevator.kx_list(kx_max_ind);
@@ -748,7 +755,7 @@ classdef DDC_LST
                 obj.mean_elevator_kx_max=obj_elevator.kx;
             elseif strcmp(obj.mean_elevator_kx,'steady')
                 %%For this case, solve the relation in 
-                obj_elevator.kx_list=linspace(0,2,50);
+                obj_elevator.kx_list=linspace(0.01,2,50);
                 obj_elevator=obj_elevator.solve_kxkz();
                 kx_03_ind=min(find(obj_elevator.kx_list>0.3));
                 [obj.elevator_lambda_max,kx_steady_ind]=min(abs(real(cell2mat(obj_elevator.eig_val_max_list(kx_03_ind:end)))));

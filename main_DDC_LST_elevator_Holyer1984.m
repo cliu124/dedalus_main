@@ -28,12 +28,12 @@ mean='elevator';
 % mean_elevator_amp_list={'T',1};%logspace(-4,1,4);
 mean_elevator_kx=1;
 % elevator_lambda_balance_bisection=[];
-Ny_full=32; %This needs to be 92 for high Pe, other case 62 or 32 is enough
+Ny_full=62; %This needs to be 92 for high Pe, other case 62 or 32 is enough
 %Up to 0.3 and 0.4 for the Pe=100, Ri=10
 %Up to 0.5 and 0.8 for the Pe=100, Ri=1 
 %Up to 3.5 and 1.5 for the Pe=10^4, R1
 % kx_list=linspace(0,0.5,30); %0.3
-kx_list=linspace(0,0.5,10);
+kx_list=linspace(0.01,0.5,20);
 % kz_list=linspace(0,1.5,60); %0.4
 kz_list=0;
 solve='LST'; %%or finished if we would like to skip but just load the data..
@@ -71,6 +71,7 @@ primitive_Radko2013=primitive_Radko2013.mean_profile_elevator_kx();
 % primitive_Radko2013.Ra_T=0;
 % primitive_Radko2013.Ra_S2T=0;
 % primitive_Radko2013.Pe_T=0;
+% primitive_Radko2013.Pe_S=0;
 % primitive_Radko2013.Re=0;
 for DDC_LST_ind=1:length(mean_elevator_amp_list{2})
     DDC_LST_list{DDC_LST_ind}=primitive_Radko2013;
@@ -114,6 +115,7 @@ plot_config.fontsize_legend=24;
 plot_config.fontsize=36;
 plot_line(data,plot_config);
 
+error('1');
 data_elevator_W{2}.x=mean_elevator_amp_list{2};
 data_elevator_W{2}.y=DDC_LST_list{1}.elevator_lambda_max*ones(size(data_elevator_W{2}.x));
 plot_config.user_color_style_marker_list={'k-','b--','m*','r--'};

@@ -4,10 +4,10 @@ clc;
 
 %------setup the main parameter for running
 Pr=10;
-Pe=100;
+Pe=700;
 tau=0.01;
 R_rho_T2S=0.5;
-Ri=10;
+Ri=1;
 dy_T_mean=-1;
 dy_S_mean=-1;
 mean_kolmogorov=[1,2*pi];
@@ -18,7 +18,7 @@ Ny_full=62; %This needs to be 92 for high Pe, other case 62 or 32 is enough
 %Up to 0.3 and 0.4 for the Pe=100, Ri=10
 %Up to 0.5 and 0.8 for the Pe=100, Ri=1 
 %Up to 3.5 and 1.5 for the Pe=10^4, R1
-kx_list=linspace(0.01,0.5,20); %0.3
+kx_list=linspace(0.005,0.2,60); %0.3
 % kz_list=linspace(0,1.5,60); %0.4
 kz_list=0;
 solve='LST'; %%or finished if we would like to skip but just load the data..
@@ -63,7 +63,7 @@ for DDC_LST_ind=[1:4]%:length(DDC_LST_list)
     DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.solve_kxkz();
     DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.convert_IFSC_unit_tuS();
     %DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.post_eig_kxkz_contour();
-    DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.post_eigenvector();
+%     DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.post_eigenvector();
 
     data{DDC_LST_ind}.x=kx_list;
     data{DDC_LST_ind}.y=real(cell2mat(DDC_LST_list{DDC_LST_ind}.eig_val_max_list));
