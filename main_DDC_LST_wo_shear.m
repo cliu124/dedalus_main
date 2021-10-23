@@ -2,9 +2,9 @@ clear all;
 close all;
 clc;
 
-Pr=10;
-tau=0.01;
-R_rho_T2S=50;
+Pr=7;
+tau=1/24;
+R_rho_T2S=1.5;
 dy_T_mean=1;
 dy_S_mean=1;
 % mean_kolmogorov=[1,1];
@@ -16,6 +16,7 @@ primitive_IFSC_unit_tuS=DDC_LST('primitive_IFSC_unit_tuS');
 primitive_IFSC_unit_tuS.tau=tau;
 primitive_IFSC_unit_tuS.Pr=Pr;
 primitive_IFSC_unit_tuS.R_rho_T2S=R_rho_T2S;
+primitive_IFSC_unit_tuS.post_super_exponential();
 % primitive_IFSC_unit_tuS.operator='v_omega_y';
 primitive_IFSC_unit_tuS=primitive_IFSC_unit_tuS.convert_shear();
 primitive_IFSC_unit_tuS_0tau=primitive_IFSC_unit_tuS; %make one copy but set tau=0

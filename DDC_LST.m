@@ -26,6 +26,13 @@ classdef DDC_LST
         Ra_T=1;%Rayleigh nubmer defined as Ra_T=g \alpha dTdz L^4/(\nu\kappa_T) 
         Ra_S2T=1;%Fixed Rayleigh number based on salinity over temperature as Ra_{S,T}=g \beta dSdz L^4/(\nu\kappa_T) 
         
+        %%This in default is equal to one... but sometimes will be removed
+        %%to study the mechanism...This coefficient can be only 1 or
+        %%zero... This is just used to compute results without thermal
+        %%diffusivity...
+        kappa_T_elevator=1; %%coefficient for the thermal diffusivity..
+        kappa_S_elevator=1;
+        
         tau_scaling=1;%scaling parameter for diffusivity ratio
     
         %%Note that although here we are doing the double-diffusive
@@ -40,8 +47,20 @@ classdef DDC_LST
         eig_val_max;%the eigenvalue associated with the largest real part
         eig_vec_max;%the eigenvector associated with the largest real part
         
+        eig_val_max_A_AT_time_dependent;%store eigenvalue of A+A* only involving time-dependent part... 
+        eig_vec_max_A_AT_time_dependent;
+        
+        eig_val_max_A_AT_all;%store the eigenvalue of A+A* for full matrix...
+        eig_vec_max_A_AT_all;%eigenvector 
+        
         eig_val_max_list={};%putting different kx kz results of eig_val_max into a list
         eig_vec_max_list={};%putting different kx kz results of eig_vec_max into a cell.
+        
+        eig_val_max_A_AT_time_dependent_list={};%cell storing results for different kx and kz pair
+        eig_vec_max_A_AT_time_dependent_list={};%cell storing results for different kx and kz pair
+        
+        eig_val_max_A_AT_all_list={};%same as agove
+        eig_vec_max_A_AT_all_list={};
         
         eig_vec_kx_kz=struct;%eigenvector associated with the largest growth rate among different kx kz..
         
@@ -120,10 +139,12 @@ classdef DDC_LST
         F_S=0;
         
         A;%%operator for the linear stability analysis
+        A_time_dependent;%%operator that introduced by elevator mode only..
+        
         M;
         
         operator='v_omega_y'; %%set the flag for operator..
-        
+
         darcy=0; %%if 1, then we need to change the viscosity term based on the darcy law... Note that this is only for momentum equation
     end
     
@@ -231,6 +252,13 @@ classdef DDC_LST
         
         function obj=operator_A_M(obj)
             %perform the linear stability analysis for one kx and kz...
+            %initilization.. remove these A and M field.
+%             obj=rmfield(obj,'A');
+%             obj=rmfield(obj,'M');
+%             obj.A=[];
+%             obj.M=[];
+%             obj.A_time_dependent=[];
+%             
             zi=sqrt(-1); %imaginary unit
             
             U_bar=obj.U_bar_full; 
@@ -245,11 +273,11 @@ classdef DDC_LST
             K2= obj.kx^2+obj.kz^2; % Total wave number, in convienent for calculation
             
             switch obj.operator
-                case 'v_omega_y'
+                case 'v_omega_y' %based on Orr-Sommerfeld and Squire operator...
                     for mean_elevator_W_ind=1:length(obj.mean_elevator_amp_list{2})
                         if K2>0.000001 
                             switch obj.mean
-                                case {'kolmogorov','no'}
+                                case {'kolmogorov','no'}%primary instability
                                     %construct the A matrix for standard shear flow. Note that
                                     %Re is associated with the shear term
                                     A11=(D4_bc-2*K2*D2_bc+K2^2*I_bc)+obj.Re*(diag(dd_U_bar)*zi*obj.kx*I_bc-zi*obj.kx*diag(U_bar)*(D2_bc-K2*I_bc)); %%Orr-Sommerfeld operator
@@ -263,8 +291,8 @@ classdef DDC_LST
                                     obj.A(:,:,mean_elevator_W_ind)=[A_shear, obj.Ra_T*[inv_lap*(-K2*I_bc); zero_bc], -obj.Ra_S2T*[inv_lap*(-K2*I_bc); zero_bc];
                                       -obj.dy_T_mean*I_bc,zero_bc,-zi*obj.kx*diag(U_bar)*I_bc*obj.Pe_T+(D2_bc-K2*I_bc),zero_bc;
                                       -obj.dy_S_mean*I_bc,zero_bc,zero_bc,-zi*obj.kx*diag(U_bar)*I_bc*obj.Pe_S+obj.tau*(D2_bc-K2*I_bc)];
-
-                                case 'elevator'
+                                    
+                                case 'elevator'%secondary instability of elevator mode
 
                                     A11=(D4_bc-2*K2*D2_bc+K2^2*I_bc)+obj.Re*(diag(dd_U_bar(:,mean_elevator_W_ind))*zi*obj.kx*I_bc-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*(D2_bc-K2*I_bc)); %%Orr-Sommerfeld operator
                                     A21= -zi*obj.kz*diag(d_U_bar(:,mean_elevator_W_ind))*I_bc*obj.Re; %Coulping operator
@@ -276,8 +304,11 @@ classdef DDC_LST
                                     Cv=[I_bc,zero_bc];
                                     Bu=[inv_lap*(-zi*obj.kx*D1_bc); zi*obj.kz*I_bc];
                                     obj.A(:,:,mean_elevator_W_ind)=[A_shear, obj.Ra_T*Bu, -obj.Ra_S2T*Bu;
-                                                    -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*Cv*obj.Pe_T-diag(obj.dy_T_mean)*Cu,-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Pe_T+(D2_bc-K2*I_bc),zero_bc;
-                                                    -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*Cv*obj.Pe_S-diag(obj.dy_S_mean)*Cu,zero_bc,-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Pe_S+obj.tau*(D2_bc-K2*I_bc)];
+                                                    -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*Cv*obj.Pe_T-diag(obj.dy_T_mean)*Cu,-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Pe_T+obj.kappa_T_elevator*(D2_bc-K2*I_bc),zero_bc;
+                                                    -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*Cv*obj.Pe_S-diag(obj.dy_S_mean)*Cu,zero_bc,-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Pe_S+obj.tau*obj.kappa_S_elevator*(D2_bc-K2*I_bc)];
+                                    
+                                              
+                                                
                                 otherwise 
                                     error('obj.mean not supported in this case');
                             end
@@ -301,8 +332,8 @@ classdef DDC_LST
                                     %%it still remain the buoyancy force here.
                                     A_shear= [D2_bc, zero_bc; zero_bc, D2_bc]; 
                                     obj.A(:,:,mean_elevator_W_ind)=[A_shear, obj.Ra_T*[I_bc; zero_bc], -obj.Ra_S2T*[I_bc; zero_bc];
-                                    -obj.dy_T_mean*I_bc,zero_bc,D2_bc,zero_bc;
-                                    -obj.dy_S_mean*I_bc,zero_bc,zero_bc,obj.tau*D2_bc];
+                                    -obj.dy_T_mean*I_bc,zero_bc,obj.kappa_T_elevator*D2_bc,zero_bc;
+                                    -obj.dy_S_mean*I_bc,zero_bc,zero_bc,obj.tau*obj.kappa_S_elevator*D2_bc];
                                     %A11=(D4_bc-2*K2*D2_bc+K2^2*I_bc)+obj.Re*(diag(dd_U_bar(:,mean_elevator_W_ind))*zi*obj.kx*I_bc-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*(D2_bc-K2*I_bc)); %%Orr-Sommerfeld operator
                                     %A21= -zi*obj.kz*diag(d_U_bar(:,mean_elevator_W_ind))*I_bc*obj.Re; %Coulping operator
                                     %A22= -zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Re+(D2_bc-K2*I_bc); %Squire operator  
@@ -321,6 +352,16 @@ classdef DDC_LST
                                     error('obj.mean not supported in this case');
                             end
                         end
+                        
+                        
+                        if strcmp(obj.mean,'elevator')
+                            A_shear_elevator=[obj.Re*(diag(dd_U_bar(:,mean_elevator_W_ind))*zi*obj.kx*I_bc-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*(D2_bc-K2*I_bc)), zero_bc;
+                                -zi*obj.kz*diag(d_U_bar(:,mean_elevator_W_ind))*I_bc*obj.Re,-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Re];
+                            obj.A_time_dependent(:,:,mean_elevator_W_ind)=[A_shear_elevator,[zero_bc;zero_bc], [zero_bc;zero_bc];
+                                            -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*Cv*obj.Pe_T,-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Pe_T,zero_bc;
+                                            -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*Cv*obj.Pe_S,zero_bc,-zi*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*I_bc*obj.Pe_S];
+                        end
+                        
                     end
 
                     %%the matrix for the genearalized eigenvalue problem
@@ -328,14 +369,15 @@ classdef DDC_LST
                        zero_bc, obj.Re*I_bc, zero_bc, zero_bc;
                        zero_bc, zero_bc, obj.Pe_T*I_bc, zero_bc;
                        zero_bc, zero_bc, zero_bc, obj.Pe_S*I_bc];
-                case 'uvwpTS'
+                case 'uvwpTS'%formulation using primitive, with uvw p and T, S
                     
                     for mean_elevator_W_ind=1:length(obj.mean_elevator_amp_list{2})
-                        if obj.darcy
+                        if obj.darcy %%if darcy,, modifiy the advection diffusion operator based on Darcy law...
                             Diagterm=-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Re-I_bc;
                         else
                             Diagterm=-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Re+(D2_bc-K2*I_bc);
                         end
+                                    
                         if K2>0.000001
                             switch obj.mean
                                 case {'kolmogorov','no'}
@@ -350,9 +392,9 @@ classdef DDC_LST
                                           zero_bc, Diagterm, zero_bc,     -D1_bc, zero_bc,zero_bc;...
                                           zero_bc, zero_bc, Diagterm,     -1i*obj.kz*I_bc, zero_bc, zero_bc; ...
                                           1i*obj.kx*I_bc,D1_bc,1i*obj.kz*I_bc,zero_bc, zero_bc, zero_bc;
-                                          -obj.dy_T_mean*I_bc, -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*obj.Pe_T, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T+(D2_bc-K2*I_bc), zero_bc;
-                                          -obj.dy_S_mean*I_bc, -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*obj.Pe_S, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*(D2_bc-K2*I_bc)]; 
-                                    
+                                          -obj.dy_T_mean*I_bc, -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*obj.Pe_T, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T+obj.kappa_T_elevator*(D2_bc-K2*I_bc), zero_bc;
+                                          -obj.dy_S_mean*I_bc, -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*obj.Pe_S, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*obj.kappa_S_elevator*(D2_bc-K2*I_bc)]; 
+                                  
                                 otherwise
                                     error('obj.mean not supported in this case');
                             end
@@ -373,14 +415,27 @@ classdef DDC_LST
                                           zero_bc, Diagterm, zero_bc,     -zero_bc, obj.Ra_T*I_bc, -obj.Ra_S2T*I_bc;...
                                           zero_bc, zero_bc, Diagterm,     -zero_bc, zero_bc, zero_bc; ...
                                           zero_bc, zero_bc, zero_bc,I_bc, zero_bc, zero_bc;
-                                          zero_bc, -obj.dy_T_mean*I_bc, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T+(D2_bc-K2*I_bc), zero_bc;
-                                          zero_bc, -obj.dy_S_mean*I_bc, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*(D2_bc-K2*I_bc)]; 
+                                          zero_bc, -obj.dy_T_mean*I_bc, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T+obj.kappa_T_elevator*(D2_bc-K2*I_bc), zero_bc;
+                                          zero_bc, -obj.dy_S_mean*I_bc, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*obj.kappa_S_elevator*(D2_bc-K2*I_bc)]; 
                                 otherwise
                                     error('obj.mean not supported in this case');
                             end
                             obj.M=blkdiag(obj.Re*I_bc,obj.Re*I_bc,obj.Re*I_bc,zero_bc,obj.Pe_T*I_bc,obj.Pe_S*I_bc);
 
                         end
+                        
+                        if strcmp(obj.mean,'elevator')
+                            %%This is the term only induced by the elevator
+                            %%mode...Update 2021/10/15
+                            Diagterm_elevator=-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Re;
+                            obj.A_time_dependent(:,:,mean_elevator_W_ind)=[Diagterm_elevator, -diag(d_U_bar(:,mean_elevator_W_ind))*obj.Re, zero_bc, zero_bc, zero_bc, zero_bc;...
+                                  zero_bc, Diagterm_elevator, zero_bc,     zero_bc, zero_bc,zero_bc;...
+                                  zero_bc, zero_bc, Diagterm_elevator,     zero_bc, zero_bc, zero_bc; ...
+                                  zero_bc, zero_bc, zero_bc,zero_bc, zero_bc, zero_bc;
+                                  zero_bc, -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*obj.Pe_T, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T, zero_bc;
+                                  zero_bc, -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*obj.Pe_S, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S];
+                        end
+                        
                     end
                     
                     %six block diagonal matrix to perform the 
@@ -389,10 +444,6 @@ classdef DDC_LST
                     %   zero_bc, zero_bc, obj.Pe_T*I_bc, zero_bc;
                     %   zero_bc, zero_bc, zero_bc, obj.Pe_S*I_bc];
                 
-                    
-                    
-                    
-                    
                 otherwise
                     error('Wrong obj.operator');
             end
@@ -414,15 +465,77 @@ classdef DDC_LST
             
             for mean_elevator_W_ind=1:length(obj.mean_elevator_amp_list{2})
 
-                [eig_vec,eig_val_mat]=eig(obj.A(:,:,mean_elevator_W_ind),obj.M);% #use linear algebra package to compute eigenvalue
+                %%This is a list of three different type of eigenvalue
+                %%problem we want to solve....
+                if strcmp(obj.mean,'elevator') %strcmp(obj.operator,'v_omega_y') && 
+                    eig_name_list={'max','max_A_AT_all'};%,'max_A_AT_time_dependent'
+                    %eig_name_list={'max'};
+                else
+                    eig_name_list={'max'};
+                end
                 
-                %Update 2021/10/13, also remove the eigenvalue that has
-                %growth rate much larger than 10^6...
-                eig_val_mat(isinf(eig_val_mat)|isnan(eig_val_mat)|real(eig_val_mat)>10^6) = -Inf;
+                %Update 2021/10/21. just go through the eig_name_list to
+                %compute and store the eigenvalue and eigenvector... such
+                %that I do not need to copy the code...
+                for eig_name_ind=1:length(eig_name_list)
+                    switch eig_name_list{eig_name_ind}
+                        case 'max'
+                            A=obj.A(:,:,mean_elevator_W_ind);
+                            M=obj.M;
+                        case {'max_A_AT_all','max_A_AT_time_dependent'}
+                            if strcmp(eig_name_list{eig_name_ind},'max_A_AT_time_dependent')
+                                A=obj.A_time_dependent(:,:,mean_elevator_W_ind);
+                            elseif strcmp(eig_name_list{eig_name_ind},'max_A_AT_all')
+                                A=obj.A(:,:,mean_elevator_W_ind);
+                            end
+                            zero_ind=find(diag(obj.M)==0);
+                            non_zero_ind=find(diag(obj.M)~=0);
+                            if isempty(zero_ind) %%The M matrix is not singular
+                                A=inv(obj.M)*A;%+obj.A_time_dependent(:,:,mean_elevator_W_ind)';
+                            else %%This step will eliminate the algebraic constraints...
+                                A=A(non_zero_ind,non_zero_ind)-...
+                                    A(non_zero_ind,zero_ind)*inv(A(zero_ind,zero_ind))*A(zero_ind,non_zero_ind);
+                                A=inv(obj.M(non_zero_ind,non_zero_ind))*A;
+                            end
+                            A=A+A';
+                            M=eye(size(A));
+%                         case 'max_A_AT_all'
+%                             A=inv(obj.M)*obj.A(:,:,mean_elevator_W_ind);
+%                             A=A+A';%+obj.A(:,:,mean_elevator_W_ind)';
+%                             M=eye(size(A));
+                        otherwise
+                            error('Wrong eig_name_list{eig_name_ind}');
+                    end
+                    
+                    [eig_vec,eig_val_mat]=eig(A,M);
+                    %Update 2021/10/13, also remove the eigenvalue that has
+                    %growth rate much larger than 10^6...
+                    eig_val_mat(isinf(eig_val_mat)|isnan(eig_val_mat)|real(eig_val_mat)>10^6) = -Inf;
+                    [~,eig_val_max_ind]=max(real(diag(eig_val_mat))); %#compute the index of the eigenvalue
+                    obj.(['eig_val_',eig_name_list{eig_name_ind}])(1,mean_elevator_W_ind)=eig_val_mat(eig_val_max_ind,eig_val_max_ind);
+                    obj.(['eig_vec_',eig_name_list{eig_name_ind}])(:,mean_elevator_W_ind)=eig_vec(:,eig_val_max_ind); %#get the corresponding eigen vector
 
-                [~,eig_val_max_ind]=max(real(diag(eig_val_mat))); %#compute the index of the eigenvalue
-                obj.eig_val_max(1,mean_elevator_W_ind)=eig_val_mat(eig_val_max_ind,eig_val_max_ind);
-                obj.eig_vec_max(:,mean_elevator_W_ind)=eig_vec(:,eig_val_max_ind); %#get the corresponding eigen vector
+                end
+%                 if strcmp(obj.operator,'v_omega_y') && strcmp(obj.mean,'elevator')
+% 
+% %                     %                     disp('Also compute the eigenvalue of A+A^T');
+%                     A=inv(obj.M)*squeeze(obj.A_time_dependent(:,:,mean_elevator_W_ind));
+%                     [eig_vec_A_AT_time_dependent,eig_val_mat_A_AT_time_dependent]=...
+%                         max(eig(A+A'));
+%                     eig_val_mat_A_AT_time_dependent(isinf(eig_val_mat_A_AT_time_dependent)|isnan(eig_val_mat_A_AT_time_dependent)|real(eig_val_mat_A_AT_time_dependent)>10^6) = -Inf;
+%                     [~,eig_val_max_ind]=max(real(diag(eig_val_mat_A_AT_time_dependent))); %#compute the index of the eigenvalue
+%                     obj.eig_val_max_A_AT_time_dependent(1,mean_elevator_W_ind)=eig_val_mat(eig_val_max_ind,eig_val_max_ind);
+%                     obj.eig_val_max_A_AT_time_dependent(:,mean_elevator_W_ind)=eig_vec_A_AT_time_dependent(:,eig_val_max_ind); %#get the corresponding eigen vector
+%                 
+%                     A_all=inv(obj.M)*squeeze(obj.A(:,:,mean_elevator_W_ind));
+%                     [eig_vec_A_AT_all,eig_val_mat_A_AT_all]=...
+%                         max(eig(A_all+A_all'));
+%                     eig_val_mat_A_AT_all(isinf(eig_val_mat_A_AT_all)|isnan(eig_val_mat_A_AT_all)|real(eig_val_mat_A_AT_all)>10^6) = -Inf;
+%                     [~,eig_val_max_ind]=max(real(diag(eig_val_mat_A_AT_all))); %#compute the index of the eigenvalue
+%                     obj.eig_val_max_A_AT_all(1,mean_elevator_W_ind)=eig_val_mat(eig_val_max_ind,eig_val_max_ind);
+%                     obj.eig_val_max_A_AT_all(:,mean_elevator_W_ind)=eig_vec_A_AT_all(:,eig_val_max_ind); %#get the corresponding eigen vector
+%                 end
+                
             end
         end
         
@@ -577,22 +690,23 @@ classdef DDC_LST
 %old version for running in series...           
         function obj=solve_kxkz(obj)
             %%set up result name..
-            obj.result_name=['DDC_LST_Re=',num2str(obj.Re),...
-                    '_Pe_T=',num2str(obj.Pe_T),'_Pe_S=',num2str(obj.Pe_S),...
-                    '_tau=',num2str(obj.tau),'_R_rho_T2S=',num2str(obj.R_rho_T2S),...
-                    '_Pe=',num2str(obj.Pe),'_Ri=',num2str(obj.Ri),...
-                    '_Ra_T=',num2str(round(obj.Ra_T)),'_Ra_S2T',num2str(round(obj.Ra_S2T)),...
+            obj.result_name=['DDC_LST_Re=',num2str(round(obj.Re,2)),...
+                    '_Pe_T=',num2str(round(obj.Pe_T,2)),'_Pe_S=',num2str(round(obj.Pe_S,2)),...
+                    '_tau=',num2str(obj.tau),'_R_rho_T2S=',num2str(round(obj.R_rho_T2S,2)),...
+                    '_Pe=',num2str(round(obj.Pe,2)),'_Ri=',num2str(round(obj.Ri,3)),...
+                    '_Ra_T=',num2str(round(obj.Ra_T,2)),'_Ra_S2T',num2str(round(round(obj.Ra_S2T,2))),...
                     '_dy_T_mean=',num2str(obj.dy_T_mean),...
                     '_dy_S_mean=',num2str(obj.dy_S_mean),...
                     '_',obj.flow_sub_double_diffusive_shear_2D,...
                     '_reduced_',obj.shear_Radko2016_reduced,'_mean=',obj.mean,...
-                    '_mean_elevator_',obj.mean_elevator_amp_list{1},'=',num2str(obj.mean_elevator_amp_list{2}(1)) , obj.debug];
+                    '_mean_elevator_',obj.mean_elevator_amp_list{1},'=',num2str(round(obj.mean_elevator_amp_list{2}(1),2)) , obj.debug];
                 
             switch obj.solve
                 case 'finished' %%if finished, just load the data.
                     %%read the data and overwrite the old data obj file
                     %%variable...
                     load([obj.path_data,obj.result_name,'.mat'],'obj');
+                    obj.solve='finished'; %This flag from the load data will be other stuff.. move this back to 'finished'
                 case 'LST'
                     %go through linear stability analysis throughout the kx
                     %and kz
@@ -604,6 +718,15 @@ classdef DDC_LST
                             obj=LST(obj);
                             obj.eig_val_max_list{kx_ind,kz_ind}=obj.eig_val_max;
                             obj.eig_vec_max_list{kx_ind,kz_ind}=obj.eig_vec_max;
+                            
+                            %store the eigenvalue of A+A^T...
+                            if  strcmp(obj.mean,'elevator') %strcmp(obj.operator,'v_omega_y') &&
+                                obj.eig_val_max_A_AT_time_dependent_list{kx_ind,kz_ind}=obj.eig_val_max_A_AT_time_dependent;
+                                obj.eig_vec_max_A_AT_time_dependent_list{kx_ind,kz_ind}=obj.eig_vec_max_A_AT_time_dependent;
+
+                                obj.eig_val_max_A_AT_all_list{kx_ind,kz_ind}=obj.eig_val_max_A_AT_all;
+                                obj.eig_vec_max_A_AT_all_list{kx_ind,kz_ind}=obj.eig_vec_max_A_AT_all;
+                            end
                         end
                     end
                     save([obj.path_data,obj.result_name,'.mat'],'obj');
@@ -649,6 +772,7 @@ classdef DDC_LST
             
                 %%If the middle error is positive, and the min one is
                 %%negative, set the max as the middle one...
+                %This is the basic algorithm of bisection...
                 if obj_lambda_balance_mid.elevator_lambda_balance_error >0 & obj_lambda_balance_min.elevator_lambda_balance_error <0
                     obj_lambda_balance_max=obj_lambda_balance_mid;
                     max_bound=(min_bound+max_bound)/2;
@@ -830,6 +954,12 @@ classdef DDC_LST
                         switch obj.operator
                             case 'v_omega_y'
                                 switch obj.mean_elevator_amp_list{1}
+                                    %%note that the flag of
+                                    %%obj.mean_elevator_amp_list{1} is
+                                    %%using the physical coordinate for
+                                    %%double-diffusive convection...
+                                    %%Inside of the code, the coordinate is
+                                    %%still shear flow type..
                                     case 'W'
                                          eig_vec_max_rescale=obj.elevator_eig_vec_max/obj.elevator_eig_vec_max(1)*mean_elevator_amp;
                                     case 'T'
@@ -863,9 +993,10 @@ classdef DDC_LST
                                 S_amp=mean(eig_vec_max_rescale(5*obj.Ny_full+1:6*obj.Ny_full));
                                 
                             otherwise
-                                error('');
+                                error('Wrong obj.operator');
                         end
-                        
+                        %set up the numerical values of these
+                        %mean_profile...
                         syms y 
                         U_sym=real(v_amp)*sin(obj.mean_elevator_kx_local*y);
                         dU_sym=diff(U_sym);
@@ -1057,12 +1188,13 @@ classdef DDC_LST
                         obj.eig_vec_kx_kz.v=squeeze(obj.eig_vec_max_list{kx_ind,kz_ind}(1:Ny));
                         obj.eig_vec_kx_kz.T=squeeze(obj.eig_vec_max_list{kx_ind,kz_ind}(2*Ny+1:3*Ny));
                         obj.eig_vec_kx_kz.S=squeeze(obj.eig_vec_max_list{kx_ind,kz_ind}(3*Ny+1:4*Ny)); %%This 2 is due to the density ratio... that is 1/2 in my system...
-
+                        obj.eig_vec_kx_kz.omega_z=1i*kx_max*obj.eig_vec_kx_kz.v-obj.D1_full*obj.eig_vec_kx_kz.u;
                     case 'uvwpTS'
                         obj.eig_vec_kx_kz.u=squeeze(obj.eig_vec_max_list{kx_ind,kz_ind}(1:Ny));
                         obj.eig_vec_kx_kz.v=squeeze(obj.eig_vec_max_list{kx_ind,kz_ind}(Ny+1:2*Ny));
                         obj.eig_vec_kx_kz.T=squeeze(obj.eig_vec_max_list{kx_ind,kz_ind}(4*Ny+1:5*Ny));
                         obj.eig_vec_kx_kz.S=squeeze(obj.eig_vec_max_list{kx_ind,kz_ind}(5*Ny+1:6*Ny));
+                        obj.eig_vec_kx_kz.omega_z=1i*kx_max*obj.eig_vec_kx_kz.v-obj.D1_full*obj.eig_vec_kx_kz.u;
 
                     otherwise
                         error('obj.operator is not supported');
@@ -1088,18 +1220,20 @@ classdef DDC_LST
                         eig_vec_tick_list.v=[1,-0.04,-0.02,0,0.02,0.04];
                         eig_vec_tick_list.T=[1,-1,-0.5,0,0.5,1];
                         eig_vec_tick_list.S=[1,-1.5,-1,-0.5,0,0.5,1,1.5];
+
                     else
                         eig_vec_tick_list.u=0;
                         eig_vec_tick_list.v=0;
                         eig_vec_tick_list.T=0;
                         eig_vec_tick_list.S=0;
                     end
+                    eig_vec_tick_list.omega_z=0;
                 end
                 
                 
                 T_mag=max(abs(obj.eig_vec_kx_kz.T));
 
-                variable_list={'u','v','T','S'};
+                variable_list={'u','v','T','S','omega_z'};
                 plot_config.Markerindex=3;
                 plot_config.user_color_style_marker_list={'k-','b-.','r--'};
                 x_list=linspace(0,2*pi,100);
@@ -1112,6 +1246,14 @@ classdef DDC_LST
                            data{1}.x=x_list;
                            data{1}.y=obj.y_list_full;
                            data{1}.z=real(obj.eig_vec_kx_kz.(variable_list{variable_ind})*exp(1i*x_list))/T_mag;
+                           if strcmp(variable_list{variable_ind},'omega_z')
+                               data{2}.x=x_list;
+                               data{2}.y=obj.y_list_full;
+                               data{2}.u=real(obj.eig_vec_kx_kz.u*exp(1i*x_list))';
+                               data{2}.v=real(obj.eig_vec_kx_kz.v*exp(1i*x_list))';
+                               plot_config.panel_num=2;
+                           end
+                           
                            plot_config.label_list={1,'$k_x x$','$z$'};
                            plot_config.ylim_list=[1,min(obj.y_list_full),max(obj.y_list_full)];
                            plot_config.xlim_list=[1,0,2*pi];
@@ -1122,6 +1264,15 @@ classdef DDC_LST
                            data{1}.x=obj.y_list_full;
                            data{1}.y=x_list;
                            data{1}.z=real(obj.eig_vec_kx_kz.(variable_list{variable_ind})*exp(1i*x_list))'/T_mag;
+                           if strcmp(variable_list{variable_ind},'omega_z')
+                               %%Note that the coordinate of elevator mode
+                               %%is differernt...
+                               data{2}.x=obj.y_list_full;
+                               data{2}.y=x_list;
+                               data{2}.u=real(obj.eig_vec_kx_kz.v*exp(1i*x_list))'/T_mag;
+                               data{2}.v=real(obj.eig_vec_kx_kz.u*exp(1i*x_list))'/T_mag;
+                               plot_config.panel_num=2;
+                           end
                            plot_config.label_list={1,'$x$','$k_z z$'};
                            plot_config.xlim_list=[1,min(obj.y_list_full),max(obj.y_list_full)];
                            plot_config.ylim_list=[1,0,2*pi];
@@ -1135,6 +1286,59 @@ classdef DDC_LST
                    plot_config.print_size=[1,1400,1000];
                    plot_contour(data,plot_config);
                 end    
+            
+        end
+        
+        function obj=post_super_exponential(obj)
+            %%Compute the super-exponential results in 
+            %%
+            lnln_super_exponential=get_lnln_super_exponential(obj);
+            
+            if obj.Pr==7 && obj.tau==1/24
+                switch obj.R_rho_T2S
+                    case 2
+                        %%This is the 2D results, figure 
+                        data{1}.x=lnln_super_exponential.figure3_2D_lower(:,1);
+                        data{1}.y=lnln_super_exponential.figure3_2D_lower(:,2);
+                        data{2}.x=lnln_super_exponential.figure3_2D_upper(:,1);
+                        data{2}.y=lnln_super_exponential.figure3_2D_upper(:,2);
+                        lambda=0.251;
+                        
+                        data{3}.x=data{1}.x;
+                        data{3}.y=data{1}.y(1)+(data{3}.x-data{3}.x(1))*lambda;
+                        data{4}.x=data{2}.x;
+                        data{4}.y=data{2}.y(1)+(data{4}.x-data{4}.x(1))*lambda;
+                        
+                        plot_config.label_list={1,'$t$','$G_m(t)=lnln\frac{\|T(t)\|}{\|T(t-\delta t)\|}$'};
+                        plot_config.Markerindex=3;
+                        plot_config.user_color_style_marker_list={'k*','b^','k-','b-.'};
+                        plot_config.name=[obj.path_fig,obj.result_name,'_stern2005_figure3_2D.png'];
+                        plot_line(data,plot_config);
+                    case 1.5
+                        data{1}.x=lnln_super_exponential.figure4_3D_lower(:,1);
+                        data{1}.y=lnln_super_exponential.figure4_3D_lower(:,2);
+                        data{2}.x=lnln_super_exponential.figure4_3D_upper(:,1);
+                        data{2}.y=lnln_super_exponential.figure4_3D_upper(:,2);
+                        lambda=0.372;
+                        data{3}.x=data{1}.x;
+                        data{3}.y=data{1}.y(1)+(data{3}.x-data{3}.x(1))*lambda;
+                        data{4}.x=data{2}.x;
+                        data{4}.y=data{2}.y(1)+(data{4}.x-data{4}.x(1))*lambda;
+                        plot_config.Markerindex=3;
+                        plot_config.user_color_style_marker_list={'k*','b^','k-','b-.'};
+                        plot_config.label_list={1,'$t$','$G_m(t)=lnln \frac{\|T(t)\|}{\|T(t-\delta t)\|}$'};
+                        plot_config.Markerindex=3;
+                        plot_config.name=[obj.path_fig,obj.result_name,'_stern2005_figure4_3D.png'];
+                        plot_line(data,plot_config);
+
+                    otherwise
+                        error('R_rho_T2S is not supported');
+                end
+                
+            else
+                error('The Prandtl and tau are not correct');
+            end
+            
             
         end
         
@@ -1390,6 +1594,172 @@ classdef DDC_LST
                 ];
             
         end
+        
+        function secondary_porous_media=get_secondary_porous_media(obj)
+            secondary_porous_media.sigma=[2.03409	0.958915
+                    3.93291	0.961373
+                    7.99988	1.00811
+                    15.4678	0.9665
+                    31.4628	1.21196
+                    63.9981	1.58924
+                    123.74	2.08356
+                    251.699	2.8571
+                    511.978	3.74652
+                    989.908	5.13644
+                    2013.56	7.0434
+                    3893.21	9.65643
+                    7919.15	12.6625
+                    16108.3	17.3636
+                    32765.6	23.81
+                    63352.3	32.6432
+                    1.29E+05	44.7624
+                    2.49E+05	61.3688
+                    5.07E+05	84.1526
+                    1.03E+06	115.395
+                    2.10E+06	158.237
+                    4.27E+06	216.984
+                    8.25E+06	297.482
+                    1.68E+07	407.926
+                    3.24E+07	559.262
+                    6.60E+07	766.894
+                    1.28E+08	1005.43
+                    2.59E+08	1441.75
+                    5.28E+08	1890.57
+                    1.07E+09	2711
+                    2.08E+09	3554.24
+                    4.22E+09	4873.78
+                    8.16E+09	6681.91
+                    ];
+            
+            secondary_porous_media.c=[31.4628	37.0363
+                    60.8332	72.9029
+                    123.74	143.504
+                    239.251	282.475
+                    511.978	556.03
+                    989.908	1094.5
+                    1913.98	2154.43
+                    3893.21	4240.83
+                    7919.15	9345.19
+                    15311.7	18395.3
+                    31145.3	40536.2
+                    63352.3	71275.6
+                    1.29E+05	1.40E+05
+                    2.62E+05	3.09E+05
+                    5.07E+05	6.09E+05
+                    1.03E+06	1.20E+06
+                    1.99E+06	2.36E+06
+                    4.05E+06	5.20E+06
+                    8.25E+06	1.02E+07
+                    1.59E+07	2.01E+07
+                    3.08E+07	3.96E+07
+                    6.27E+07	8.73E+07
+                    1.28E+08	1.72E+08
+                    2.59E+08	3.38E+08
+                    5.02E+08	7.46E+08
+                    1.02E+09	1.47E+09
+                    2.08E+09	2.58E+09
+                    4.01E+09	5.69E+09
+                    8.16E+09	1.12E+10
+                    ];
+                secondary_porous_media.kx=[34.9263	0.161188
+                    68.7505	0.161282
+                    135.271	0.158217
+                    266.095	0.153685
+                    523.091	0.144921
+                    1083.53	0.138021
+                    2130.01	0.13015
+                    4411.1	0.122734
+                    8671.37	0.115735
+                    17038.6	0.107
+                    33494.6	0.100898
+                    65829.2	0.0942091
+                    1.36E+05	0.0879673
+                    2.68E+05	0.0813277
+                    5.26E+05	0.0751892
+                    1.09E+06	0.0709048
+                    2.14E+06	0.0649084
+                    4.21E+06	0.0606052
+                    8.71E+06	0.0571518
+                    1.71E+07	0.0523185
+                    3.36E+07	0.0483696
+                    6.96E+07	0.0451649
+                    1.37E+08	0.0417559
+                    2.69E+08	0.0386042
+                    5.28E+08	0.0356904
+                    1.09E+09	0.0329981
+                    2.15E+09	0.0308104
+                    4.45E+09	0.0287691
+                    8.74E+09	0.0263361
+                    ];
+                
+        end
+        
+        function lnln_super_exponential=get_lnln_super_exponential(obj)
+            lnln_super_exponential.figure3_2D_lower=[9.35357	-0.52723
+                9.6085	-0.458547
+                10.0273	-0.366894
+                10.61	-0.218051
+                11.0653	-0.114957
+                11.648	0.022479
+                12.085	0.125556
+                12.4856	0.217192
+                12.8862	0.308827
+                13.305	0.411887
+                13.6328	0.48064
+                13.997	0.57224
+                14.3429	0.652417
+                14.7071	0.732611
+                14.9621	0.789888
+                ];
+            
+            lnln_super_exponential.figure3_2D_upper=[7.82398	-0.722601
+                8.20637	-0.608169
+                9.0258	-0.379253
+                9.51745	-0.241904
+                9.89985	-0.138878
+                10.4461	0.00992978
+                10.8467	0.124379
+                11.2473	0.227421
+                11.6115	0.319022
+                12.0303	0.433489
+                12.3581	0.536462
+                12.868	0.673829
+                13.3961	0.82262
+                13.8149	0.937086
+                14.1426	1.01725
+                14.5615	1.12031
+                14.9621	1.24616
+                ];
+            lnln_super_exponential.figure4_3D_lower=[8.80888	0.059633
+                9.11776	0.197248
+                9.39768	0.334862
+                9.55212	0.415138
+                9.74517	0.506881
+                9.92857	0.587156
+                10.0637	0.655963
+                10.1699	0.713303
+                10.2664	0.759174
+                10.4305	0.827982
+                10.6332	0.931193
+                10.7876	1
+                ];
+            
+            lnln_super_exponential.figure4_3D_upper=[8.33591	-0.112385
+                8.63514	0.0252294
+                8.83784	0.12844
+                9.09846	0.243119
+                9.33977	0.369266
+                9.53282	0.461009
+                9.74517	0.56422
+                9.94788	0.667431
+                10.2085	0.78211
+                10.4208	0.873853
+                10.6718	1.01147
+                10.778	1.06881
+                ];
+            
+        end 
+        
     end
 end
 

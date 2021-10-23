@@ -4,7 +4,7 @@ clc;
 
 %------setup the main parameter for running
 Pr=10;
-Pe=300;
+Pe=100;
 tau=0.01;
 R_rho_T2S=0.5;
 Ri=1;
@@ -18,8 +18,8 @@ Ny_full=62; %This needs to be 92 for high Pe, other case 62 or 32 is enough
 %Up to 0.3 and 0.4 for the Pe=100, Ri=10
 %Up to 0.5 and 0.8 for the Pe=100, Ri=1 
 %Up to 3.5 and 1.5 for the Pe=10^4, R1
-% kx_list=linspace(0.005,0.2,60); %0.3
-kx_list=linspace(0.01,4,60); %0.4
+kx_list=linspace(0.005,0.2,60); %0.3
+% kz_list=linspace(0,1.5,60); %0.4
 kz_list=0;
 solve='LST'; %%or finished if we would like to skip but just load the data..
 debug='kz=0';
@@ -48,7 +48,7 @@ DDC_LST_list{3}.shear_Radko2016_reduced='MRBC';
 DDC_LST_list{4}.shear_Radko2016_reduced='Stokes';
 
 %put them altogether and run 
-for DDC_LST_ind=[1]%:length(DDC_LST_list)
+for DDC_LST_ind=[1:4]%:length(DDC_LST_list)
 %     DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.convert_shear();
     %the parameter setting that are shared by all cases...
     DDC_LST_list{DDC_LST_ind}.kx_list=kx_list;

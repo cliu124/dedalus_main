@@ -3,51 +3,26 @@ close all;
 clc;
 
 %------setup the main parameter for running
-% Pr=10; Re=1/Pr; Pe=1;
-% tau=0.01;gamma=0.5;
-% mean_elevator_amp_list={'W',4};
-% kx_list=linspace(0.01,0.5,20);
-
-% %------
-
-%------set up for sugar-salt case
-Pr=1000; Re=1/Pr; Pe=1;
-tau=1/3;gamma=0.91;
-mean_elevator_amp_list={'W',100};
-kx_list=linspace(0.01,0.5,20);
-
-%-------
-% R_rho_T2S=gamma/tau;
-% Ra_T=R_rho_T2S*tau/(1-R_rho_T2S*tau);
-% Ra_S2T=Ra_T/R_rho_T2S;
-% mean_kolmogorov=[1,1];
-%-------for validation of Holyer (1984)
-% 
-% %------------for validation of Radko & Smith (2012
-% Pr=10; tau=0.01; Pe=1; Re=1/Pr;
-% Ra_T=1;  
-% % C=4;
-% R_rho_T2S=50;
-% R_rho_T2S_list=1.1:0.025:2.5;
-% %[1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.4,2.5]; %Ra_S2T=Ra_T/R_rho_T2S;
-% % Lz=2*pi/1.01;
-% C_list=[1.5,2,3,4];
-% %%-------------
+Pr=7; Re=1/Pr; Pe=1;
+tau=1/24;
+R_rho_T2S=1.5;
+Ra_T=1;
+Ra_S2T=Ra_T/R_rho_T2S;
+mean_elevator_amp_list={'W',logspace(0,6,30)};%logspace(-1,3,30)
+mean_kolmogorov=[1,1];
+%-------------
 dy_T_mean=1;
 dy_S_mean=1;
 mean='elevator';
 % mean_elevator_amp_list={'T',1};%logspace(-4,1,4);
-mean_elevator_kx='steady';
+mean_elevator_kx='max';
 % elevator_lambda_balance_bisection=[];
 Ny_full=62; %This needs to be 92 for high Pe, other case 62 or 32 is enough
-%Up to 0.3 and 0.4 for the Pe=100, Ri=10
-%Up to 0.5 and 0.8 for the Pe=100, Ri=1 
-%Up to 3.5 and 1.5 for the Pe=10^4, R1
-% kx_list=linspace(0,0.5,30); %0.3
-% kz_list=linspace(0,1.5,60); %0.4
+
+kx_list=logspace(-2,0,20);
 kz_list=0;
 solve='LST'; %%or finished if we would like to skip but just load the data..
-debug='holyer1984';
+debug='stern2005';
 % Ri=1/((Pe/100)^2/(Pr/10));
 %-----------------
 
@@ -84,6 +59,7 @@ for DDC_LST_ind=1:length(mean_elevator_amp_list{2})
     %the parameter setting that are shared by all cases...
     DDC_LST_list{DDC_LST_ind}.mean_elevator_amp_list=...
         {mean_elevator_amp_list{1},mean_elevator_amp_list{2}(DDC_LST_ind)};
+    %%compute the linear stability analysis over kx kz
     DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.solve_kxkz();
     DDC_LST_list{DDC_LST_ind}.post_eig_kx();
 
@@ -92,14 +68,13 @@ for DDC_LST_ind=1:length(mean_elevator_amp_list{2})
     data_elevator_W{1}.x(DDC_LST_ind)=mean_elevator_amp_list{2}(DDC_LST_ind);
     data_elevator_W{1}.y(DDC_LST_ind)=max(data{DDC_LST_ind}.y);
     data_elevator_W{2}.x(DDC_LST_ind)=mean_elevator_amp_list{2}(DDC_LST_ind);
-    data_elevator_W{2}.y(DDC_LST_ind)=max(real(cell2mat(DDC_LST_list{DDC_LST_ind}.eig_val_max_A_AT_time_dependent_list)));
+    data_elevator_W{2}.y(DDC_LST_ind)=max(real(cell2mat(DDC_LST_list{DDC_LST_ind}.eig_val_max_A_AT_all_list)));
 end
-% plot_config.ylim_list=[1,2*min(data{5}.y),2*max(data{6}.y)];
+data_elevator_W{3}.x=data_elevator_W{1}.x;
+data_elevator_W{3}.y=data_elevator_W{1}.x;
+
 plot_config.label_list={1,'$k_z$','$\lambda$'};
-% plot_config.legend_list={1,'Primitive','IFSC','MRBC','Stokes'};
-%    'Primitive (IFSC unit), $\nabla^2 S=0$',...
-%    'IFSC, $\nabla^2 S=0$',...
-%     'MRBC, $\nabla^2 S=0$','Stokes, $\nabla^2 S=0$'};
+
 plot_config.Markerindex=3;
 plot_config.ylim_list=[0,2*min(data{1}.y)-0.1,2*max(data{1}.y)+0.1];
 plot_config.xlim_list=[1,min(kx_list),max(kx_list)];
@@ -116,16 +91,22 @@ plot_config.name=['C:/Figure/DDC_LST/DDC_LST_Pr=',num2str(Pr),'_tau=',...
     '_mean=',mean,'_mean_elevator_kx=',num2str(mean_elevator_kx),'_all.png'];
 plot_config.fontsize_legend=24;
 plot_config.fontsize=36;
-% plot_line(data,plot_config);
 
-plot_config.user_color_style_marker_list={'k-','b--','m*','r--'};
-plot_config.label_list={1,['$\underline{',mean_elevator_amp_list{1},'}$'],'$\lambda_{M}$'};
+plot_config.user_color_style_marker_list={'k-','b--','r-.','m*'};
+% plot_config.label_list={1,['$\underline{',mean_elevator_amp_list{1},'}$'],'$\lambda_{M}$'};
+plot_config.label_list={1,['$\underline{',mean_elevator_amp_list{1},'}$'],''};
 plot_config.name=['C:/Figure/DDC_LST/DDC_LST_Pr=',num2str(Pr),'_tau=',...
     num2str(tau),'_R_rho_T2S=',num2str(R_rho_T2S),...
     '_dy_T_mean=',num2str(dy_T_mean),...
     '_dy_S_mean=',num2str(dy_S_mean),...
     '_mean=',mean,'_mean_elevator_kx=',num2str(mean_elevator_kx),'_all_elevator_W.png'];
 plot_config.loglog=[1,1];
-plot_config.xlim_list=[1,min(data_elevator_W{2}.x),max(data_elevator_W{2}.x)];
+plot_config.legend_list={1,'$max\{real[eig(A)]\}$','$max\{real[eig(A+A^*)]\}$'};
+plot_config.xlim_list=[1,min(data_elevator_W{2}.x),10^5];%max(data_elevator_W{2}.x
+plot_config.ytick_list=[1,1,10,100,1000,10000,100000];
+plot_config.xtick_list=[1,1,10,100,1000,10000,100000];
 plot_line(data_elevator_W,plot_config);
+
+A_eta=scaling(data_elevator_W{1}.x(15:end),data_elevator_W{1}.y(15:end));
+A_AT_eta=scaling(data_elevator_W{2}.x(15:end),data_elevator_W{2}.y(15:end));
 
