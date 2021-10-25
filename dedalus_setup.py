@@ -64,6 +64,10 @@ class flag(object):
         self.A_noise=0
         self.A_shear=0        
         
+        self.A_secondary_T=0
+        self.A_secondary_S=0
+        self.k_secondary=0
+        
         self.flow_sub_double_diffusive_shear_2D='double_diffusive_2D'
         self.shear_Radko2016_reduced='primitive'
         
@@ -84,7 +88,7 @@ class flag(object):
         flag_text.close()
         
     def build_domain(self):
-        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
             x_basis = de.Fourier('x', self.Nx, interval=(0,self.Lx), dealias=3/2)
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
@@ -228,6 +232,16 @@ class flag(object):
 
             problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*dz(S) ) ")
 
+        elif self.flow =='porous_media_2D':
+            problem = de.IVP(domain,variables=['p','u','w','T'])
+            problem.parameters['Ra_T']=self.Ra_T
+            problem.add_equation(" u + dx(p) = 0", condition="(nx!=0) or (nz!=0)")
+            problem.add_equation(" w + dz(p) - Ra_T*T  =0")            
+            problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+            problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+            problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
+            problem.add_equation("dt(T) - (dx(dx(T)) + dz(dz(T)))  - w =-u*dx(T)-w*dz(T) ")
+
         elif self.flow == "channel":
             problem.parameters['Re']=self.Re
             problem.add_equation("dx(u) + dy(v)+wz=0")
@@ -279,6 +293,7 @@ class flag(object):
                     + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
                     + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
                 
+                #Compute the eigenvalue problem of elevator mode and add the elevator mode into initial condition
                 if self.flow=='IFSC_2D':
                     k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
         
@@ -336,14 +351,64 @@ class flag(object):
                     ##This is sample code to setup the initial condition as whatever I want...
                     #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
                     #S['g']=S0[slices]
+                
+                #superpose the field of secondary mode that has variation in vertical direction
+                #Right now just superpose a simple one...
+                
+                #u0 =u0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z))
+                #w0 =w0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z)) #set the results weighted by the corresponding eigenvector 
+                T0 =T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
+                S0 =S0 + self.A_secondary_S*np.real(np.exp(1j*self.k_secondary*z))
                     
-                    
-            u['g']=u0
-            w['g']=w0
-            T['g']=T0
-            S['g']=S0
-            p['g']=p0
+                
+                u['g']=u0
+                w['g']=w0
+                T['g']=T0
+                S['g']=S0
+                p['g']=p0
             
+            elif self.flow in ['porous_media_2D']:
+                x = domain.grid(0)
+                z = domain.grid(1)
+                u = solver.state['u']
+                w = solver.state['w']
+                p = solver.state['p']
+                T = solver.state['T']
+                
+                gshape = domain.dist.grid_layout.global_shape(scales=1)
+                slices = domain.dist.grid_layout.slices(scales=1)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
+                
+                ##Add the random noise
+                u0=self.A_noise*noise
+                w0=self.A_noise*noise
+                T0=self.A_noise*noise
+                p0=self.A_noise*noise
+                
+                k2=self.k_elevator**2
+                    
+                #The matrix to compute the eigenvalue of the porous media convection...
+                A=[[-1, self.Ra_T],
+                    [1, -k2] ]
+                B=[[0, 0],
+                   [0, 1]];
+                
+                eig_val,eig_vec=linalg.eig(A,B) #use linear algebra package to compute eigenvalue
+                eig_val[np.isinf(eig_val)]=-np.inf
+                eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
+                eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
+                
+                self.lambda_elevator=eig_val[eig_val_max_ind]
+                w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
+                
+                T0 =T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
+
+                u['g']=u0
+                w['g']=w0
+                T['g']=T0
+                p['g']=p0
         else:
             #Restart
             print('restart')
@@ -354,7 +419,7 @@ class flag(object):
     def run(self,solver,cfl,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
         ##Note this line is very important and it needs to be added!!!!!
-        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
             cfl.add_velocities(('u','w'))
 
         logger.info('Starting loop')
@@ -376,7 +441,7 @@ class flag(object):
         
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
-        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_task('S',layout='g',name='S')
             analysis.add_task('T',layout='g',name='T')

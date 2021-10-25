@@ -21,7 +21,7 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='double_diffusive_shear_2D'
+flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
 flag.flow_sub_double_diffusive_shear_2D='IFSC'
 flag.flow_sub_double_diffusive_shear_2D='MRBC'
@@ -100,6 +100,21 @@ elif flag.flow == 'double_diffusive_2D':
     #flag.k_elevator=0.5
     flag.A_noise=1
     flag.A_shear=1
+
+elif flag.flow == 'porous_media_2D':
+    Lx2d = 4
+    Lz2d = 4
+    flag.Lx=Lx2d*2*np.pi
+    flag.Lz=Lz2d*2*np.pi
+    flag.Nx=Lx2d*16
+    flag.Nz=Lz2d*16
+    initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+    flag.Ra_T=1
+    flag.A_elevator=2**8
+    flag.k_elevator=1
+    flag.A_secondary_T=1
+    flag.k_secondary=0.1795
+    
 
 elif flag.flow == 'double_diffusive_shear_2D':
     ##These are setup for testing the layering based on Radko (2016)

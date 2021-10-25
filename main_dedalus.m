@@ -128,7 +128,6 @@ slurm_num={'12073090',... %%IFSC, without shear, 32*32, A_elevator=1, A_noise=0
     '12292013',...
     '12356725',...
     '12356727',...'12357443',...'12357448',...%     '12357464',...
-    '12357464',...
     'end'};
 %     '12089742',...
 
@@ -151,7 +150,7 @@ for slurm_ind=length(slurm_num)-1:length(slurm_num)-1%[find(strcmp(slurm_num,'12
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('rho');
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('rho');
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_fluctuation_x_ave();
 

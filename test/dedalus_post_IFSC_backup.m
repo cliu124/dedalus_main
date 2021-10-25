@@ -156,23 +156,27 @@ classdef dedalus_post
 
             variable_max=max(max(max(obj.(variable_name))));
             variable_min=min(min(min(obj.(variable_name))));
-            if obj.video
-                for t_ind=1:length(obj.t_list)
-                    data{1}.z=obj.(variable_name)(:,:,t_ind);
-
+            for t_ind=1:length(obj.t_list)
+                data{1}.z=obj.(variable_name)(:,:,t_ind);
+                if strcmp(obj.flow(1:7),'IFSC_2D')
+                    data{1}.x=obj.x_list/(2*pi/obj.k_opt);
+                    data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+                    plot_config.label_list={1,'$x/l_{opt}$','$z/l_{opt}$'};
+                else
                     data{1}.x=obj.x_list;
                     data{1}.y=obj.z_list;
                     plot_config.label_list={1,'$x$','$z$'};
-
-                    plot_config.fontsize=28;
-                    plot_config.zlim_list=[1,variable_min,variable_max];
-                    plot_config.colormap='bluewhitered';%bluewhitered
-                    plot_config.print_size=[1,1200,1200];
-                    plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
-                    plot_config.print=obj.print;
-                    plot_config.visible=obj.visible;
-                    snapshot(t_ind)=plot_contour(data,plot_config);
                 end
+                plot_config.fontsize=28;
+                plot_config.zlim_list=[1,variable_min,variable_max];
+                plot_config.colormap='bluewhitered';%bluewhitered
+                plot_config.print_size=[1,1200,1200];
+                plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
+                plot_config.print=obj.print;
+                plot_config.visible=obj.visible;
+                snapshot(t_ind)=plot_contour(data,plot_config);
+            end
+            if obj.video
                plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_video.avi'];
                plot_video(snapshot,plot_config);
             end
@@ -186,10 +190,21 @@ classdef dedalus_post
             if obj.video
                 for t_ind=1:length(obj.t_list)
                     clear data plot_config;
-                    
-                    data{1}.x=obj.kx_list;
-                    data{1}.y=obj.kz_list(1:obj.Nz/2);
-                    plot_config.label_list={1,'$k_x$','$k_z$'};
+                    if strcmp(obj.flow(1:7),'IFSC_2D')
+                        data{1}.x=obj.kx_list/obj.k_opt;
+                        data{1}.y=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
+                        plot_config.zlim_list=[0,-3,0];
+                        plot_config.xlim_list=[1,0,2];
+                        plot_config.ylim_list=[1,0,2];
+                        plot_config.xtick_list=[1,0,1,2];
+                        plot_config.ytick_list=[1,0,1,2];
+                        plot_config.ztick_list=[0,-3,-2,-1,0];
+                        plot_config.label_list={1,'$k_x/k_{opt}$','$k_z/k_{opt}$'};
+                    else
+                        data{1}.x=obj.kx_list;
+                        data{1}.y=obj.kz_list(1:obj.Nz/2);
+                        plot_config.label_list={1,'$k_x$','$k_z$'};
+                    end
                     data{1}.z=log10(abs(obj.([variable_name,'_coeff'])(1:obj.Nz/2,:,t_ind)).^2);
                     %data{2}.x=obj.kx_list/obj.k_opt;
                     %data{2}.y=obj.ks/obj.k_opt*ones(size(obj.kx_list));
@@ -206,9 +221,21 @@ classdef dedalus_post
                     dx=diff(obj.kx_list); dx=dx(1);
                     dz=diff(obj.kz_list); dz=dz(1);
                     
-                    data{1}.x=obj.kx_list;
-                    data{2}.x=obj.kz_list(1:obj.Nz/2);
-                    plot_config.label_list={1,'$k_x$ or $k_z$',''};
+                    if strcmp(obj.flow(1:7),'IFSC_2D')
+                        data{1}.x=obj.kx_list/obj.k_opt;
+                        data{2}.x=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
+
+                        if obj.F_sin ~=0
+                            data{3}.x=2*obj.ks/obj.k_opt*ones(10,1);
+                            data{3}.y=logspace(log10(min([data{1}.y,data{2}.y'])),...
+                                       log10(max([data{1}.y,data{2}.y'])),10);
+                        end
+                        plot_config.label_list={1,'$k_x/k_{opt}$ or $k_z/k_{opt}$',''};
+                    else
+                        data{1}.x=obj.kx_list;
+                        data{2}.x=obj.kz_list(1:obj.Nz/2);
+                        plot_config.label_list={1,'$k_x$ or $k_z$',''};
+                    end
                     data{1}.y=2*dz*sum(abs(obj.([variable_name,'_coeff'])(1:obj.Nz/2,:,t_ind)).^2,1);
                     data{2}.y=2*dx*sum(abs(obj.([variable_name,'_coeff'])(1:obj.Nz/2,:,t_ind)).^2,2);
                     
@@ -235,19 +262,44 @@ classdef dedalus_post
             %%plot the overall spectrum averaged over time
             coeff=h5read(obj.h5_name,['/tasks/',variable_name,'_coeff']);
             obj.([variable_name,'_coeff'])=coeff.r+1i*coeff.i;
+            if strcmp(obj.flow(1:7),'IFSC_2D')
+                data{1}.x=obj.kx_list/obj.k_opt;
+                data{1}.y=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
+                plot_config.zlim_list=[0,-3,0];
+                plot_config.xlim_list=[1,0,2];
+                plot_config.ylim_list=[1,0,2];
+                plot_config.ztick_list=[0,-3,-2,-1,0];
+                plot_config.label_list={1,'$k_x/k_{opt}$','$k_z/k_{opt}$'};
+                if obj.F_sin ~=0
+                    data{3}.x=2*obj.ks/obj.k_opt*ones(10,1);
+                    data{3}.x=2*obj.ks*ones(10,1);
+                    data{3}.y=logspace(log10(min([data{1}.y,data{2}.y'])),...
+                                  log10(max([data{1}.y,data{2}.y'])),10);
+                end
+            else
+                data{1}.x=obj.kx_list;
+                data{1}.y=obj.kz_list(1:obj.Nz/2);
+                plot_config.label_list={1,'$k_x$','$k_z$'};
+            end
             
-            data{1}.x=obj.kx_list;
-            data{1}.y=obj.kz_list(1:obj.Nz/2);
-            plot_config.label_list={1,'$k_x$','$k_z$'};
-
-%             obj.(variable_name)=h5read(obj.h5_name,['/tasks/',variable_name]);
-%             for t_ind=1:length(obj.t_list)
-%                 obj.(['E_',variable_name])(t_ind)=sum(sum(obj.(variable_name)(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
-%             end
-%             [val,max_ind]=max(obj.(['E_',variable_name]));
-%             
-            spectrum_average=mean(abs(obj.([variable_name,'_coeff'])(1:obj.Nz/2,:,1:end)).^2,3);
+            
+            obj.(variable_name)=h5read(obj.h5_name,['/tasks/',variable_name]);
+            for t_ind=1:length(obj.t_list)
+                obj.(['E_',variable_name])(t_ind)=sum(sum(obj.(variable_name)(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
+            end
+            [val,max_ind]=max(obj.(['E_',variable_name]));
+%             t_grow=obj.t_list(1:max_ind);
+            
+            spectrum_average=mean(abs(obj.([variable_name,'_coeff'])(1:obj.Nz/2,:,max(3*max_ind,30):end)).^2,3);
+%             obj.spectrum_S_average=spectrum_S_average;
             data{1}.z=log10(spectrum_average);
+            
+%             data{2}.x=obj.kx_list/obj.k_opt;
+%             data{2}.y=obj.ks/obj.k_opt*ones(size(obj.kx_list));
+%             plot_config.user_color_style_marker_list={'k--'};
+%             
+
+
             plot_config.loglog=[0,0];
             plot_config.print_size=[1,1100,900];
             plot_config.colormap='white_zero';
@@ -259,14 +311,17 @@ classdef dedalus_post
             dx=diff(obj.kx_list); dx=dx(1);
             dz=diff(obj.kz_list); dz=dz(1);
 
+%             data{1}.x=obj.kx_list/obj.k_opt;
             data{1}.x=obj.kx_list;
             data{1}.y=2*dz*sum(spectrum_average,1);
+%             data{2}.x=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
             data{2}.x=obj.kz_list(1:obj.Nz/2);
             data{2}.y=2*dx*sum(spectrum_average,2);
             
             plot_config.loglog=[1,1];
             plot_config.ytick_list=[0,0.001,0.01,0.1,1,10,100,1000];
             plot_config.ylim_list=[0];%,0.1,10];
+%             plot_config.label_list={1,'$k_x/k_{opt}$ or $k_z/k_{opt}$',''};
             plot_config.label_list={1,'$k_x$ or $k_z$',''};
             plot_config.legend_list={1,['$\int E_',variable_name,'(k_x,k_z)dk_z$'],['$\int E_',variable_name,'(k_x,k_z)d k_x$']};
             plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_1D_time_average.png'];
@@ -281,32 +336,39 @@ classdef dedalus_post
             %%This is average over time... plot the turbulence kinetic
             %%energy spectrum as kx and kz
             
-            %%This is the post-processing for the TKE in 2D... 
-            w_coeff=h5read(obj.h5_name,'/tasks/w_coeff');
-            obj.w_coeff=w_coeff.r+1i*w_coeff.i;
-            u_coeff=h5read(obj.h5_name,'/tasks/u_coeff');
-            obj.u_coeff=u_coeff.r+1i*u_coeff.i;
-            for t_ind=1:length(obj.t_list)
-                obj.spectrum_TKE(:,:,t_ind)=abs(obj.u_coeff(:,:,t_ind)).^2+abs(obj.w_coeff(:,:,t_ind)).^2;
-            end
-
-%             obj.u=h5read(obj.h5_name,'/tasks/u');
-%             obj.w=h5read(obj.h5_name,'/tasks/w');
-% 
-%             for t_ind=1:length(obj.t_list)
-%                 obj.TKE_time(t_ind)=sum(sum(obj.u(:,:,t_ind).^2+obj.w(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
-%             end
-% 
-%             [val,max_ind]=max(obj.TKE_time);
-            spectrum_TKE_average=mean(abs(obj.spectrum_TKE(1:obj.Nz/2,:,1:end)).^2,3);%max(3*max_ind,30)
-
-            data{1}.z=log10(spectrum_TKE_average);
-            data{1}.x=obj.kx_list;
-            data{1}.y=obj.kz_list(1:obj.Nz/2);
+            if strcmp(obj.flow,'IFSC_2D_without_shear') || strcmp(obj.flow,'IFSC_2D_with_shear') || strcmp(obj.flow,'IFSC_2D') || strcmp(obj.flow,'double_diffusive_2D')
+                %%This is the post-processing for the TKE in 2D... 
+                w_coeff=h5read(obj.h5_name,'/tasks/w_coeff');
+                obj.w_coeff=w_coeff.r+1i*w_coeff.i;
+                u_coeff=h5read(obj.h5_name,'/tasks/u_coeff');
+                obj.u_coeff=u_coeff.r+1i*u_coeff.i;
+                for t_ind=1:length(obj.t_list)
+                    obj.spectrum_TKE(:,:,t_ind)=abs(obj.u_coeff(:,:,t_ind)).^2+abs(obj.w_coeff(:,:,t_ind)).^2;
+                end
             
+                obj.u=h5read(obj.h5_name,'/tasks/u');
+                obj.w=h5read(obj.h5_name,'/tasks/w');
+
+                for t_ind=1:length(obj.t_list)
+                    obj.TKE_time(t_ind)=sum(sum(obj.u(:,:,t_ind).^2+obj.w(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
+                end
+                
+                [val,max_ind]=max(obj.TKE_time);
+                spectrum_TKE_average=mean(abs(obj.spectrum_TKE(1:obj.Nz/2,:,max(3*max_ind,30):end)).^2,3);
+            end
+            
+            
+            data{1}.z=log10(spectrum_TKE_average);
+            data{1}.x=obj.kx_list/obj.k_opt;
+            data{1}.y=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
+            
+            plot_config.zlim_list=[0,-3,0];
+            plot_config.xlim_list=[1,0,2];
+            plot_config.ylim_list=[1,0,2];
             plot_config.loglog=[0,0];
+            plot_config.ztick_list=[0,-3,-2,-1,0];
             plot_config.print_size=[1,1100,900];
-            plot_config.label_list={1,'$k_x$','$k_z$'};
+            plot_config.label_list={1,'$k_x/k_{opt}$','$k_z/k_{opt}$'};
             plot_config.colormap='white_zero';
             plot_config.name=[obj.h5_name(1:end-3),'_spectrum_TKE_2D_time_average.png'];
             plot_config.print=obj.print;
@@ -316,15 +378,20 @@ classdef dedalus_post
             dx=diff(obj.kx_list); dx=dx(1);
             dz=diff(obj.kz_list); dz=dz(1);
 
-            data{1}.x=obj.kx_list;
+            data{1}.x=obj.kx_list/obj.k_opt;
             data{1}.y=2*dz*sum(spectrum_TKE_average,1);
-            data{2}.x=obj.kz_list(1:obj.Nz/2);
+            data{2}.x=obj.kz_list(1:obj.Nz/2)/obj.k_opt;
             data{2}.y=2*dx*sum(spectrum_TKE_average,2);
-            
+            if obj.F_sin ~=0
+                data{3}.x=2*obj.ks/obj.k_opt*ones(10,1);
+                data{3}.y=logspace(log10(min([data{1}.y,data{2}.y'])),...
+                               log10(max([data{1}.y,data{2}.y'])),10);
+            end
             plot_config.loglog=[1,1];
             plot_config.ytick_list=[0,0.001,0.01,0.1,1,10,100,1000];
-            plot_config.label_list={1,'$k_x$ or $k_z$',''};
-            plot_config.legend_list={1,'$\int E_u(k_x,k_z)dk_z$','$\int E_u(k_x,k_z)d k_x$'};
+            plot_config.ylim_list=[0];%,0.1,10];
+            plot_config.label_list={1,'$k_x/k_{opt}$ or $k_z/k_{opt}$',''};
+            plot_config.legend_list={1,'$\int E_u(k_x,k_z)dk_z$','$\int E_u(k_x,k_z)d k_x$','$2k_s/k_{opt}$'};
             plot_config.name=[obj.h5_name(1:end-3),'_spectrum_TKE_1D_time_average.png'];
             plot_config.print=obj.print;
             plot_config.visible=obj.visible;
@@ -486,12 +553,20 @@ classdef dedalus_post
             data{2}.x=double(subs(diff(u_laminar,z),z,obj.z_list));
             data{3}.x=double(subs(diff(diff(u_laminar,z),z),z,obj.z_list));
             data{4}.x=double(subs(diff(abs(u_laminar),z),z,obj.z_list));
-  
-            data{1}.y=obj.z_list;
-            data{2}.y=obj.z_list;
-            data{3}.y=obj.z_list;
-            data{4}.y=obj.z_list;
-            plot_config.label_list={1,'','$z$'};
+            
+            if strcmp(obj.flow(1:7),'IFSC_2D')
+                data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+                data{2}.y=obj.z_list/(2*pi/obj.k_opt);
+                data{3}.y=obj.z_list/(2*pi/obj.k_opt);
+                data{4}.y=obj.z_list/(2*pi/obj.k_opt);
+                plot_config.label_list={1,'','$z/l_{opt}$'};
+            else
+                data{1}.y=obj.z_list;
+                data{2}.y=obj.z_list;
+                data{3}.y=obj.z_list;
+                data{4}.y=obj.z_list;
+                plot_config.label_list={1,'','$z$'};
+            end
             
             if obj.u_laminar_normalize
                 data{1}.x=data{1}.x/max(abs(data{1}.x));
@@ -532,7 +607,17 @@ classdef dedalus_post
             %%plot the streamwise averaged u fluctuations...
             %%as a function of z (vertical axis) and time
             obj=obj.u_fluctuation_read();
-
+%             syms z;
+%             u_laminar=obj.F_sin/obj.ks^2*sin(obj.ks*z)...
+%                       +obj.F_sin_2ks/(2*obj.ks)^2*sin(2*obj.ks*z+obj.phase_2ks)...
+%                       +obj.F_sin_3ks/(3*obj.ks)^2*sin(3*obj.ks*z+obj.phase_3ks)...
+%                       +obj.F_sin_4ks/(4*obj.ks)^2*sin(4*obj.ks*z+obj.phase_4ks);
+%             u_laminar_num=double(subs(u_laminar,z,obj.z_list));
+%             obj.u=h5read(obj.h5_name,'/tasks/u');
+%             obj.u_fluctuation=obj.u;
+%             for z_ind=1:length(u_laminar_num)
+%                 obj.u_fluctuation(z_ind,:,:)=obj.u(z_ind,:,:)-u_laminar_num(z_ind);
+%             end
             data{1}.x=obj.t_list;
             if strcmp(obj.flow(1:7),'IFSC_2D')
                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
@@ -555,18 +640,45 @@ classdef dedalus_post
 
         
         
+%         function obj=w_x_ave(obj)
+%             %%plot the streamwise averaged w velocity (vertical velocity)
+%             %%as a function of z (vertical axis) and time
+% 
+%             data{1}.x=obj.t_list;
+%             if strcmp(obj.flow(1:7),'IFSC_2D')
+%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+%                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+%             else
+%                 data{1}.y=obj.z_list;
+%                 plot_config.label_list={1,'$t$','$z$'};
+%             end
+%             obj.w=h5read(obj.h5_name,'/tasks/w');
+%             data{1}.z=squeeze(mean(obj.w,2));
+%             plot_config.colormap='bluewhitered';
+%             plot_config.print_size=[1,1200,1200];
+%             plot_config.print=obj.print;
+%             plot_config.name=[obj.h5_name(1:end-3),'_w_x_ave.png'];
+%             plot_contour(data,plot_config);
+%             
+%             data{1}.z=squeeze(mean(abs(obj.w),2));
+%             plot_config.name=[obj.h5_name(1:end-3),'_w_mag_x_ave.png'];
+%             plot_contour(data,plot_config);
+%         end
+        
+        
+        
         function obj=x_ave(obj,variable_name)
             %%plot the streamwise averaged salnity
             %%as a function of z (vertical axis) and time
 
             data{1}.x=obj.t_list;
-%             if strcmp(obj.flow(1:7),'IFSC_2D')
-%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
-%             else
+            if strcmp(obj.flow(1:7),'IFSC_2D')
+                data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+                plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+            else
                 data{1}.y=obj.z_list;
                 plot_config.label_list={1,'$t$','$z$'};
-%             end
+            end
             switch variable_name
                 case {'u','v','w','S','T','p'}
                     obj.(variable_name)=h5read(obj.h5_name,['/tasks/',variable_name]);
@@ -591,96 +703,6 @@ classdef dedalus_post
             plot_contour(data,plot_config);
             
         end
-        
-        function obj=total_xt_ave(obj,variable_name)
-%             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-%             dz=diff(obj.z_list); dz=dz(1);
-%             z_list_full=[obj.z_list;obj.z_list(end)+dz];
-            switch variable_name
-                case {'T','S'}
-                    variable_data=h5read(obj.h5_name,['/tasks/',variable_name]);
-                    data{1}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
-                    data{2}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data,2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
-                    plot_config.legend_list={1,['$\bar{\mathcal{',variable_name,'}}_z z$'],['$\bar{\mathcal{',variable_name,'}}_z z+Pe_',variable_name,'\langle ',variable_name,'''\rangle_h$']};
-                case {'rho'}
-                    %error('not ready');
-                    variable_data_T=h5read(obj.h5_name,['/tasks/T']);
-                    variable_data_S=h5read(obj.h5_name,['/tasks/S']);
-
-                    R_rho_T2S=obj.Ra_T/obj.Ra_S2T;
-                    data{1}.x=-obj.dy_T_mean*obj.z_list+1/R_rho_T2S*obj.dy_S_mean*obj.z_list;
-                    data{2}.x=-(obj.Pe_T*squeeze(mean(mean(variable_data_T,2),3))+obj.dy_T_mean*obj.z_list)...
-                        +1/R_rho_T2S*(obj.Pe_S*squeeze(mean(mean(variable_data_S,2),3))+obj.dy_S_mean*obj.z_list);
-                    plot_config.legend_list={1,['$-\bar{\mathcal{T}}_z z+R_\rho^{-1}\bar{\mathcal{S}}_z z$'],['$-(\bar{\mathcal{T}}_z z+Pe_T \langle ','T','''\rangle_h)+R_\rho^{-1}(\bar{\mathcal{S}}_z z+Pe_S \langle ','S','''\rangle_h)$']};
-                    plot_config.fontsize_legend=24;
-                case 'u'
-                    u=h5read(obj.h5_name,'/tasks/u');
-                    syms z;
-                    u_laminar=obj.F_sin/obj.ks^2*sin(obj.ks*z)...
-                              +obj.F_sin_2ks/(2*obj.ks)^2*sin(2*obj.ks*z+obj.phase_2ks)...
-                              +obj.F_sin_3ks/(3*obj.ks)^2*sin(3*obj.ks*z+obj.phase_3ks)...
-                              +obj.F_sin_4ks/(4*obj.ks)^2*sin(4*obj.ks*z+obj.phase_4ks);
-                    u_laminar_num=double(subs(u_laminar,z,obj.z_list));
-                    data{1}.x=u_laminar_num;
-                    data{2}.x=squeeze(mean(mean(u,2),3));
-                    plot_config.legend_list={1,['$\bar{',variable_name,'}$'],['$\bar{',variable_name,'}_+''\langle ',variable_name,'''\rangle_h$']};
-
-            end
-%             if strcmp(obj.flow(1:7),'IFSC_2D')
-%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 data{2}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 plot_config.label_list={1,'','$z/l_{opt}$'};
-%             else
-                data{1}.y=obj.z_list;
-                data{2}.y=obj.z_list;
-                plot_config.label_list={1,'','$z$'};
-%             end
-            plot_config.ylim_list=[1,min(data{1}.y),max(data{1}.y)];
-%             plot_config.label_list={1,'','$z/l_{opt}$'};
-            plot_config.print_size=[1,1200,1200];
-            plot_config.print=obj.print;
-            plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave.png'];
-            plot_line(data,plot_config);
-            
-            plot_config.print=0;
-            plot_config.visible=0;
-            if obj.video
-                for t_ind=1:length(obj.t_list)
-                    data{2}.x=squeeze(mean(variable_data(:,:,t_ind),2))+obj.z_list;
-                    snapshot(t_ind)=plot_line(data,plot_config);
-                end
-               plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_video.avi'];
-               plot_video(snapshot,plot_config);
-            end
-            
-        end
-        
-        
-    end
-end
-%%-------------Old code that are repeated....
-
-          
-%             if strcmp(obj.flow(1:7),'IFSC_2D')
-%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 data{2}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 data{3}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 data{4}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 plot_config.label_list={1,'','$z/l_{opt}$'};
-%             else
-
-
-%             syms z;
-%             u_laminar=obj.F_sin/obj.ks^2*sin(obj.ks*z)...
-%                       +obj.F_sin_2ks/(2*obj.ks)^2*sin(2*obj.ks*z+obj.phase_2ks)...
-%                       +obj.F_sin_3ks/(3*obj.ks)^2*sin(3*obj.ks*z+obj.phase_3ks)...
-%                       +obj.F_sin_4ks/(4*obj.ks)^2*sin(4*obj.ks*z+obj.phase_4ks);
-%             u_laminar_num=double(subs(u_laminar,z,obj.z_list));
-%             obj.u=h5read(obj.h5_name,'/tasks/u');
-%             obj.u_fluctuation=obj.u;
-%             for z_ind=1:length(u_laminar_num)
-%                 obj.u_fluctuation(z_ind,:,:)=obj.u(z_ind,:,:)-u_laminar_num(z_ind);
-%             end
 %         
 %         function obj=uS_x_ave(obj)
 %             %%plot the streamwise averaged uS
@@ -732,9 +754,70 @@ end
 %             plot_config.name=[obj.h5_name(1:end-3),'_wS_x_ave.png'];
 %             plot_contour(data,plot_config);
 %         end
+        
+        function obj=total_xt_ave(obj,variable_name)
+%             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+%             dz=diff(obj.z_list); dz=dz(1);
+%             z_list_full=[obj.z_list;obj.z_list(end)+dz];
+            switch variable_name
+                case {'T','S'}
+                    variable_data=h5read(obj.h5_name,['/tasks/',variable_name]);
+                    data{1}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
+                    data{2}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data,2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
+                    plot_config.legend_list={1,['$\bar{\mathcal{',variable_name,'}}_z z$'],['$\bar{\mathcal{',variable_name,'}}_z z+Pe_',variable_name,'\langle ',variable_name,'''\rangle_h$']};
+                case {'rho'}
+                    %error('not ready');
+                    variable_data_T=h5read(obj.h5_name,['/tasks/T']);
+                    variable_data_S=h5read(obj.h5_name,['/tasks/S']);
 
+                    R_rho_T2S=obj.Ra_T/obj.Ra_S2T;
+                    data{1}.x=-obj.dy_T_mean*obj.z_list+1/R_rho_T2S*obj.dy_S_mean*obj.z_list;
+                    data{2}.x=-(obj.Pe_T*squeeze(mean(mean(variable_data_T,2),3))+obj.dy_T_mean*obj.z_list)...
+                        +1/R_rho_T2S*(obj.Pe_S*squeeze(mean(mean(variable_data_S,2),3))+obj.dy_S_mean*obj.z_list);
+                    plot_config.legend_list={1,['$-\bar{\mathcal{T}}_z z+R_\rho^{-1}\bar{\mathcal{S}}_z z$'],['$-(\bar{\mathcal{T}}_z z+Pe_T \langle ','T','''\rangle_h)+R_\rho^{-1}(\bar{\mathcal{S}}_z z+Pe_S \langle ','S','''\rangle_h)$']};
+                    plot_config.fontsize_legend=24;
+                case 'u'
+                    u=h5read(obj.h5_name,'/tasks/u');
+                    syms z;
+                    u_laminar=obj.F_sin/obj.ks^2*sin(obj.ks*z)...
+                              +obj.F_sin_2ks/(2*obj.ks)^2*sin(2*obj.ks*z+obj.phase_2ks)...
+                              +obj.F_sin_3ks/(3*obj.ks)^2*sin(3*obj.ks*z+obj.phase_3ks)...
+                              +obj.F_sin_4ks/(4*obj.ks)^2*sin(4*obj.ks*z+obj.phase_4ks);
+                    u_laminar_num=double(subs(u_laminar,z,obj.z_list));
+                    data{1}.x=u_laminar_num;
+                    data{2}.x=squeeze(mean(mean(u,2),3));
+                    plot_config.legend_list={1,['$\bar{',variable_name,'}$'],['$\bar{',variable_name,'}_+''\langle ',variable_name,'''\rangle_h$']};
 
-
+            end
+            if strcmp(obj.flow(1:7),'IFSC_2D')
+                data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+                data{2}.y=obj.z_list/(2*pi/obj.k_opt);
+                plot_config.label_list={1,'','$z/l_{opt}$'};
+            else
+                data{1}.y=obj.z_list;
+                data{2}.y=obj.z_list;
+                plot_config.label_list={1,'','$z$'};
+            end
+            plot_config.ylim_list=[1,min(data{1}.y),max(data{1}.y)];
+%             plot_config.label_list={1,'','$z/l_{opt}$'};
+            plot_config.print_size=[1,1200,1200];
+            plot_config.print=obj.print;
+            plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave.png'];
+            plot_line(data,plot_config);
+            
+            plot_config.print=0;
+            plot_config.visible=0;
+            if obj.video
+                for t_ind=1:length(obj.t_list)
+                    data{2}.x=squeeze(mean(variable_data(:,:,t_ind),2))+obj.z_list;
+                    snapshot(t_ind)=plot_line(data,plot_config);
+                end
+               plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_video.avi'];
+               plot_video(snapshot,plot_config);
+            end
+            
+        end
+        
 %         function obj=T_total_xt_ave(obj)
 % %             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
 %             T=h5read(obj.h5_name,'/tasks/T');
@@ -792,34 +875,11 @@ end
 %             plot_config.name=[obj.h5_name(1:end-3),'_u_total_xt_ave.png'];
 %             plot_line(data,plot_config);
 %         end
+        
+    end
+end
 
-        
-%         function obj=w_x_ave(obj)
-%             %%plot the streamwise averaged w velocity (vertical velocity)
-%             %%as a function of z (vertical axis) and time
-% 
-%             data{1}.x=obj.t_list;
-%             if strcmp(obj.flow(1:7),'IFSC_2D')
-%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
-%             else
-%                 data{1}.y=obj.z_list;
-%                 plot_config.label_list={1,'$t$','$z$'};
-%             end
-%             obj.w=h5read(obj.h5_name,'/tasks/w');
-%             data{1}.z=squeeze(mean(obj.w,2));
-%             plot_config.colormap='bluewhitered';
-%             plot_config.print_size=[1,1200,1200];
-%             plot_config.print=obj.print;
-%             plot_config.name=[obj.h5_name(1:end-3),'_w_x_ave.png'];
-%             plot_contour(data,plot_config);
-%             
-%             data{1}.z=squeeze(mean(abs(obj.w),2));
-%             plot_config.name=[obj.h5_name(1:end-3),'_w_mag_x_ave.png'];
-%             plot_contour(data,plot_config);
-%         end
-        
-        
+
 
 
 
