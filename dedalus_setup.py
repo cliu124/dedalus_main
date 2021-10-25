@@ -441,7 +441,7 @@ class flag(object):
         
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
-        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
+        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_task('S',layout='g',name='S')
             analysis.add_task('T',layout='g',name='T')
@@ -454,4 +454,15 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
-
+            
+        elif self.flow in ['porous_media_2D']:
+            analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
+            analysis.add_task('T',layout='g',name='T')
+            analysis.add_task('u',layout='g',name='u')
+            analysis.add_task('w',layout='g',name='w')
+            analysis.add_task('p',layout='g',name='p')
+            
+            analysis.add_task("T",layout='c',name='T_coeff')
+            analysis.add_task("u",layout='c',name='u_coeff')
+            analysis.add_task("w",layout='c',name='w_coeff')
+            analysis.add_task("p",layout='c',name='p_coeff')
