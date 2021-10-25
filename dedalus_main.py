@@ -145,8 +145,11 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.dy_T_mean=1
         flag.dy_S_mean=1
         
-        flag.A_elevator=0.1
-        flag.k_elevator=0.5
+        flag.A_elevator=1
+        flag.k_elevator=1
+        
+        flag.A_secondary_T=0.1
+        flag.k_secondary_T=0.5
         
     elif flag.flow_sub_double_diffusive_shear_2D == 'primitive_IFSC_unit_tuS':
         ##parameter for primitive equations
