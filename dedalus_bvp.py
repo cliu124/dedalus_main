@@ -97,9 +97,9 @@ elif C==2:
 #f['g'] = np.cos(np.pi/2 * x)*0.9
 
 
-analysis = solver.evaluator.add_file_handler('analysis')
-analysis.add_task('theta_10',layout='g',name='theta_10')
-analysis.add_task('theta_2_bar',layout='g',name='theta_2_bar')
+# analysis = solver.evaluator.add_file_handler('analysis')
+# analysis.add_task('theta_10',layout='g',name='theta_10')
+# analysis.add_task('theta_2_bar',layout='g',name='theta_2_bar')
             
 # Iterations
 pert = solver.perturbations.data
@@ -111,6 +111,8 @@ while np.sum(np.abs(pert)) > tolerance:
     #logger.info('R iterate: {}'.format(R['g'][0]))
 end_time = time.time()
 
+print(theta_10['g'])
+print(theta_2_bar['g'])
 
 # # Compare to reference solutions from Boyd
 # R_ref = {0.0: np.sqrt(6),
