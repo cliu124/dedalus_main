@@ -35,7 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from dedalus import public as de
-
+import h5py
 import logging
 logger = logging.getLogger(__name__)
 
@@ -99,10 +99,11 @@ elif C==2:
 #f['g'] = np.cos(np.pi/2 * x)*0.9
 
 
-# analysis = solver.evaluator.add_file_handler('analysis')
 # analysis.add_task('theta_10',layout='g',name='theta_10')
 # analysis.add_task('theta_2_bar',layout='g',name='theta_2_bar')
-            
+analysis = solver.evaluator.add_file_handler('analysis')
+analysis.add_system(solver.state, layout='g')
+
 # Iterations
 pert = solver.perturbations.data
 pert.fill(1+tolerance)
@@ -117,6 +118,15 @@ print(solver.state['theta_10']['g'])
 print(solver.state['d_theta_10']['g'])
 print(solver.state['theta_2_bar']['g'])
 print(solver.state['d_theta_2_bar']['g'])
+
+hf = h5py.File('data.h5', 'w')
+hf.create_dataset('theta_10', data=solver.state['theta_10']['g'])
+hf.create_dataset('d_theta_10', data=solver.state['d_theta_10']['g'])
+hf.create_dataset('theta_2_bar', data=solver.state['theta_2_bar']['g'])
+hf.create_dataset('d_theta_2_bar', data=solver.state['d_theta_2_bar']['g'])
+hf.close()
+
+
 # # Compare to reference solutions from Boyd
 # R_ref = {0.0: np.sqrt(6),
 #          0.5: 2.752698054065,
