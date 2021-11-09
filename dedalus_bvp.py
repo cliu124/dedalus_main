@@ -59,9 +59,9 @@ problem.parameters['R2'] = R2
 problem.parameters['C'] = C
 #problem.parameters['n'] = n
 problem.add_equation("d_theta_2_bar - dx(theta_2_bar) = 0")
-problem.add_equation("dx(d_theta_2_bar) = theta_10*d_theta_10", tau=False)
+problem.add_equation("dx(d_theta_2_bar) = theta_10*d_theta_10")
 problem.add_equation('d_theta_10 - dx(theta_10) = 0')
-problem.add_equation("dx(d_theta_10) + R2/C*theta_10 = 1/C*theta_10*d_theta_2_bar", tau=False)
+problem.add_equation("dx(d_theta_10) + R2/C*theta_10 = 1/C*theta_10*d_theta_2_bar")
 problem.add_bc("left(theta_2_bar) = 0")
 problem.add_bc("right(theta_2_bar) = 0")
 problem.add_bc("left(theta_10) = 0")
@@ -79,8 +79,8 @@ if C==3:
     ####setup initial guess. This is the high R_2 approximation in
     ####Blennerhassett & Bassom (1994)
     A2=1/24*R2**2-R2
-    theta_10=R2/2/np.sqrt(3)*(-1+np.tanh(1/12*R2*x)+np.tanh(1/12*R2*(1-x)))
-    d_theta_2_bar=(1/2*theta_10**2-A2)
+    theta_10['g']=R2/2/np.sqrt(3)*(-1+np.tanh(1/12*R2*x)+np.tanh(1/12*R2*(1-x)))
+    d_theta_2_bar['g']=(1/2*theta_10**2-A2)
     theta_10.differentiate('x', out = d_theta_10)
     d_theta_2_bar.integrate('x', out = theta_2_bar)
 
@@ -88,8 +88,8 @@ elif C==2:
     ####%setup initial guess. This is the high R_2 approximation in
     ####%Lewis, Rees, Bassom (1997)
     A2=1/16*R2**2-R2
-    theta_10=R2/2/np.sqrt(2)*(-1+np.tanh(1/8*R2*x)+np.tanh(1/8*R2*(1-x)))
-    d_theta_2_bar=(1/2*theta_10**2-A2)
+    theta_10['g']=R2/2/np.sqrt(2)*(-1+np.tanh(1/8*R2*x)+np.tanh(1/8*R2*(1-x)))
+    d_theta_2_bar['g']=(1/2*theta_10**2-A2)
     theta_10.differentiate('x', out = d_theta_10)
     d_theta_2_bar.integrate('x', out = theta_2_bar)
 
