@@ -128,11 +128,12 @@ slurm_num={'12073090',... %%IFSC, without shear, 32*32, A_elevator=1, A_noise=0
     '12292013',...
     '12356725',...
     '12356727',...'12357443',...'12357448',...%     '12357464',...
+    '12363658',...
     'end'};
 %     '12089742',...
 
 flag.print=1;
-flag.video=0;
+flag.video=1;
 flag.visible=1;
 for slurm_ind=length(slurm_num)-1:length(slurm_num)-1%[find(strcmp(slurm_num,'12247549'))]%slurm_ind=length(slurm_num)-2:length(slurm_num)-1
     %find(strcmp(slurm_num,'12136034'))
@@ -146,23 +147,27 @@ for slurm_ind=length(slurm_num)-1:length(slurm_num)-1%[find(strcmp(slurm_num,'12
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
+
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('rho');
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_fluctuation_x_ave();
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('u');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
+
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S');
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_laminar();
 

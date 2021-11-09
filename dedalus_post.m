@@ -541,13 +541,13 @@ classdef dedalus_post
             obj=obj.u_fluctuation_read();
 
             data{1}.x=obj.t_list;
-            if strcmp(obj.flow(1:7),'IFSC_2D')
-                data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-                plot_config.label_list={1,'$t$','$z/l_{opt}$'};
-            else
+%             if strcmp(obj.flow(1:7),'IFSC_2D')
+%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+%                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+%             else
                 data{1}.y=obj.z_list;
                 plot_config.label_list={1,'$t$','$z$'};
-            end
+%             end
             data{1}.z=squeeze(mean(obj.u_fluctuation,2));
             plot_config.colormap='bluewhitered';
             plot_config.print_size=[1,1200,1200];
@@ -630,7 +630,7 @@ classdef dedalus_post
                     u_laminar_num=double(subs(u_laminar,z,obj.z_list));
                     data{1}.x=u_laminar_num;
                     data{2}.x=squeeze(mean(mean(u,2),3));
-                    plot_config.legend_list={1,['$\bar{',variable_name,'}$'],['$\bar{',variable_name,'}_+''\langle ',variable_name,'''\rangle_h$']};
+                    plot_config.legend_list={1,['$\bar{',variable_name,'}$'],['$\bar{',variable_name,'} +''\langle ',variable_name,'''\rangle_h$']};
 
             end
 %             if strcmp(obj.flow(1:7),'IFSC_2D')
@@ -651,13 +651,19 @@ classdef dedalus_post
             
             plot_config.print=0;
             plot_config.visible=0;
-            if obj.video
-                for t_ind=1:length(obj.t_list)
-                    data{2}.x=squeeze(mean(variable_data(:,:,t_ind),2))+obj.z_list;
-                    snapshot(t_ind)=plot_line(data,plot_config);
+            switch variable_name
+                case {'T','S'}
+                if obj.video
+
+                    for t_ind=1:length(obj.t_list)
+                        data{2}.x=squeeze(mean(variable_data(:,:,t_ind),2))+obj.z_list;
+                        snapshot(t_ind)=plot_line(data,plot_config);
+                    end
+                   plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_video.avi'];
+                   plot_video(snapshot,plot_config);
                 end
-               plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_video.avi'];
-               plot_video(snapshot,plot_config);
+                otherwise
+                    warning('No video for this case');
             end
             
         end

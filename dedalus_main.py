@@ -21,7 +21,8 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+flag.flow='porous_media_2D'
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
 flag.flow_sub_double_diffusive_shear_2D='IFSC'
 flag.flow_sub_double_diffusive_shear_2D='MRBC'
@@ -108,7 +109,7 @@ elif flag.flow == 'porous_media_2D':
     flag.Lz=Lz2d*2*np.pi
     flag.Nx=Lx2d*16
     flag.Nz=Lz2d*16
-    initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+    initial_dt=np.min([flag.Lx/flag.Nx])
     flag.Ra_T=1
     flag.A_elevator=2**8
     flag.k_elevator=1
