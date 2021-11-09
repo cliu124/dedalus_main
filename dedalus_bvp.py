@@ -113,10 +113,10 @@ while np.sum(np.abs(pert)) > tolerance:
     #logger.info('R iterate: {}'.format(R['g'][0]))
 end_time = time.time()
 
-print(theta_10['g'])
-print(d_theta_10['g'])
-print(theta_2_bar['g'])
-print(d_theta_2_bar['g'])
+print(solver.state['theta_10']['g'])
+print(solver.state['d_theta_10']['g'])
+print(solver.state['theta_2_bar']['g'])
+print(solver.state['d_theta_2_bar']['g'])
 # # Compare to reference solutions from Boyd
 # R_ref = {0.0: np.sqrt(6),
 #          0.5: 2.752698054065,
