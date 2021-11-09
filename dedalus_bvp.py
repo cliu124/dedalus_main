@@ -81,7 +81,9 @@ if C==3:
     theta_10['g']=R2/2/np.sqrt(3)*(-1+np.tanh(1/12*R2*x)+np.tanh(1/12*R2*(1-x)))
     d_theta_2_bar['g']=(1/2*theta_10['g']**2-A2)
     theta_10.differentiate('x', out = d_theta_10)
-    d_theta_2_bar.integrate('x', out = theta_2_bar)
+    theta_2_bar['g']=-R2/2*np.sin(2*np.pi*x)
+
+    #d_theta_2_bar.integrate('x', out = theta_2_bar)
 
 elif C==2:
     ####%setup initial guess. This is the high R_2 approximation in
@@ -90,7 +92,8 @@ elif C==2:
     theta_10['g']=R2/2/np.sqrt(2)*(-1+np.tanh(1/8*R2*x)+np.tanh(1/8*R2*(1-x)))
     d_theta_2_bar['g']=(1/2*theta_10['g']**2-A2)
     theta_10.differentiate('x', out = d_theta_10)
-    d_theta_2_bar.integrate('x', out = theta_2_bar)
+    theta_2_bar['g']=-R2/2*np.sin(2*np.pi*x)
+    #d_theta_2_bar.integrate('x', out = theta_2_bar)
 
 
 #f['g'] = np.cos(np.pi/2 * x)*0.9
