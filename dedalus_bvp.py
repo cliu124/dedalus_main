@@ -51,23 +51,50 @@ x_basis = de.Chebyshev('x', Nx, interval=(0, 1), dealias=2)
 domain = de.Domain([x_basis], np.float64)
 
 # Setup problem
-problem = de.NLBVP(domain, variables=['f', 'fx', 'R'], ncc_cutoff=ncc_cutoff)
-problem.meta['R']['x']['constant'] = True
-problem.parameters['n'] = n
-problem.add_equation("x*dx(fx) + 2*fx = -x*(R**2)*(f**n)", tau=False)
-problem.add_equation("fx - dx(f) = 0")
-problem.add_bc("left(f) = 1")
-problem.add_bc("right(f) = 0")
+C=2
+R2=10
+problem = de.NLBVP(domain, variables=['theta_2_bar','d_theta_2_bar', 'theta_10','d_theta_10'], ncc_cutoff=ncc_cutoff)
+#problem.meta['R']['x']['constant'] = True
+problem.parameters['R2'] = R2
+problem.parameters['C'] = C
+#problem.parameters['n'] = n
+problem.add_equation("d_theta_2_bar - dx(theta_2_bar) = 0")
+problem.add_equation("dx(d_theta_2_bar) = theta_10*d_theta_10", tau=False)
+problem.add_equation('d_theta_10 - dx(theta_10) = 0')
+problem.add_equation("dx(d_theta_10) + R2/C*theta_10 = 1/C*theta_10*d_theta_2_bar", tau=False)
+problem.add_bc("left(theta_2_bar) = 0")
+problem.add_bc("right(theta_2_bar) = 0")
+problem.add_bc("left(theta_10) = 0")
+problem.add_bc("right(theta_10) = 0")
 
 # Setup initial guess
 solver = problem.build_solver()
 x = domain.grid(0)
-f = solver.state['f']
-fx = solver.state['fx']
-R = solver.state['R']
-f['g'] = np.cos(np.pi/2 * x)*0.9
-f.differentiate('x', out=fx)
-R['g'] = 3
+theta_10 = solver.state['theta_10']
+d_theta_10 = solver.state['d_theta_10']
+theta_2_bar = solver.state['theta_2_bar']
+d_theta_2_bar = solver.state['d_theta_2_bar']
+
+if C==3:
+    ####setup initial guess. This is the high R_2 approximation in
+    ####Blennerhassett & Bassom (1994)
+    A2=1/24*R2**2-R2
+    theta_10=R2/2/np.sqrt(3)*(-1+np.tanh(1/12*R2*x)+np.tanh(1/12*R2*(1-x)))
+    d_theta_2_bar=(1/2*theta_10**2-A2)
+    theta_10.differentiate('x', out = d_theta_10)
+    d_theta_2_bar.integrate('x', out = theta_2_bar)
+
+elif C==2:
+    ####%setup initial guess. This is the high R_2 approximation in
+    ####%Lewis, Rees, Bassom (1997)
+    A2=1/16*R2**2-R2
+    theta_10=R2/2/np.sqrt(2)*(-1+np.tanh(1/8*R2*x)+np.tanh(1/8*R2*(1-x)))
+    d_theta_2_bar=(1/2*theta_10**2-A2)
+    theta_10.differentiate('x', out = d_theta_10)
+    d_theta_2_bar.integrate('x', out = theta_2_bar)
+
+
+#f['g'] = np.cos(np.pi/2 * x)*0.9
 
 # Iterations
 pert = solver.perturbations.data
@@ -76,26 +103,26 @@ start_time = time.time()
 while np.sum(np.abs(pert)) > tolerance:
     solver.newton_iteration()
     logger.info('Perturbation norm: {}'.format(np.sum(np.abs(pert))))
-    logger.info('R iterate: {}'.format(R['g'][0]))
+    #logger.info('R iterate: {}'.format(R['g'][0]))
 end_time = time.time()
 
-# Compare to reference solutions from Boyd
-R_ref = {0.0: np.sqrt(6),
-         0.5: 2.752698054065,
-         1.0: np.pi,
-         1.5: 3.65375373621912608,
-         2.0: 4.3528745959461246769735700,
-         2.5: 5.355275459010779,
-         3.0: 6.896848619376960375454528,
-         3.25: 8.018937527,
-         3.5: 9.535805344244850444,
-         4.0: 14.971546348838095097611066,
-         4.5: 31.836463244694285264}
-logger.info('-'*20)
-logger.info('Iterations: {}'.format(solver.iteration))
-logger.info('Run time: %.2f sec' %(end_time-start_time))
-logger.info('Final R iteration: {}'.format(R['g'][0]))
-if n in R_ref:
-    logger.info('Error vs reference: {}'.format(R['g'][0]-R_ref[n]))
+# # Compare to reference solutions from Boyd
+# R_ref = {0.0: np.sqrt(6),
+#          0.5: 2.752698054065,
+#          1.0: np.pi,
+#          1.5: 3.65375373621912608,
+#          2.0: 4.3528745959461246769735700,
+#          2.5: 5.355275459010779,
+#          3.0: 6.896848619376960375454528,
+#          3.25: 8.018937527,
+#          3.5: 9.535805344244850444,
+#          4.0: 14.971546348838095097611066,
+#          4.5: 31.836463244694285264}
+# logger.info('-'*20)
+# logger.info('Iterations: {}'.format(solver.iteration))
+# logger.info('Run time: %.2f sec' %(end_time-start_time))
+# logger.info('Final R iteration: {}'.format(R['g'][0]))
+# if n in R_ref:
+#     logger.info('Error vs reference: {}'.format(R['g'][0]-R_ref[n]))
 
 
