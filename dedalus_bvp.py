@@ -52,12 +52,11 @@ domain = de.Domain([x_basis], np.float64)
 
 # Setup problem
 C=2
-R2=10
-problem = de.NLBVP(domain, variables=['theta_2_bar','d_theta_2_bar', 'theta_10','d_theta_10'], ncc_cutoff=ncc_cutoff)
+R2=50
+problem = de.NLBVP(domain, variables=['theta_2_bar','d_theta_2_bar', 'theta_10','d_theta_10'])
 #problem.meta['R']['x']['constant'] = True
 problem.parameters['R2'] = R2
 problem.parameters['C'] = C
-#problem.parameters['n'] = n
 problem.add_equation("d_theta_2_bar - dx(theta_2_bar) = 0")
 problem.add_equation("dx(d_theta_2_bar) = theta_10*d_theta_10")
 problem.add_equation('d_theta_10 - dx(theta_10) = 0')
@@ -112,8 +111,9 @@ while np.sum(np.abs(pert)) > tolerance:
 end_time = time.time()
 
 print(theta_10['g'])
+print(d_theta_10['g'])
 print(theta_2_bar['g'])
-
+print(d_theta_2_bar['g'])
 # # Compare to reference solutions from Boyd
 # R_ref = {0.0: np.sqrt(6),
 #          0.5: 2.752698054065,
