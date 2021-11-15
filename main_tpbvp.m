@@ -2,7 +2,7 @@ clear all;
 close all;
 
 global C R0 R2 theta_10_fun d_theta_10_fun d_theta_bar_fun kx;
-flow='darcy';
+flow='darcy_hewitt';
 switch flow
     case 'benard'
         C=3;
@@ -38,13 +38,13 @@ switch flow
         legend_A_2='$A_2=\frac{1}{16}R_2^2-R_2$';
     case 'darcy_hewitt'
         C=2;
-        darcy_hewitt='3D';
+        darcy_hewitt='2D';
         switch darcy_hewitt
             case '2D'
                 Ra=10000;%[10000,20000,40000];
                 kx_list=0.48*Ra.^0.4;
 %                 R0_list=(1/0.48)^(1/0.4);
-                R2_final=250;
+                R2_final=6000;
                 R0_final=(Ra-R2_final)/kx_list^2;
                 N=6;
 %                 R2_list=R2_final*ones(1,6);
@@ -55,8 +55,8 @@ switch flow
 %                 R0_list=(Ra-R2_list)./kx_list.^2;
 %                 R1_list=(Ra-kx_list.^2)./kx_list;
             case '3D'
-%                 Ra=[4000,8000,16000];
-%                 kx_list=0.17*Ra.^0.52;
+                Ra=[4000,8000,16000];
+                kx_list=0.17*Ra.^0.52;
 %                 R2_list=[0,0,0];%Ra-R0_list*kx_list.^2;
 %                 R0_list=(Ra-R2_list)./kx_list.^2;%(1/0.17)^(1/0.52);
 %                 R1_list=(Ra-kx_list.^2)./kx_list;
@@ -152,14 +152,14 @@ for R2_ind=1:length(R2_list)
     data_A{1}.x(R2_ind)=R2;
     data_A{1}.y(R2_ind)=A_num(R2_ind,1);
 end
+d_theta_bar=data_d_theta_bar{end}.y(1,round(length(data_d_theta_bar{end}.y)/2));
+d_theta_bar_rescale=d_theta_bar*kx_list^(-2);
+theta_bar_full=1-data_theta_bar{end}.x+data_theta_bar{end}.y*kx_list^(-2);
+plot(data_theta_bar{end}.x,theta_bar_full);
 
-% d_theta_bar=data_d_theta_bar{end}.y(1,round(length(data_d_theta_bar{end}.y)/2));
-% d_theta_bar_rescale=d_theta_bar*kx_list^(-2);
-% theta_bar_full=1-data_theta_bar{end}.x+data_theta_bar{end}.y*kx_list^(-2);
-% plot(data_theta_bar{end}.x,theta_bar_full);
 
 switch flow
-    case {'benard','darcy','darcy_hewitt'}
+    case {'benard','darcy'}
         plot_config.label_list={1,'$z$','$\bar{\theta}_2$'};
         plot_config.Markerindex=3;
         plot_config.ytick_list=[1,-50,-40,-30,-20,-10,0,10,20,30,40,50];
@@ -190,7 +190,33 @@ switch flow
         plot_config.legend_list={1,'Numerical',legend_A_2};
         plot_config.fontsize_legend=30;
         plot_line(data_A,plot_config);
+    case 'darcy_hewitt'
+        
+        plot_config.label_list={1,'$z$','$\bar{\theta}_2$'};
+        plot_config.Markerindex=3;
+        plot_config.user_color_style_marker_list={'k-','k--','b-','b--','r-','r--','m-','m--'};
+        plot_config.fontsize_legend=20;
+        plot_config.name=['C:\Figure\DDC_LST\',flow,'_theta_bar.png'];
+        plot_line(data_theta_bar,plot_config);
 
+        %%plot of total temperature
+        
+        data_theta_bar_total=data_theta_bar;
+        data_theta_bar_total{1}.y=1-data_theta_bar{1}.x+data_theta_bar{1}.y*kx_list^(-2);
+        plot_config.label_list={1,'$z$','$1-z+k_x^{-2}\bar{\theta}_2$'};
+        plot_config.Markerindex=3;
+        plot_config.user_color_style_marker_list={'k-','k--','b-','b--','r-','r--','m-','m--'};
+        plot_config.fontsize_legend=20;
+        plot_config.name=['C:\Figure\DDC_LST\',flow,'_theta_bar_total.png'];
+        plot_line(data_theta_bar_total,plot_config);
+
+        
+        %%plot of theta_10
+        plot_config.label_list={1,'$z$','$\theta_{10}$'};
+        plot_config.name=['C:\Figure\DDC_LST\',flow,'_theta_10.png'];
+        plot_line(data_theta_10,plot_config);
+        
+        
     case 'benard_rotation'
         plot_config.label_list={1,'$z$','$\bar{\theta}_0$'};
         plot_config.Markerindex=3;

@@ -47,8 +47,10 @@ ncc_cutoff = 1e-6
 tolerance = 1e-12
 
 # Build domain
-x_basis = de.Chebyshev('x', Nx, interval=(0, 1), dealias=2)
-domain = de.Domain([x_basis], np.float64)
+z_basis = de.Chebyshev('z', Nx, interval=(0, 1), dealias=2)
+domain = de.Domain([z_basis], np.float64)
+
+
 
 # Setup problem
 C=2
@@ -57,10 +59,10 @@ problem = de.NLBVP(domain, variables=['theta_2_bar','d_theta_2_bar', 'theta_10',
 #problem.meta['R']['x']['constant'] = True
 problem.parameters['R2'] = R2
 problem.parameters['C'] = C
-problem.add_equation("d_theta_2_bar - dx(theta_2_bar) = 0")
-problem.add_equation("dx(d_theta_2_bar) = theta_10*d_theta_10")
-problem.add_equation('d_theta_10 - dx(theta_10) = 0')
-problem.add_equation("dx(d_theta_10) + R2/C*theta_10 = 1/C*theta_10*d_theta_2_bar")
+problem.add_equation("d_theta_2_bar - dz(theta_2_bar) = 0")
+problem.add_equation("dz(d_theta_2_bar) = theta_10*d_theta_10")
+problem.add_equation('d_theta_10 - dz(theta_10) = 0')
+problem.add_equation("dz(d_theta_10) + R2/C*theta_10 = 1/C*theta_10*d_theta_2_bar")
 problem.add_bc("left(theta_2_bar) = 0")
 problem.add_bc("right(theta_2_bar) = 0")
 problem.add_bc("left(theta_10) = 0")
