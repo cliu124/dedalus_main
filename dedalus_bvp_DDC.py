@@ -25,7 +25,7 @@ tolerance = 1e-11
 #parameters
 Ra_T=10000
 kx=0.48*Ra_T**0.4
-ky=0
+ky=kx
 Ra_S2T=0
 tau=0.1
 dy_T_mean=-1
@@ -94,6 +94,9 @@ S_0['g'] = 0
 d_S_0['g'] = 0
 
 
+analysis = solver.evaluator.add_file_handler('analysis')
+analysis.add_system(solver.state)
+solver.evaluator.evaluate_handlers([analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
 
 
 # Iterations
@@ -113,8 +116,8 @@ print(solver.state['S_hat']['g'])
 print(solver.state['T_0']['g'])
 print(solver.state['S_0']['g'])
 
-analysis = solver.evaluator.add_file_handler('analysis',world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
-analysis.add_system(solver.state)
+
+            
 
 # hf.create_dataset('z',data = domain.grid(0))
 # hf.create_dataset('w_hat', data=solver.state['w_hat']['g'])
