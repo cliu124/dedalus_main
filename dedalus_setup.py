@@ -22,7 +22,7 @@ class flag(object):
         
         #IFSC_2D
         #double_diffusive_2D
-        self.flow='not_defined'
+        self.flow='not_defined'#['porous_media_2D'] 
         
         self.Ra_ratio=1.1# the parameter for IFSC... fix this default value as 1.1... although not used for double diffusive.. Ra_ratio=1 will cause division by zero error.
         
@@ -72,7 +72,12 @@ class flag(object):
         self.shear_Radko2016_reduced='primitive'
         
         self.lambda_elevator=0
-                
+             
+        #This is the wavenumber pair for these...
+        #Add the governing equations for SMHB... Single mode Harmonic balance...
+        self.kx=1
+        self.ky=1
+        self.problem='IVP' #This can be IVP, BVP, EVP depends on the problem you want to solve
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -92,6 +97,7 @@ class flag(object):
             x_basis = de.Fourier('x', self.Nx, interval=(0,self.Lx), dealias=3/2)
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
+        elif self.flow in []
         return domain
 
     def governing_equation(self,domain):

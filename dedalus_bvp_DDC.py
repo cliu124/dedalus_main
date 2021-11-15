@@ -20,8 +20,6 @@ logger = logging.getLogger(__name__)
 
 # Parameters
 Nz = 1028
-n = 3.0
-ncc_cutoff = 1e-6
 tolerance = 1e-12
 
 #parameters
@@ -115,15 +113,19 @@ print(solver.state['S_hat']['g'])
 print(solver.state['T_0']['g'])
 print(solver.state['S_0']['g'])
 
-hf.create_dataset('w_hat', data=solver.state['w_hat']['g'])
-hf.create_dataset('p_hat', data=solver.state['p_hat']['g'])
-hf.create_dataset('T_hat', data=solver.state['T_hat']['g'])
-hf.create_dataset('d_T_hat', data=solver.state['d_T_hat']['g'])
-hf.create_dataset('S_hat', data=solver.state['S_hat']['g'])
-hf.create_dataset('d_S_hat', data=solver.state['d_S_hat']['g'])
-hf.create_dataset('T_0', data=solver.state['T_0']['g'])
-hf.create_dataset('d_T_0', data=solver.state['d_T_0']['g'])
-hf.create_dataset('S_0', data=solver.state['S_0']['g'])
-hf.create_dataset('d_S_0', data=solver.state['d_S_0']['g'])
+analysis = solver.evaluator.add_file_handler('analysis',world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
+analysis.add_system(solver.state)
 
-hf.close()
+# hf.create_dataset('z',data = domain.grid(0))
+# hf.create_dataset('w_hat', data=solver.state['w_hat']['g'])
+# hf.create_dataset('p_hat', data=solver.state['p_hat']['g'])
+# hf.create_dataset('T_hat', data=solver.state['T_hat']['g'])
+# hf.create_dataset('d_T_hat', data=solver.state['d_T_hat']['g'])
+# hf.create_dataset('S_hat', data=solver.state['S_hat']['g'])
+# hf.create_dataset('d_S_hat', data=solver.state['d_S_hat']['g'])
+# hf.create_dataset('T_0', data=solver.state['T_0']['g'])
+# hf.create_dataset('d_T_0', data=solver.state['d_T_0']['g'])
+# hf.create_dataset('S_0', data=solver.state['S_0']['g'])
+# hf.create_dataset('d_S_0', data=solver.state['d_S_0']['g'])
+
+# hf.close()
