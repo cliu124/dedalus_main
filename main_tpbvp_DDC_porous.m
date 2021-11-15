@@ -5,7 +5,7 @@ global Ra_T Ra_S kx ky tau dy_T_mean dy_S_mean Nz;
 Ra_T=6000; %Ra_list=[10000,20000,40000];
 kx=0.48*Ra_T.^0.4;
 ky=kx;
-Ra_S=8000; tau=0.1;
+Ra_S=8000; tau=0.01;
 dy_T_mean=-1;
 dy_S_mean=-1;
 % xmesh=linspace(0,1,400);

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 # Parameters
-Nx = 128
+Nz = 1028
 n = 3.0
 ncc_cutoff = 1e-6
 tolerance = 1e-12
@@ -29,12 +29,12 @@ Ra_T=6000
 kx=0.48*Ra_T**0.4
 ky=kx
 Ra_S2T=8000
-tau=1
+tau=0.1
 dy_T_mean=-1
 dy_S_mean=-1
 
 # Build domain
-z_basis = de.Chebyshev('z', Nx, interval=(0, 1), dealias=2)
+z_basis = de.Chebyshev('z', Nz, interval=(0, 1), dealias=2)
 domain = de.Domain([z_basis], np.float64)
 
 problem = de.NLBVP(domain, variables=[ 'w_hat','p_hat','T_hat','d_T_hat', \
