@@ -96,11 +96,6 @@ S_0['g'] = 0
 d_S_0['g'] = 0
 
 
-analysis = solver.evaluator.add_file_handler('analysis')
-analysis.add_system(solver.state)
-solver.evaluator.evaluate_handlers([analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
-
-
 # Iterations
 pert = solver.perturbations.data
 pert.fill(1+tolerance)
@@ -117,6 +112,10 @@ print(solver.state['T_hat']['g'])
 print(solver.state['S_hat']['g'])
 print(solver.state['T_0']['g'])
 print(solver.state['S_0']['g'])
+
+analysis = solver.evaluator.add_file_handler('analysis')
+analysis.add_system(solver.state)
+solver.evaluator.evaluate_handlers([analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
 
 post.merge_process_files('analysis',cleanup=True)
             
