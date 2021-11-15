@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 from dedalus import public as de
 import h5py
 import logging
+from dedalus.tools import post
+
 logger = logging.getLogger(__name__)
 
 
@@ -109,14 +111,14 @@ while np.sum(np.abs(pert)) > tolerance:
     #logger.info('R iterate: {}'.format(R['g'][0]))
 end_time = time.time()
 
-hf = h5py.File('data.h5', 'w')
+# hf = h5py.File('data.h5', 'w')
 print(solver.state['w_hat']['g'])
 print(solver.state['T_hat']['g'])
 print(solver.state['S_hat']['g'])
 print(solver.state['T_0']['g'])
 print(solver.state['S_0']['g'])
 
-
+post.merge_process_files('analysis',cleanup=True)
             
 
 # hf.create_dataset('z',data = domain.grid(0))

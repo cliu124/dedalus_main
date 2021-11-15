@@ -1,15 +1,15 @@
 clear all;
 close all;
 
-slurm_num={'12512069'};
+slurm_num={'12514099'};
 
 for slurm_ind=length(slurm_num)
-%     h5_name=['C:\Data\dedalus\dedalus_',...
-%             slurm_num{slurm_ind},...
-%             '\analysis\analysis_s1.h5'];
     h5_name=['C:\Data\dedalus\dedalus_',...
             slurm_num{slurm_ind},...
-            '\data.h5'];
+            '\analysis\analysis_s1.h5'];
+%     h5_name=['C:\Data\dedalus\dedalus_',...
+%             slurm_num{slurm_ind},...
+%             '\data.h5'];
     h5disp(h5_name);
     obj.z=h5read(h5_name,'/z');
     obj.w_hat=h5read(h5_name,'/w_hat');
