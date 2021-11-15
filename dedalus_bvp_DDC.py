@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 
 # Parameters
 Nz = 1028
-tolerance = 1e-12
+tolerance = 1e-11
 
 #parameters
-Ra_T=6000
+Ra_T=10000
 kx=0.48*Ra_T**0.4
-ky=kx
-Ra_S2T=8000
+ky=0
+Ra_S2T=0
 tau=0.1
 dy_T_mean=-1
 dy_S_mean=-1
