@@ -544,6 +544,8 @@ class flag(object):
                 p['g']=p0
                 
             elif self.flow =='HB_porous':
+                z = domain.grid(0)
+
                 #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
                 w_hat = solver.state['w_hat']
                 p_hat = solver.state['p_hat']
@@ -569,6 +571,8 @@ class flag(object):
                 S_0['g'] = 0
                 d_S_0['g'] = 0
             elif self.flow =='HB_benard':
+                z = domain.grid(0)
+
                 #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
                 u_tilde = solver.state['u_tilde']
                 d_u_tilde = solver.state['d_u_tilde']
