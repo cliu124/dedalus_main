@@ -1,7 +1,7 @@
 clear all;
 close all;
 
-slurm_num={'12514100'};
+slurm_num={'12514106'};
 
 for slurm_ind=length(slurm_num)
     h5_name=['C:\Data\dedalus\dedalus_',...

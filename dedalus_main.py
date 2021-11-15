@@ -4,7 +4,6 @@ import pathlib
 #from IPython import display
 from dedalus import public as de
 from dedalus.extras import flow_tools
-from dedalus.tools import post
 import logging
 
 ##These lib are used for post-processing
@@ -21,8 +20,9 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
+flag.flow='HB_porous'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
-flag.flow='porous_media_2D'
+#flag.flow='porous_media_2D'
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
 flag.flow_sub_double_diffusive_shear_2D='IFSC'
 flag.flow_sub_double_diffusive_shear_2D='MRBC'
@@ -32,7 +32,21 @@ flag.flow_sub_double_diffusive_shear_2D='shear_Radko2016'
 flag.shear_Radko2016_reduced='primitive'
 
 
-if flag.flow == 'IFSC_2D':
+if flag.flow=='HB_porous':
+    flag.Nz=1028
+    flag.Lz=1
+    flag.tau=0.01
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    flag.Ra_T=10000
+    flag.Ra_S2T=0
+    flag.kx=0.48*flag.Ra_T**0.4
+    flag.ky=0
+    flag.problem='BVP'
+    flag.z_bc_T_S_w='dirichlet'
+    flag.z_bc_u_v='dirichlet'
+    
+elif flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
     flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio
     flag.dy_T_mean=1
@@ -304,6 +318,5 @@ cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
 flag.post_store(solver)
 flag.print_file() #move print file to here.
 flag.run(solver,cfl,domain,logger)
-
+flag.post_store_after_run(solver)
 #-----------merge process data
-post.merge_process_files('analysis',cleanup=True)

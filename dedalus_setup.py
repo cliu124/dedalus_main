@@ -3,6 +3,7 @@ from dedalus import public as de
 import time
 import pathlib
 from scipy import linalg
+from dedalus.tools import post
 
 
 class flag(object):
@@ -22,7 +23,9 @@ class flag(object):
         
         #IFSC_2D
         #double_diffusive_2D
-        self.flow='not_defined'#['porous_media_2D'] 
+        self.flow='not_defined'#
+        ##two additional flag that are added using the Harmonic balance formulation for single mode in horizontal
+        ##['HB_porous','HB_benard'] 
         
         self.Ra_ratio=1.1# the parameter for IFSC... fix this default value as 1.1... although not used for double diffusive.. Ra_ratio=1 will cause division by zero error.
         
@@ -75,9 +78,15 @@ class flag(object):
              
         #This is the wavenumber pair for these...
         #Add the governing equations for SMHB... Single mode Harmonic balance...
+        
         self.kx=1
         self.ky=1
         self.problem='IVP' #This can be IVP, BVP, EVP depends on the problem you want to solve
+        self.bvp_tolerance=1e-11 #This is the tolerance for BVP.
+        self.z_bc_T_S_w='dirichlet' #This can be also dirichlet
+        self.z_bc_u_v='dirichlet' #This can be periodic, dirichlet, or neumann
+        
+        self.timesteppers='RK443'
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -97,7 +106,12 @@ class flag(object):
             x_basis = de.Fourier('x', self.Nx, interval=(0,self.Lx), dealias=3/2)
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
-        elif self.flow in []
+        elif self.flow in ['HB_porous','HB_benard']:
+            if self.z_bc_T_S_w =='periodic' and self.z_bc_u_v == 'periodic':
+                z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
+            else:
+                z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
+            domain = de.Domain([z_basis],grid_dtype=np.float64)   
         return domain
 
     def governing_equation(self,domain):
@@ -250,6 +264,8 @@ class flag(object):
 
         elif self.flow == "channel":
             problem.parameters['Re']=self.Re
+            problem = de.IVP(domain,variables=['p','u','w','v'])
+
             problem.add_equation("dx(u) + dy(v)+wz=0")
             problem.add_equation("dt(u) - 1/Re*(dx(dx(u)) + dy(dy(u)) + dz(uz) ) + dx(p) = -u*dx(u) - v*dy(u) - w*uz + 2/Re")
             problem.add_equation("dt(v) - 1/Re*(dx(dx(v)) + dy(dy(v)) + dz(vz) ) + dy(p) = -u*dx(v) - v*dy(v) - w*vz")
@@ -264,8 +280,119 @@ class flag(object):
             problem.add_bc("right(v) = 0")
             problem.add_bc("right(w) = 0", condition="(nx !=0) or (ny !=0)")
             problem.add_bc("right(p) = 0", condition="(nx == 0) and (ny == 0)")
+        
+        elif self.flow =='HB_porous':
+            #harmonic balance for the porous media
+            #For different problem, we need to claim different dedalus problem.
+            if self.problem =='BVP':
+                problem = de.NLBVP(domain, variables=[ 'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+            elif self.problem == 'IVP':
+                problem = de.IVP(domain, variables=[ 'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+            problem.parameters['Ra_T'] = self.Ra_T
+            problem.parameters['Ra_S2T'] = self.Ra_S2T
+            problem.parameters['tau']=self.tau
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
+            problem.parameters['kx']=self.kx
+            problem.parameters['ky']=self.ky
+            
+            problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
+            problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+            problem.add_equation('dz(T_hat)-d_T_hat=0')
+            problem.add_equation('dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+            problem.add_equation('dz(S_hat)-d_S_hat=0')
+            problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+            problem.add_equation('dz(T_0)-d_T_0=0')
+            problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
+            problem.add_equation('dz(S_0)-d_S_0=0')
+            problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
+
+            if self.z_bc_T_S_w == 'dirichlet':
+                problem.add_bc("left(w_hat) = 0")
+                problem.add_bc("right(w_hat) = 0")
+                problem.add_bc("left(T_hat) = 0")
+                problem.add_bc("right(T_hat) = 0")
+                problem.add_bc("left(S_hat) = 0")
+                problem.add_bc("right(S_hat) = 0")
+                problem.add_bc("left(T_0) = 0")
+                problem.add_bc("right(T_0) = 0")
+                problem.add_bc("left(S_0) = 0")
+                problem.add_bc("right(S_0) = 0")
+            #elif self.z_bc_T_S_w == 'periodic':
+                #need to do nothing for periodic BC but change the basis as Fourier at the beginning
+             
+        elif self.flow =='HB_benard':
+            if self.problem =='BVP':
+                problem = de.NLBVP(domain, variables=\
+                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+            elif self.problem == 'IVP':
+                problem = de.IVP(domain, variables=\
+                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+                    
+            problem.parameters['Pr'] = self.Pr 
+            problem.parameters['Ra_T'] = self.Ra_T
+            problem.parameters['Ra_S2T'] = self.Ra_S2T
+            problem.parameters['tau']=self.tau
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
+            problem.parameters['kx']=self.kx
+            problem.parameters['ky']=self.ky
+            
+            problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+            problem.add_equation('dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+            problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+            problem.add_equation('dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+            problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+            problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+            problem.add_equation('dz(T_hat)-d_T_hat=0')
+            problem.add_equation('dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+            problem.add_equation('dz(S_hat)-d_S_hat=0')
+            problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+            problem.add_equation('dz(T_0)-d_T_0=0')
+            problem.add_equation('dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+            problem.add_equation('dz(S_0)-d_S_0=0')
+            problem.add_equation('dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+
+            if self.z_bc_T_S_w =='dirichlet':
+                problem.add_bc("left(w_hat) = 0")
+                problem.add_bc("right(w_hat) = 0")
+                problem.add_bc("left(T_hat) = 0")
+                problem.add_bc("right(T_hat) = 0")
+                problem.add_bc("left(S_hat) = 0")
+                problem.add_bc("right(S_hat) = 0")
+                problem.add_bc("left(T_0) = 0")
+                problem.add_bc("right(T_0) = 0")
+                problem.add_bc("left(S_0) = 0")
+                problem.add_bc("right(S_0) = 0")
+            #elif self.z_bc_T_S_w =='periodic':
+                #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
+
+            if self.z_bc_u_v =='dirichlet':
+                problem.add_bc("left(u_tilde) = 0")
+                problem.add_bc("right(u_tilde) = 0")
+                problem.add_bc("left(v_tilde) = 0")
+                problem.add_bc("right(v_tilde) = 0")
+                
+            elif self.z_bc_u_v =='neumann':
+                problem.add_bc("left(d_u_tilde) = 0")
+                problem.add_bc("right(d_u_tilde) = 0")
+                problem.add_bc("left(d_v_tilde) = 0")
+                problem.add_bc("right(d_v_tilde) = 0")
+                
+            #elif self.z_bc_u_v =='periodic':
+                #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
+            
+        
         else:
             raise TypeError('flag.flow is not defined yet') 
+        
+                     
         return problem
 
     def initial_condition(self,domain,solver):
@@ -415,6 +542,65 @@ class flag(object):
                 w['g']=w0
                 T['g']=T0
                 p['g']=p0
+                
+            elif self.flow =='HB_porous':
+                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                w_hat = solver.state['w_hat']
+                p_hat = solver.state['p_hat']
+                T_hat = solver.state['T_hat']
+                d_T_hat = solver.state['d_T_hat']
+                S_hat = solver.state['S_hat']
+                d_S_hat = solver.state['d_S_hat']
+                T_0 = solver.state['T_0']
+                d_T_0 = solver.state['d_T_0']
+                S_0 = solver.state['S_0']
+                d_S_0 = solver.state['d_S_0']
+                
+                
+                W0=self.Ra_T;
+                w_hat['g'] = W0*np.sin(np.pi*z)
+                p_hat['g'] = W0*np.pi*np.cos(np.pi*z);
+                T_hat['g'] = W0*np.sin(np.pi*z)
+                d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)
+                S_hat['g'] = W0*np.sin(np.pi*z)
+                d_S_hat['g'] = W0*np.pi*np.cos(np.pi*z);
+                T_0['g'] = 0
+                d_T_0['g'] = 0
+                S_0['g'] = 0
+                d_S_0['g'] = 0
+            elif self.flow =='HB_benard':
+                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                u_tilde = solver.state['u_tilde']
+                d_u_tilde = solver.state['d_u_tilde']
+                v_tilde = solver.state['v_tilde']
+                d_v_tilde = solver.state['d_v_tilde']
+                w_hat = solver.state['w_hat']
+                p_hat = solver.state['p_hat']
+                T_hat = solver.state['T_hat']
+                d_T_hat = solver.state['d_T_hat']
+                S_hat = solver.state['S_hat']
+                d_S_hat = solver.state['d_S_hat']
+                T_0 = solver.state['T_0']
+                d_T_0 = solver.state['d_T_0']
+                S_0 = solver.state['S_0']
+                d_S_0 = solver.state['d_S_0']
+                
+                
+                W0=self.Ra_T;
+                u_tilde['g'] = W0*np.sin(np.pi*z)
+                d_u_tilde['g'] = W0*np.pi*np.cos(np.pi*z)
+                v_tilde['g'] = W0*np.sin(np.pi*z)
+                d_v_tilde['g'] = W0*np.pi*np.cos(np.pi*z)
+                w_hat['g'] = W0*np.sin(np.pi*z)
+                p_hat['g'] = W0*np.pi*np.cos(np.pi*z);
+                T_hat['g'] = W0*np.sin(np.pi*z)
+                d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)
+                S_hat['g'] = W0*np.sin(np.pi*z)
+                d_S_hat['g'] = W0*np.pi*np.cos(np.pi*z);
+                T_0['g'] = 0
+                d_T_0['g'] = 0
+                S_0['g'] = 0
+                d_S_0['g'] = 0
         else:
             #Restart
             print('restart')
@@ -425,25 +611,40 @@ class flag(object):
     def run(self,solver,cfl,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
         ##Note this line is very important and it needs to be added!!!!!
-        if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
-            cfl.add_velocities(('u','w'))
-
-        logger.info('Starting loop')
-        solver.stop_wall_time = np.inf
-        solver.stop_iteration = np.inf
-        start_time=time.time()
-        while solver.ok:
-            dt = cfl.compute_dt()    
-            solver.step(dt)
-            if solver.iteration % 100 == 0:
-                logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
-        
-        end_time = time.time()
-        # Print statistics
-        logger.info('Run time: %f' %(end_time-start_time))
-        logger.info('Iterations: %i' %solver.iteration)
-        logger.info('Run time: %f cpu-hr' %((end_time-start_time)/60/60*domain.dist.comm_cart.size))
-
+        if self.problem =='IVP':
+            if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
+                cfl.add_velocities(('u','w'))
+            elif self.flow =='HB_porous':
+                cfl.add_velocities(('w_hat'))
+            elif self.flow =='HB_benard':
+                cfl.add_velocities(('w_hat','u_tilde','v_tilde'))
+    
+            logger.info('Starting loop')
+            solver.stop_wall_time = np.inf
+            solver.stop_iteration = np.inf
+            start_time=time.time()
+            while solver.ok:
+                dt = cfl.compute_dt()    
+                solver.step(dt)
+                if solver.iteration % 100 == 0:
+                    logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
+            
+            end_time = time.time()
+            # Print statistics
+            logger.info('Run time: %f' %(end_time-start_time))
+            logger.info('Iterations: %i' %solver.iteration)
+            logger.info('Run time: %f cpu-hr' %((end_time-start_time)/60/60*domain.dist.comm_cart.size))
+        elif self.problem=='BVP':
+            # Iterations
+            pert = solver.perturbations.data
+            pert.fill(1+self.bvp_tolerance)
+            start_time = time.time()
+            while np.sum(np.abs(pert)) > self.bvp_tolerance:
+                solver.newton_iteration()
+                logger.info('Perturbation norm: {}'.format(np.sum(np.abs(pert))))
+                #logger.info('R iterate: {}'.format(R['g'][0]))
+            end_time = time.time()
+             
         
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
@@ -472,3 +673,20 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
+        elif self.flow in ['HB_porous','HB_benard']:
+            if self.problem == 'IVP':
+                analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
+                analysis.add_system(solver.state)
+            #elif self.problem =='BVP':
+                #For BVP problem, here need to do nothing
+
+    def post_store_after_run(self,solver):
+        if self.problem == 'IVP':
+            post.merge_process_files('analysis',cleanup=True)
+        elif self.problem == 'BVP':
+            #Here is the place to output the post-processing of BVP
+            analysis = solver.evaluator.add_file_handler('analysis')
+            analysis.add_system(solver.state)
+            solver.evaluator.evaluate_handlers([analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
+            post.merge_process_files('analysis',cleanup=True)
+                  
