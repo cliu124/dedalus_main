@@ -47,16 +47,16 @@ problem.parameters['dy_S_mean']=dy_S_mean
 problem.parameters['kx']=kx
 problem.parameters['ky']=ky
 
-problem.add_equation('dz(w_hat)-(-(kx^2+ky^2)*p_hat)=0')
+problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
 problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
 problem.add_equation('dz(T_hat)-d_T_hat=0')
-problem.add_equation('dz(d_T_hat)-(w_hat*dy_T_mean+(kx^2+ky^2)*T_hat)=w_hat*d_T_0')
+problem.add_equation('dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
 problem.add_equation('dz(S_hat)-d_S_hat=0')
-problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx^2+ky^2)*S_hat=1/tau*(w_hat*d_S_0)')   
+problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
 problem.add_equation('dz(T_0)-d_T_0=0')
-problem.add_equation('dz(d_T_0)=-2*(kx^2+ky^2)*p_hat*T_hat+2*w_hat*d_T_hat')
+problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
 problem.add_equation('dz(S_0)-d_S_0=0')
-problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx^2+ky^2)*p_hat*S_hat+2*w_hat*d_S_hat)')
+problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
 
 problem.add_bc("left(w_hat) = 0")
 problem.add_bc("right(w_hat) = 0")
@@ -85,7 +85,7 @@ d_S_0 = solver.state['d_S_0']
 
 W0=Ra_T;
 w_hat['g'] = W0*np.sin(np.pi*z)
-p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(kx^2+ky^2));
+p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(kx*kx+ky*ky));
 T_hat['g'] = 1/Ra_T*W0*np.sin(np.pi*z)
 d_T_hat['g'] = 1/Ra_T*W0*np.pi*np.cos(np.pi*z)
 S_hat['g'] = -1/Ra_S2T*W0*np.sin(np.pi*z)
