@@ -598,17 +598,22 @@ class flag(object):
                 d_S_0 = solver.state['d_S_0']
                 
                 
-                W0=self.Ra_T;
-                w_hat['g'] = W0*np.sin(np.pi*z)
-                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky));
-                T_hat['g'] = W0*np.sin(np.pi*z)
-                d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)
-                S_hat['g'] = W0*np.sin(np.pi*z)
-                d_S_hat['g'] = W0*np.pi*np.cos(np.pi*z);
-                T_0['g'] = 0
-                d_T_0['g'] = 0
-                S_0['g'] = 0
-                d_S_0['g'] = 0
+                W0=self.A_elevator;
+                gshape = domain.dist.grid_layout.global_shape(scales=1)
+                slices = domain.dist.grid_layout.slices(scales=1)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
+                
+                w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                T_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                S_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_S_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                T_0['g'] = self.A_noise*noise
+                d_T_0['g'] = self.A_noise*noise
+                S_0['g'] = self.A_noise*noise
+                d_S_0['g'] = self.A_noise*noise
             elif self.flow =='HB_benard':
                 z = domain.grid(0)
 
@@ -628,22 +633,26 @@ class flag(object):
                 S_0 = solver.state['S_0']
                 d_S_0 = solver.state['d_S_0']
                 
+                W0=self.A_elevator;
+                gshape = domain.dist.grid_layout.global_shape(scales=1)
+                slices = domain.dist.grid_layout.slices(scales=1)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
                 
-                W0=self.Ra_T;
-                u_tilde['g'] = W0*np.sin(np.pi*z)
-                d_u_tilde['g'] = W0*np.pi*np.cos(np.pi*z)
-                v_tilde['g'] = W0*np.sin(np.pi*z)
-                d_v_tilde['g'] = W0*np.pi*np.cos(np.pi*z)
-                w_hat['g'] = W0*np.sin(np.pi*z)
-                p_hat['g'] = W0*np.pi*np.cos(np.pi*z);
-                T_hat['g'] = W0*np.sin(np.pi*z)
-                d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)
-                S_hat['g'] = W0*np.sin(np.pi*z)
-                d_S_hat['g'] = W0*np.pi*np.cos(np.pi*z);
-                T_0['g'] = 0
-                d_T_0['g'] = 0
-                S_0['g'] = 0
-                d_S_0['g'] = 0
+                u_tilde['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_u_tilde['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                v_tilde['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_v_tilde['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                w_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
+                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                T_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                S_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_S_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                T_0['g'] = self.A_noise*noise
+                d_T_0['g'] = self.A_noise*noise
+                S_0['g'] = self.A_noise*noise
+                d_S_0['g'] = self.A_noise*noise
         else:
             #Restart
             print('restart')

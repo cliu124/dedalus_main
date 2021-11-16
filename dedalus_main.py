@@ -45,6 +45,7 @@ if flag.flow=='HB_porous':
     flag.problem='BVP'
     flag.z_bc_T_S_w='dirichlet'
     flag.z_bc_u_v='dirichlet'
+    flag.A_elevator=flag.Ra_T
 elif flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
     flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio
