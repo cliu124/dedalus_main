@@ -316,7 +316,7 @@ flag.initial_condition(domain,solver)
 solver.stop_sim_time = flag.stop_sim_time
 cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
 flag.post_store(solver)
-flag.print_file() #move print file to here.
+#flag.print_file() #move print file to here.
 flag.run(solver,cfl,domain,logger)
 flag.post_store_after_run(solver)
 #-----------merge process data

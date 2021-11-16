@@ -682,9 +682,7 @@ class flag(object):
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
                 analysis.add_system(solver.state)
-            elif self.problem =='BVP':
-                self.analysis = solver.evaluator.add_file_handler('analysis')
-                self.analysis.add_system(solver.state)
+            #elif self.problem =='BVP':
                 #For BVP problem, here need to do nothing
 
     def post_store_after_run(self,solver):
@@ -692,6 +690,9 @@ class flag(object):
             post.merge_process_files('analysis',cleanup=True)
         elif self.problem == 'BVP':
             #Here is the place to output the post-processing of BVP
+            self.analysis = solver.evaluator.add_file_handler('analysis')
+            self.analysis.add_system(solver.state)
+                
             solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
                   
