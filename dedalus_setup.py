@@ -639,16 +639,17 @@ class flag(object):
                 rand = np.random.RandomState(seed=23)
                 noise = rand.standard_normal(gshape)[slices]
                 
-                u_tilde['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_u_tilde['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                v_tilde['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_v_tilde['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                w_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
-                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                S_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_S_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                #Set up the initial guess such that the
+                u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 T_0['g'] = self.A_noise*noise
                 d_T_0['g'] = self.A_noise*noise
                 S_0['g'] = self.A_noise*noise
