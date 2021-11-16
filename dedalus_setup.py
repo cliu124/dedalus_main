@@ -644,7 +644,7 @@ class flag(object):
                 v_tilde['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
                 d_v_tilde['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 w_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
-                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
                 T_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
                 d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 S_hat['g'] = W0*np.sin(np.pi*z)+self.A_noise*noise
