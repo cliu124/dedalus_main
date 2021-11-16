@@ -90,6 +90,7 @@ class flag(object):
         self.timesteppers='RK443'
         self.analysis=0
         self.initial_dt=0.01
+        self.continuation=0 #if yes, use the existing data to continue the next computation
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -658,6 +659,10 @@ class flag(object):
             #Restart
             print('restart')
             write, last_dt = solver.load_state('restart.h5', -1)
+        
+        #If set the continuation... then just load the existing data...
+        if self.continuation:
+            write, last_dt = solver.load_state('/analysis/analysis_s1.h5', -1)
 
         
     def run(self,solver,domain,logger):

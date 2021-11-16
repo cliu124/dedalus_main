@@ -39,7 +39,7 @@ if flag.flow=='HB_porous':
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
     flag.Ra_T=10000
-    flag.Ra_S2T=11000
+    flag.Ra_S2T=0
     flag.kx=0.48*flag.Ra_T**0.4
     flag.ky=0
     flag.problem='BVP'
@@ -336,6 +336,18 @@ flag.post_store(solver)
 flag.print_file() #move print file to here.
 flag.run(solver,domain,logger)
 flag.post_store_after_run(solver)
+
+
+flag.Ra_S2T=11000
+flag.continuation=1
+domain=flag.build_domain()
+solver=flag.governing_equation(domain)
+flag.initial_condition(domain,solver)
+flag.post_store(solver)
+flag.print_file() #move print file to here.
+flag.run(solver,domain,logger)
+flag.post_store_after_run(solver)
+
 #-----------merge process data
 
 
