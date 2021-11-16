@@ -105,8 +105,7 @@ elif flag.flow == 'double_diffusive_2D':
     #u_L=0
     
     #Here, use the np.divide so divide by zero will give Inf...
-    flag.
-    flag.
+
     flag.initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
     #print(initial_dt)
     #u_L=9444.9*flag.tau
