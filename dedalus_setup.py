@@ -87,6 +87,7 @@ class flag(object):
         self.z_bc_u_v='dirichlet' #This can be periodic, dirichlet, or neumann
         
         self.timesteppers='RK443'
+        self.analysis=0
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -681,7 +682,9 @@ class flag(object):
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
                 analysis.add_system(solver.state)
-            #elif self.problem =='BVP':
+            elif self.problem =='BVP':
+                self.analysis = solver.evaluator.add_file_handler('analysis')
+                self.analysis.add_system(solver.state)
                 #For BVP problem, here need to do nothing
 
     def post_store_after_run(self,solver):
@@ -689,8 +692,6 @@ class flag(object):
             post.merge_process_files('analysis',cleanup=True)
         elif self.problem == 'BVP':
             #Here is the place to output the post-processing of BVP
-            analysis = solver.evaluator.add_file_handler('analysis')
-            analysis.add_system(solver.state)
-            solver.evaluator.evaluate_handlers([analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
+            solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
                   
