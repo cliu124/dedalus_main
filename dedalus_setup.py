@@ -393,8 +393,17 @@ class flag(object):
         else:
             raise TypeError('flag.flow is not defined yet') 
         
-                     
-        return problem
+        if self.problem =='IVP':
+            if self.timesteppers == 'RK443':
+                ts = de.timesteppers.RK443
+            else:
+                raise TypeError('flag.timesteppers is not defined yet') 
+            solver =  problem.build_solver(ts)
+            
+        elif self.problem =='BVP':
+            solver =  problem.build_solver()
+
+        return solver
 
     def initial_condition(self,domain,solver):
         if not pathlib.Path('restart.h5').exists():
@@ -562,7 +571,7 @@ class flag(object):
                 
                 W0=self.Ra_T;
                 w_hat['g'] = W0*np.sin(np.pi*z)
-                p_hat['g'] = W0*np.pi*np.cos(np.pi*z);
+                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky));
                 T_hat['g'] = W0*np.sin(np.pi*z)
                 d_T_hat['g'] = W0*np.pi*np.cos(np.pi*z)
                 S_hat['g'] = W0*np.sin(np.pi*z)
