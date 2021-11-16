@@ -20,7 +20,7 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='HB_porous'
+flag.flow='HB_benard'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -45,7 +45,26 @@ if flag.flow=='HB_porous':
     flag.problem='BVP'
     flag.z_bc_T_S_w='dirichlet'
     flag.z_bc_u_v='dirichlet'
-    flag.A_elevator=flag.Ra_T
+    flag.A_elevator=1/10*flag.Ra_T
+    flag.A_noise=0
+    flag.initial_dt=0.0001
+elif flag.flow=='HB_benard':
+    flag.Nz=1028
+    flag.Lz=1
+    flag.tau=0.01
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    flag.Ra_T=10000
+    flag.Ra_S2T=0
+    flag.kx=0.48*flag.Ra_T**0.4
+    flag.ky=0
+    flag.problem='BVP'
+    flag.z_bc_T_S_w='dirichlet'
+    flag.z_bc_u_v='dirichlet'
+    flag.A_elevator=1/10*flag.Ra_T
+    flag.A_noise=0
+    flag.initial_dt=0.0001
+    
 elif flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
     flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio
@@ -302,30 +321,32 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
 #-----------------setup storing for post-processing
 flag.post_store_dt=0.5;
-flag.stop_sim_time=200;
+flag.stop_sim_time=20;
 
 #------------ print these parameters in the screen
 flag.print_screen(logger)
 
 
 #---------main loop to run the dedalus 
-if flag.problem == 'IVP':
-    domain=flag.build_domain()
-    solver=flag.governing_equation(domain)
+
+domain=flag.build_domain()
+solver=flag.governing_equation(domain)
+flag.initial_condition(domain,solver)
+flag.post_store(solver)
+flag.print_file() #move print file to here.
+flag.run(solver,domain,logger)
+flag.post_store_after_run(solver)
+#-----------merge process data
+
+
+#if flag.problem == 'IVP':
+#    domain=flag.build_domain()
+#    solver=flag.governing_equation(domain)
     #ts = de.timesteppers.RK443
     #solver =  problem.build_solver(ts)
-    flag.initial_condition(domain,solver)
-    flag.post_store(solver)
-    flag.print_file() #move print file to here.
-    flag.run(solver,domain,logger)
-    flag.post_store_after_run(solver)
-elif flag.problem =='BVP':
-    domain=flag.build_domain()
-    solver=flag.governing_equation(domain)
-    #solver =  problem.build_solver()
-    flag.initial_condition(domain,solver)
-    flag.post_store(solver)
-    flag.print_file() #move print file to here.
-    flag.run(solver,domain,logger)
-    flag.post_store_after_run(solver)
-#-----------merge process data
+#    flag.initial_condition(domain,solver)
+#    flag.post_store(solver)
+#    flag.print_file() #move print file to here.
+#    flag.run(solver,domain,logger)
+#    flag.post_store_after_run(solver)
+#elif flag.problem =='BVP':
