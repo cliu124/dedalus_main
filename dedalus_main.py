@@ -308,15 +308,25 @@ flag.print_screen(logger)
 
 
 #---------main loop to run the dedalus 
-domain=flag.build_domain()
-problem=flag.governing_equation(domain)
-ts = de.timesteppers.RK443
-solver =  problem.build_solver(ts)
-flag.initial_condition(domain,solver)
-solver.stop_sim_time = flag.stop_sim_time
-cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
-flag.post_store(solver)
-#flag.print_file() #move print file to here.
-flag.run(solver,cfl,domain,logger)
-flag.post_store_after_run(solver)
+if flag.problem == 'IVP':
+    domain=flag.build_domain()
+    problem=flag.governing_equation(domain)
+    ts = de.timesteppers.RK443
+    solver =  problem.build_solver(ts)
+    flag.initial_condition(domain,solver)
+    solver.stop_sim_time = flag.stop_sim_time
+    cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
+    flag.post_store(solver)
+    flag.print_file() #move print file to here.
+    flag.run(solver,cfl,domain,logger)
+    flag.post_store_after_run(solver)
+elif flag.problem =='BVP':
+    domain=flag.build_domain()
+    problem=flag.governing_equation(domain)
+    solver =  problem.build_solver()
+    flag.initial_condition(domain,solver)
+    flag.post_store(solver)
+    #flag.print_file() #move print file to here.
+    flag.run(solver,1,domain,logger)
+    flag.post_store_after_run(solver)
 #-----------merge process data
