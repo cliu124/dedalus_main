@@ -45,7 +45,6 @@ if flag.flow=='HB_porous':
     flag.problem='BVP'
     flag.z_bc_T_S_w='dirichlet'
     flag.z_bc_u_v='dirichlet'
-    initial_dt=1
 elif flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
     flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio
@@ -73,7 +72,7 @@ elif flag.flow == 'IFSC_2D':
     u_L=50
     flag.ks=2*np.pi/flag.Lz
     flag.F_sin=u_L*flag.ks**2
-    initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
+    flag.initial_dt=np.min([flag.Lx/flag.Nx/(flag.F_sin/flag.ks**2)/flag.Ra_ratio,flag.Lx/flag.Nx/flag.Ra_ratio])
 
     #-----------------parameter for initial condition
     flag.A_elevator=1
@@ -106,7 +105,9 @@ elif flag.flow == 'double_diffusive_2D':
     #u_L=0
     
     #Here, use the np.divide so divide by zero will give Inf...
-    initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+    flag.
+    flag.
+    flag.initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
     #print(initial_dt)
     #u_L=9444.9*flag.tau
     
@@ -123,7 +124,7 @@ elif flag.flow == 'porous_media_2D':
     flag.Lz=Lz2d*2*np.pi
     flag.Nx=Lx2d*16
     flag.Nz=Lz2d*16
-    initial_dt=np.min([flag.Lx/flag.Nx])
+    flag.initial_dt=np.min([flag.Lx/flag.Nx])
     flag.Ra_T=1
     flag.A_elevator=2**8
     flag.k_elevator=1
@@ -141,7 +142,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
     flag.Nx=Lx2d*16
     flag.Nz=Lz2d*16
     u_L=0
-    initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+    flag.initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
 
     if flag.flow_sub_double_diffusive_shear_2D == 'primitive_Radko2013':
         ##parameter for Radko (2013) type
@@ -247,7 +248,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Nx=512
         u_L=1
         flag.F_sin=u_L*flag.ks*flag.ks
-        initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L)/100,flag.Lx/flag.Nx])
+        flag.initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L)/100,flag.Lx/flag.Nx])
         
         Pr=10
         tau=0.01
@@ -314,11 +315,9 @@ if flag.problem == 'IVP':
     #ts = de.timesteppers.RK443
     #solver =  problem.build_solver(ts)
     flag.initial_condition(domain,solver)
-    solver.stop_sim_time = flag.stop_sim_time
-    cfl = flow_tools.CFL(solver,initial_dt,safety=0.8,max_change=1,cadence=8)
     flag.post_store(solver)
     flag.print_file() #move print file to here.
-    flag.run(solver,cfl,domain,logger)
+    flag.run(solver,domain,logger)
     flag.post_store_after_run(solver)
 elif flag.problem =='BVP':
     domain=flag.build_domain()
@@ -327,6 +326,6 @@ elif flag.problem =='BVP':
     flag.initial_condition(domain,solver)
     flag.post_store(solver)
     flag.print_file() #move print file to here.
-    flag.run(solver,1,domain,logger)
+    flag.run(solver,domain,logger)
     flag.post_store_after_run(solver)
 #-----------merge process data

@@ -107,6 +107,19 @@ classdef dedalus_post
         uT;
         wT;
         uw;
+        
+        %new flag added 2021/11/15
+        kx=1
+        ky=1
+        problem='IVP';% #This can be IVP, BVP, EVP depends on the problem you want to solve
+        bvp_tolerance=1e-11;% #This is the tolerance for BVP.
+        z_bc_T_S_w='dirichlet';% #This can be also dirichlet
+        z_bc_u_v='dirichlet';% #This can be periodic, dirichlet, or neumann
+        
+        timesteppers='RK443';%
+        analysis=0;%
+        initial_dt=0.01;
+        
     end
     
     methods

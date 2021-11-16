@@ -4,6 +4,7 @@ import time
 import pathlib
 from scipy import linalg
 from dedalus.tools import post
+from dedalus.extras import flow_tools
 
 
 class flag(object):
@@ -88,6 +89,7 @@ class flag(object):
         
         self.timesteppers='RK443'
         self.analysis=0
+        self.initial_dt=0.01
     def print_screen(self,logger):
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
@@ -621,11 +623,13 @@ class flag(object):
             write, last_dt = solver.load_state('restart.h5', -1)
 
         
-        
-    def run(self,solver,cfl,domain,logger):
+    def run(self,solver,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
         ##Note this line is very important and it needs to be added!!!!!
         if self.problem =='IVP':
+            solver.stop_sim_time = self.stop_sim_time
+            cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
+    
             if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
                 cfl.add_velocities(('u','w'))
             elif self.flow =='HB_porous':
