@@ -326,7 +326,7 @@ elif flag.problem =='BVP':
     #solver =  problem.build_solver()
     flag.initial_condition(domain,solver)
     flag.post_store(solver)
-    #flag.print_file() #move print file to here.
+    flag.print_file() #move print file to here.
     flag.run(solver,1,domain,logger)
     flag.post_store_after_run(solver)
 #-----------merge process data
