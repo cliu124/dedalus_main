@@ -628,24 +628,31 @@ class flag(object):
         ##Note this line is very important and it needs to be added!!!!!
         if self.problem =='IVP':
             solver.stop_sim_time = self.stop_sim_time
-            cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
-    
-            if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
-                cfl.add_velocities(('u','w'))
-            elif self.flow =='HB_porous':
-                cfl.add_velocities(('w_hat'))
-            elif self.flow =='HB_benard':
-                cfl.add_velocities(('w_hat','u_tilde','v_tilde'))
     
             logger.info('Starting loop')
             solver.stop_wall_time = np.inf
             solver.stop_iteration = np.inf
             start_time=time.time()
-            while solver.ok:
-                dt = cfl.compute_dt()    
-                solver.step(dt)
-                if solver.iteration % 100 == 0:
-                    logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
+            dt = self.initial_dt
+            
+            if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
+                cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
+                cfl.add_velocities(('u','w'))
+            #elif self.flow =='HB_porous':
+            #    cfl.add_velocities('w_hat')
+            #elif self.flow =='HB_benard':
+            #    cfl.add_velocities(('w_hat','u_tilde','v_tilde'))
+                while solver.ok:
+                    dt = cfl.compute_dt()    
+                    solver.step(dt)
+                    if solver.iteration % 100 == 0:
+                        logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
+            
+            elif self.flow in ['HB_porous','HB_benard']:
+                 while solver.ok:
+                    solver.step(dt)
+                    if solver.iteration % 100 == 0:
+                        logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
             
             end_time = time.time()
             # Print statistics
