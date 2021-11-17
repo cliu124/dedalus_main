@@ -44,8 +44,8 @@ if flag.flow=='HB_porous':
     flag.ky=0
     flag.problem='BVP'
     
-    flag.z_bc_T='dirichlet'
-    flag.z_bc_S='dirichlet'
+    flag.z_bc_T='neumann'
+    flag.z_bc_S='neumann'
     flag.z_bc_w='dirichlet'
     flag.z_bc_u_v='dirichlet'
     flag.A_elevator=1/10*flag.Ra_T

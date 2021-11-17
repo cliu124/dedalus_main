@@ -344,7 +344,8 @@ class flag(object):
                 problem.add_bc("left(d_T_hat) = 0")
                 problem.add_bc("right(d_T_hat) = 0")
                 problem.add_bc("left(d_T_0) = 0")
-                problem.add_bc("right(d_T_0) = 0")
+                #problem.add_bc("left(T_0)=0", condition="(nx==0)")
+                problem.add_bc("right(T_0) = 0")
                 #problem.add_bc("left(T_0) = 0")
             elif self.z_bc_T =='periodic':
                 #problem.add_bc("left(T_0)=0")
@@ -361,7 +362,7 @@ class flag(object):
                 problem.add_bc("left(d_S_hat) = 0")
                 problem.add_bc("right(d_S_hat) = 0")
                 problem.add_bc("left(d_S_0) = 0")
-                problem.add_bc("right(d_S_0) = 0")  
+                problem.add_bc("right(S_0) = 0")  
             elif self.z_bc_S=='periodic':
                 print('Periodic B.C. for S')
             else:
