@@ -330,7 +330,7 @@ class flag(object):
             if self.z_bc_w == 'dirichlet':
                 problem.add_bc("left(w_hat) = 0")
                 problem.add_bc("right(w_hat) = 0")
-            elif self.z_bc_W=='periodic':
+            elif self.z_bc_w=='periodic':
                 print('Periodic B.C. for w')
             else:
                 raise TypeError('flag.z_bc_w is not supported yet') 
@@ -345,9 +345,9 @@ class flag(object):
                 problem.add_bc("right(d_T_hat) = 0")
                 problem.add_bc("left(d_T_0) = 0")
                 problem.add_bc("right(d_T_0) = 0")
-                problem.add_bc("left(T_0) = 0")
+                #problem.add_bc("left(T_0) = 0")
             elif self.z_bc_T =='periodic':
-                problem.add_bc("left(T_0)=0")
+                #problem.add_bc("left(T_0)=0")
                 print('Periodic B.C. for T')
             else:
                 raise TypeError('flag.z_bc_T is not supported yet') 
