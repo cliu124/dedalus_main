@@ -114,10 +114,10 @@ class flag(object):
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         elif self.flow in ['HB_porous','HB_benard']:
-            if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
-                z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
-            else:
-                z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
+            #if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
+            #    z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
+            #else:
+            z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
             domain = de.Domain([z_basis],grid_dtype=np.float64)   
         return domain
 
@@ -331,6 +331,8 @@ class flag(object):
                 problem.add_bc("left(w_hat) = 0")
                 problem.add_bc("right(w_hat) = 0")
             elif self.z_bc_w=='periodic':
+                problem.add_bc("left(w_hat)-right(w_hat)=0")
+                problem.add_bc("left(p_hat)-right(p_hat)=0")
                 print('Periodic B.C. for w')
             else:
                 raise TypeError('flag.z_bc_w is not supported yet') 
@@ -348,6 +350,10 @@ class flag(object):
                 problem.add_bc("right(T_0) = 0")
                 #problem.add_bc("left(T_0) = 0")
             elif self.z_bc_T =='periodic':
+                problem.add_bc("left(T_hat)-right(T_hat)=0")
+                problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
+                problem.add_bc("left(T_0)-right(T_0)=0")
+                problem.add_bc("left(d_T_0)-right(d_T_0)=0")
                 #problem.add_bc("left(T_0)=0")
                 print('Periodic B.C. for T')
             else:
@@ -365,6 +371,11 @@ class flag(object):
                 problem.add_bc("right(S_0) = 0")  
             elif self.z_bc_S=='periodic':
                 print('Periodic B.C. for S')
+                problem.add_bc("left(S_hat)-right(S_hat)=0")
+                problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
+                problem.add_bc("left(S_0)-right(S_0)=0")
+                problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                
             else:
                 raise TypeError('flag.z_bc_S is not supported yet') 
 
@@ -440,7 +451,7 @@ class flag(object):
                 problem.add_bc("left(d_T_hat) = 0")
                 problem.add_bc("right(d_T_hat) = 0")
                 problem.add_bc("left(d_T_0) = 0")
-                problem.add_bc("right(d_T_0) = 0")
+                problem.add_bc("right(T_0) = 0")
             elif self.z_bc_T =='periodic':
                 print('Periodic B.C. for T')
             else:
@@ -455,7 +466,7 @@ class flag(object):
                 problem.add_bc("left(d_S_hat) = 0")
                 problem.add_bc("right(d_S_hat) = 0")
                 problem.add_bc("left(d_S_0) = 0")
-                problem.add_bc("right(d_S_0) = 0")  
+                problem.add_bc("right(S_0) = 0")  
             elif self.z_bc_S=='periodic':
                 print('Periodic B.C. for S')
             else:

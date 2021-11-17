@@ -3,9 +3,10 @@ close all;
 
 slurm_num={'12516590',
     '12516677',
-    '12516679'};
+    '12516679',
+    '12519906'};
 
-for slurm_ind=3%length(slurm_num)
+for slurm_ind=length(slurm_num)
     h5_name=['C:\Data\dedalus\dedalus_',...
             slurm_num{slurm_ind},...
             '\analysis\analysis_s1.h5'];
