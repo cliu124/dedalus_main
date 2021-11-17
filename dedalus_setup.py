@@ -345,7 +345,9 @@ class flag(object):
                 problem.add_bc("right(d_T_hat) = 0")
                 problem.add_bc("left(d_T_0) = 0")
                 problem.add_bc("right(d_T_0) = 0")
+                problem.add_bc("left(T_0) = 0")
             elif self.z_bc_T =='periodic':
+                problem.add_bc("left(T_0)=0")
                 print('Periodic B.C. for T')
             else:
                 raise TypeError('flag.z_bc_T is not supported yet') 

@@ -341,15 +341,15 @@ flag.run(solver,domain,logger)
 flag.post_store_after_run(solver)
 
 
-flag.Ra_S2T=11000
-flag.continuation=1
-domain=flag.build_domain()
-solver=flag.governing_equation(domain)
-flag.initial_condition(domain,solver)
-flag.post_store(solver)
-flag.print_file() #move print file to here.
-flag.run(solver,domain,logger)
-flag.post_store_after_run(solver)
+# flag.Ra_S2T=11000
+# flag.continuation=1
+# domain=flag.build_domain()
+# solver=flag.governing_equation(domain)
+# flag.initial_condition(domain,solver)
+# flag.post_store(solver)
+# flag.print_file() #move print file to here.
+# flag.run(solver,domain,logger)
+# flag.post_store_after_run(solver)
 
 #-----------merge process data
 
