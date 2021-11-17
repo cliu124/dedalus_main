@@ -38,8 +38,8 @@ if flag.flow=='HB_porous':
     flag.tau=0.01
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
-    #flag.Ra_T=10000
-    Ra_T_list=[10000,20000,40000]
+    flag.Ra_T=10000
+    #Ra_T_list=[10000,20000,40000]
     flag.continuation=0
     flag.Ra_S2T=0
     flag.ky=0
@@ -334,16 +334,16 @@ flag.print_screen(logger)
 for bc in ['dirichlet','neumann']:
     flag.z_bc_T=bc
     flag.z_bc_S=bc
-    for flag.Ra_T in Ra_T_list:
-        flag.kx=0.48*flag.Ra_T**0.4
-        domain=flag.build_domain()
-        solver=flag.governing_equation(domain)
-        flag.initial_condition(domain,solver)
-        flag.post_store(solver)
-        flag.print_file() #move print file to here.
-        flag.run(solver,domain,logger)
-        flag.post_store_after_run(solver)
-        flag.continuation=flag.continuation+1
+    #for flag.Ra_T in Ra_T_list:
+    flag.kx=0.48*flag.Ra_T**0.4
+    domain=flag.build_domain()
+    solver=flag.governing_equation(domain)
+    flag.initial_condition(domain,solver)
+    flag.post_store(solver)
+    flag.print_file() #move print file to here.
+    flag.run(solver,domain,logger)
+    flag.post_store_after_run(solver)
+    flag.continuation=flag.continuation+1
 
 
 

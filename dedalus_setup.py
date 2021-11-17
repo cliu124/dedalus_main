@@ -730,7 +730,7 @@ class flag(object):
             write, last_dt = solver.load_state('restart.h5', -1)
         
         #If set the continuation... then just load the existing data...
-        if self.continuation!=0:
+        if self.continuation != 0:
             shutil.copytree('analysis','analysis'+str(self.continuation))
             write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
 
