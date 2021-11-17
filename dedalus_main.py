@@ -33,7 +33,7 @@ flag.shear_Radko2016_reduced='primitive'
 
 
 if flag.flow=='HB_porous':
-    flag.Nz=1028
+    flag.Nz=1024
     flag.Lz=1
     flag.tau=0.01
     flag.dy_T_mean=-1
@@ -43,7 +43,10 @@ if flag.flow=='HB_porous':
     flag.kx=0.48*flag.Ra_T**0.4
     flag.ky=0
     flag.problem='BVP'
-    flag.z_bc_T_S_w='dirichlet'
+    
+    flag.z_bc_T='dirichlet'
+    flag.z_bc_S='dirichlet'
+    flag.z_bc_w='dirichlet'
     flag.z_bc_u_v='dirichlet'
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0

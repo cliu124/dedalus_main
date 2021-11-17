@@ -5,7 +5,7 @@ slurm_num={'12516590',
     '12516677',
     '12516679'};
 
-for slurm_ind=3%length(slurm_num)
+for slurm_ind=1%length(slurm_num)
     h5_name=['C:\Data\dedalus\dedalus_',...
             slurm_num{slurm_ind},...
             '\analysis\analysis_s1.h5'];
@@ -45,21 +45,10 @@ for slurm_ind=3%length(slurm_num)
     data{1}.y=obj.z_list;
     plot_config.label_list={1,'$\bar{S}_0+1+\bar{\mathcal{S}}_z z$', '$z$'};
     plot_config.print_size=[1,500,900];
-    plot_config.ylim_list=[1,0,0.01];
+    plot_config.ylim
     plot_config.name=['C:\Figure\DDC_LST\HB_porous_','S_0_local.png'];
     plot_line(data,plot_config);
-    plot_config.ylim_list=0;
-    
-    data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
-    data{1}.y=obj.z_list;
-    plot_config.label_list={1,'$\bar{S}_0+1+\bar{\mathcal{S}}_z z$', '$z$'};
-    plot_config.print_size=[1,500,900];
-    plot_config.ylim_list=[1,0.49,0.51];
-    plot_config.xlim_list=[1,0.49,0.51];
-    plot_config.name=['C:\Figure\DDC_LST\HB_porous_','S_0_local_core.png'];
-    plot_line(data,plot_config);
-    plot_config.ylim_list=0; plot_config.xlim_list=0;
-    
+
     
     data{1}.x=obj.T_hat;
     data{1}.y=obj.z_list;
@@ -74,16 +63,6 @@ for slurm_ind=3%length(slurm_num)
     plot_config.print_size=[1,500,900];
     plot_config.name=['C:\Figure\DDC_LST\HB_porous_','S_hat.png'];
     plot_line(data,plot_config);
-    
-    
-    data{1}.x=obj.S_hat;
-    data{1}.y=obj.z_list;
-    plot_config.label_list={1,'$\widehat{S}$', '$z$'};
-    plot_config.print_size=[1,500,900];
-    plot_config.ylim_list=[1,0,0.01];
-    plot_config.name=['C:\Figure\DDC_LST\HB_porous_','S_hat_local.png'];
-    plot_line(data,plot_config);
-    plot_config.ylim_list=0;
     
     data{1}.x=obj.w_hat;
     data{1}.y=obj.z_list;

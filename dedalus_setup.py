@@ -84,8 +84,11 @@ class flag(object):
         self.ky=1
         self.problem='IVP' #This can be IVP, BVP, EVP depends on the problem you want to solve
         self.bvp_tolerance=1e-11 #This is the tolerance for BVP.
-        self.z_bc_T_S_w='dirichlet' #This can be also dirichlet
+        #self.z_bc_T_S_w='dirichlet' #This can be also dirichlet
         self.z_bc_u_v='dirichlet' #This can be periodic, dirichlet, or neumann
+        self.z_bc_T='dirichlet'
+        self.z_bc_S='dirichlet'
+        self.z_bc_w='dirichlet'
         
         self.timesteppers='RK443'
         self.analysis=0
@@ -111,7 +114,7 @@ class flag(object):
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         elif self.flow in ['HB_porous','HB_benard']:
-            if self.z_bc_T_S_w =='periodic' and self.z_bc_u_v == 'periodic':
+            if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
                 z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             else:
                 z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
@@ -324,17 +327,44 @@ class flag(object):
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
             
-            if self.z_bc_T_S_w == 'dirichlet':
+            if self.z_bc_w == 'dirichlet':
                 problem.add_bc("left(w_hat) = 0")
                 problem.add_bc("right(w_hat) = 0")
+            elif self.z_bc_W=='periodic':
+                print('Periodic B.C. for w')
+            else:
+                raise TypeError('flag.z_bc_w is not supported yet') 
+
+            if self.z_bc_T =='dirichlet':
                 problem.add_bc("left(T_hat) = 0")
                 problem.add_bc("right(T_hat) = 0")
-                problem.add_bc("left(S_hat) = 0")
-                problem.add_bc("right(S_hat) = 0")
                 problem.add_bc("left(T_0) = 0")
                 problem.add_bc("right(T_0) = 0")
+            elif self.z_bc_T =='neumann':
+                problem.add_bc("left(d_T_hat) = 0")
+                problem.add_bc("right(d_T_hat) = 0")
+                problem.add_bc("left(d_T_0) = 0")
+                problem.add_bc("right(d_T_0) = 0")
+            elif self.z_bc_T =='periodic':
+                print('Periodic B.C. for T')
+            else:
+                raise TypeError('flag.z_bc_T is not supported yet') 
+
+            if self.z_bc_S=='dirichlet':
+                problem.add_bc("left(S_hat) = 0")
+                problem.add_bc("right(S_hat) = 0")
                 problem.add_bc("left(S_0) = 0")
                 problem.add_bc("right(S_0) = 0")
+            elif self.z_bc_S=='neumann':
+                problem.add_bc("left(d_S_hat) = 0")
+                problem.add_bc("right(d_S_hat) = 0")
+                problem.add_bc("left(d_S_0) = 0")
+                problem.add_bc("right(d_S_0) = 0")  
+            elif self.z_bc_S=='periodic':
+                print('Periodic B.C. for S')
+            else:
+                raise TypeError('flag.z_bc_S is not supported yet') 
+
             #elif self.z_bc_T_S_w == 'periodic':
                 #need to do nothing for periodic BC but change the basis as Fourier at the beginning
              
@@ -390,19 +420,43 @@ class flag(object):
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
             
-            if self.z_bc_T_S_w =='dirichlet':
+            if self.z_bc_w == 'dirichlet':
                 problem.add_bc("left(w_hat) = 0")
                 problem.add_bc("right(w_hat) = 0")
+            elif self.z_bc_W=='periodic':
+                print('Periodic B.C. for w')
+            else:
+                raise TypeError('flag.z_bc_w is not supported yet') 
+
+            if self.z_bc_T =='dirichlet':
                 problem.add_bc("left(T_hat) = 0")
                 problem.add_bc("right(T_hat) = 0")
-                problem.add_bc("left(S_hat) = 0")
-                problem.add_bc("right(S_hat) = 0")
                 problem.add_bc("left(T_0) = 0")
                 problem.add_bc("right(T_0) = 0")
+            elif self.z_bc_T =='neumann':
+                problem.add_bc("left(d_T_hat) = 0")
+                problem.add_bc("right(d_T_hat) = 0")
+                problem.add_bc("left(d_T_0) = 0")
+                problem.add_bc("right(d_T_0) = 0")
+            elif self.z_bc_T =='periodic':
+                print('Periodic B.C. for T')
+            else:
+                raise TypeError('flag.z_bc_T is not supported yet') 
+
+            if self.z_bc_S=='dirichlet':
+                problem.add_bc("left(S_hat) = 0")
+                problem.add_bc("right(S_hat) = 0")
                 problem.add_bc("left(S_0) = 0")
                 problem.add_bc("right(S_0) = 0")
-            #elif self.z_bc_T_S_w =='periodic':
-                #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
+            elif self.z_bc_S=='neumann':
+                problem.add_bc("left(d_S_hat) = 0")
+                problem.add_bc("right(d_S_hat) = 0")
+                problem.add_bc("left(d_S_0) = 0")
+                problem.add_bc("right(d_S_0) = 0")  
+            elif self.z_bc_S=='periodic':
+                print('Periodic B.C. for S')
+            else:
+                raise TypeError('flag.z_bc_S is not supported yet') 
 
             if self.z_bc_u_v =='dirichlet':
                 problem.add_bc("left(u_tilde) = 0")
@@ -662,7 +716,7 @@ class flag(object):
         
         #If set the continuation... then just load the existing data...
         if self.continuation:
-            write, last_dt = solver.load_state('/analysis/analysis_s1.h5', -1)
+            write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
 
         
     def run(self,solver,domain,logger):
