@@ -38,14 +38,16 @@ if flag.flow=='HB_porous':
     flag.tau=0.01
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
-    flag.Ra_T=10000
+    #flag.Ra_T=10000
+    Ra_T_list=[10000,20000,40000]
+    flag.continuation=0
     flag.Ra_S2T=0
     flag.kx=0.48*flag.Ra_T**0.4
     flag.ky=0
     flag.problem='BVP'
     
-    flag.z_bc_T='neumann'
-    flag.z_bc_S='neumann'
+    flag.z_bc_T='dirichlet'
+    flag.z_bc_S='dirichlet'
     flag.z_bc_w='dirichlet'
     flag.z_bc_u_v='dirichlet'
     flag.A_elevator=1/10*flag.Ra_T
@@ -331,14 +333,19 @@ flag.print_screen(logger)
 
 
 #---------main loop to run the dedalus 
+for bc in ['dirichlet','neumann']:
+    flag.z_bc_T=bc
+    flag.z_bc_S=bc
+    for flag.Ra_T in Ra_T_list:
+        domain=flag.build_domain()
+        solver=flag.governing_equation(domain)
+        flag.initial_condition(domain,solver)
+        flag.post_store(solver)
+        flag.print_file() #move print file to here.
+        flag.run(solver,domain,logger)
+        flag.post_store_after_run(solver)
+        flag.continuation=flag.continuation+1
 
-domain=flag.build_domain()
-solver=flag.governing_equation(domain)
-flag.initial_condition(domain,solver)
-flag.post_store(solver)
-flag.print_file() #move print file to here.
-flag.run(solver,domain,logger)
-flag.post_store_after_run(solver)
 
 
 # flag.Ra_S2T=11000

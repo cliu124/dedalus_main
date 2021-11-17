@@ -5,6 +5,7 @@ import pathlib
 from scipy import linalg
 from dedalus.tools import post
 from dedalus.extras import flow_tools
+import shutil
 
 
 class flag(object):
@@ -729,7 +730,8 @@ class flag(object):
             write, last_dt = solver.load_state('restart.h5', -1)
         
         #If set the continuation... then just load the existing data...
-        if self.continuation:
+        if self.continuation!=0:
+            shutil.copytree('analysis','analysis'+str(self.continuation))
             write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
 
         
