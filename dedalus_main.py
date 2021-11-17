@@ -42,10 +42,8 @@ if flag.flow=='HB_porous':
     Ra_T_list=[10000,20000,40000]
     flag.continuation=0
     flag.Ra_S2T=0
-    flag.kx=0.48*flag.Ra_T**0.4
     flag.ky=0
     flag.problem='BVP'
-    
     flag.z_bc_T='dirichlet'
     flag.z_bc_S='dirichlet'
     flag.z_bc_w='dirichlet'
@@ -337,6 +335,7 @@ for bc in ['dirichlet','neumann']:
     flag.z_bc_T=bc
     flag.z_bc_S=bc
     for flag.Ra_T in Ra_T_list:
+        flag.kx=0.48*flag.Ra_T**0.4
         domain=flag.build_domain()
         solver=flag.governing_equation(domain)
         flag.initial_condition(domain,solver)
