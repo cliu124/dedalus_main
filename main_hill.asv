@@ -1,0 +1,64 @@
+clear all;
+close all;
+clc;
+
+global sigma rho beta r0 zeta;
+r0=0.6;
+theta_0=asin(r0);
+zeta=0;
+sigma=10;
+rho=8/3;
+beta=29;
+
+options = odeset('RelTol', 1.0e-10, 'AbsTol', 1.0e-10);
+[~,state_con_tmp] = ode45(@(t,y)hill(t,y,force),time,x0,options);
+
+function dy=sin_lorenz(t,y)
+global sigma rho beta;
+theta=y(1,1);
+X=y(2,1);
+Y=y(3,1);
+Z=y(4,1);
+dy=[-sin(theta)+r0+zeta*X;
+    sigma*(Y-X);
+    X*(rho-Z)-Y;
+    X*Y-beta*Z];
+end
+
+function dy=y_lorenz(t,y)
+global sigma rho beta;
+theta=y(1,1);
+X=y(2,1);
+Y=y(3,1);
+Z=y(4,1);
+dy=[-(theta)+r0+zeta*X;
+    sigma*(Y-X);
+    X*(rho-Z)-Y;
+    X*Y-beta*Z];
+end
+
+
+function dy=sin_lorenz(t,y)
+global sigma rho beta;
+theta=y(1,1);
+X=y(2,1);
+Y=y(3,1);
+Z=y(4,1);
+dy=[-sin(theta)+r0+zeta*X;
+    sigma*(Y-X);
+    X*(rho-Z)-Y;
+    X*Y-beta*Z];
+end
+
+function dy=y_lorenz(t,y)
+global sigma rho beta;
+theta=y(1,1);
+X=y(2,1);
+Y=y(3,1);
+Z=y(4,1);
+dy=[-(theta)+r0+zeta*X;
+    sigma*(Y-X);
+    X*(rho-Z)-Y;
+    X*Y-beta*Z];
+end
+

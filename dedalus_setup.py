@@ -91,17 +91,21 @@ class flag(object):
         self.z_bc_S='dirichlet'
         self.z_bc_w='dirichlet'
         
+        #flag for the time stepper.. default value
         self.timesteppers='RK443'
-        self.analysis=0
-        self.initial_dt=0.01
+        self.analysis=0#Add analysis
+        self.initial_dt=0.01#initial time step.
         self.continuation=0 #if yes, use the existing data to continue the next computation
+    
     def print_screen(self,logger):
+        #print the flag onto the screen
         flag_attrs=vars(self)
         #print(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
         logger.info(', Attributes: Value,\n,')
         logger.info(', '.join("%s: %s, \n" % item for item in flag_attrs.items()))
 
     def print_file(self):
+        #print the flag onto file
         flag_text=open(self.current_path+'/analysis'+'/flag.txt','w+')
         flag_attrs=vars(self)
         print(', Attributes: 123,\n ------\n-------\n------',file=flag_text)
@@ -110,20 +114,27 @@ class flag(object):
         flag_text.close()
         
     def build_domain(self):
+        #build domain
+        #For these, right now is the Fourier in the veritical
         if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
             x_basis = de.Fourier('x', self.Nx, interval=(0,self.Lx), dealias=3/2)
             z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
+        
+        #For Harmonic balance method. Chebyshev in the vertical
         elif self.flow in ['HB_porous','HB_benard']:
-            #if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
-            #    z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
-            #else:
-            z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
-            domain = de.Domain([z_basis],grid_dtype=np.float64)   
+            if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
+                z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
+            else:
+                z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
+                domain = de.Domain([z_basis],grid_dtype=np.float64)   
         return domain
 
     def governing_equation(self,domain):
+        #This function setup the governing equations
+        
         if self.flow in ['IFSC_2D']:
+            #This is the 2D inertial free salt finger convection
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
             problem.parameters['Ra_ratio']=self.Ra_ratio
             problem.parameters['dy_T_mean']=self.dy_T_mean
@@ -131,7 +142,9 @@ class flag(object):
             
             #Update 2021/09/12, change the language to specify the background shear
             #test whether these amplitude of shear is zero....
+            #with additional shear needs to modify the x-momentum equation
             if self.F_sin == 0:
+                #without shear
                 print('without shear')
                 problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = 0", condition="(nx!=0) or (nz!=0)")
             else:
@@ -152,6 +165,7 @@ class flag(object):
                 problem.parameters['phase_4ks']=self.phase_4ks
                 problem.add_equation("- (dx(dx(u))+dz(dz(u)) ) +dx(p) = F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks)", condition="(nx!=0) or (nz!=0)")
 
+            #These are other governing equations
             problem.add_equation(" - ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(T-S*Ra_ratio)  =0")            
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
@@ -161,6 +175,8 @@ class flag(object):
 
             
         elif self.flow in ['double_diffusive_2D']:
+            #double diffusive convection in 2D
+            
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
             problem.parameters['R_rho_T2S']=self.R_rho_T2S
             problem.parameters['tau']=self.tau
@@ -201,6 +217,8 @@ class flag(object):
             problem.add_equation(" dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =-u*dx(T)-w*dz(T)")
        
         elif self.flow in ['double_diffusive_shear_2D']:
+            #This is using the unified formulation, where the velocity and length scale are arbitrary or determined by shear
+            
             problem = de.IVP(domain,variables=['p','u','w','S','T'])
             problem.parameters['Re']=self.Re
             problem.parameters['Pe_T']=self.Pe_T
@@ -216,6 +234,8 @@ class flag(object):
             #test whether these amplitude of shear is zero....
             
             ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
+            #firstly set up the x-momentum equation. if Re=0, then no inertial term
+            #Also it needs to distinguish whether we have shear driven by body force or not
             if self.F_sin == 0:
                 print('without shear')
                 if self.Re == 0:
@@ -247,20 +267,26 @@ class flag(object):
                     problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(dz(u)) ) +dx(p) = Re*( -u*dx(u)-w*dz(u) )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
 
             if self.Re ==0:
+                #no inertial term in the momentum
                 problem.add_equation("- ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
             else:
                 problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(dz(w)) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*( -u*dx(w)-w*dz(w) )")
 
+            #divergence free and pressure gauge
             problem.add_equation("dx(u)+dz(w)=0",condition="(nx!=0) or (nz!=0)")
             problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             if self.Pe_T == 0:
+                #no inertial term in the temperature
                 problem.add_equation(" - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =0")
             else:
                 problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(dz(T)) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*dz(T) )")
 
+            #Add salinity equation
             problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(dz(S))) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*dz(S) ) ")
 
         elif self.flow =='porous_media_2D':
+            #porous media in 2D!!!
+            #This has not been fully benchmarked!!!
             problem = de.IVP(domain,variables=['p','u','w','T'])
             problem.parameters['Ra_T']=self.Ra_T
             problem.add_equation(" u + dx(p) = 0", condition="(nx!=0) or (nz!=0)")
@@ -271,6 +297,9 @@ class flag(object):
             problem.add_equation("dt(T) - (dx(dx(T)) + dz(dz(T)))  - w =-u*dx(T)-w*dz(T) ")
 
         elif self.flow == "channel":
+            #channel flow
+            #This has not been fully benchmarked!!!
+
             problem.parameters['Re']=self.Re
             problem = de.IVP(domain,variables=['p','u','w','v'])
 
@@ -306,6 +335,8 @@ class flag(object):
             problem.parameters['kx']=self.kx
             problem.parameters['ky']=self.ky
             if self.problem =='BVP':
+                #variable with _hat is the harmonic term
+                #variable with _0 is the horizontal average term
                 problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
                 problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
                 problem.add_equation('dz(T_hat)-d_T_hat=0')
@@ -317,6 +348,7 @@ class flag(object):
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
             elif self.problem =='IVP':
+                #This is the same version, but just add the time dependence term in the temperature, both harmonic and horizontal average term
                 problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
                 problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
                 problem.add_equation('dz(T_hat)-d_T_hat=0')
@@ -328,38 +360,45 @@ class flag(object):
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
             
+            #setup different B.C. 
+            #for w is always no penetration
             if self.z_bc_w == 'dirichlet':
                 problem.add_bc("left(w_hat) = 0")
                 problem.add_bc("right(w_hat) = 0")
             elif self.z_bc_w=='periodic':
-                problem.add_bc("left(w_hat)-right(w_hat)=0")
-                problem.add_bc("left(p_hat)-right(p_hat)=0")
+                #problem.add_bc("left(w_hat)-right(w_hat)=0")
+                #problem.add_bc("left(p_hat)-right(p_hat)=0")
                 print('Periodic B.C. for w')
             else:
                 raise TypeError('flag.z_bc_w is not supported yet') 
 
+            #set up the B.C. for temperature
             if self.z_bc_T =='dirichlet':
                 problem.add_bc("left(T_hat) = 0")
                 problem.add_bc("right(T_hat) = 0")
                 problem.add_bc("left(T_0) = 0")
                 problem.add_bc("right(T_0) = 0")
             elif self.z_bc_T =='neumann':
+                
                 problem.add_bc("left(d_T_hat) = 0")
                 problem.add_bc("right(d_T_hat) = 0")
+                
+                #Neumann B.C. for horizontal average temperature, 
+                #it only needs to be set up in one side and the other side will automatically satisfy the Neumann B.C. 
                 problem.add_bc("left(d_T_0) = 0")
-                #problem.add_bc("left(T_0)=0", condition="(nx==0)")
                 problem.add_bc("right(T_0) = 0")
-                #problem.add_bc("left(T_0) = 0")
             elif self.z_bc_T =='periodic':
-                problem.add_bc("left(T_hat)-right(T_hat)=0")
-                problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
-                problem.add_bc("left(T_0)-right(T_0)=0")
-                problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                #not fully reddy!!!!
+                #problem.add_bc("left(T_hat)-right(T_hat)=0")
+                #problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
+                #problem.add_bc("left(T_0)-right(T_0)=0")
+                #problem.add_bc("left(d_T_0)-right(d_T_0)=0")
                 #problem.add_bc("left(T_0)=0")
                 print('Periodic B.C. for T')
             else:
                 raise TypeError('flag.z_bc_T is not supported yet') 
 
+            ##set up different B.C. for salinity 
             if self.z_bc_S=='dirichlet':
                 problem.add_bc("left(S_hat) = 0")
                 problem.add_bc("right(S_hat) = 0")
@@ -368,14 +407,19 @@ class flag(object):
             elif self.z_bc_S=='neumann':
                 problem.add_bc("left(d_S_hat) = 0")
                 problem.add_bc("right(d_S_hat) = 0")
+                
+                #Neumann B.C. for horizontal average temperature, 
+                #it only needs to be set up in one side and the other side will automatically satisfy the Neumann B.C. 
+                #Instead, we set up a gauge by Dirichlet B.C. 
                 problem.add_bc("left(d_S_0) = 0")
                 problem.add_bc("right(S_0) = 0")  
             elif self.z_bc_S=='periodic':
+                #not fully ready!!!
                 print('Periodic B.C. for S')
-                problem.add_bc("left(S_hat)-right(S_hat)=0")
-                problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
-                problem.add_bc("left(S_0)-right(S_0)=0")
-                problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                #problem.add_bc("left(S_hat)-right(S_hat)=0")
+                #problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
+                #problem.add_bc("left(S_0)-right(S_0)=0")
+                #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 
             else:
                 raise TypeError('flag.z_bc_S is not supported yet') 
@@ -384,6 +428,9 @@ class flag(object):
                 #need to do nothing for periodic BC but change the basis as Fourier at the beginning
              
         elif self.flow =='HB_benard':
+            #Harmonic balance for Benard problem at high Prandtl number
+            #Not fully benchmarked!!!!
+            
             if self.problem =='BVP':
                 problem = de.NLBVP(domain, variables=\
                     ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
@@ -505,6 +552,8 @@ class flag(object):
         return solver
 
     def initial_condition(self,domain,solver):
+        #This function setup the initial condition for IVP and intitial guess for BVP
+        
         if not pathlib.Path('restart.h5').exists():
             print('setup initial condition')
             #This initial condition also need to be modified
@@ -610,6 +659,7 @@ class flag(object):
                 p['g']=p0
             
             elif self.flow in ['porous_media_2D']:
+                #not fully benchmarked!!
                 x = domain.grid(0)
                 z = domain.grid(1)
                 u = solver.state['u']
@@ -653,6 +703,7 @@ class flag(object):
                 p['g']=p0
                 
             elif self.flow =='HB_porous':
+                #initial guess
                 z = domain.grid(0)
 
                 #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
@@ -731,7 +782,10 @@ class flag(object):
         
         #If set the continuation... then just load the existing data...
         if self.continuation != 0:
+            #firstly make a copy of the old data
             shutil.copytree('analysis','analysis'+str(self.continuation))
+            
+            #Then load_state as the initial condition of IVP/initial guess of BVP
             write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
 
         
@@ -748,6 +802,7 @@ class flag(object):
             dt = self.initial_dt
             
             if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']:
+                #cfl is required for the IVP
                 cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
                 cfl.add_velocities(('u','w'))
             #elif self.flow =='HB_porous':
@@ -773,7 +828,7 @@ class flag(object):
             logger.info('Iterations: %i' %solver.iteration)
             logger.info('Run time: %f cpu-hr' %((end_time-start_time)/60/60*domain.dist.comm_cart.size))
         elif self.problem=='BVP':
-            # Iterations
+            # Newton iterations for BVP
             pert = solver.perturbations.data
             pert.fill(1+self.bvp_tolerance)
             start_time = time.time()
@@ -812,6 +867,7 @@ class flag(object):
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
         elif self.flow in ['HB_porous','HB_benard']:
+            #For IVP and BVP, they have some small difference. IVP can also set the dt for storage.
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
                 analysis.add_system(solver.state)
@@ -821,6 +877,7 @@ class flag(object):
                 #For BVP problem, here need to do nothing
 
     def post_store_after_run(self,solver):
+        #merge step for the IVP and BVP...
         if self.problem == 'IVP':
             post.merge_process_files('analysis',cleanup=True)
         elif self.problem == 'BVP':

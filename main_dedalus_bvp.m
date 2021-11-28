@@ -5,7 +5,7 @@ slurm_num={'12516590',
     '12516677',
     '12516679',
     '12519906',
-    '12520165'};
+    '12520491'};
 
 for slurm_ind=length(slurm_num)
     h5_name=['C:\Data\dedalus\dedalus_',...
@@ -36,11 +36,20 @@ for slurm_ind=length(slurm_num)
         obj.dy_S_mean=-1;
         data{1}.x=obj.T_0+1+obj.dy_T_mean*obj.z_list;
         data{1}.y=obj.z_list;
+        plot_config.fontsize=20;
         plot_config.label_list={1,'$\bar{T}_0+1+\bar{\mathcal{T}}_z z$', '$z$'};
         plot_config.print_size=[1,500,900];
         plot_config.name=['C:\Figure\DDC_LST\HB_porous_','T_0.png'];
         plot_line(data,plot_config);
 
+        data{1}.x=obj.d_T_0+obj.dy_T_mean;
+        data{1}.y=obj.z_list;
+        plot_config.fontsize=20;
+        plot_config.label_list={1,'$\partial_z \bar{T}_0+\bar{\mathcal{T}}_z$', '$z$'};
+        plot_config.print_size=[1,500,900];
+        plot_config.name=['C:\Figure\DDC_LST\HB_porous_','d_T_0.png'];
+        plot_line(data,plot_config);
+        
         data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
         data{1}.y=obj.z_list;
         plot_config.label_list={1,'$\bar{S}_0+1+\bar{\mathcal{S}}_z z$', '$z$'};
