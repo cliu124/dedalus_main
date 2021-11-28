@@ -44,10 +44,10 @@ if flag.flow=='HB_porous':
     flag.Ra_S2T=0
     flag.ky=0
     flag.problem='BVP'
-    flag.z_bc_T='dirichlet'
-    flag.z_bc_S='dirichlet'
-    flag.z_bc_w='dirichlet'
-    flag.z_bc_u_v='dirichlet'
+    #flag.z_bc_T='periodic'
+    #flag.z_bc_S='periodic'
+    #flag.z_bc_w='periodic'
+    #flag.z_bc_u_v='periodic'
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0
     flag.initial_dt=0.0001
@@ -331,19 +331,27 @@ flag.print_screen(logger)
 
 
 #---------main loop to run the dedalus 
-#for bc in ['dirichlet','neumann','periodic']:
-#flag.z_bc_T=bc
-#flag.z_bc_S=bc
-#for flag.Ra_T in Ra_T_list:
-flag.kx=0.48*flag.Ra_T**0.4
-domain=flag.build_domain()
-solver=flag.governing_equation(domain)
-flag.initial_condition(domain,solver)
-flag.post_store(solver)
-flag.print_file() #move print file to here.
-flag.run(solver,domain,logger)
-flag.post_store_after_run(solver)
-flag.continuation=flag.continuation+1
+for bc in ['dirichlet','neumann','periodic']:
+    if bc in ['dirichlet','periodic']:
+        flag.z_bc_T=bc
+        flag.z_bc_S=bc
+        flag.z_bc_w=bc
+        flag.z_bc_u_v=bc
+    elif bc == 'neumann':
+        flag.z_bc_T=bc
+        flag.z_bc_S=bc
+        flag.z_bc_w='dirichlet'
+        flag.z_bc_u_v='dirichlet'
+    #for flag.Ra_T in Ra_T_list:
+    flag.kx=0.48*flag.Ra_T**0.4
+    domain=flag.build_domain()
+    solver=flag.governing_equation(domain)
+    flag.initial_condition(domain,solver)
+    flag.post_store(solver)
+    flag.print_file() #move print file to here.
+    flag.run(solver,domain,logger)
+    flag.post_store_after_run(solver)
+    flag.continuation=flag.continuation+1
 
 
 
