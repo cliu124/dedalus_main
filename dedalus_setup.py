@@ -391,6 +391,7 @@ class flag(object):
                 problem.add_bc("right(T_0) = 0")
             elif self.z_bc_T =='periodic':
                 #not fully reddy!!!!
+                problem.add_bc("left(T_0)=0")
                 #problem.add_bc("left(T_hat)-right(T_hat)=0")
                 #problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
                 #problem.add_bc("left(T_0)-right(T_0)=0")
@@ -418,6 +419,7 @@ class flag(object):
             elif self.z_bc_S=='periodic':
                 #not fully ready!!!
                 print('Periodic B.C. for S')
+                problem.add_bc("left(S_0)=0")
                 #problem.add_bc("left(S_hat)-right(S_hat)=0")
                 #problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
                 #problem.add_bc("left(S_0)-right(S_0)=0")
