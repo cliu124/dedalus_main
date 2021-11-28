@@ -125,9 +125,11 @@ class flag(object):
         elif self.flow in ['HB_porous','HB_benard']:
             if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
                 z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
+                #domain = de.Domain([z_basis],grid_dtype=np.float64)
             else:
                 z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
-                domain = de.Domain([z_basis],grid_dtype=np.float64)   
+            
+            domain = de.Domain([z_basis],grid_dtype=np.float64)   
         return domain
 
     def governing_equation(self,domain):
