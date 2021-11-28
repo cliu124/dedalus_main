@@ -728,17 +728,31 @@ class flag(object):
                 slices = domain.dist.grid_layout.slices(scales=1)
                 rand = np.random.RandomState(seed=23)
                 noise = rand.standard_normal(gshape)[slices]
-                
-                w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                T_0['g'] = self.A_noise*noise
-                d_T_0['g'] = self.A_noise*noise
-                S_0['g'] = self.A_noise*noise
-                d_S_0['g'] = self.A_noise*noise
+                if self.z_bc_T=='periodic' and self.z_bc_S=='periodic' and self.z_bc_w=='periodic':
+                    #periodic B.C.
+                    w_hat['g'] = W0 +self.A_noise*noise
+                    p_hat['g'] = W0/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    T_hat['g'] = 1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0+self.A_noise*noise
+                    d_T_hat['g'] =self.A_noise*noise
+                    S_hat['g'] = 1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0+self.A_noise*noise
+                    d_S_hat['g'] =self.A_noise*noise
+                    T_0['g'] = self.A_noise*noise
+                    d_T_0['g'] = self.A_noise*noise
+                    S_0['g'] = self.A_noise*noise
+                    d_S_0['g'] = self.A_noise*noise
+                    
+                else:
+                    #This is for the other B.C. like the 
+                    w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                    p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    T_0['g'] = self.A_noise*noise
+                    d_T_0['g'] = self.A_noise*noise
+                    S_0['g'] = self.A_noise*noise
+                    d_S_0['g'] = self.A_noise*noise
             elif self.flow =='HB_benard':
                 z = domain.grid(0)
 
