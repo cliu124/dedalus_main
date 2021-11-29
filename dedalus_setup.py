@@ -857,7 +857,7 @@ class flag(object):
                     S_0['g'] = self.A_noise*noise
                     d_S_0['g'] = self.A_noise*noise
                     
-                    if not (self.kx_2!=0 and self.ky_2!=0):
+                    if not (self.kx_2==0 and self.ky_2==0):
                         w_hat_2 = solver.state['w_hat_2']
                         p_hat_2 = solver.state['p_hat_2']
                         T_hat_2 = solver.state['T_hat_2']
