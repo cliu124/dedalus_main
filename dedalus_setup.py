@@ -83,6 +83,9 @@ class flag(object):
         
         self.kx=1
         self.ky=1
+        #These two parameter add the second harmonic into the govering equations
+        self.kx_2=0 
+        self.kx_2=0
         self.problem='IVP' #This can be IVP, BVP, EVP depends on the problem you want to solve
         self.bvp_tolerance=1e-11 #This is the tolerance for BVP.
         #self.z_bc_T_S_w='dirichlet' #This can be also dirichlet
@@ -323,12 +326,32 @@ class flag(object):
         elif self.flow =='HB_porous':
             #harmonic balance for the porous media
             #For different problem, we need to claim different dedalus problem.
-            if self.problem =='BVP':
-                problem = de.NLBVP(domain, variables=[ 'w_hat','p_hat','T_hat','d_T_hat', \
-                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
-            elif self.problem == 'IVP':
-                problem = de.IVP(domain, variables=[ 'w_hat','p_hat','T_hat','d_T_hat', \
-                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+            if self.kx_2==0 and self.kx_2==0:
+                #setup the problem, only one scale
+                if self.problem =='BVP':
+                    problem = de.NLBVP(domain, variables=[\
+                        'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'T_0','d_T_0','S_0','d_S_0'])
+                elif self.problem == 'IVP':
+                    problem = de.IVP(domain, variables=[\
+                        'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'T_0','d_T_0','S_0','d_S_0'])
+            else:   
+                #setup the problem variable. This has two scales...
+                if self.problem =='BVP':
+                    problem = de.NLBVP(domain, variables=[\
+                        'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'w_hat_2','p_hat_2','T_hat_2','d_T_hat_2','S_hat_2','d_S_hat_2', \
+                        'T_0','d_T_0','S_0','d_S_0'])
+                elif self.problem == 'IVP':
+                    problem = de.IVP(domain, variables=[\
+                        'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'w_hat_2','p_hat_2','T_hat_2','d_T_hat_2','S_hat_2','d_S_hat_2', \
+                        'T_0','d_T_0','S_0','d_S_0'])
+                #also get the kx_2 and ky_2 as parameters
+                problem.parameters['kx_2']=self.kx_2
+                problem.parameters['ky_2']=self.ky_2
+            
             problem.parameters['Ra_T'] = self.Ra_T
             problem.parameters['Ra_S2T'] = self.Ra_S2T
             problem.parameters['tau']=self.tau
@@ -336,6 +359,8 @@ class flag(object):
             problem.parameters['dy_S_mean']=self.dy_S_mean
             problem.parameters['kx']=self.kx
             problem.parameters['ky']=self.ky
+            #if self.kx_2!=0 or self.kx_2!=0:
+                
             if self.problem =='BVP':
                 #variable with _hat is the harmonic term
                 #variable with _0 is the horizontal average term
@@ -346,9 +371,22 @@ class flag(object):
                 problem.add_equation('dz(S_hat)-d_S_hat=0')
                 problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
                 problem.add_equation('dz(T_0)-d_T_0=0')
-                problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
                 problem.add_equation('dz(S_0)-d_S_0=0')
-                problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
+                if self.kx_2==0 and self.ky_2==0:
+                    problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
+                    problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
+                else:
+                    problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat  -2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2*T_hat_2+2*w_hat_2*d_T_hat_2')
+                    problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat -2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2*S_hat_2+2*w_hat_2*d_S_hat_2)')
+                    #For the second harmonic
+                    problem.add_equation('dz(w_hat_2)-(-(kx_2*kx_2+ky_2*ky_2)*p_hat_2)=0')
+                    problem.add_equation('dz(p_hat_2)-(-w_hat_2+Ra_T*T_hat_2-Ra_S2T*S_hat_2)=0')
+                    problem.add_equation('dz(T_hat_2)-d_T_hat_2=0')
+                    problem.add_equation('dz(d_T_hat_2)-(w_hat_2*dy_T_mean+(kx_2*kx_2+ky_2*ky_2)*T_hat_2)=w_hat_2*d_T_0')
+                    problem.add_equation('dz(S_hat_2)-d_S_hat_2=0')
+                    problem.add_equation('dz(d_S_hat_2)-1/tau*w_hat_2*dy_S_mean-(kx_2*kx_2+ky_2*ky_2)*S_hat_2=1/tau*(w_hat_2*d_S_0)')   
+                
+            
             elif self.problem =='IVP':
                 #This is the same version, but just add the time dependence term in the temperature, both harmonic and horizontal average term
                 problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
@@ -358,10 +396,23 @@ class flag(object):
                 problem.add_equation('dz(S_hat)-d_S_hat=0')
                 problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
                 problem.add_equation('dz(T_0)-d_T_0=0')
-                problem.add_equation('-dt(T_0)+dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
                 problem.add_equation('dz(S_0)-d_S_0=0')
-                problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
             
+                if self.kx_2==0 and self.ky_2==0:
+                    problem.add_equation('-dt(T_0)+dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
+                    problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
+                else:
+                    #Modify the mean equations, also add the contribution from the second harmonic
+                    problem.add_equation('-dt(T_0)+dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat-2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2*T_hat_2+2*w_hat_2*d_T_hat_2')
+                    problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat -2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2*S_hat_2+2*w_hat_2*d_S_hat_2)')
+                    #Add the dynamics of the second harmonic
+                    problem.add_equation('dz(w_hat_2)-(-(kx_2*kx_2+ky_2*ky_2)*p_hat_2)=0')
+                    problem.add_equation('dz(p_hat_2)-(-w_hat_2+Ra_T*T_hat_2-Ra_S2T*S_hat_2)=0')
+                    problem.add_equation('dz(T_hat_2)-d_T_hat_2=0')
+                    problem.add_equation('-dt(T_hat_2)+dz(d_T_hat_2)-(w_hat_2*dy_T_mean+(kx_2*kx_2+ky_2*ky_2)*T_hat_2)=w_hat_2*d_T_0_2')
+                    problem.add_equation('dz(S_hat_2)-d_S_hat_2=0')
+                    problem.add_equation('-1/tau*dt(S_hat_2)+dz(d_S_hat_2)-1/tau*w_hat_2*dy_S_mean-(kx_2*kx_2+ky_2*ky_2)*S_hat_2=1/tau*(w_hat_2*d_S_0)')   
+                    
             # if self.z_bc_w=='periodic' and self.z_bc_T=='periodic' and self.z_bc_S=='periodic':
             #     problem.add_equation('T_0=0',condition="(nz==0)")
             #     problem.add_equation('S_0=0',condition="(nz==0)")
@@ -375,40 +426,60 @@ class flag(object):
             if self.z_bc_w == 'dirichlet':
                 problem.add_bc("left(w_hat) = 0")
                 problem.add_bc("right(w_hat) = 0")
+                #Also add BC for the second harmonic
+                if not (self.kx_2==0 and self.ky_2==0):
+                    problem.add_bc("left(w_hat_2) = 0")
+                    problem.add_bc("right(w_hat_2) = 0")
+                
                 print('Dirichlet B.C. for w')
             elif self.z_bc_w=='periodic':
                 problem.add_bc("left(w_hat)-right(w_hat)=0")
                 problem.add_bc("left(p_hat)-right(p_hat)=0")
+                if not (self.kx_2==0 and self.ky_2==0):
+                    problem.add_bc("left(w_hat_2)-right(w_hat_2) = 0")
+                    problem.add_bc("left(p_hat_2)-right(p_hat_2) = 0")
+                
                 print('Periodic B.C. for w')
             else:
                 raise TypeError('flag.z_bc_w is not supported yet') 
 
             #set up the B.C. for temperature
             if self.z_bc_T =='dirichlet':
-                problem.add_bc("left(T_hat) = 0")
-                problem.add_bc("right(T_hat) = 0")
                 problem.add_bc("left(T_0) = 0")
                 problem.add_bc("right(T_0) = 0")
+                problem.add_bc("left(T_hat) = 0")
+                problem.add_bc("right(T_hat) = 0")
+                if not (self.kx_2==0 and self.ky_2==0):
+                     problem.add_bc("left(T_hat_2) = 0")
+                     problem.add_bc("right(T_hat_2) = 0")
+                
                 print('Dirichlet B.C. for T')
 
             elif self.z_bc_T =='neumann':
-                
-                problem.add_bc("left(d_T_hat) = 0")
-                problem.add_bc("right(d_T_hat) = 0")
                 
                 #Neumann B.C. for horizontal average temperature, 
                 #it only needs to be set up in one side and the other side will automatically satisfy the Neumann B.C. 
                 problem.add_bc("left(d_T_0) = 0")
                 problem.add_bc("right(T_0) = 0")
+                problem.add_bc("left(d_T_hat) = 0")
+                problem.add_bc("right(d_T_hat) = 0")
+                if not (self.kx_2==0 and self.ky_2==0):
+                    problem.add_bc("left(d_T_hat_2) = 0")
+                    problem.add_bc("right(d_T_hat_2) = 0")
+                
                 print('Neumann B.C. for T')
 
             elif self.z_bc_T =='periodic':
                 #not fully reddy!!!!
                 #problem.add_bc("left(T_0)=0")
-                problem.add_bc("left(T_hat)-right(T_hat)=0")
-                problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
                 problem.add_bc("left(T_0)-right(T_0)=0")
                 problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                problem.add_bc("left(T_hat)-right(T_hat)=0")
+                problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
+                if not (self.kx_2==0 and self.ky_2==0):
+                    problem.add_bc("left(T_hat_2)-right(T_hat_2)=0")
+                    problem.add_bc("left(d_T_hat_2)-right(d_T_hat_2)=0")
+                
                 #problem.add_bc("left(T_0)=0")
                 print('Periodic B.C. for T')
             else:
@@ -416,37 +487,52 @@ class flag(object):
 
             ##set up different B.C. for salinity 
             if self.z_bc_S=='dirichlet':
-                problem.add_bc("left(S_hat) = 0")
-                problem.add_bc("right(S_hat) = 0")
                 problem.add_bc("left(S_0) = 0")
                 problem.add_bc("right(S_0) = 0")
+                problem.add_bc("left(S_hat) = 0")
+                problem.add_bc("right(S_hat) = 0")
+                if not (self.kx_2==0 and self.ky_2==0):
+                    problem.add_bc("left(S_hat_2) = 0")
+                    problem.add_bc("right(S_hat_2) = 0")
+               
                 print('Dirichlet B.C. for S')
 
             elif self.z_bc_S=='neumann':
-                problem.add_bc("left(d_S_hat) = 0")
-                problem.add_bc("right(d_S_hat) = 0")
                 
                 #Neumann B.C. for horizontal average temperature, 
                 #it only needs to be set up in one side and the other side will automatically satisfy the Neumann B.C. 
                 #Instead, we set up a gauge by Dirichlet B.C. 
                 problem.add_bc("left(d_S_0) = 0")
                 problem.add_bc("right(S_0) = 0") 
+                problem.add_bc("left(d_S_hat) = 0")
+                problem.add_bc("right(d_S_hat) = 0")
+                #second harmonic
+                if not (self.kx_2==0 and self.ky_2==0):
+                    problem.add_bc("left(d_S_hat_2) = 0")
+                    problem.add_bc("right(d_S_hat_2) = 0")
+                
                 print('Neumann B.C. for S')
 
             elif self.z_bc_S=='periodic':
                 #not fully ready!!!
                 print('Periodic B.C. for S')
                 #problem.add_bc("left(S_0)=0")
-                problem.add_bc("left(S_hat)-right(S_hat)=0")
-                problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
                 problem.add_bc("left(S_0)-right(S_0)=0")
                 problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                problem.add_bc("left(S_hat)-right(S_hat)=0")
+                problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
+                #second harmonic
+                if not (self.kx_2==0 and self.ky_2==0):
+                    problem.add_bc("left(S_hat_2)-right(S_hat_2)=0")
+                    problem.add_bc("left(d_S_hat_2)-right(d_S_hat_2)=0")
+                
                 
             else:
                 raise TypeError('flag.z_bc_S is not supported yet') 
 
             #elif self.z_bc_T_S_w == 'periodic':
                 #need to do nothing for periodic BC but change the basis as Fourier at the beginning
+             
              
         elif self.flow =='HB_benard':
             #Harmonic balance for Benard problem at high Prandtl number
@@ -770,6 +856,23 @@ class flag(object):
                     d_T_0['g'] = self.A_noise*noise
                     S_0['g'] = self.A_noise*noise
                     d_S_0['g'] = self.A_noise*noise
+                    
+                    if not (self.kx_2!=0 and self.ky_2!=0):
+                        w_hat_2 = solver.state['w_hat_2']
+                        p_hat_2 = solver.state['p_hat_2']
+                        T_hat_2 = solver.state['T_hat_2']
+                        d_T_hat_2 = solver.state['d_T_hat_2']
+                        S_hat_2 = solver.state['S_hat_2']
+                        d_S_hat_2 = solver.state['d_S_hat_2']
+                        w_hat_2['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                        p_hat_2['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))+self.A_noise*noise
+                        T_hat_2['g'] = 1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_T_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        S_hat_2['g'] = 1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_S_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    
+                    
+                    
             elif self.flow =='HB_benard':
                 z = domain.grid(0)
 
