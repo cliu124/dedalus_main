@@ -85,7 +85,7 @@ class flag(object):
         self.ky=1
         #These two parameter add the second harmonic into the govering equations
         self.kx_2=0 
-        self.kx_2=0
+        self.ky_2=0
         self.problem='IVP' #This can be IVP, BVP, EVP depends on the problem you want to solve
         self.bvp_tolerance=1e-11 #This is the tolerance for BVP.
         #self.z_bc_T_S_w='dirichlet' #This can be also dirichlet
