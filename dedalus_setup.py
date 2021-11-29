@@ -363,11 +363,11 @@ class flag(object):
                 problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
             
             if self.z_bc_w=='periodic' and self.z_bc_T=='periodic' and self.z_bc_S=='periodic':
-                problem.add_equation('T_0=0',condition="(nz=0)")
-                problem.add_equation('S_0=0',condition="(nz=0)")
+                problem.add_equation('T_0=0',condition="(nz==0)")
+                problem.add_equation('S_0=0',condition="(nz==0)")
             else:
-                problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat',condition="(nz=0)")
-                problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)',condition="(nz=0)")
+                problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat',condition="(nz==0)")
+                problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)',condition="(nz==0)")
             
             
             #setup different B.C. 
