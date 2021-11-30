@@ -44,15 +44,24 @@ if flag.flow=='HB_porous':
     flag.Ra_S2T=0
     flag.ky=0
     flag.problem='BVP'
-    #flag.z_bc_T='periodic'
-    #flag.z_bc_S='periodic'
-    #flag.z_bc_w='periodic'
-    #flag.z_bc_u_v='periodic'
+    #flag.z_bc_T='dirichlet'
+    #flag.z_bc_S='dirichlet'
+    #flag.z_bc_w='dirichlet'
+    #flag.z_bc_u_v='dirichlet'
+    flag.z_bc_T_left='dirichlet'
+    flag.z_bc_T_right='dirichlet'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'    
+    flag.z_bc_S_left='dirichlet'#BC for salinity
+    flag.z_bc_S_right='dirichlet'
+    flag.z_bc_u_v_left='dirichlet'#BC for the u,v,w...
+    flag.z_bc_u_v_right='dirichlet'
+    
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0
     flag.initial_dt=0.0001
 elif flag.flow=='HB_benard':
-    flag.Nz=1028
+    flag.Nz=1024
     flag.Lz=1
     flag.tau=0.01
     flag.dy_T_mean=-1
@@ -62,7 +71,9 @@ elif flag.flow=='HB_benard':
     flag.kx=0.48*flag.Ra_T**0.4
     flag.ky=0
     flag.problem='BVP'
-    flag.z_bc_T_S_w='dirichlet'
+    flag.z_bc_T='dirichlet'
+    flag.z_bc_S='dirichlet'
+    flag.z_bc_w='dirichlet'
     flag.z_bc_u_v='dirichlet'
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0
@@ -327,35 +338,52 @@ flag.post_store_dt=0.5;
 flag.stop_sim_time=20;
 
 #------------ print these parameters in the screen
+
+      
+flag.kx=0.17*flag.Ra_T**0.52 #3D
+flag.ky=flag.kx
+flag.kx_2=0
+flag.ky_2=flag.kx_2
+domain=flag.build_domain()
+solver=flag.governing_equation(domain)
 flag.print_screen(logger)
+flag.initial_condition(domain,solver)
+flag.post_store(solver)
+flag.print_file() #move print file to here.
+flag.run(solver,domain,logger)
+flag.post_store_after_run(solver)
+flag.continuation=flag.continuation+1
 
 
+##Old one try different B.C. and second harmonic
 #---------main loop to run the dedalus 
-for bc in ['dirichlet']:
-    if bc in ['dirichlet','periodic']:
-        flag.z_bc_T=bc
-        flag.z_bc_S=bc
-        flag.z_bc_w=bc
-        flag.z_bc_u_v=bc
-    elif bc == 'neumann':
-        flag.z_bc_T=bc
-        flag.z_bc_S=bc
-        flag.z_bc_w='dirichlet'
-        flag.z_bc_u_v='dirichlet'
-    #for flag.Ra_T in Ra_T_list:
-    #flag.kx=0.48*flag.Ra_T**0.4 #2D
-    flag.kx=0.17*flag.Ra_T**0.52 #3D
-    flag.ky=flag.kx
-    for flag.kx_2 in [0,10,20,30,40,50,60,70,80]:
-        flag.ky_2=flag.kx_2
-        domain=flag.build_domain()
-        solver=flag.governing_equation(domain)
-        flag.initial_condition(domain,solver)
-        flag.post_store(solver)
-        flag.print_file() #move print file to here.
-        flag.run(solver,domain,logger)
-        flag.post_store_after_run(solver)
-        flag.continuation=flag.continuation+1
+# for bc in ['dirichlet']:
+#     if bc in ['dirichlet','periodic']:
+#         flag.z_bc_T=bc
+#         flag.z_bc_S=bc
+#         flag.z_bc_w=bc
+#         flag.z_bc_u_v='neumann'
+#     elif bc == 'neumann':
+#         flag.z_bc_T=bc
+#         flag.z_bc_S=bc
+#         flag.z_bc_w='dirichlet'
+#         flag.z_bc_u_v='dirichlet'
+        
+#     #for flag.Ra_T in Ra_T_list:
+#     #flag.kx=0.48*flag.Ra_T**0.4 #2D
+#     flag.kx=0.17*flag.Ra_T**0.52 #3D
+#     flag.ky=flag.kx
+#     for flag.kx_2 in [0,10,20,30,40,50,60,70,80]:
+#         flag.ky_2=flag.kx_2
+#         domain=flag.build_domain()
+#         solver=flag.governing_equation(domain)
+#         flag.print_screen(logger)
+#         flag.initial_condition(domain,solver)
+#         flag.post_store(solver)
+#         flag.print_file() #move print file to here.
+#         flag.run(solver,domain,logger)
+#         flag.post_store_after_run(solver)
+#         flag.continuation=flag.continuation+1
 
 
 

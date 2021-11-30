@@ -146,6 +146,7 @@ for slurm_ind=length(slurm_num)-1:length(slurm_num)-1%[find(strcmp(slurm_num,'12
 
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 

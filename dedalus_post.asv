@@ -116,15 +116,10 @@ classdef dedalus_post
         
         problem='IVP';% #This can be IVP, BVP, EVP depends on the problem you want to solve
         bvp_tolerance=1e-11;% #This is the tolerance for BVP.
-        z_bc_w_left='dirichlet';% #This can be also dirichlet
-        z_bc_u_v_left='dirichlet';% #This can be periodic, dirichlet, or neumann
-        z_bc_T_left='dirichlet';
-        z_bc_S_left='dirichlet';
-        
-        z_bc_w_right='dirichlet';% #This can be also dirichlet
-        z_bc_u_v_right='dirichlet';% #This can be periodic, dirichlet, or neumann
-        z_bc_T_right='dirichlet';
-        z_bc_S_right='dirichlet';
+        z_bc_w='dirichlet';% #This can be also dirichlet
+        z_bc_u_v='dirichlet';% #This can be periodic, dirichlet, or neumann
+        z_bc_T='dirichlet';
+        z_bc_S='dirichlet';
         
         timesteppers='RK443';%
         analysis=0;%
@@ -149,17 +144,6 @@ classdef dedalus_post
         S_0;
         d_S_0;
         
-        %These two are useful for the Benard convection. 
-        u_hat; %%THese are just converted from the p_hat
-        u_hat_2; 
-
-        %These are additiona u, v, and their derivative for the Benard
-        %convection of harmonic balance. 
-        u_tilde;
-        d_u_tilde;
-        v_tilde;
-        d_v_tilde;
-        
         %
         Nu;%Nusselt number 
         Nu_S;
@@ -168,7 +152,7 @@ classdef dedalus_post
         T_rms_mid;
         S_rms_mid;
         u_rms_mid;
-        w_rms_mid;        
+        w_rms_mid;
         
         uvw_hewitt=1; %whether we want to convert to the unit of Hewitt..
     end
@@ -177,11 +161,7 @@ classdef dedalus_post
         function obj = dedalus_post(h5_name,flag)
             %dedalus_post Construct an instance of this class
             %   Detailed explanation goes here
-            if nargin<2 || isempty(flag)
-                flag.print=1;
-                flag.video=1;
-                flag.visible=1;
-            end
+
             %construction function...
             obj.h5_name=h5_name;%name for the h5file
             
@@ -192,16 +172,6 @@ classdef dedalus_post
             
             %display h5 file
             h5disp(h5_name);
-            
-            %read the flag_table.
-            flag_table=readtable([h5_name(1:end-14),'flag.txt']);
-            for table_ind=1:length(flag_table.x_Test)
-               if isnumeric(obj.(flag_table.x_Test{table_ind}(3:end)))
-                   obj.(flag_table.x_Test{table_ind}(3:end))=str2num(flag_table.x123_{table_ind}(1:end-1));
-               else
-                   obj.(flag_table.x_Test{table_ind}(3:end))=flag_table.x123_{table_ind}(1:end-1);
-               end
-            end
         end
         
         function obj = dedalus_post_ivp(obj)
@@ -219,6 +189,15 @@ classdef dedalus_post
             obj.Lx=max(obj.x_list)-min(obj.x_list)+obj.x_list(2);
             obj.Lz=max(obj.z_list)-min(obj.z_list)+obj.z_list(2);
             
+            %read the flag_table.
+            flag_table=readtable([h5_name(1:end-14),'flag.txt']);
+            for table_ind=1:length(flag_table.x_Test)
+               if isnumeric(obj.(flag_table.x_Test{table_ind}(3:end)))
+                   obj.(flag_table.x_Test{table_ind}(3:end))=str2num(flag_table.x123_{table_ind}(1:end-1));
+               else
+                   obj.(flag_table.x_Test{table_ind}(3:end))=flag_table.x123_{table_ind}(1:end-1);
+               end
+            end
             
             %compute the optimal wavenumber IFSC.. This is only suitable
             %for IFSC.. see 
@@ -232,14 +211,6 @@ classdef dedalus_post
             obj.z_list=h5read(h5_name,'/scales/z/1.0');
             obj.w_hat=h5read(h5_name,'/tasks/w_hat');
             obj.p_hat=h5read(h5_name,'/tasks/p_hat');
-            if obj.flow=='HB_porous'
-                obj.u_tilde=-obj.kx*obj.p_hat;
-            elseif obj.flow=='HB_benard'
-                obj.u_tilde=h5read(h5_name,'/tasks/u_tilde');
-                obj.v_tilde=h5read(h5_name,'/tasks/v_tilde');
-                obj.d_u_tilde=h5read(h5_name,'/tasks/d_u_tilde');
-                obj.d_v_tilde=h5read(h5_name,'/tasks/d_v_tilde');
-            end
             obj.T_hat=h5read(h5_name,'/tasks/T_hat');
             obj.d_T_hat=h5read(h5_name,'/tasks/d_T_hat');
             obj.S_hat=h5read(h5_name,'/tasks/S_hat');
@@ -252,20 +223,14 @@ classdef dedalus_post
             %read the second harmonic data if any...
             if obj.kx_2~= 0 || obj.ky_2~=0
                 obj.w_hat_2=h5read(h5_name,'/tasks/w_hat_2');
-                if obj.flow=='HB_porous'
-                    obj.p_hat=h5read(h5_name,'/tasks/p_hat_2');
-                elseif obj.flow=='HB_benard'
-                    error('This is not supported yet');
-                    obj.u_tilde_2=h5read(h5_name,'/tasks/u_tilde_2');
-                    obj.v_tilde_2=h5read(h5_name,'/tasks/v_tilde_2');
-                end
+                obj.p_hat_2=h5read(h5_name,'/tasks/p_hat_2');
                 obj.T_hat_2=h5read(h5_name,'/tasks/T_hat_2');
                 obj.d_T_hat_2=h5read(h5_name,'/tasks/d_T_hat_2');
                 obj.S_hat_2=h5read(h5_name,'/tasks/S_hat_2');
                 obj.d_S_hat_2=h5read(h5_name,'/tasks/d_S_hat_2');
             end
             
-            if obj.uvw_hewitt & obj.flow=='HB_porous'
+            if obj.uvw_hewitt
                 obj.w_hat=obj.w_hat/obj.Ra_T;
                 obj.p_hat=obj.p_hat/obj.Ra_T;
                 obj.w_hat_2=obj.w_hat_2/obj.Ra_T;
@@ -279,12 +244,9 @@ classdef dedalus_post
             obj.d_S_0_mid=obj.d_S_0(mid_ind);
             obj.T_rms_mid=obj.T_hat(mid_ind)*sqrt(2);
             obj.S_rms_mid=obj.S_hat(mid_ind)*sqrt(2);
+            obj.u_rms_mid=obj.kx*abs(obj.p_hat(mid_ind))*sqrt(2);
             obj.w_rms_mid=obj.w_hat(mid_ind)*sqrt(2);
-            if obj.flow=='HB_porous'
-                obj.u_rms_mid=obj.kx*abs(obj.p_hat(mid_ind))*sqrt(2);
-            elseif obj.flow=='HB_benard'
-                obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
-            end
+            
         end
         
         function obj=bvp_plot(obj)
@@ -305,7 +267,7 @@ classdef dedalus_post
             data{1}.y=obj.z_list;
             plot_config.fontsize=20;
 
-            plot_config.label_list={1,['$\bar{T}_0+1',dy_T_mean_sign,'z$'], '$z$'};
+            plot_config.label_list={1,'$\bar{T}_0+1',dy_T_mean_sign,'z$', '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_0.png'];
             plot_line(data,plot_config);
@@ -313,21 +275,21 @@ classdef dedalus_post
             data{1}.x=obj.d_T_0+obj.dy_T_mean;
             data{1}.y=obj.z_list;
             plot_config.fontsize=20;
-            plot_config.label_list={1,['$\partial_z \bar{T}_0',dy_T_mean_sign,'1$'], '$z$'};
+            plot_config.label_list={1,'$\partial_z \bar{T}_0',dy_T_mean_sign,'1$', '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','d_T_0.png'];
             plot_line(data,plot_config);
 
             data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
             data{1}.y=obj.z_list;
-            plot_config.label_list={1,['$\bar{S}_0+1',dy_S_mean_sign,'z$'], '$z$'};
+            plot_config.label_list={1,'$\bar{S}_0+1',dy_,'z$', '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0.png'];
             plot_line(data,plot_config);
 
             data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
             data{1}.y=obj.z_list;
-            plot_config.label_list={1,['$\bar{S}_0+1',dy_S_mean_sign,' z$'], '$z$'};
+            plot_config.label_list={1,'$\bar{S}_0+1+\bar{\mathcal{S}}_z z$', '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.ylim_list=[1,0,0.01];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0_local.png'];
@@ -336,7 +298,7 @@ classdef dedalus_post
 
             data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
             data{1}.y=obj.z_list;
-            plot_config.label_list={1,['$\bar{S}_0+1',dy_S_mean_sign,' z$'], '$z$'};
+            plot_config.label_list={1,'$\bar{S}_0+1+\bar{\mathcal{S}}_z z$', '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.ylim_list=[1,0.49,0.51];
             plot_config.xlim_list=[1,0.49,0.51];
@@ -374,13 +336,6 @@ classdef dedalus_post
             plot_config.label_list={1,'$\widehat{w}$', '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','w_hat.png'];
-            plot_line(data,plot_config);
-            
-            data{1}.x=obj.u_tilde;
-            data{1}.y=obj.z_list;
-            plot_config.label_list={1,'$\widetilde{u}$', '$z$'};
-            plot_config.print_size=[1,500,900];
-            plot_config.name=[obj.h5_name(1:end-3),'_HB_','u_tilde.png'];
             plot_line(data,plot_config);
         end
         

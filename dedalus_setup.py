@@ -89,10 +89,14 @@ class flag(object):
         self.problem='IVP' #This can be IVP, BVP, EVP depends on the problem you want to solve
         self.bvp_tolerance=1e-11 #This is the tolerance for BVP.
         #self.z_bc_T_S_w='dirichlet' #This can be also dirichlet
-        self.z_bc_u_v='dirichlet' #This can be periodic, dirichlet, or neumann
-        self.z_bc_T='dirichlet'
-        self.z_bc_S='dirichlet'
-        self.z_bc_w='dirichlet'
+        self.z_bc_u_v_left='dirichlet' #This can be periodic, dirichlet, or neumann
+        self.z_bc_T_left='dirichlet'
+        self.z_bc_S_left='dirichlet'
+        self.z_bc_w_left='dirichlet'
+        self.z_bc_u_v_right='dirichlet' #This can be periodic, dirichlet, or neumann
+        self.z_bc_T_right='dirichlet'
+        self.z_bc_S_right='dirichlet'
+        self.z_bc_w_right='dirichlet'
         
         #flag for the time stepper.. default value
         self.timesteppers='RK443'
@@ -420,7 +424,81 @@ class flag(object):
             #     problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat',condition="(nz==0)")
             #     problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)',condition="(nz=0)")
             
+            #Setup the B.C. update 2021/11/29...
+            if self.z_bc_w_left=='dirichlet':
+                problem.add_bc("left(w_hat)=0")
+                print("Dirichlet B.C. for w left")
+            elif self.z_bc_w_left=='neumann':
+                problem.add_bc("left(p_hat)=0")
+                print("Neumann B.C. for w left")
+            else:
+                raise TypeError('flag.z_bc_w_left is not supported yet') 
+
+            if self.z_bc_w_right=='dirichlet':
+                problem.add_bc("right(w_hat)=0")
+                print("Dirichlet B.C. for w right")
+            elif self.z_bc_w_right=='neumann':
+                problem.add_bc("right(p_hat)=0")
+                print("Neumann B.C. for w right")
+            else:
+                raise TypeError('flag.z_bc_w_left is not supported yet') 
+
+            if self.z_bc_T_left=='dirichlet':
+                problem.add_bc("left(T_hat)=0")
+                problem.add_bc("left(T_0)=0")
+                print("Dirichlet B.C. for T left")
+            elif self.z_bc_T_left=='neumann':
+                problem.add_bc("left(d_T_hat)=0")
+                problem.add_bc("left(d_T_0)=0")
+                print("Neumann B.C. for T left")
+            else:
+                raise TypeError('flag.z_bc_T_left is not supported yet') 
+
+            if self.z_bc_T_right=='dirichlet':
+                problem.add_bc("right(T_hat)=0")
+                problem.add_bc("right(T_0)=0")
+                print("Dirichlet B.C. for T right")
+            elif self.z_bc_T_right=='neumann':
+                problem.add_bc("right(d_T_hat)=0")
+                if self.z_bc_T_left=='neumann':
+                    ##If both sides are Neumann B.C., just set one side for the mean temperature...
+                    problem.add_bc("right(T_0)=0")
+                else:
+                    problem.add_bc("right(d_T_0)=0")
+                print("Neumann B.C. for T right")
+            else:
+                raise TypeError('flag.z_bc_T_right is not supported yet') 
+
+            if self.z_bc_S_left=='dirichlet':
+                problem.add_bc("left(S_hat)=0")
+                problem.add_bc("left(S_0)=0")
+                print("Dirichlet B.C. for S left")
+            elif self.z_bc_S_left=='neumann':
+                problem.add_bc("left(d_S_hat)=0")
+                problem.add_bc("left(d_S_0)=0")
+                print("Neumann B.C. for S left")
+            else:
+                raise TypeError('flag.z_bc_S_left is not supported yet') 
+
+            if self.z_bc_S_right=='dirichlet':
+                problem.add_bc("right(S_hat)=0")
+                problem.add_bc("right(S_0)=0")
+                print("Dirichlet B.C. for S right")
+            elif self.z_bc_S_right=='neumann':
+                problem.add_bc("right(d_S_hat)=0")
+                if self.z_bc_S_left=='neumann':
+                    ##If both sides are Neumann B.C., just set one side for the mean temperature...
+                    problem.add_bc("right(S_0)=0")
+                else:
+                    problem.add_bc("right(d_S_0)=0")
+                print("Neumann B.C. for S right")
+            else:
+                raise TypeError('flag.z_bc_S_right is not supported yet') 
+
             
+            #The bottom block is the old version that try to implement the second harmonic and the periodic B.C.... but both of them seems not working very well.
+            #Here, try to add the second harmonic and the periodic B.C., 2021/11/28
+            """
             #setup different B.C. 
             #for w is always no penetration
             if self.z_bc_w == 'dirichlet':
@@ -430,7 +508,6 @@ class flag(object):
                 if not (self.kx_2==0 and self.ky_2==0):
                     problem.add_bc("left(w_hat_2) = 0")
                     problem.add_bc("right(w_hat_2) = 0")
-                
                 print('Dirichlet B.C. for w')
             elif self.z_bc_w=='periodic':
                 problem.add_bc("left(w_hat)-right(w_hat)=0")
@@ -442,6 +519,7 @@ class flag(object):
                 print('Periodic B.C. for w')
             else:
                 raise TypeError('flag.z_bc_w is not supported yet') 
+
 
             #set up the B.C. for temperature
             if self.z_bc_T =='dirichlet':
@@ -526,13 +604,12 @@ class flag(object):
                     problem.add_bc("left(S_hat_2)-right(S_hat_2)=0")
                     problem.add_bc("left(d_S_hat_2)-right(d_S_hat_2)=0")
                 
-                
             else:
                 raise TypeError('flag.z_bc_S is not supported yet') 
-
+            
             #elif self.z_bc_T_S_w == 'periodic':
                 #need to do nothing for periodic BC but change the basis as Fourier at the beginning
-             
+            """
              
         elif self.flow =='HB_benard':
             #Harmonic balance for Benard problem at high Prandtl number

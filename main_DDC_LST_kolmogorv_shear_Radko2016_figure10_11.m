@@ -5,13 +5,19 @@ clc;
 %------setup the main parameter for running
 Pr=10;
 
-tau_list=[0.005,0.1,1,1.5];
-R_rho_T2S_list=1./[1.5,2,10,50];
+% tau_list=[0.005,0.1,1,1.5];
+tau_list=0.01;
+% R_rho_T2S_list=1./[1.5,2,10,50];
+R_rho_T2S_list=1/2;
 % tau_list=0.01;
 % R_rho_T2S_list=0.5;
 
-Pe_list=logspace(0,3,30);
-Ri_list=logspace(-0.61,2.31,30);
+% Old range 
+% Pe_list=logspace(0,4,30);
+% Ri_list=logspace(-0.61,2.31,30);
+
+Pe_list=logspace(0,4,100);
+Ri_list=logspace(-0.61,2.4,100);
 dy_T_mean=-1;
 dy_S_mean=-1;
 mean_kolmogorov=[1,2*pi];
@@ -26,11 +32,12 @@ Ny_full_list(1:length(Pe_list)*2/3)=32;
 %Up to 0.3 and 0.4 for the Pe=100, Ri=10
 %Up to 0.5 and 0.8 for the Pe=100, Ri=1 
 %Up to 3.5 and 1.5 for the Pe=10^4, R1
-kx_list=logspace(-1.5,0.7,30); %0.3
+kx_list=logspace(-1.5,0,30); %0.3
 % kz_list=linspace(0,1.5,60); %0.4
 kz_list=0;
-solve='finished'; %%or finished if we would like to skip but just load the data..
-debug='new_Ny'; %old data: kz=0
+solve='LST'; %%or finished if we would like to skip but just load the data..
+% debug='new_Ny'; %old data: kz=0
+debug='fine';
 % Ri=1/((Pe/100)^2/(Pr/10));
 %-----------------
 
@@ -60,6 +67,8 @@ for Pe_ind=1:length(Pe_list)
         Ri=Ri_list(Ri_ind);
         shear_Radko2016.Ri=Ri;
 %         tic;
+
+        %{
         shear_Radko2016.R_rho_T2S=0.5;
         for tau_ind=1:length(tau_list)
             shear_Radko2016.tau=tau_list(tau_ind);
@@ -79,7 +88,8 @@ for Pe_ind=1:length(Pe_list)
             data_shear_Radko2016_Stokes_tau{tau_ind}.z(Pe_ind,Ri_ind)=...
                 max(real(cell2mat(shear_Radko2016_Stokes_tau_list{Pe_ind,Ri_ind,tau_ind}.eig_val_max_list)));
         end
-        
+        %}
+
         shear_Radko2016.tau=0.01;
 
         for R_rho_T2S_ind=1:length(R_rho_T2S_list)
@@ -109,9 +119,9 @@ plot_config.loglog=[1,1];
 plot_config.print_size=[1,1100,1000];
 plot_config.label_list={1,'$Ri$','$Pe$'};
 plot_config.xtick_list=[1,0.25,2,10,200];
-plot_config.ytick_list=[1,1,10,100,1000];
+plot_config.ytick_list=[1,1,10,100,1000,10000];
 plot_config.zlim_list=[1,-6,0];
-
+plot_config.ztick_list=[1,0,-1,-2,-3,-4,-5,-6];
 
 
 for R_rho_T2S_ind=1:length(R_rho_T2S_list)
