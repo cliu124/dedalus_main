@@ -38,8 +38,9 @@ if flag.flow=='HB_porous':
     flag.tau=0.01
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
-    flag.Ra_T=4000
+    #flag.Ra_T=4000
     #Ra_T_list=[10000,20000,40000]
+    flag.Ra_T=10000
     flag.continuation=0
     flag.Ra_S2T=0
     flag.ky=0
@@ -54,8 +55,8 @@ if flag.flow=='HB_porous':
     flag.z_bc_w_right='dirichlet'    
     flag.z_bc_S_left='dirichlet'#BC for salinity
     flag.z_bc_S_right='dirichlet'
-    flag.z_bc_u_v_left='dirichlet'#BC for the u,v,w...
-    flag.z_bc_u_v_right='dirichlet'
+    #flag.z_bc_u_v_left='dirichlet'#BC for the u,v,w...
+    #flag.z_bc_u_v_right='dirichlet'
     
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0
@@ -340,8 +341,10 @@ flag.stop_sim_time=20;
 #------------ print these parameters in the screen
 
       
-flag.kx=0.17*flag.Ra_T**0.52 #3D
-flag.ky=flag.kx
+#flag.kx=0.17*flag.Ra_T**0.52 #3D
+#flag.ky=flag.kx
+flag.kx=0.48*flag.Ra_T**0.4 #2D
+flag.ky=0
 flag.kx_2=0
 flag.ky_2=flag.kx_2
 domain=flag.build_domain()
