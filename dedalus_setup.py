@@ -908,7 +908,7 @@ class flag(object):
                 slices = domain.dist.grid_layout.slices(scales=1)
                 rand = np.random.RandomState(seed=23)
                 noise = rand.standard_normal(gshape)[slices]
-                if self.z_bc_T=='periodic' and self.z_bc_S=='periodic' and self.z_bc_w=='periodic':
+                if self.z_bc_T_left=='periodic' and self.z_bc_S_left=='periodic' and self.z_bc_w_left=='periodic':
                     #periodic B.C.
                     w_hat['g'] = W0 +self.A_noise*noise
                     p_hat['g'] = W0/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
