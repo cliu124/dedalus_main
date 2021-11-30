@@ -49,10 +49,10 @@ if flag.flow=='HB_porous':
     #flag.z_bc_S='dirichlet'
     #flag.z_bc_w='dirichlet'
     #flag.z_bc_u_v='dirichlet'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'  
     flag.z_bc_T_left='dirichlet'
     flag.z_bc_T_right='dirichlet'
-    flag.z_bc_w_left='dirichlet'
-    flag.z_bc_w_right='dirichlet'    
     flag.z_bc_S_left='dirichlet'#BC for salinity
     flag.z_bc_S_right='dirichlet'
     #flag.z_bc_u_v_left='dirichlet'#BC for the u,v,w...
