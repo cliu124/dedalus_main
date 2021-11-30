@@ -460,7 +460,7 @@ class flag(object):
                 print("Dirichlet B.C. for T right")
             elif self.z_bc_T_right=='neumann':
                 problem.add_bc("right(d_T_hat)=0")
-                if self.z_bc_T_left=='neumann':
+                if self.z_bc_T_left=='neumann' and self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
                     ##If both sides are Neumann B.C., just set one side for the mean temperature...
                     problem.add_bc("right(T_0)=0")
                 else:

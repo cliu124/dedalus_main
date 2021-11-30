@@ -268,6 +268,8 @@ classdef dedalus_post
             if obj.uvw_hewitt & obj.flow=='HB_porous'
                 obj.w_hat=obj.w_hat/obj.Ra_T;
                 obj.p_hat=obj.p_hat/obj.Ra_T;
+                obj.u_tilde=obj.u_tilde/obj.Ra_T;
+                obj.v_tilde=obj.v_tilde/obj.Ra_T;
                 obj.w_hat_2=obj.w_hat_2/obj.Ra_T;
                 obj.p_hat_2=obj.p_hat_2/obj.Ra_T;
             end
