@@ -35,7 +35,8 @@ Ny_full_list(1:length(Pe_list)*2/3)=32;
 kx_list=logspace(-1.5,0,30); %0.3
 % kz_list=linspace(0,1.5,60); %0.4
 kz_list=0;
-solve='LST'; %%or finished if we would like to skip but just load the data..
+%solve='LST'; %%or finished if we would like to skip but just load the data..
+solve='finished';
 % debug='new_Ny'; %old data: kz=0
 debug='fine';
 % Ri=1/((Pe/100)^2/(Pr/10));
@@ -119,9 +120,10 @@ plot_config.loglog=[1,1];
 plot_config.print_size=[1,1100,1000];
 plot_config.label_list={1,'$Ri$','$Pe$'};
 plot_config.xtick_list=[1,0.25,2,10,200];
+plot_config.xlim_list=[1,min(Ri_list),max(Ri_list)];
 plot_config.ytick_list=[1,1,10,100,1000,10000];
 plot_config.zlim_list=[1,-6,0];
-plot_config.ztick_list=[1,0,-1,-2,-3,-4,-5,-6];
+plot_config.ztick_list=[1,-6,-5,-4,-3,-2,-1,0];
 
 
 for R_rho_T2S_ind=1:length(R_rho_T2S_list)

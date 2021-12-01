@@ -15,9 +15,11 @@ slurm_num={'12639319',
         '12639413',
         '12640102',
         '12640104',
-        '12640113'};
+        '12640113', %%This case is wierd... not right
+        '12640192',
+        '12640193'};
 
-for slurm_ind=4:5%length(slurm_num)
+for slurm_ind=1%length(slurm_num)-1
     h5_name=['C:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...
             '\analysis\analysis_s1.h5'];
