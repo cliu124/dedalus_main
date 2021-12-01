@@ -41,8 +41,8 @@ if flag.flow=='HB_porous':
     #flag.Ra_T=4000
     #Ra_T_list=[10000,20000,40000]
     flag.Ra_T=10000
-    flag.continuation=0
     flag.Ra_S2T=0
+    flag.continuation=0
     flag.ky=0
     flag.problem='BVP'
     #flag.z_bc_T='dirichlet'
