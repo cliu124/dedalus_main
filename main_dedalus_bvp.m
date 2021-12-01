@@ -11,15 +11,25 @@ close all;
 %     '12632582',
 %     '12635575',
 %     '12639413'};
+
+%These are results comparing only for the thermal convection
 slurm_num={'12639319',
         '12639413',
         '12640102',
         '12640104',
-        '12640113', %%This case is wierd... not right
         '12640192',
         '12640193'};
 
-for slurm_ind=1%length(slurm_num)-1
+%These are doing results for double-diffusive convection... 
+slurm_num={'12643033',
+            '12643064',
+            '12643067',
+            '12643068',
+            '12643076'};
+    
+%'12640113', %%This case is wierd... not right
+    
+for slurm_ind=length(slurm_num)
     h5_name=['C:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...
             '\analysis\analysis_s1.h5'];

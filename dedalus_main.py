@@ -344,19 +344,21 @@ flag.stop_sim_time=20;
       
 #flag.kx=0.17*flag.Ra_T**0.52 #3D
 #flag.ky=flag.kx
-flag.kx=0.48*flag.Ra_T**0.4 #2D
-flag.ky=0
-flag.kx_2=0
-flag.ky_2=flag.kx_2
-domain=flag.build_domain()
-solver=flag.governing_equation(domain)
-flag.print_screen(logger)
-flag.initial_condition(domain,solver)
-flag.post_store(solver)
-flag.print_file() #move print file to here.
-flag.run(solver,domain,logger)
-flag.post_store_after_run(solver)
-flag.continuation=flag.continuation+1
+Ra_S2T_list=np.linspace(0,20000,21)
+for flag.Ra_S2T in Ra_S2T_list:
+    flag.kx=0.48*flag.Ra_T**0.4 #2D
+    flag.ky=0
+    flag.kx_2=0
+    flag.ky_2=flag.kx_2
+    domain=flag.build_domain()
+    solver=flag.governing_equation(domain)
+    flag.print_screen(logger)
+    flag.initial_condition(domain,solver)
+    flag.post_store(solver)
+    flag.print_file() #move print file to here.
+    flag.run(solver,domain,logger)
+    flag.post_store_after_run(solver)
+    flag.continuation=flag.continuation+1
 
 
 ##Old one try different B.C. and second harmonic
