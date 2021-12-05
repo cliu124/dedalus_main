@@ -12,13 +12,14 @@ close all;
 %     '12635575',
 %     '12639413'};
 
+%All of these are for porous media
 %These are results comparing only for the thermal convection
-slurm_num={'12639319',
-        '12639413',
-        '12640102',
-        '12640104',
-        '12640192',
-        '12640193'};
+% slurm_num={'12639319',
+%         '12639413',
+%         '12640102',
+%         '12640104',
+%         '12640192',
+%         '12640193'};
 
 %These are doing results for double-diffusive convection... 
 % slurm_num={'12643033',
@@ -28,7 +29,7 @@ slurm_num={'12639319',
 %             '12643124',
 %             '12643067',
 %             '12643068'};
-% These for 
+% These for salt-finger regime...
 % slurm_num={'12644479',
 %            '12646311',
 %            '12646317',
@@ -36,7 +37,7 @@ slurm_num={'12639319',
 %            '12646320',
 %            '12646324'}; %           '12646314',
 
-    
+slurm_num={'12660941'}; 
 %'12640113', %%This case is wierd... not right
     
 for slurm_ind=1:length(slurm_num)
