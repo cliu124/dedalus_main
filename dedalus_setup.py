@@ -825,7 +825,7 @@ class flag(object):
         elif self.flow=='test_periodic':
             #problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat'])
             #problem = de.NLBVP(domain,variables=['T_hat','d_T_hat'])
-            problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat','u_tilde','d_u_tilde','v_tilde','d_v_tilde'])
+            problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat','u_tilde','d_u_tilde','v_tilde','d_v_tilde','T_0','d_T_0'])
             problem.parameters['F_sin']=self.F_sin
             problem.parameters['ks']=self.ks
             problem.parameters['kx']=self.kx
@@ -848,11 +848,12 @@ class flag(object):
             #problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-Pe_T*j*kx*F_sin*sin(ks*z)*T_hat=Pe_T*w_hat*d_T_0')
             #problem.add_equation('dz(S_hat)-d_S_hat=0')
             #problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat=Pe_S/tau*(w_hat*d_S_0)')   
-            #problem.add_equation('dz(T_0)-d_T_0=0')
-            #problem.add_equation('dz(d_T_0)=Pe_T*(2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat)')
+            problem.add_equation('dz(T_0)-d_T_0=0')
+            problem.add_equation('dz(d_T_0)=(2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat)')
             #problem.add_equation('dz(S_0)-d_S_0=0')
             #problem.add_equation('dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
-        
+            problem.add_bc('left(T_0)-right(T_0)=0')
+            problem.add_bc('left(d_T_0)-right(d_T_0)=0')
             problem.add_bc('left(T_hat)-right(T_hat)=0')
             problem.add_bc('left(d_T_hat)-right(d_T_hat)=0')
             problem.add_bc('left(w_hat)-right(w_hat)=0')
