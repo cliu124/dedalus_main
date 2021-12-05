@@ -833,9 +833,9 @@ class flag(object):
             problem.parameters['Ra_T']=self.Ra_T
             #problem.parameters['Ra_S2T']=self.Ra_S2T
             problem.parameters['dy_T_mean']=self.dy_T_mean
-            
+            #-F_sin*sin(ks*z)*T_hat
             problem.add_equation('dz(T_hat)-d_T_hat=0')
-            problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-F_sin*sin(ks*z)*T_hat=w_hat*d_T_0')
+            problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat=w_hat*d_T_0')
             #problem.add_equation('dz(w_hat)-p_hat=0')
             #problem.add_equation('dz(p_hat)+w_hat-T_hat=0')
             problem.add_equation('dz(u_tilde)-d_u_tilde=0')
