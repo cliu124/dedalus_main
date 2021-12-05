@@ -136,7 +136,10 @@ class flag(object):
             #else:
             #    z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
             z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
-            domain = de.Domain([z_basis],grid_dtype=np.float64)   
+            if self.F_sin==0:
+                domain = de.Domain([z_basis],grid_dtype=np.float64) 
+            else:
+                domain = de.Domain([z_basis],grid_dtype=np.complex128) 
         return domain
 
     def governing_equation(self,domain):
@@ -665,9 +668,19 @@ class flag(object):
                 problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
                 problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
                 problem.add_equation('dz(T_hat)-d_T_hat=0')
-                problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat=Pe_T*w_hat*d_T_0+Pe_T*j*kx*F_sin*sin(ks*z)*T_hat')
+                
+                if self.F_sin==0:
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat=Pe_T*w_hat*d_T_0')
+                else:
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat=Pe_T*w_hat*d_T_0+Pe_T*j*kx*F_sin*sin(ks*z)*T_hat')
+                
                 problem.add_equation('dz(S_hat)-d_S_hat=0')
-                problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=Pe_S/tau*(w_hat*d_S_0)+Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat')   
+                
+                if self.F_sin==0:
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=Pe_S/tau*(w_hat*d_S_0)')   
+                else:
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=Pe_S/tau*(w_hat*d_S_0)+Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat')   
+                
                 problem.add_equation('dz(T_0)-d_T_0=0')
                 problem.add_equation('dz(d_T_0)=Pe_T*(2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat)')
                 problem.add_equation('dz(S_0)-d_S_0=0')
