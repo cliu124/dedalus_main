@@ -37,7 +37,7 @@ close all;
 %            '12646320',
 %            '12646324'}; %           '12646314',
 
-slurm_num={'12668252'}; 
+slurm_num={'12669653'}; 
 %'12640113', %%This case is wierd... not right
     
 for slurm_ind=1:length(slurm_num)
