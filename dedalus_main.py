@@ -20,7 +20,8 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='HB_benard'
+#flag.flow='HB_benard'
+flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -97,6 +98,11 @@ elif flag.flow=='HB_benard':
     flag.A_noise=0
     flag.initial_dt=0.0001
     
+elif flag.flow=='test_periodic':
+    flag.F_sin=1
+    flag.ks=1
+    flag.Nz=1024
+    flag.Lz=1
 elif flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
     flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio

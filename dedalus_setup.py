@@ -129,7 +129,7 @@ class flag(object):
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         
         #For Harmonic balance method. Chebyshev in the vertical
-        elif self.flow in ['HB_porous','HB_benard']:
+        elif self.flow in ['HB_porous','HB_benard','test_periodic']:
             #if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
             #    z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             #    #domain = de.Domain([z_basis],grid_dtype=np.float64)
@@ -822,7 +822,14 @@ class flag(object):
              
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
-            
+        elif self.flow=='test_peroidic':
+            problem = de.NLBVP(domain, variables=['T_hat','d_T_hat'])
+            problem.parameters['F_sin']=self.F_sin
+            problem.parameters['ks']=self.ks
+            problem.add_equation('dz(T_hat)-d_T_hat=0')
+            problem.add_equation('dz(d_T_hat)=F_sin*sin(ks*z)')
+            problem.add_bc('left(T_hat)-right(T_hat)=0')
+            problem.add_bc('left(d_T_hat)-right(d_T_hat)=0')
         
         else:
             raise TypeError('flag.flow is not defined yet') 
@@ -836,7 +843,7 @@ class flag(object):
             
         elif self.problem =='BVP':
             solver =  problem.build_solver()
-
+            
         return solver
 
     def initial_condition(self,domain,solver):
@@ -1094,6 +1101,13 @@ class flag(object):
                 d_T_0['g'] = self.A_noise*noise
                 S_0['g'] = self.A_noise*noise
                 d_S_0['g'] = self.A_noise*noise
+                
+            elif self.flow =='test_periodic':
+                z = domain.grid(0)
+                T_hat = solver.state['T_hat']
+                d_T_hat = solver.state['d_T_hat']
+                T_hat['g']=-self.F_sin*np.sin(self.ks*z)
+                d_T_hat['g']=-self.F_sin*np.cos(self.ks*z)
         else:
             #Restart
             print('restart')
@@ -1185,7 +1199,7 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
-        elif self.flow in ['HB_porous','HB_benard']:
+        elif self.flow in ['HB_porous','HB_benard','test_periodic']:
             #For IVP and BVP, they have some small difference. IVP can also set the dt for storage.
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
