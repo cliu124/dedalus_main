@@ -479,8 +479,9 @@ class flag(object):
             if self.z_bc_T_left =='periodic' and self.z_bc_T_right=='periodic':
                 problem.add_bc("left(T_hat)-right(T_hat)=0")
                 problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
-                problem.add_bc("left(T_0)-right(T_0)=0")
-                problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                problem.add_bc("left(T_0)=0")
+                problem.add_bc("right(T_0)=0")
+                #problem.add_bc("left(d_T_0)-right(d_T_0)=0")
                 print("Periodic B.C. for T")
                 
             if self.z_bc_S_left=='dirichlet':
@@ -512,8 +513,9 @@ class flag(object):
             if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
                 problem.add_bc("left(S_hat)-right(S_hat)=0")
                 problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
-                problem.add_bc("left(S_0)-right(S_0)=0")
-                problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                problem.add_bc("left(S_0)=0")
+                problem.add_bc("right(S_0)=0")
+                #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 print("Periodic B.C. for S")
                 
             
@@ -733,8 +735,9 @@ class flag(object):
             if self.z_bc_T_left=='periodic' and self.z_bc_T_right=='periodic':
                 problem.add_bc("left(T_hat)-right(T_hat)=0")
                 problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
-                problem.add_bc("left(T_0)-right(T_0)=0")
-                problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                problem.add_bc("left(T_0)=0")
+                problem.add_bc("right(T_0)=0")
+                #problem.add_bc("left(d_T_0)-right(d_T_0)=0")
                 print("Periodic for T")
                
             if self.z_bc_S_left=='dirichlet':
@@ -758,8 +761,9 @@ class flag(object):
             if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
                 problem.add_bc("left(S_hat)-right(S_hat)=0")
                 problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
-                problem.add_bc("left(S_0)-right(S_0)=0")
-                problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                problem.add_bc("left(S_0)=0")
+                problem.add_bc("right(S_0)=0")
+                #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 print("Periodic for S")
            
             if self.z_bc_u_v_left=='dirichlet':
