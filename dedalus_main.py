@@ -103,6 +103,7 @@ elif flag.flow=='test_periodic':
     flag.ks=2*np.pi
     flag.Nz=1024
     flag.Lz=1
+    flag.problem='BVP'
 elif flag.flow == 'IFSC_2D':
     #setup basic parameter for inertial free salt finger
     flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio

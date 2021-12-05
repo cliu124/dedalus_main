@@ -823,18 +823,19 @@ class flag(object):
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
         elif self.flow=='test_periodic':
-            problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat'])
+            #problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat'])
+            problem = de.NLBVP(domain,variables=['T_hat','d_T_hat'])
             problem.parameters['F_sin']=self.F_sin
             problem.parameters['ks']=self.ks
             problem.add_equation('dz(T_hat)-d_T_hat=0')
             problem.add_equation('dz(d_T_hat)=F_sin*sin(ks*z)')
-            problem.add_equation('dz(w_hat)-p_hat=0')
-            problem.add_equation('dz(p_hat)+w_hat-T_hat=0')
+            #problem.add_equation('dz(w_hat)-p_hat=0')
+            #problem.add_equation('dz(p_hat)+w_hat-T_hat=0')
             
             problem.add_bc('left(T_hat)-right(T_hat)=0')
             problem.add_bc('left(d_T_hat)-right(d_T_hat)=0')
-            problem.add_bc('left(w_hat)-right(w_hat)=0')
-            problem.add_bc('left(p_hat)-right(p_hat)=0')
+            #problem.add_bc('left(w_hat)-right(w_hat)=0')
+            #problem.add_bc('left(p_hat)-right(p_hat)=0')
         else:
             raise TypeError('flag.flow is not defined yet') 
         
@@ -1108,12 +1109,12 @@ class flag(object):
                 
             elif self.flow =='test_periodic':
                 z = domain.grid(0)
-                w_hat =solver.state['w_hat']
-                p_hat = solver.state['p_hat']
+                #w_hat =solver.state['w_hat']
+                #p_hat = solver.state['p_hat']
                 T_hat = solver.state['T_hat']
                 d_T_hat = solver.state['d_T_hat']
-                w_hat['g']=self.F_sin*np.sin(self.ks*z)
-                p_hat['g']=self.F_sin*np.cos(self.ks*z)
+                #w_hat['g']=self.F_sin*np.sin(self.ks*z)
+                #p_hat['g']=self.F_sin*np.cos(self.ks*z)
                 T_hat['g']=self.F_sin*np.sin(self.ks*z)
                 d_T_hat['g']=self.F_sin*np.cos(self.ks*z)
                 
