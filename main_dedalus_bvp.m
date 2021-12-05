@@ -21,19 +21,30 @@ slurm_num={'12639319',
         '12640193'};
 
 %These are doing results for double-diffusive convection... 
-slurm_num={'12643033',
-            '12643064',
-            '12643067',
-            '12643068',
-            '12643076'};
+% slurm_num={'12643033',
+%             '12643076',
+%             '12643064',
+%             '12643209',
+%             '12643124',
+%             '12643067',
+%             '12643068'};
+% These for 
+% slurm_num={'12644479',
+%            '12646311',
+%            '12646317',
+%            '12646319',
+%            '12646320',
+%            '12646324'}; %           '12646314',
+
     
 %'12640113', %%This case is wierd... not right
     
-for slurm_ind=length(slurm_num)
+for slurm_ind=1:length(slurm_num)
     h5_name=['C:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...
             '\analysis\analysis_s1.h5'];
     dedalus_post_my{slurm_ind}=dedalus_post(h5_name);
+    dedalus_post_my{slurm_ind}.uvw_hewitt=0;
     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_bvp();
     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.bvp_plot;
         

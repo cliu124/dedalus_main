@@ -33,7 +33,7 @@ class flag(object):
         
         self.post_store_dt=1
         self.stop_sim_time=1
-        self.ks=1# parameter for the large scale shear in IFSC with shear
+        self.ks=2*np.pi# parameter for the large scale shear in IFSC with shear
         self.F_sin=0# amplitude for the large scale shear in IFSC with shear
         self.F_sin_2ks=0
         self.F_sin_3ks=0
@@ -431,8 +431,8 @@ class flag(object):
             elif self.z_bc_w_left=='neumann':
                 problem.add_bc("left(p_hat)=0")
                 print("Neumann B.C. for w left")
-            else:
-                raise TypeError('flag.z_bc_w_left is not supported yet') 
+            #else:
+                #raise TypeError('flag.z_bc_w_left is not supported yet') 
 
             if self.z_bc_w_right=='dirichlet':
                 problem.add_bc("right(w_hat)=0")
@@ -440,8 +440,12 @@ class flag(object):
             elif self.z_bc_w_right=='neumann':
                 problem.add_bc("right(p_hat)=0")
                 print("Neumann B.C. for w right")
-            else:
-                raise TypeError('flag.z_bc_w_left is not supported yet') 
+            #else:
+                #raise TypeError('flag.z_bc_w_left is not supported yet') 
+            if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
+                problem.add_bc("left(w_hat)-right(w_hat)=0")
+                problem.add_bc("left(p_hat)-right(p_hat)=0")
+                print("Periodic B.C. for w and p")
 
             if self.z_bc_T_left=='dirichlet':
                 problem.add_bc("left(T_hat)=0")
@@ -451,8 +455,8 @@ class flag(object):
                 problem.add_bc("left(d_T_hat)=0")
                 problem.add_bc("left(d_T_0)=0")
                 print("Neumann B.C. for T left")
-            else:
-                raise TypeError('flag.z_bc_T_left is not supported yet') 
+            #else:
+            #    raise TypeError('flag.z_bc_T_left is not supported yet') 
 
             if self.z_bc_T_right=='dirichlet':
                 problem.add_bc("right(T_hat)=0")
@@ -466,9 +470,16 @@ class flag(object):
                 else:
                     problem.add_bc("right(d_T_0)=0")
                 print("Neumann B.C. for T right")
-            else:
-                raise TypeError('flag.z_bc_T_right is not supported yet') 
+            #else:
+            #    raise TypeError('flag.z_bc_T_right is not supported yet') 
 
+            if self.z_bc_T_left =='periodic' and self.z_bc_T_right=='periodic':
+                problem.add_bc("left(T_hat)-right(T_hat)=0")
+                problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
+                problem.add_bc("left(T_0)-right(T_0)=0")
+                problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                print("Periodic B.C. for T")
+                
             if self.z_bc_S_left=='dirichlet':
                 problem.add_bc("left(S_hat)=0")
                 problem.add_bc("left(S_0)=0")
@@ -477,8 +488,8 @@ class flag(object):
                 problem.add_bc("left(d_S_hat)=0")
                 problem.add_bc("left(d_S_0)=0")
                 print("Neumann B.C. for S left")
-            else:
-                raise TypeError('flag.z_bc_S_left is not supported yet') 
+            #else:
+            #    raise TypeError('flag.z_bc_S_left is not supported yet') 
 
             if self.z_bc_S_right=='dirichlet':
                 problem.add_bc("right(S_hat)=0")
@@ -492,9 +503,16 @@ class flag(object):
                 else:
                     problem.add_bc("right(d_S_0)=0")
                 print("Neumann B.C. for S right")
-            else:
-                raise TypeError('flag.z_bc_S_right is not supported yet') 
+            #else:
+            #    raise TypeError('flag.z_bc_S_right is not supported yet') 
 
+            if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
+                problem.add_bc("left(S_hat)-right(S_hat)=0")
+                problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
+                problem.add_bc("left(S_0)-right(S_0)=0")
+                problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                print("Periodic B.C. for S")
+                
             
             #The bottom block is the old version that try to implement the second harmonic and the periodic B.C.... but both of them seems not working very well.
             #Here, try to add the second harmonic and the periodic B.C., 2021/11/28
@@ -634,7 +652,11 @@ class flag(object):
             problem.parameters['dy_S_mean']=self.dy_S_mean
             problem.parameters['kx']=self.kx
             problem.parameters['ky']=self.ky
-            
+            problem.parameters['Pe_T']=self.Pe_T
+            problem.parameters['Pe_S']=self.Pe_S
+            problem.parameters['F_sin']=self.F_sin
+            problem.parameters['ks']=self.ks
+            problem.parameters['j']=1j
             if self.problem =='BVP':
                 problem.add_equation('dz(u_tilde)-d_u_tilde=0')
                 problem.add_equation('dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
@@ -643,13 +665,13 @@ class flag(object):
                 problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
                 problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
                 problem.add_equation('dz(T_hat)-d_T_hat=0')
-                problem.add_equation('dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+                problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat=Pe_T*w_hat*d_T_0+Pe_T*j*kx*F_sin*sin(ks*z)*T_hat')
                 problem.add_equation('dz(S_hat)-d_S_hat=0')
-                problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+                problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=Pe_S/tau*(w_hat*d_S_0)+Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat')   
                 problem.add_equation('dz(T_0)-d_T_0=0')
-                problem.add_equation('dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+                problem.add_equation('dz(d_T_0)=Pe_T*(2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat)')
                 problem.add_equation('dz(S_0)-d_S_0=0')
-                problem.add_equation('dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+                problem.add_equation('dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
             elif self.problem=='IVP':
                 problem.add_equation('dz(u_tilde)-d_u_tilde=0')
                 problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
@@ -666,56 +688,124 @@ class flag(object):
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
             
-            if self.z_bc_w == 'dirichlet':
-                problem.add_bc("left(w_hat) = 0")
-                problem.add_bc("right(w_hat) = 0")
-            elif self.z_bc_W=='periodic':
-                print('Periodic B.C. for w')
-            else:
-                raise TypeError('flag.z_bc_w is not supported yet') 
-
-            if self.z_bc_T =='dirichlet':
-                problem.add_bc("left(T_hat) = 0")
-                problem.add_bc("right(T_hat) = 0")
-                problem.add_bc("left(T_0) = 0")
-                problem.add_bc("right(T_0) = 0")
-            elif self.z_bc_T =='neumann':
-                problem.add_bc("left(d_T_hat) = 0")
-                problem.add_bc("right(d_T_hat) = 0")
-                problem.add_bc("left(d_T_0) = 0")
-                problem.add_bc("right(T_0) = 0")
-            elif self.z_bc_T =='periodic':
-                print('Periodic B.C. for T')
-            else:
-                raise TypeError('flag.z_bc_T is not supported yet') 
-
-            if self.z_bc_S=='dirichlet':
-                problem.add_bc("left(S_hat) = 0")
-                problem.add_bc("right(S_hat) = 0")
-                problem.add_bc("left(S_0) = 0")
-                problem.add_bc("right(S_0) = 0")
-            elif self.z_bc_S=='neumann':
-                problem.add_bc("left(d_S_hat) = 0")
-                problem.add_bc("right(d_S_hat) = 0")
-                problem.add_bc("left(d_S_0) = 0")
-                problem.add_bc("right(S_0) = 0")  
-            elif self.z_bc_S=='periodic':
-                print('Periodic B.C. for S')
-            else:
-                raise TypeError('flag.z_bc_S is not supported yet') 
-
-            if self.z_bc_u_v =='dirichlet':
-                problem.add_bc("left(u_tilde) = 0")
-                problem.add_bc("right(u_tilde) = 0")
-                problem.add_bc("left(v_tilde) = 0")
-                problem.add_bc("right(v_tilde) = 0")
+            if self.z_bc_w_left=='dirichlet':
+                problem.add_bc("left(w_hat)=0")
+                print("Dirichlet for w left")
+            if self.z_bc_w_right=='dirichlet':
+                problem.add_bc("right(w_hat)=0")
+                print("Dirichlet for w right")
+            
+            if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
+                problem.add_bc("left(w_hat)-right(w_hat)=0")
+           
+            if self.z_bc_T_left=='dirichlet':
+                problem.add_bc("left(T_hat)=0")
+                problem.add_bc("left(T_0)=0")
+                print("Dirichlet for T left")
+            elif self.z_bc_T_left=='neumann':
+                problem.add_bc("left(d_T_hat)=0")
+                problem.add_bc("left(d_T_0)=0")
+                print("Neumann for T left")
                 
-            elif self.z_bc_u_v =='neumann':
-                problem.add_bc("left(d_u_tilde) = 0")
-                problem.add_bc("right(d_u_tilde) = 0")
-                problem.add_bc("left(d_v_tilde) = 0")
-                problem.add_bc("right(d_v_tilde) = 0")
+            if self.z_bc_T_right=='dirichlet':
+                problem.add_bc("right(T_hat)=0")
+                problem.add_bc("right(T_0)=0")
+                print("Dirichlet for T right")
+            elif self.z_bc_T_right=='neumann':
+                problem.add_bc("right(d_T_hat)=0")
+                problem.add_bc("right(d_T_0)=0")
+                print("Neumann for T right")
+            
+            if self.z_bc_T_left=='periodic' and self.z_bc_T_right=='periodic':
+                problem.add_bc("left(T_hat)-right(T_hat)=0")
+                problem.add_bc("left(d_T_hat)-right(d_T_hat)=0")
+                problem.add_bc("left(T_0)-right(T_0)=0")
+                problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                print("Periodic for T")
+               
+            if self.z_bc_S_left=='dirichlet':
+                problem.add_bc("left(S_hat)=0")
+                problem.add_bc("left(S_0)=0")
+                print("Dirichlet for S left")
+            elif self.z_bc_S_left=='neumann':
+                problem.add_bc("left(d_S_hat)=0")
+                problem.add_bc("left(d_S_0)=0")
+                print("Neumann for S left")
                 
+            if self.z_bc_S_right=='dirichlet':
+                problem.add_bc("right(S_hat)=0")
+                problem.add_bc("right(S_0)=0")
+                print("Dirichlet for S right")
+            elif self.z_bc_S_right=='neumann':
+                problem.add_bc("right(d_S_hat)=0")
+                problem.add_bc("right(d_S_0)=0")
+                print("Neumann for S right")
+            
+            if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
+                problem.add_bc("left(S_hat)-right(S_hat)=0")
+                problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
+                problem.add_bc("left(S_0)-right(S_0)=0")
+                problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                print("Periodic for S")
+           
+            if self.z_bc_u_v_left=='dirichlet':
+                problem.add_bc("left(u_tilde)=0")
+                problem.add_bc("left(v_tilde)=0")
+            elif self.z_bc_u_v_left=='neumann':
+                problem.add_bc("left(d_u_tilde)=0")
+                problem.add_bc("left(d_v_tilde)=0")
+                
+            if self.z_bc_u_v_right=='dirichlet':
+                problem.add_bc("right(u_tilde)=0")
+                problem.add_bc("right(v_tilde)=0")
+            elif self.z_bc_u_v_right=='neumann':
+                problem.add_bc("right(d_u_tilde)=0")
+                problem.add_bc("right(d_v_tilde)=0")
+                
+            if self.z_bc_u_v_left=='periodic' and self.z_bc_u_v_right=='periodic':
+                problem.add_bc("left(u_tilde)-right(u_tilde)=0")
+                problem.add_bc("left(v_tilde)-right(v_tilde)=0")
+                problem.add_bc("left(d_u_tilde)-right(d_u_tilde)=0")
+                problem.add_bc("left(d_v_tilde)-right(d_v_tilde)=0")
+                
+            # if self.z_bc_u_v =='dirichlet':
+            #     problem.add_bc("left(u_tilde) = 0")
+            #     problem.add_bc("right(u_tilde) = 0")
+            #     problem.add_bc("left(v_tilde) = 0")
+            #     problem.add_bc("right(v_tilde) = 0")
+                
+            # elif self.z_bc_u_v =='neumann':
+            #     problem.add_bc("left(d_u_tilde) = 0")
+            #     problem.add_bc("right(d_u_tilde) = 0")
+            #     problem.add_bc("left(d_v_tilde) = 0")
+            #     problem.add_bc("right(d_v_tilde) = 0")
+             
+             
+            # if self.z_bc_w == 'dirichlet':
+            #     problem.add_bc("left(w_hat) = 0")
+            #     problem.add_bc("right(w_hat) = 0")
+            # elif self.z_bc_W=='periodic':
+            #     print('Periodic B.C. for w')
+            # else:
+            #     raise TypeError('flag.z_bc_w is not supported yet') 
+    
+    
+            # if self.z_bc_S=='dirichlet':
+            #     problem.add_bc("left(S_hat) = 0")
+            #     problem.add_bc("right(S_hat) = 0")
+            #     problem.add_bc("left(S_0) = 0")
+            #     problem.add_bc("right(S_0) = 0")
+            # elif self.z_bc_S=='neumann':
+            #     problem.add_bc("left(d_S_hat) = 0")
+            #     problem.add_bc("right(d_S_hat) = 0")
+            #     problem.add_bc("left(d_S_0) = 0")
+            #     problem.add_bc("right(S_0) = 0")  
+            # elif self.z_bc_S=='periodic':
+            #     print('Periodic B.C. for S')
+            # else:
+            #     raise TypeError('flag.z_bc_S is not supported yet') 
+
+             
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
             

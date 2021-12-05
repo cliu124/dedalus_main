@@ -292,22 +292,30 @@ classdef dedalus_post
         function obj=bvp_plot(obj)
             %Set up the sign for the background temperature and salintiy
             if obj.dy_T_mean==-1
-                dy_T_mean_sign='-';
+                T_mean_var=1+obj.dy_T_mean*obj.z_list;
+                T_mean_sign='+1-z';
+                dy_T_mean_sign='-1';
             elseif obj.dy_T_mean==1
-                dy_T_mean_sign='+';
+                T_mean_var=obj.dy_T_mean*obj.z_list;
+                T_mean_sign='+z';
+                dy_T_mean_sign='+1';
             end
             
             if obj.dy_S_mean==-1
-                dy_S_mean_sign='-';
+                S_mean_var=1+obj.dy_S_mean*obj.z_list;
+                S_mean_sign='+1-z';
+                dy_S_mean_sign='-1';
             elseif obj.dy_S_mean==1
-                dy_S_mean_sign='+';
+                S_mean_var=obj.dy_S_mean*obj.z_list;
+                S_mean_sign='+z';
+                dy_S_mean_sign='+1';
             end
             
-            data{1}.x=obj.T_0+1+obj.dy_T_mean*obj.z_list;
+            data{1}.x=obj.T_0+T_mean_var;
             data{1}.y=obj.z_list;
             plot_config.fontsize=20;
 
-            plot_config.label_list={1,['$\bar{T}_0+1',dy_T_mean_sign,'z$'], '$z$'};
+            plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_0.png'];
             plot_line(data,plot_config);
@@ -315,36 +323,64 @@ classdef dedalus_post
             data{1}.x=obj.d_T_0+obj.dy_T_mean;
             data{1}.y=obj.z_list;
             plot_config.fontsize=20;
-            plot_config.label_list={1,['$\partial_z \bar{T}_0',dy_T_mean_sign,'1$'], '$z$'};
+            plot_config.label_list={1,['$\partial_z \bar{T}_0',dy_T_mean_sign,'$'], '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','d_T_0.png'];
             plot_line(data,plot_config);
 
-            data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
+            data{1}.x=obj.T_0+T_mean_var;
             data{1}.y=obj.z_list;
-            plot_config.label_list={1,['$\bar{S}_0+1',dy_S_mean_sign,'z$'], '$z$'};
+            plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
+            plot_config.print_size=[1,500,900];
+            plot_config.ylim_list=[1,0,0.01];
+            plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_0_local.png'];
+            plot_line(data,plot_config);
+            plot_config.ylim_list=0;
+
+            data{1}.x=obj.T_0+T_mean_var;
+            data{1}.y=obj.z_list;
+            plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
+            plot_config.print_size=[1,500,900];
+            plot_config.ylim_list=[1,0.49,0.51];
+%             plot_config.xlim_list=[1,0.49,0.51];
+            plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_0_local_core.png'];
+            plot_line(data,plot_config);
+            plot_config.ylim_list=0; %plot_config.xlim_list=0;
+
+            
+            
+            data{1}.x=obj.S_0+S_mean_var;
+            data{1}.y=obj.z_list;
+            plot_config.label_list={1,['$\bar{S}_0',S_mean_sign,'$'], '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0.png'];
             plot_line(data,plot_config);
-
-            data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
+            
+            data{1}.x=obj.d_S_0+obj.dy_S_mean;
             data{1}.y=obj.z_list;
-            plot_config.label_list={1,['$\bar{S}_0+1',dy_S_mean_sign,' z$'], '$z$'};
+            plot_config.label_list={1,['$\partial_z \bar{S}_0',dy_S_mean_sign,'$'], '$z$'};
+            plot_config.print_size=[1,500,900];
+            plot_config.name=[obj.h5_name(1:end-3),'_HB_','d_S_0.png'];
+            plot_line(data,plot_config);
+
+            data{1}.x=obj.S_0+S_mean_var;
+            data{1}.y=obj.z_list;
+            plot_config.label_list={1,['$\bar{S}_0',S_mean_sign,'$'], '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.ylim_list=[1,0,0.01];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0_local.png'];
             plot_line(data,plot_config);
             plot_config.ylim_list=0;
 
-            data{1}.x=obj.S_0+1+obj.dy_S_mean*obj.z_list;
+            data{1}.x=obj.S_0+S_mean_var;
             data{1}.y=obj.z_list;
-            plot_config.label_list={1,['$\bar{S}_0+1',dy_S_mean_sign,' z$'], '$z$'};
+            plot_config.label_list={1,['$\bar{S}_0',S_mean_sign,'$'], '$z$'};
             plot_config.print_size=[1,500,900];
             plot_config.ylim_list=[1,0.49,0.51];
-            plot_config.xlim_list=[1,0.49,0.51];
+%             plot_config.xlim_list=[1,0.49,0.51];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0_local_core.png'];
             plot_line(data,plot_config);
-            plot_config.ylim_list=0; plot_config.xlim_list=0;
+            plot_config.ylim_list=0;% plot_config.xlim_list=0;
 
 
             data{1}.x=obj.T_hat;
