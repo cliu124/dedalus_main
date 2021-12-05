@@ -710,7 +710,8 @@ class flag(object):
             
             if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
                 problem.add_bc("left(w_hat)-right(w_hat)=0")
-           
+                problem.add_bc("left(p_hat)-right(p_hat)=0")
+                
             if self.z_bc_T_left=='dirichlet':
                 problem.add_bc("left(T_hat)=0")
                 problem.add_bc("left(T_0)=0")

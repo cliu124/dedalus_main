@@ -360,7 +360,7 @@ flag.stop_sim_time=20;
       
 #flag.kx=0.17*flag.Ra_T**0.52 #3D
 #flag.ky=flag.kx
-Ra_S2T_list=[0]#np.linspace(0,20000,21)
+Ra_S2T_list=[flag.Ra_S2T]#np.linspace(0,20000,21)
 for flag.Ra_S2T in Ra_S2T_list:
     #flag.kx=0.48*flag.Ra_T**0.4 #2D
     flag.ky=0
