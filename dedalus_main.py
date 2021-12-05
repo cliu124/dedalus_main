@@ -100,7 +100,7 @@ elif flag.flow=='HB_benard':
     
 elif flag.flow=='test_periodic':
     flag.F_sin=1
-    flag.ks=1
+    flag.ks=2*np.pi
     flag.Nz=1024
     flag.Lz=1
 elif flag.flow == 'IFSC_2D':
