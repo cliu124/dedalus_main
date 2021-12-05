@@ -828,7 +828,7 @@ class flag(object):
             problem.parameters['F_sin']=self.F_sin
             problem.parameters['ks']=self.ks
             problem.add_equation('dz(T_hat)-d_T_hat=0')
-            problem.add_equation('dz(d_T_hat)=F_sin*sin(ks*z)')
+            problem.add_equation('dz(d_T_hat)-F_sin*sin(ks*z)=0')
             #problem.add_equation('dz(w_hat)-p_hat=0')
             #problem.add_equation('dz(p_hat)+w_hat-T_hat=0')
             
