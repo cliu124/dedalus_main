@@ -831,7 +831,7 @@ class flag(object):
             problem.parameters['kx']=self.kx
             problem.parameters['ky']=self.ky
             problem.parameters['Ra_T']=self.Ra_T
-            problem.parameters['Ra_S2T']=self.Ra_S2T
+            #problem.parameters['Ra_S2T']=self.Ra_S2T
             problem.parameters['dy_T_mean']=self.dy_T_mean
             
             problem.add_equation('dz(T_hat)-d_T_hat=0')
@@ -843,7 +843,7 @@ class flag(object):
             problem.add_equation('dz(v_tilde)-d_v_tilde=0')
             problem.add_equation('dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
             problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
-            problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+            problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat)=0')
             #problem.add_equation('dz(T_hat)-d_T_hat=0')
             #problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-Pe_T*j*kx*F_sin*sin(ks*z)*T_hat=Pe_T*w_hat*d_T_0')
             #problem.add_equation('dz(S_hat)-d_S_hat=0')
