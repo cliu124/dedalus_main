@@ -823,19 +823,42 @@ class flag(object):
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
         elif self.flow=='test_periodic':
-            problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat'])
+            #problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat'])
             #problem = de.NLBVP(domain,variables=['T_hat','d_T_hat'])
+            problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat','u_tilde','d_u_tilde','v_tilde','d_v_tilde'])
             problem.parameters['F_sin']=self.F_sin
             problem.parameters['ks']=self.ks
+            problem.parameters['kx']=self.kx
+            problem.parameters['ky']=self.ky
+            problem.parameters['Ra_T']=self.Ra_T
+            problem.parameters['Ra_S2T']=self.Ra_S2T
             problem.add_equation('dz(T_hat)-d_T_hat=0')
-            problem.add_equation('dz(d_T_hat)-F_sin*sin(ks*z)*T_hat=0')
-            problem.add_equation('dz(w_hat)-p_hat=0')
-            problem.add_equation('dz(p_hat)+w_hat-T_hat=0')
-            
+            problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean=F_sin*sin(ks*z)*T_hat')
+            #problem.add_equation('dz(w_hat)-p_hat=0')
+            #problem.add_equation('dz(p_hat)+w_hat-T_hat=0')
+            problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+            problem.add_equation('dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+            problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+            problem.add_equation('dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+            problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+            problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+            #problem.add_equation('dz(T_hat)-d_T_hat=0')
+            #problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-Pe_T*j*kx*F_sin*sin(ks*z)*T_hat=Pe_T*w_hat*d_T_0')
+            #problem.add_equation('dz(S_hat)-d_S_hat=0')
+            #problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat=Pe_S/tau*(w_hat*d_S_0)')   
+            #problem.add_equation('dz(T_0)-d_T_0=0')
+            #problem.add_equation('dz(d_T_0)=Pe_T*(2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat)')
+            #problem.add_equation('dz(S_0)-d_S_0=0')
+            #problem.add_equation('dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+        
             problem.add_bc('left(T_hat)-right(T_hat)=0')
             problem.add_bc('left(d_T_hat)-right(d_T_hat)=0')
             problem.add_bc('left(w_hat)-right(w_hat)=0')
             problem.add_bc('left(p_hat)-right(p_hat)=0')
+            problem.add_bc('left(u_tilde)-right(u_tilde)=0')
+            problem.add_bc('left(d_u_tilde)-right(d_u_tilde)=0')
+            problem.add_bc('left(v_tilde)-right(v_tilde)=0')
+            problem.add_bc('left(d_v_tilde)-right(d_v_tilde)=0')
         else:
             raise TypeError('flag.flow is not defined yet') 
         
