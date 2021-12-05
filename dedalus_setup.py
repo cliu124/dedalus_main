@@ -823,8 +823,8 @@ class flag(object):
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
         elif self.flow=='test_periodic':
-            #problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat'])
-            problem = de.NLBVP(domain,variables=['T_hat','d_T_hat'])
+            problem = de.NLBVP(domain, variables=['T_hat','d_T_hat','w_hat','p_hat'])
+            #problem = de.NLBVP(domain,variables=['T_hat','d_T_hat'])
             problem.parameters['F_sin']=self.F_sin
             problem.parameters['ks']=self.ks
             problem.add_equation('dz(T_hat)-d_T_hat=0')
