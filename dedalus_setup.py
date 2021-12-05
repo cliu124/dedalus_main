@@ -1106,8 +1106,8 @@ class flag(object):
                 z = domain.grid(0)
                 T_hat = solver.state['T_hat']
                 d_T_hat = solver.state['d_T_hat']
-                T_hat['g']=-self.F_sin*np.sin(self.ks*z)
-                d_T_hat['g']=-self.F_sin*np.cos(self.ks*z)
+                T_hat['g']=-2*self.F_sin*np.sin(self.ks*z)
+                d_T_hat['g']=-2*self.F_sin*np.cos(self.ks*z)
         else:
             #Restart
             print('restart')
