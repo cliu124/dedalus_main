@@ -20,8 +20,8 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-#flag.flow='HB_benard'
-flag.flow='test_periodic'
+flag.flow='HB_porous'
+#flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -365,11 +365,12 @@ flag.stop_sim_time=20;
 #------------ print these parameters in the screen
 
       
-#flag.kx=0.17*flag.Ra_T**0.52 #3D
 #flag.ky=flag.kx
-Ra_S2T_list=[flag.Ra_S2T]#np.linspace(0,20000,21)
-for flag.Ra_S2T in Ra_S2T_list:
-    #flag.kx=0.48*flag.Ra_T**0.4 #2D
+Ra_T_list=[10000,20000,40000]
+#np.linspace(0,20000,21)
+for flag.Ra_T in Ra_T_list:
+    flag.kx=0.48*flag.Ra_T**0.4 #2D
+    #flag.kx=0.17*flag.Ra_T**0.52 #3D
     flag.ky=0
     flag.kx_2=0
     flag.ky_2=flag.kx_2
