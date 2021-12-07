@@ -1,9 +1,0 @@
-function data=h5read_complex(h5_name,data_name)
-data=h5read(h5_name,data_name);
-try
-    data=data.r+1i*data.i;
-    disp(['Complex data of',data_mn])
-catch 
-    
-end
-end

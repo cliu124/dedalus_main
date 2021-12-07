@@ -3,11 +3,18 @@ function data=h5read_complex(h5_name,data_name)
 %%not need to construct the complex data anymore but directly convert them
 %%into complex data
 %Update 2021/12/06
-data=h5read(h5_name,data_name);
+try 
+    data=h5read(h5_name,data_name);
+catch 
+    data_real=h5read(h5_name,[data_name,'_real']);
+    data_imag=h5read(h5_name,[data_name,'_imag']);
+    data=data_real+1i*data_imag;
+end
+    
 try
     data=data.r+1i*data.i;
-    disp(['Complex data of ',data_name]);
+    %disp(['Complex data of ',data_name]);
 catch 
-    disp(['Real data of ',data_name]);
+    %disp(['Real data of ',data_name]);
 end
 end
