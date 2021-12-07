@@ -232,9 +232,9 @@ classdef dedalus_post
             obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
             obj.w_hat=h5read_complex(h5_name,'/tasks/w_hat');
             obj.p_hat=h5read_complex(h5_name,'/tasks/p_hat');
-            if obj.flow=='HB_porous'
+            if strcmp(obj.flow,'HB_porous')
                 obj.u_tilde=-obj.kx*obj.p_hat;
-            elseif obj.flow=='HB_benard'
+            elseif strcmp(obj.flow,'HB_benard')
                 obj.u_tilde=h5read_complex(h5_name,'/tasks/u_tilde');
                 obj.v_tilde=h5read_complex(h5_name,'/tasks/v_tilde');
                 obj.d_u_tilde=h5read_complex(h5_name,'/tasks/d_u_tilde');
@@ -282,9 +282,9 @@ classdef dedalus_post
             obj.T_rms_mid=obj.T_hat(mid_ind)*sqrt(2);
             obj.S_rms_mid=obj.S_hat(mid_ind)*sqrt(2);
             obj.w_rms_mid=obj.w_hat(mid_ind)*sqrt(2);
-            if obj.flow=='HB_porous'
+            if strcmp(obj.flow,'HB_porous')
                 obj.u_rms_mid=obj.kx*abs(obj.p_hat(mid_ind))*sqrt(2);
-            elseif obj.flow=='HB_benard'
+            elseif strcmp(obj.flow,'HB_benard')
                 obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
             end
         end

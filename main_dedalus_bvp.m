@@ -12,7 +12,7 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='HB_porous_thermal_BC';
+group_name='test';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -51,6 +51,8 @@ switch group_name
                   '12687755',
                   '12687756'}; %Hewitt et al. (2014) 3D
         %'12640113', %%This case is wierd... not right
+    case 'test'
+        slurm_num={'12713118'};
 end
 
 flag.print=0;

@@ -80,7 +80,7 @@ elif flag.flow in ['HB_benard','HB_benard_shear']:
     flag.Pe_S=Pe
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
-
+    flag.bvp_tolerance=1e-2
     #flag.kx=0.48*flag.Ra_T**0.4
     flag.kx=2*np.pi/64
     flag.ky=0
@@ -94,7 +94,7 @@ elif flag.flow in ['HB_benard','HB_benard_shear']:
     flag.z_bc_u_v_left='periodic'
     flag.z_bc_u_v_right='periodic'
     
-    flag.A_elevator=1/10*flag.Ra_T
+    flag.A_elevator=1/10
     flag.A_noise=0
     flag.initial_dt=0.0001
     
@@ -370,8 +370,10 @@ flag.stop_sim_time=20;
 #np.linspace(0,20000,21)
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Lz_list=[1]
-for flag.Lz in Lz_list:
+Pe_list=[1]
+for Pe in Pe_list:
+    flag.Pe_T=Pe
+    flag.Pe_S=Pe
     #flag.kx=0.48*flag.Ra_T**0.4 #2D
     #flag.kx=0.17*flag.Ra_T**0.52 #3D
     flag.ky=0
