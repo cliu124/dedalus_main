@@ -867,9 +867,7 @@ class flag(object):
                 problem.add_equation('dz(p_hat_real)-(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=0')
                 problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
                 problem.add_equation('dz(S_hat_real)-d_S_hat_real=0')
-                problem.add_equation('dz(T_0_real)-d_T_0_real=0')
-                problem.add_equation('dz(S_0_real)-d_S_0_real=0')
-
+                
                 #imag
                 problem.add_equation('dz(u_tilde_imag)-d_u_tilde_imag=0')
                 problem.add_equation('dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=0')
@@ -879,8 +877,12 @@ class flag(object):
                 problem.add_equation('dz(p_hat_imag)-(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=0')
                 problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
                 problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
-                problem.add_equation('dz(T_0_imag)-d_T_0_imag=0')
-                problem.add_equation('dz(S_0_imag)-d_S_0_imag=0')
+                #problem.add_equation('dz(T_0_imag)-d_T_0_imag=0')
+                #problem.add_equation('dz(S_0_imag)-d_S_0_imag=0')
+
+                #mean temperature and salinity
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('dz(S_0)-d_S_0=0')
 
                 #coupling between real and imag due to shear
                 problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*F_sin*sin(ks*z)*T_hat_imag=Pe_T*w_hat_real*d_T_0')
