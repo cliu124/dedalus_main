@@ -1446,7 +1446,7 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
-        elif self.flow in ['HB_porous','HB_benard','test_periodic']:
+        elif self.flow in ['HB_porous','HB_benard','test_periodic','HB_benard_shear']:
             #For IVP and BVP, they have some small difference. IVP can also set the dt for storage.
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
