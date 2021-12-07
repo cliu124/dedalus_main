@@ -46,7 +46,7 @@ function frame=plot_contour(data,plot_config)
 field_all={'label_list','title_list','xlim_list','ylim_list','colormap',...
   'xtick_list','ytick_list','ztick_list','name','zlim_list','loglog','print_size','print','resolution','panel_num','marker_face_index','contour_line',...
   'axis_2','label_list_2','xlim_list_2','ylim_list_2','xtick_list_2','ytick_list_2','loglog_2','x_reverse','y_reverse','fontsize','markersize','linewidth','format','xticklabels_list','yticklabels_list','axis_equal',...
-  'xtick_visible','ytick_visible','colormap_discrete','visible' }; %%Update 2021/02/25, add the option that I can remove the tick...
+  'xtick_visible','ytick_visible','colormap_discrete','visible','streamline','colorbar' }; %%Update 2021/02/25, add the option that I can remove the tick...
 %%Add the default field for the plotting with double axis. Update: 2019/08/20
 %%add the property to setup the fontsize, the default value is 40.
 %%add 
@@ -54,7 +54,7 @@ field_all={'label_list','title_list','xlim_list','ylim_list','colormap',...
 field_default={{0},{0},0,0,'jet',...
     0,0,0,'test',0,[0,0],0,1,300,1,zeros(length(data)),0,...
     0,{0},0,0,0,0,[0,0],0,0,40,9,1.5,'png',{0},{0},0,...
-    1,1,0,1};%%Add the default field for the plotting with double axis. Update: 2019/08/20
+    1,1,0,1,0,1};%%Add the default field for the plotting with double axis. Update: 2019/08/20
 field_no_list=find(~isfield(plot_config,field_all)); %%fine whether there is already the field in the plot_config
 for i=field_no_list
   plot_config.(field_all{i})=field_default{i};
@@ -86,9 +86,15 @@ switch plot_config.panel_num
 %%Update 2020/06/15, if there is more than data{2}, we also plot for the
 %%quiver case.... 
      if plot_config.panel_num==2
+         if plot_config.streamline==0   
             quiver(data{2}.x, data{2}.y, data{2}.u, data{2}.v,'k','Linewidth',plot_config.linewidth,'AutoScaleFactor',1.4); hold on;
             %daspect([1,1,1]); %%This is no necessary. Fix 2020/09/28, and
             %it will make some figure confusing and not consistent...
+         elseif plot_config.streamline==1
+             lineobj=streamslice(data{2}.x, data{2}.y, data{2}.u, data{2}.v);
+             set(lineobj,'Linewidth',1);
+             set(lineobj,'MarkerSize',2);
+         end
      end
     if length(data)>plot_config.panel_num
        for lin_ind=(plot_config.panel_num+1):length(data)
@@ -157,19 +163,27 @@ switch plot_config.panel_num
     if plot_config.zlim_list(1) %%set up x, y, z limit
       caxis([plot_config.zlim_list(2),plot_config.zlim_list(3)]);
     end
-    
-    shading interp;
-    try 
-        cb=colorbar('TickLabelInterpreter','Latex', 'Fontsize', plot_config.fontsize);
-        set(gca, 'TickLabelInterpreter','Latex', 'Fontsize', plot_config.fontsize);
+    try
+       set(gca, 'TickLabelInterpreter','Latex', 'Fontsize', plot_config.fontsize);
     catch
-        disp('Latex interpreter is not supported on this machine. Use Time New Roman font instead.');
-        colorbar( 'Fontsize', plot_config.fontsize);
-        set(gca, 'Fontsize', plot_config.fontsize);
+       disp('Latex interpreter is not supported on this machine. Use Time New Roman font instead.');
+       set(gca, 'Fontsize', plot_config.fontsize);
     end
+    shading interp;
+    if plot_config.colorbar
+        try 
+            cb=colorbar('TickLabelInterpreter','Latex', 'Fontsize', plot_config.fontsize);
+            set(gca, 'TickLabelInterpreter','Latex', 'Fontsize', plot_config.fontsize);
+        catch
+            disp('Latex interpreter is not supported on this machine. Use Time New Roman font instead.');
+            colorbar( 'Fontsize', plot_config.fontsize);
+            set(gca, 'Fontsize', plot_config.fontsize);
+        end
+
+        if plot_config.ztick_list(1)
+            cb.Ticks=plot_config.ztick_list(2:end);
+        end
     
-    if plot_config.ztick_list(1)
-        cb.Ticks=plot_config.ztick_list(2:end);
     end
 %     set(h, 'Position', [.05 .15 .9 .05]);
 
@@ -216,6 +230,12 @@ switch plot_config.panel_num
         end
         if plot_config.ytick_list_2(1)
           set(ax2,'ytick',plot_config.ytick_list_2(2:end));
+        end
+        try
+           set(gca, 'TickLabelInterpreter','Latex', 'Fontsize', plot_config.fontsize);
+        catch
+           disp('Latex interpreter is not supported on this machine. Use Time New Roman font instead.');
+           set(gca, 'Fontsize', plot_config.fontsize);
         end
         try 
             %cb=colorbar('TickLabelInterpreter','Latex', 'Fontsize', plot_config.fontsize);
@@ -355,7 +375,7 @@ switch plot_config.panel_num
     end
     otherwise 
     error('Wrong panel_num');
-    
+        
 end
 
 

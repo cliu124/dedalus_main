@@ -207,13 +207,13 @@ classdef dedalus_post
         function obj = dedalus_post_ivp(obj)
             h5_name=obj.h5_name;
         %read data for x, z, t, kx, kz, and compute Lx, Lz
-            obj.x_list=h5read(h5_name,'/scales/x/1.0');
+            obj.x_list=h5read_complex(h5_name,'/scales/x/1.0');
             obj.Nx=length(obj.x_list);
-            obj.z_list=h5read(h5_name,'/scales/z/1.0');
+            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
             obj.Nz=length(obj.z_list);
-            obj.t_list=h5read(h5_name,'/scales/sim_time');
-            obj.kx_list=h5read(h5_name,'/scales/kx');
-            obj.kz_list=h5read(h5_name,'/scales/kz');
+            obj.t_list=h5read_complex(h5_name,'/scales/sim_time');
+            obj.kx_list=h5read_complex(h5_name,'/scales/kx');
+            obj.kz_list=h5read_complex(h5_name,'/scales/kz');
             
             %be careful about this in computing Lx and Lz
             obj.Lx=max(obj.x_list)-min(obj.x_list)+obj.x_list(2);
@@ -229,40 +229,40 @@ classdef dedalus_post
             %read the data for BVP... These are results for harmonic
             %balance...
             h5_name=obj.h5_name;
-            obj.z_list=h5read(h5_name,'/scales/z/1.0');
-            obj.w_hat=h5read(h5_name,'/tasks/w_hat');
-            obj.p_hat=h5read(h5_name,'/tasks/p_hat');
+            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+            obj.w_hat=h5read_complex(h5_name,'/tasks/w_hat');
+            obj.p_hat=h5read_complex(h5_name,'/tasks/p_hat');
             if obj.flow=='HB_porous'
                 obj.u_tilde=-obj.kx*obj.p_hat;
             elseif obj.flow=='HB_benard'
-                obj.u_tilde=h5read(h5_name,'/tasks/u_tilde');
-                obj.v_tilde=h5read(h5_name,'/tasks/v_tilde');
-                obj.d_u_tilde=h5read(h5_name,'/tasks/d_u_tilde');
-                obj.d_v_tilde=h5read(h5_name,'/tasks/d_v_tilde');
+                obj.u_tilde=h5read_complex(h5_name,'/tasks/u_tilde');
+                obj.v_tilde=h5read_complex(h5_name,'/tasks/v_tilde');
+                obj.d_u_tilde=h5read_complex(h5_name,'/tasks/d_u_tilde');
+                obj.d_v_tilde=h5read_complex(h5_name,'/tasks/d_v_tilde');
             end
-            obj.T_hat=h5read(h5_name,'/tasks/T_hat');
-            obj.d_T_hat=h5read(h5_name,'/tasks/d_T_hat');
-            obj.S_hat=h5read(h5_name,'/tasks/S_hat');
-            obj.d_S_hat=h5read(h5_name,'/tasks/d_S_hat');
-            obj.T_0=h5read(h5_name,'/tasks/T_0');
-            obj.d_T_0=h5read(h5_name,'/tasks/d_T_0');
-            obj.S_0=h5read(h5_name,'/tasks/S_0');
-            obj.d_S_0=h5read(h5_name,'/tasks/d_S_0');
+            obj.T_hat=h5read_complex(h5_name,'/tasks/T_hat');
+            obj.d_T_hat=h5read_complex(h5_name,'/tasks/d_T_hat');
+            obj.S_hat=h5read_complex(h5_name,'/tasks/S_hat');
+            obj.d_S_hat=h5read_complex(h5_name,'/tasks/d_S_hat');
+            obj.T_0=h5read_complex(h5_name,'/tasks/T_0');
+            obj.d_T_0=h5read_complex(h5_name,'/tasks/d_T_0');
+            obj.S_0=h5read_complex(h5_name,'/tasks/S_0');
+            obj.d_S_0=h5read_complex(h5_name,'/tasks/d_S_0');
 
             %read the second harmonic data if any...
             if obj.kx_2~= 0 || obj.ky_2~=0
-                obj.w_hat_2=h5read(h5_name,'/tasks/w_hat_2');
+                obj.w_hat_2=h5read_complex(h5_name,'/tasks/w_hat_2');
                 if obj.flow=='HB_porous'
-                    obj.p_hat=h5read(h5_name,'/tasks/p_hat_2');
+                    obj.p_hat=h5read_complex(h5_name,'/tasks/p_hat_2');
                 elseif obj.flow=='HB_benard'
                     error('This is not supported yet');
-                    obj.u_tilde_2=h5read(h5_name,'/tasks/u_tilde_2');
-                    obj.v_tilde_2=h5read(h5_name,'/tasks/v_tilde_2');
+                    obj.u_tilde_2=h5read_complex(h5_name,'/tasks/u_tilde_2');
+                    obj.v_tilde_2=h5read_complex(h5_name,'/tasks/v_tilde_2');
                 end
-                obj.T_hat_2=h5read(h5_name,'/tasks/T_hat_2');
-                obj.d_T_hat_2=h5read(h5_name,'/tasks/d_T_hat_2');
-                obj.S_hat_2=h5read(h5_name,'/tasks/S_hat_2');
-                obj.d_S_hat_2=h5read(h5_name,'/tasks/d_S_hat_2');
+                obj.T_hat_2=h5read_complex(h5_name,'/tasks/T_hat_2');
+                obj.d_T_hat_2=h5read_complex(h5_name,'/tasks/d_T_hat_2');
+                obj.S_hat_2=h5read_complex(h5_name,'/tasks/S_hat_2');
+                obj.d_S_hat_2=h5read_complex(h5_name,'/tasks/d_S_hat_2');
             end
             
             if obj.uvw_hewitt & obj.flow=='HB_porous'
@@ -290,6 +290,9 @@ classdef dedalus_post
         end
         
         function obj=bvp_plot(obj)
+            plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
+            
             %Set up the sign for the background temperature and salintiy
             if obj.dy_T_mean==-1
                 T_mean_var=1+obj.dy_T_mean*obj.z_list;
@@ -420,11 +423,37 @@ classdef dedalus_post
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','u_tilde.png'];
             plot_line(data,plot_config);
+            
+            %Update 2021/12/06, add streamline...
+            data{1}.x=linspace(0,1,10);
+            data{1}.y=linspace(0,1,10);
+            data{1}.z=NaN*ones(10,10);
+            x=linspace(0,2*pi,1000);
+            %z_ind_N=length(obj.z_list)/10;
+            %z_ind=round(linspace(1,length(obj.z_list),z_ind_N));
+            z_ind=1:length(obj.z_list);
+            y=obj.z_list(z_ind);
+            [data{2}.x,data{2}.y]=meshgrid(x,y);
+            %data{2}.y=obj.z_list;
+            data{2}.u=obj.u_tilde(z_ind)*real(1i*exp(1i*x));
+            data{2}.v=obj.w_hat(z_ind)*real(exp(1i*x));
+            plot_config.xlim_list=[1,0,2*pi];
+            plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
+            plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
+            plot_config.label_list={1,'$x k_x$','$z$'};
+            plot_config.streamline=1;
+            plot_config.user_color_style_marker_list={'k-','b--'};
+            plot_config.panel_num=2;
+            plot_config.visible=1;
+            plot_config.colorbar=0;
+            plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline.png'];
+            plot_contour(data,plot_config);
+            
         end
         
         function obj=snapshot(obj,variable_name)
             %%plot the snapshot of salinity and generate video if any
-            obj.S=h5read(obj.h5_name,['/tasks/',variable_name]);
+            obj.S=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
 
             variable_max=max(max(max(obj.(variable_name))));
             variable_min=min(min(min(obj.(variable_name))));
@@ -453,8 +482,8 @@ classdef dedalus_post
         function obj=spectrum_snapshot(obj,variable_name)
             %%plot the spectrum of salnity as time varies, also generate
             %%video if any
-            coeff=h5read(obj.h5_name,['/tasks/',variable_name,'_coeff']);
-            obj.([variable_name,'_coeff'])=coeff.r+1i*coeff.i;
+            obj.([variable_name,'_coeff'])=h5read_complex(obj.h5_name,['/tasks/',variable_name,'_coeff']);
+            %coeff.r+1i*coeff.i;
             if obj.video
                 for t_ind=1:length(obj.t_list)
                     clear data plot_config;
@@ -505,14 +534,14 @@ classdef dedalus_post
         function obj=spectrum_average(obj,variable_name)
             %%This function plot the 
             %%plot the overall spectrum averaged over time
-            coeff=h5read(obj.h5_name,['/tasks/',variable_name,'_coeff']);
-            obj.([variable_name,'_coeff'])=coeff.r+1i*coeff.i;
+            obj.([variable_name,'_coeff'])=h5read_complex(obj.h5_name,['/tasks/',variable_name,'_coeff']);
+            %coeff.r+1i*coeff.i;
             
             data{1}.x=obj.kx_list;
             data{1}.y=obj.kz_list(1:obj.Nz/2);
             plot_config.label_list={1,'$k_x$','$k_z$'};
 
-%             obj.(variable_name)=h5read(obj.h5_name,['/tasks/',variable_name]);
+%             obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
 %             for t_ind=1:length(obj.t_list)
 %                 obj.(['E_',variable_name])(t_ind)=sum(sum(obj.(variable_name)(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
 %             end
@@ -557,16 +586,16 @@ classdef dedalus_post
             %%energy spectrum as kx and kz
             
             %%This is the post-processing for the TKE in 2D... 
-            w_coeff=h5read(obj.h5_name,'/tasks/w_coeff');
-            obj.w_coeff=w_coeff.r+1i*w_coeff.i;
-            u_coeff=h5read(obj.h5_name,'/tasks/u_coeff');
-            obj.u_coeff=u_coeff.r+1i*u_coeff.i;
+            obj.w_coeff=h5read_complex(obj.h5_name,'/tasks/w_coeff');
+            %=w_coeff.r+1i*w_coeff.i;
+            obj.u_coeff=h5read_complex(obj.h5_name,'/tasks/u_coeff');
+            %obj.u_coeff=u_coeff.r+1i*u_coeff.i;
             for t_ind=1:length(obj.t_list)
                 obj.spectrum_TKE(:,:,t_ind)=abs(obj.u_coeff(:,:,t_ind)).^2+abs(obj.w_coeff(:,:,t_ind)).^2;
             end
 
-%             obj.u=h5read(obj.h5_name,'/tasks/u');
-%             obj.w=h5read(obj.h5_name,'/tasks/w');
+%             obj.u=h5read_complex(obj.h5_name,'/tasks/u');
+%             obj.w=h5read_complex(obj.h5_name,'/tasks/w');
 % 
 %             for t_ind=1:length(obj.t_list)
 %                 obj.TKE_time(t_ind)=sum(sum(obj.u(:,:,t_ind).^2+obj.w(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
@@ -617,7 +646,7 @@ classdef dedalus_post
                 %flag.mean='laminar_cou';   %%default value of flag_mean if not given, just set the laminar  flow.
                     %error('The flag_mean is missing.')
             end
-            obj.(variable_name)=h5read(obj.h5_name,['/tasks/',variable_name]);
+            obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
             
             for t_ind=1:length(obj.t_list)
                 obj.(['E_',variable_name])(t_ind)=sum(sum(obj.(variable_name)(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
@@ -730,7 +759,7 @@ classdef dedalus_post
         function obj=E_TKE_time(obj)
             %%Plot the turbulence kinetic energy as a function over time
             obj=obj.u_fluctuation_read;
-            obj.w=h5read(obj.h5_name,'/tasks/w');
+            obj.w=h5read_complex(obj.h5_name,'/tasks/w');
             for t_ind=1:length(obj.t_list)
                 obj.TKE_time(t_ind)=sum(sum(obj.w(:,:,t_ind).^2+obj.u_fluctuation(:,:,t_ind)))/obj.Nx/obj.Nz/2;
             end
@@ -796,7 +825,7 @@ classdef dedalus_post
                       +obj.F_sin_3ks/(3*obj.ks)^2*sin(3*obj.ks*z+obj.phase_3ks)...
                       +obj.F_sin_4ks/(4*obj.ks)^2*sin(4*obj.ks*z+obj.phase_4ks);
             u_laminar_num=double(subs(u_laminar,z,obj.z_list));
-            obj.u=h5read(obj.h5_name,'/tasks/u');
+            obj.u=h5read_complex(obj.h5_name,'/tasks/u');
             obj.u_fluctuation=obj.u;
             for z_ind=1:length(u_laminar_num)
                 obj.u_fluctuation(z_ind,:,:)=obj.u(z_ind,:,:)-u_laminar_num(z_ind);
@@ -844,7 +873,7 @@ classdef dedalus_post
 %             end
             switch variable_name
                 case {'u','v','w','S','T','p'}
-                    obj.(variable_name)=h5read(obj.h5_name,['/tasks/',variable_name]);
+                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                 case {'uS','wS','uT','wT','uw'}%%
                     var_1=variable_name(1);
                     var_2=variable_name(2);
@@ -852,9 +881,9 @@ classdef dedalus_post
                        obj=obj.u_fluctuation_read();
                        var_1_data=obj.u_fluctuation;
                     else
-                       var_1_data=h5read(obj.h5_name,['/tasks/',var_1]);
+                       var_1_data=h5read_complex(obj.h5_name,['/tasks/',var_1]);
                     end
-                    var_2_data=h5read(obj.h5_name,['/tasks/',var_2]);
+                    var_2_data=h5read_complex(obj.h5_name,['/tasks/',var_2]);
                     obj.(variable_name)=var_1_data.*var_2_data;
             end
             data{1}.z=squeeze(mean(obj.(variable_name),2));
@@ -873,14 +902,14 @@ classdef dedalus_post
 %             z_list_full=[obj.z_list;obj.z_list(end)+dz];
             switch variable_name
                 case {'T','S'}
-                    variable_data=h5read(obj.h5_name,['/tasks/',variable_name]);
+                    variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                     data{1}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     data{2}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data,2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     plot_config.legend_list={1,['$\bar{\mathcal{',variable_name,'}}_z z$'],['$\bar{\mathcal{',variable_name,'}}_z z+Pe_',variable_name,'\langle ',variable_name,'''\rangle_h$']};
                 case {'rho'}
                     %error('not ready');
-                    variable_data_T=h5read(obj.h5_name,['/tasks/T']);
-                    variable_data_S=h5read(obj.h5_name,['/tasks/S']);
+                    variable_data_T=h5read_complex(obj.h5_name,['/tasks/T']);
+                    variable_data_S=h5read_complex(obj.h5_name,['/tasks/S']);
 
                     R_rho_T2S=obj.Ra_T/obj.Ra_S2T;
                     data{1}.x=-obj.dy_T_mean*obj.z_list+1/R_rho_T2S*obj.dy_S_mean*obj.z_list;
@@ -889,7 +918,7 @@ classdef dedalus_post
                     plot_config.legend_list={1,['$-\bar{\mathcal{T}}_z z+R_\rho^{-1}\bar{\mathcal{S}}_z z$'],['$-(\bar{\mathcal{T}}_z z+Pe_T \langle ','T','''\rangle_h)+R_\rho^{-1}(\bar{\mathcal{S}}_z z+Pe_S \langle ','S','''\rangle_h)$']};
                     plot_config.fontsize_legend=24;
                 case 'u'
-                    u=h5read(obj.h5_name,'/tasks/u');
+                    u=h5read_complex(obj.h5_name,'/tasks/u');
                     syms z;
                     u_laminar=obj.F_sin/obj.ks^2*sin(obj.ks*z)...
                               +obj.F_sin_2ks/(2*obj.ks)^2*sin(2*obj.ks*z+obj.phase_2ks)...
@@ -957,7 +986,7 @@ end
 %                       +obj.F_sin_3ks/(3*obj.ks)^2*sin(3*obj.ks*z+obj.phase_3ks)...
 %                       +obj.F_sin_4ks/(4*obj.ks)^2*sin(4*obj.ks*z+obj.phase_4ks);
 %             u_laminar_num=double(subs(u_laminar,z,obj.z_list));
-%             obj.u=h5read(obj.h5_name,'/tasks/u');
+%             obj.u=h5read_complex(obj.h5_name,'/tasks/u');
 %             obj.u_fluctuation=obj.u;
 %             for z_ind=1:length(u_laminar_num)
 %                 obj.u_fluctuation(z_ind,:,:)=obj.u(z_ind,:,:)-u_laminar_num(z_ind);
@@ -977,7 +1006,7 @@ end
 %                 data{1}.y=obj.z_list;
 %                 plot_config.label_list={1,'$t$','$z$'};
 %             end
-%             S=h5read(obj.h5_name,'/tasks/S');
+%             S=h5read_complex(obj.h5_name,'/tasks/S');
 %             obj=obj.u_fluctuation_read();
 %             obj.uS=S.*obj.u_fluctuation;
 %             data{1}.z=squeeze(mean(obj.uS,2));
@@ -1002,8 +1031,8 @@ end
 %                 data{1}.y=obj.z_list;
 %                 plot_config.label_list={1,'$t$','$z$'};
 %             end
-%             S=h5read(obj.h5_name,'/tasks/S');
-%             w=h5read(obj.h5_name,'/tasks/w');
+%             S=h5read_complex(obj.h5_name,'/tasks/S');
+%             w=h5read_complex(obj.h5_name,'/tasks/w');
 %             obj.wS=w.*S;
 %             data{1}.z=squeeze(mean(obj.wS,2));
 % %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
@@ -1018,7 +1047,7 @@ end
 
 %         function obj=T_total_xt_ave(obj)
 % %             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-%             T=h5read(obj.h5_name,'/tasks/T');
+%             T=h5read_complex(obj.h5_name,'/tasks/T');
 % %             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
 %             data{1}.x=obj.z_list;
 % %             data{2}.y=obj.z_list/(2*pi/obj.k_opt);
@@ -1042,7 +1071,7 @@ end
 %         end
 %         
 %         function obj=u_total_xt_ave(obj)
-%             u=h5read(obj.h5_name,'/tasks/u');
+%             u=h5read_complex(obj.h5_name,'/tasks/u');
 %             syms z;
 %             u_laminar=obj.F_sin/obj.ks^2*sin(obj.ks*z)...
 %                       +obj.F_sin_2ks/(2*obj.ks)^2*sin(2*obj.ks*z+obj.phase_2ks)...
@@ -1087,7 +1116,7 @@ end
 %                 data{1}.y=obj.z_list;
 %                 plot_config.label_list={1,'$t$','$z$'};
 %             end
-%             obj.w=h5read(obj.h5_name,'/tasks/w');
+%             obj.w=h5read_complex(obj.h5_name,'/tasks/w');
 %             data{1}.z=squeeze(mean(obj.w,2));
 %             plot_config.colormap='bluewhitered';
 %             plot_config.print_size=[1,1200,1200];
@@ -1113,7 +1142,7 @@ end
 %                 %flag.mean='laminar_cou';   %%default value of flag_mean if not given, just set the laminar  flow.
 %                     %error('The flag_mean is missing.')
 %             end
-%             obj.T=h5read(obj.h5_name,'/tasks/T');
+%             obj.T=h5read_complex(obj.h5_name,'/tasks/T');
 %             
 %             for t_ind=1:length(obj.t_list)
 %                 obj.E_T(t_ind)=sum(sum(obj.T(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
