@@ -444,7 +444,6 @@ classdef dedalus_post
             plot_config.streamline=1;
             plot_config.user_color_style_marker_list={'k-','b--'};
             plot_config.panel_num=2;
-            plot_config.visible=1;
             plot_config.colorbar=0;
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline.png'];
             plot_contour(data,plot_config);

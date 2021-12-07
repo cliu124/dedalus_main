@@ -681,9 +681,12 @@ class flag(object):
                     problem.add_equation('dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
                 else:
                     problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-Pe_T*j*kx*F_sin*sin(ks*z)*T_hat=Pe_T*w_hat*d_T_0')
-                    problem.add_equation('dz(d_T_0)=Pe_T*(kx*conj(u_tilde)*T_hat+kx*u_tilde*conj(T_hat)+ky*conj(v_tilde)*T_hat+ky*v_tilde*conj(T_hat)+conj(w_hat)*d_T_hat+w_hat*conj(d_T_hat))')
+                    #problem.add_equation('dz(d_T_0)=Pe_T*(kx*conj(u_tilde)*T_hat+kx*u_tilde*conj(T_hat)+ky*conj(v_tilde)*T_hat+ky*v_tilde*conj(T_hat)+conj(w_hat)*d_T_hat+w_hat*conj(d_T_hat))')
+                    problem.add_equation('dz(d_T_0)=Pe_T*(kx*(u_tilde)*T_hat+kx*u_tilde*(T_hat)+ky*(v_tilde)*T_hat+ky*v_tilde*(T_hat)+(w_hat)*d_T_hat+w_hat*(d_T_hat))')
+
                     problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat=Pe_S/tau*(w_hat*d_S_0)')   
-                    problem.add_equation('dz(d_S_0)=Pe_S/tau*(kx*conj(u_tilde)*S_hat+kx*u_tilde*conj(S_hat)+ky*conj(v_tilde)*S_hat+ky*v_tilde*conj(S_hat)+conj(w_hat)*d_S_hat+w_hat*conj(d_S_hat))')
+                    #problem.add_equation('dz(d_S_0)=Pe_S/tau*(kx*conj(u_tilde)*S_hat+kx*u_tilde*conj(S_hat)+ky*conj(v_tilde)*S_hat+ky*v_tilde*conj(S_hat)+conj(w_hat)*d_S_hat+w_hat*conj(d_S_hat))')
+                    problem.add_equation('dz(d_S_0)=Pe_S/tau*(kx*(u_tilde)*S_hat+kx*u_tilde*(S_hat)+ky*(v_tilde)*S_hat+ky*v_tilde*(S_hat)+(w_hat)*d_S_hat+w_hat*(d_S_hat))')
 
             elif self.problem=='IVP':
                 problem.add_equation('dz(u_tilde)-d_u_tilde=0')

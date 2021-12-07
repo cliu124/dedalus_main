@@ -12,7 +12,7 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='HB_porous_diffusive_BC';
+group_name='HB_porous_thermal_BC';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -35,8 +35,8 @@ switch group_name
     case 'HB_porous_finger_BC'
         % These for salt-finger regime...
         slurm_num={'12644479',
-                   '12646311',...
-                   
+                   '12646311',
+                   '12704259',
                    '12646317',
                    '12646319',
                    '12646320',
@@ -53,8 +53,8 @@ switch group_name
         %'12640113', %%This case is wierd... not right
 end
 
-flag.print=1;
-flag.visible=1;
+flag.print=0;
+flag.visible=0;
 flag.video=0;
 for slurm_ind=1:length(slurm_num)
     h5_name=['C:\Data\dedalus\dedalus_',...
