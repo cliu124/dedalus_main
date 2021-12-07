@@ -685,8 +685,6 @@ class flag(object):
                     problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat=Pe_S/tau*(w_hat*d_S_0)')   
                     problem.add_equation('dz(d_S_0)=Pe_S/tau*(kx*conj(u_tilde)*S_hat+kx*u_tilde*conj(S_hat)+ky*conj(v_tilde)*S_hat+ky*v_tilde*conj(S_hat)+conj(w_hat)*d_S_hat+w_hat*conj(d_S_hat))')
 
-                
-                
             elif self.problem=='IVP':
                 problem.add_equation('dz(u_tilde)-d_u_tilde=0')
                 problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
