@@ -1328,16 +1328,22 @@ class flag(object):
                 noise = rand.standard_normal(gshape)[slices]
                 
                 #with shear...
-                u_tilde_real['g'] = self.kx*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                v_tilde_real['g'] = self.ky*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_v_tilde_real['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                w_hat_real['g'] = W0*np.sin(self.ks*z) +self.A_noise*noise
-                p_hat_real['g'] = (-self.ks*self.ks-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat_real['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(self.ks*z)+self.A_noise*noise
-                d_T_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
-                S_hat_real['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(self.ks*z)+self.A_noise*noise
-                d_S_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                T_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0
+                S_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0
+                p_hat_elevator=-(self.kx*self.kx+self.ky*self.ky)*W0+self.Ra_T*T_hat_elevator-self.Ra_S2T*S_hat_elevator
+                u_tilde_elevator=-self.kx/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
+                v_tilde_elevator=-self.ky/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
+                
+                u_tilde_real['g'] = u_tilde_elevator+self.A_noise*noise
+                #d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                v_tilde_real['g'] = v_tilde_elevator+self.A_noise*noise
+                #d_v_tilde_real['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                w_hat_real['g'] = W0 +self.A_noise*noise
+                p_hat_real['g'] = p_hat_elevator+self.A_noise*noise
+                T_hat_real['g'] = T_hat_elevator+self.A_noise*noise
+                #d_T_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                S_hat_real['g'] = S_hat_elevator+self.A_noise*noise
+                #d_S_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
                 
                 # u_tilde_imag['g'] = self.kx*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
                 # d_u_tilde_imag['g'] = self.kx*self.ks*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise

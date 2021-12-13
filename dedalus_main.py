@@ -63,7 +63,38 @@ if flag.flow=='HB_porous':
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0
     flag.initial_dt=0.0001
-elif flag.flow in ['HB_benard','HB_benard_shear']:
+    
+elif flag.flow=='HB_benard':
+    flag.Nz=1024
+    flag.Lz=1
+    flag.tau=0.01
+    
+    flag.Ra_T=10000
+    flag.Ra_S2T=0
+    #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
+    #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    flag.F_sin=0
+    flag.ks=2*np.pi
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    flag.bvp_tolerance=1e-10
+    #flag.kx=0.48*flag.Ra_T**0.4
+    flag.kx=2*np.pi/64
+    flag.ky=0
+    flag.problem='BVP'
+    flag.z_bc_T_left='dirichlet'
+    flag.z_bc_T_right='dirichlet'
+    flag.z_bc_S_left='dirichlet'
+    flag.z_bc_S_right='dirichlet'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'
+    flag.z_bc_u_v_left='dirichlet'
+    flag.z_bc_u_v_right='dirichlet'
+    
+    flag.A_elevator=1/10
+    flag.A_noise=0
+    flag.initial_dt=0.0001
+elif flag.flow in ['HB_benard_shear']:
     flag.Nz=1024
     flag.Lz=1
     flag.tau=0.01
@@ -80,7 +111,7 @@ elif flag.flow in ['HB_benard','HB_benard_shear']:
     flag.Pe_S=Pe
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
-    flag.bvp_tolerance=1e-2
+    flag.bvp_tolerance=1e-10
     #flag.kx=0.48*flag.Ra_T**0.4
     flag.kx=2*np.pi/64
     flag.ky=0
@@ -370,7 +401,7 @@ flag.stop_sim_time=20;
 #np.linspace(0,20000,21)
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[1]
+Pe_list=[0]
 for Pe in Pe_list:
     flag.Pe_T=Pe
     flag.Pe_S=Pe
