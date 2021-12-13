@@ -20,7 +20,7 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='HB_benard_shear'
+flag.flow='HB_benard'
 #flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
@@ -69,17 +69,17 @@ elif flag.flow=='HB_benard':
     flag.Lz=1
     flag.tau=0.01
     
-    flag.Ra_T=10000
-    flag.Ra_S2T=0
+    flag.Ra_T=100000
+    flag.Ra_S2T=10000
     #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.F_sin=0
     flag.ks=2*np.pi
-    flag.dy_T_mean=-1
-    flag.dy_S_mean=-1
+    flag.dy_T_mean=1
+    flag.dy_S_mean=1
     flag.bvp_tolerance=1e-10
     #flag.kx=0.48*flag.Ra_T**0.4
-    flag.kx=2*np.pi/64
+    flag.kx=2*np.pi/0.5
     flag.ky=0
     flag.problem='BVP'
     flag.z_bc_T_left='dirichlet'
