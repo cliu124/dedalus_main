@@ -1331,9 +1331,9 @@ class flag(object):
                 #with shear...
                 T_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0
                 S_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0
-                p_hat_elevator=-(self.kx*self.kx+self.ky*self.ky)*W0+self.Ra_T*T_hat_elevator-self.Ra_S2T*S_hat_elevator
-                u_tilde_elevator=-self.kx/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
-                v_tilde_elevator=-self.ky/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
+                p_hat_elevator=0#-(self.kx*self.kx+self.ky*self.ky)*W0+self.Ra_T*T_hat_elevator-self.Ra_S2T*S_hat_elevator
+                u_tilde_elevator=0#-self.kx/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
+                v_tilde_elevator=0#-self.ky/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
                 
                 u_tilde_real['g'] = u_tilde_elevator+self.A_noise*noise
                 #d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
