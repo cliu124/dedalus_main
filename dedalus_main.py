@@ -115,7 +115,8 @@ elif flag.flow in ['HB_benard_shear']:
     Pe=1
     Ri=1
     flag.Ra_T=10000
-    flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    flag.Ra_S2T=0
+    #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.Pe_T=Pe
     flag.Pe_S=Pe
     flag.dy_T_mean=-1
