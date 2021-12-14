@@ -896,6 +896,7 @@ class flag(object):
                     problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)')   
                     problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)')   
                 else:
+                    print(self.F_sin)
                     problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*F_sin*sin(ks*z)*T_hat_imag=Pe_T*w_hat_real*d_T_0')
                     problem.add_equation('dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*F_sin*sin(ks*z)*T_hat_real=Pe_T*w_hat_imag*d_T_0')
                     problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)')   
@@ -928,8 +929,8 @@ class flag(object):
             if self.z_bc_w_left=='dirichlet':
                 problem.add_bc("left(w_hat_real)=0")
                 problem.add_bc("left(w_hat_imag)=0")
-
                 print("Dirichlet for w left")
+                
             if self.z_bc_w_right=='dirichlet':
                 problem.add_bc("right(w_hat_real)=0")
                 problem.add_bc("right(w_hat_imag)=0")
@@ -1449,22 +1450,22 @@ class flag(object):
                 d_S_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
                 
                 
-                u_tilde_imag['g'] = self.kx*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_u_tilde_imag['g'] = self.kx*self.ks*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                v_tilde_imag['g'] = self.ky*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_v_tilde_imag['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                w_hat_imag['g'] = W0*np.sin(self.ks*z) +self.A_noise*noise
-                p_hat_imag['g'] = (-self.ks*self.ks-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(self.ks*z)+self.A_noise*noise
-                d_T_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
-                S_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(self.ks*z)+self.A_noise*noise
-                d_S_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                # u_tilde_imag['g'] = self.kx*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # d_u_tilde_imag['g'] = self.kx*self.ks*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # v_tilde_imag['g'] = self.ky*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # d_v_tilde_imag['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # w_hat_imag['g'] = W0*np.sin(self.ks*z) +self.A_noise*noise
+                # p_hat_imag['g'] = (-self.ks*self.ks-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # T_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(self.ks*z)+self.A_noise*noise
+                # d_T_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                # S_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(self.ks*z)+self.A_noise*noise
+                # d_S_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
                 
                 
-                T_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
-                d_T_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
-                S_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
-                d_S_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
+                # T_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                # d_T_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
+                # S_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                # d_S_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
             
                 
         else:
