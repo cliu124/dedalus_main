@@ -12,7 +12,7 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='HB_benard_Ra';
+group_name='test';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -41,6 +41,9 @@ switch group_name
                    '12646319',
                    '12646320',
                    '12646324'}; %           '12646314',
+    case 'HB_porous_kx'
+        slurm_num={'12761570',
+            ''}; %This is continued from 12639319
     case 'hewitt_2D'
         slurm_num={'12687510',
                     '12687731',
@@ -51,22 +54,41 @@ switch group_name
                   '12687755',
                   '12687756'}; %Hewitt et al. (2014) 3D
         %'12640113', %%This case is wierd... not right
+    case 'HB_benard_kx'
+        slurm_num={'12760884'}; %Ra=10^6, kx=1~20, reproducing figure 7 of Toomre (1977)
+    case 'HB_benard_Ra'
+        slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
+    
+    case 'herring_1963_free'
+        slurm_num={'12761527',...Ra=4*10^3, kx=0.8pi
+            '12761528',... Ra=10^4, kx=pi
+            '12761529',...Ra=10^5, kx=1.5pi
+            '12761536',...Ra=10^6, kx=1.5pi
+            '12761538',...Ra=10^6, kx=6pi
+            '12761539',...Ra=10^6, kx=9pi 
+                    }
+    case 'herring_1964_rigid'  
+        %slurm_num={'12760848'}; continuation from this case, Ra_T=10^6,
+        %kx=1
+        slurm_num={'12761520',...Ra=4*10^3, kx=3
+                '12761519',...Ra=10^4, kx=3
+                '12761518',... Ra=10^5, kx=5
+                '12761515'%Ra=10^6, kx=5.25
+                }
+
     case 'test'
-        slurm_num={'12760884'}; %Ra=10^4, kx=1
+        slurm_num={'12761570'};
+        %slurm_num={'12760848'}; %Ra=10^6, kx=1
+        
                 %'12760763',
                 %'12760764'};
-        slurm_num={'12760830'};%for a range of Ra from 10^4 to 10^15
-        slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
-                '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
-    case 'HB_benard_kx'
-        slurm_num={'12760884'}; %Ra=10^4, kx=1
-    case 'HB_benard_Ra'
-        slurm_num={'12761067'};
+        %slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
+        %        '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
         
 end
 
-flag.print=0;
-flag.visible=0;
+flag.print=1;
+flag.visible=1;
 flag.video=0;
 for slurm_ind=1:length(slurm_num)
     content=dir(['C:\Data\dedalus\dedalus_',...
@@ -106,6 +128,7 @@ for slurm_ind=1:length(slurm_num)
                 case 'HB_benard_Ra'
                     data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
                     data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
+                case 'HB_porous_kx'
             end
         end
     end
@@ -188,6 +211,32 @@ switch group_name
         plot_config.name=['C:\Figure\DDC_LST\',group_name,'Nu_kx_Toomre_1977.png'];
         plot_line(data_Nu,plot_config);
         
+        
+        clear plot_config;
+        T_mean_var=1-dedalus_post_my{1}.z_list;
+        T_mean_sign='+1-z';
+        plot_config.legend_list{1}=1;
+        y_ind=round(linspace(1,length(dedalus_post_my{1}.z_list),5));
+        for kx_ind=1:6
+        	data_T0{kx_ind}.x=dedalus_post_my{2+5*(kx_ind-1)}.T_0+T_mean_var;
+            data_T0{kx_ind}.y=dedalus_post_my{2+5*(kx_ind-1)}.z_list;
+            plot_config.legend_list{kx_ind+1}=['$k_x=',num2str(round(dedalus_post_my{2+5*(kx_ind-1)}.kx)),'$'];
+            data_T0{kx_ind+6}.x=data_T0{kx_ind}.x(y_ind);
+            data_T0{kx_ind+6}.y=data_T0{kx_ind}.y(y_ind);
+        end
+        plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
+        plot_config.print_size=[1,900,900];
+        plot_config.loglog=[0,0];
+        plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
+        plot_config.Markerindex=3;
+        plot_config.user_color_style_marker_list={'k-','k-','b--','b--','r-.','r-.'...
+            ,'ksquare','ko','b^','bv','rx','r+'};
+        plot_config.fontsize_legend=20;
+        plot_config.name=['C:\Figure\DDC_LST\',group_name,'T_0_kx.png'];
+        plot_line(data_T0,plot_config);
+        
+        
     case 'HB_benard_Ra'
         
         Nu_Ra=dedalus_post_my{1}.get_Nu_Ra_Toomre();
@@ -205,23 +254,29 @@ switch group_name
         plot_config.print_size=[1,1000,900];
         plot_config.name=['C:\Figure\DDC_LST\',group_name,'Nu_Ra_Toomre_1977.png'];
         plot_line(data_Nu,plot_config);
-     	if obj.dy_T_mean==-1
-            T_mean_var=1+obj.dy_T_mean*obj.z_list;
-            T_mean_sign='+1-z';
-            dy_T_mean_sign='-1';
-        end
-        plot_config.label_list={1};
+        
+        clear plot_config;
+        T_mean_var=1-dedalus_post_my{1}.z_list;
+        T_mean_sign='+1-z';
+        plot_config.legend_list{1}=1;
         y_ind=round(linspace(1,length(dedalus_post_my{1}.z_list),5));
         for Ra_ind=1:6
-        	data_T0{Ra_ind}.x=dedalus_post_my{5*Ra_ind}.T_0+T_mean_var;
-            data_T0{Ra_ind}.y=dedalus_post_my{5*Ra_ind}.z_list;
-            plot_config.label_list{Ra_ind+1}=['$Ra_T=',num2str(round(dedalus_post_my{5*Ra_ind}.Ra_T)),'$'];
+        	data_T0{Ra_ind}.x=dedalus_post_my{1+5*(Ra_ind-1)}.T_0+T_mean_var;
+            data_T0{Ra_ind}.y=dedalus_post_my{1+5*(Ra_ind-1)}.z_list;
+            plot_config.legend_list{Ra_ind+1}=['$Ra_T=',num2str(round(dedalus_post_my{1+5*(Ra_ind-1)}.Ra_T)),'$'];
             data_T0{Ra_ind+6}.x=data_T0{Ra_ind}.x(y_ind);
             data_T0{Ra_ind+6}.y=data_T0{Ra_ind}.y(y_ind);
         end
+        plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
+        plot_config.print_size=[1,900,900];
+        plot_config.loglog=[0,0];
         plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
         plot_config.Markerindex=3;
-        plot_config.user_color_style_marker_list={'k-','k-','k','r--','r--','m--','m--','bsquare','bo','r^','rv','mx','m+'};
+        plot_config.user_color_style_marker_list={'k-','k-','b--','b--','r-.','r-.'...
+            ,'ksquare','ko','b^','bv','rx','r+'};
+        plot_config.fontsize_legend=20;
+        plot_config.name=['C:\Figure\DDC_LST\',group_name,'T_0_Ra.png'];
         plot_line(data_T0,plot_config);
 end
 % 

@@ -70,13 +70,13 @@ elif flag.flow=='HB_benard':
     flag.tau=0.01
     
     flag.Ra_T=100000
-    flag.Ra_S2T=10000
+    flag.Ra_S2T=0
     #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.F_sin=0
     flag.ks=2*np.pi
-    flag.dy_T_mean=1
-    flag.dy_S_mean=1
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
     flag.bvp_tolerance=1e-10
     #flag.kx=0.48*flag.Ra_T**0.4
     flag.kx=2*np.pi/0.5
@@ -411,7 +411,7 @@ flag.stop_sim_time=20;
 #np.linspace(0,20000,21)
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[10000]
+Pe_list=[1]
 for Pe in Pe_list:
     flag.Pe_T=Pe
     flag.Pe_S=Pe

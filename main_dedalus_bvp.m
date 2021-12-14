@@ -12,7 +12,7 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='HB_benard_kx';
+group_name='test';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -41,6 +41,9 @@ switch group_name
                    '12646319',
                    '12646320',
                    '12646324'}; %           '12646314',
+    case 'HB_porous_kx'
+        slurm_num={'12761570'}%,...%This is continued from 12639319
+                   %'12761797'}; %This is continued from the previous case. 
     case 'hewitt_2D'
         slurm_num={'12687510',
                     '12687731',
@@ -51,16 +54,36 @@ switch group_name
                   '12687755',
                   '12687756'}; %Hewitt et al. (2014) 3D
         %'12640113', %%This case is wierd... not right
-    case 'test'
-        slurm_num={'12760848'}; %Ra=10^6, kx=1
-                %'12760763',
-                %'12760764'};
-        %slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
-        %        '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
     case 'HB_benard_kx'
         slurm_num={'12760884'}; %Ra=10^6, kx=1~20, reproducing figure 7 of Toomre (1977)
     case 'HB_benard_Ra'
         slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
+    
+    case 'herring_1963_free'
+        slurm_num={'12761527',...Ra=4*10^3, kx=0.8pi
+            '12761528',... Ra=10^4, kx=pi
+            '12761529',...Ra=10^5, kx=1.5pi
+            '12761536',...Ra=10^6, kx=1.5pi
+            '12761538',...Ra=10^6, kx=6pi
+            '12761539',...Ra=10^6, kx=9pi 
+                    }
+    case 'herring_1964_rigid'  
+        %slurm_num={'12760848'}; continuation from this case, Ra_T=10^6,
+        %kx=1
+        slurm_num={'12761520',...Ra=4*10^3, kx=3
+                '12761519',...Ra=10^4, kx=3
+                '12761518',... Ra=10^5, kx=5
+                '12761515'%Ra=10^6, kx=5.25
+                }
+
+    case 'test'
+        slurm_num={'12761809'};
+        %slurm_num={'12760848'}; %Ra=10^6, kx=1
+        
+                %'12760763',
+                %'12760764'};
+        %slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
+        %        '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
         
 end
 
@@ -105,6 +128,10 @@ for slurm_ind=1:length(slurm_num)
                 case 'HB_benard_Ra'
                     data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
                     data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
+                case 'HB_porous_kx'
+                    data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
+                    data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
+                
             end
         end
     end

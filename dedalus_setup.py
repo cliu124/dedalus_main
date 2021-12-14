@@ -828,7 +828,6 @@ class flag(object):
             # else:
             #     raise TypeError('flag.z_bc_S is not supported yet') 
 
-
         elif self.flow =='HB_benard_shear':
             if self.problem =='BVP':
                 problem = de.NLBVP(domain, variables=\
@@ -904,7 +903,6 @@ class flag(object):
                 #else:
                 #    print("Wrong flag of F_sin.")
 
-    
             elif self.problem=='IVP':
                 problem.add_equation('dz(u_tilde)-d_u_tilde=0')
                 problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
@@ -969,7 +967,6 @@ class flag(object):
                 problem.add_bc("right(d_T_0)=0")
                 print("Neumann for T right")
                 
-            
             if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
                 problem.add_bc("left(S_hat_real)-right(S_hat_real)=0")
                 problem.add_bc("left(d_S_hat_real)-right(d_S_hat_real)=0")
@@ -1002,7 +999,6 @@ class flag(object):
                 problem.add_bc("right(d_S_0)=0")
                 print("Neumann for S right")
             
-           
             if self.z_bc_u_v_left=='periodic' and self.z_bc_u_v_right=='periodic':
                 problem.add_bc("left(u_tilde_real)-right(u_tilde_real)=0")
                 problem.add_bc("left(v_tilde_real)-right(v_tilde_real)=0")
@@ -1012,29 +1008,35 @@ class flag(object):
                 problem.add_bc("left(v_tilde_imag)-right(v_tilde_imag)=0")
                 problem.add_bc("left(d_u_tilde_imag)-right(d_u_tilde_imag)=0")
                 problem.add_bc("left(d_v_tilde_imag)-right(d_v_tilde_imag)=0")
-            
+                print("Periodic for u,v")
+
             if self.z_bc_u_v_left=='dirichlet':
                 problem.add_bc("left(u_tilde_real)=0")
                 problem.add_bc("left(u_tilde_imag)=0")
                 problem.add_bc("left(v_tilde_real)=0")
                 problem.add_bc("left(v_tilde_imag)=0")
+                print("Dirichlet for u,v left")
+
             elif self.z_bc_u_v_left=='neumann':
                 problem.add_bc("left(d_u_tilde_real)=0")
                 problem.add_bc("left(d_u_tilde_imag)=0")
                 problem.add_bc("left(d_v_tilde_real)=0")
                 problem.add_bc("left(d_v_tilde_imag)=0")
-                
+                print("Neumann for u,v left")
+
             if self.z_bc_u_v_right=='dirichlet':
                 problem.add_bc("right(u_tilde_real)=0")
                 problem.add_bc("right(u_tilde_imag)=0")
                 problem.add_bc("right(v_tilde_real)=0")
                 problem.add_bc("right(v_tilde_imag)=0")
+                print("Dirichlet for u,v right")
 
             elif self.z_bc_u_v_right=='neumann':
                 problem.add_bc("right(d_u_tilde_real)=0")
                 problem.add_bc("right(d_u_tilde_imag)=0")
                 problem.add_bc("right(d_v_tilde_real)=0")
                 problem.add_bc("right(d_v_tilde_imag)=0")
+                print("Neumann for u,v right")
 
              
             #elif self.z_bc_u_v =='periodic':
@@ -1459,10 +1461,10 @@ class flag(object):
                 d_S_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
                 
                 
-                T_0['g'] = self.A_noise*noise
-                d_T_0['g'] = self.A_noise*noise
-                S_0['g'] = self.A_noise*noise
-                d_S_0['g'] = self.A_noise*noise
+                T_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                d_T_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
+                S_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                d_S_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
             
                 
         else:
