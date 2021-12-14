@@ -854,9 +854,13 @@ class flag(object):
             problem.parameters['ky']=self.ky
             problem.parameters['Pe_T']=self.Pe_T
             problem.parameters['Pe_S']=self.Pe_S
-            problem.parameters['F_sin']=self.F_sin
             problem.parameters['ks']=self.ks
             problem.parameters['j']=1j
+            if self.F_sin=='z':
+                print('Couette shear')
+            else:
+                problem.parameters['F_sin']=self.F_sin
+            
             if self.problem =='BVP':
                 #real
                 problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
