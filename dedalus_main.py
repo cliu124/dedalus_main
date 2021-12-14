@@ -137,6 +137,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.z_bc_u_v_right='neumann'
     
     flag.A_elevator=1/10*flag.Ra_T
+    flag.A_elevator_imag
     flag.A_noise=0
     flag.initial_dt=0.0001
     

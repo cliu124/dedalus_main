@@ -65,6 +65,7 @@ class flag(object):
         #self.tau=1 #This tau is not necessary as it has been defined... #This is the diffusivity ratio, \kappa_S/\kappa_T 
         
         self.A_elevator=0
+        self.A_elevator_imag=0
         self.k_elevator=0.5
         self.A_noise=0
         self.A_shear=0        
@@ -1450,16 +1451,17 @@ class flag(object):
                 S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
                 d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 
-                u_tilde_imag['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_u_tilde_imag['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                v_tilde_imag['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_v_tilde_imag['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                w_hat_imag['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                p_hat_imag['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_T_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                S_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_S_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                W0_imag=self.A_elevator_imag
+                u_tilde_imag['g'] = self.kx*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                d_u_tilde_imag['g'] = self.kx*np.pi*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                v_tilde_imag['g'] = self.ky*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                d_v_tilde_imag['g'] = self.ky*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                w_hat_imag['g'] = W0_imag*np.sin(np.pi*z) +self.A_noise*noise
+                p_hat_imag['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                T_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
+                d_T_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                S_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
+                d_S_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 
                 
                 T_0['g'] = self.A_noise*noise
