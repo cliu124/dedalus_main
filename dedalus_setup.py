@@ -1026,12 +1026,17 @@ class flag(object):
                 problem.add_bc("left(d_v_tilde_imag)=0")
                 
             if self.z_bc_u_v_right=='dirichlet':
-                problem.add_bc("right(u_tilde)=0")
-                problem.add_bc("right(v_tilde)=0")
+                problem.add_bc("right(u_tilde_real)=0")
+                problem.add_bc("right(u_tilde_imag)=0")
+                problem.add_bc("right(v_tilde_real)=0")
+                problem.add_bc("right(v_tilde_imag)=0")
+
             elif self.z_bc_u_v_right=='neumann':
-                problem.add_bc("right(d_u_tilde)=0")
-                problem.add_bc("right(d_v_tilde)=0")
-                
+                problem.add_bc("right(d_u_tilde_real)=0")
+                problem.add_bc("right(d_u_tilde_imag)=0")
+                problem.add_bc("right(d_v_tilde_real)=0")
+                problem.add_bc("right(d_v_tilde_imag)=0")
+
              
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
