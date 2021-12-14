@@ -929,10 +929,13 @@ class flag(object):
                 problem.add_bc("left(p_hat_imag)-right(p_hat_imag)=0")
            
             if self.z_bc_w_left=='dirichlet':
-                problem.add_bc("left(w_hat)=0")
+                problem.add_bc("left(w_hat_real)=0")
+                problem.add_bc("left(w_hat_imag)=0")
+
                 print("Dirichlet for w left")
             if self.z_bc_w_right=='dirichlet':
-                problem.add_bc("right(w_hat)=0")
+                problem.add_bc("right(w_hat_real)=0")
+                problem.add_bc("right(w_hat_imag)=0")
                 print("Dirichlet for w right")
            
             if self.z_bc_T_left=='periodic' and self.z_bc_T_right=='periodic':
