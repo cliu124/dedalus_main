@@ -12,7 +12,7 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='HB_benard_kx';
+group_name='HB_benard_Ra';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -52,15 +52,16 @@ switch group_name
                   '12687756'}; %Hewitt et al. (2014) 3D
         %'12640113', %%This case is wierd... not right
     case 'test'
-        slurm_num={'12760848'}; %Ra=10^6, kx=1
+        slurm_num={'12760884'}; %Ra=10^4, kx=1
                 %'12760763',
                 %'12760764'};
-        %slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
-        %        '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
+        slurm_num={'12760830'};%for a range of Ra from 10^4 to 10^15
+        slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
+                '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
     case 'HB_benard_kx'
-        slurm_num={'12760884'}; %Ra=10^6, kx=1~20, reproducing figure 7 of Toomre (1977)
+        slurm_num={'12760884'}; %Ra=10^4, kx=1
     case 'HB_benard_Ra'
-        slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
+        slurm_num={'12761067'};
         
 end
 
@@ -187,32 +188,6 @@ switch group_name
         plot_config.name=['C:\Figure\DDC_LST\',group_name,'Nu_kx_Toomre_1977.png'];
         plot_line(data_Nu,plot_config);
         
-        
-        clear plot_config;
-        T_mean_var=1-dedalus_post_my{1}.z_list;
-        T_mean_sign='+1-z';
-        plot_config.legend_list{1}=1;
-        y_ind=round(linspace(1,length(dedalus_post_my{1}.z_list),5));
-        for kx_ind=1:6
-        	data_T0{kx_ind}.x=dedalus_post_my{2+5*(kx_ind-1)}.T_0+T_mean_var;
-            data_T0{kx_ind}.y=dedalus_post_my{2+5*(kx_ind-1)}.z_list;
-            plot_config.legend_list{kx_ind+1}=['$k_x=',num2str(round(dedalus_post_my{2+5*(kx_ind-1)}.kx)),'$'];
-            data_T0{kx_ind+6}.x=data_T0{kx_ind}.x(y_ind);
-            data_T0{kx_ind+6}.y=data_T0{kx_ind}.y(y_ind);
-        end
-        plot_config.ylim_list=[1,0,1];
-        plot_config.xlim_list=[1,0,1];
-        plot_config.print_size=[1,900,900];
-        plot_config.loglog=[0,0];
-        plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
-        plot_config.Markerindex=3;
-        plot_config.user_color_style_marker_list={'k-','k-','b--','b--','r-.','r-.'...
-            ,'ksquare','ko','b^','bv','rx','r+'};
-        plot_config.fontsize_legend=20;
-        plot_config.name=['C:\Figure\DDC_LST\',group_name,'T_0_kx.png'];
-        plot_line(data_T0,plot_config);
-        
-        
     case 'HB_benard_Ra'
         
         Nu_Ra=dedalus_post_my{1}.get_Nu_Ra_Toomre();
@@ -230,29 +205,23 @@ switch group_name
         plot_config.print_size=[1,1000,900];
         plot_config.name=['C:\Figure\DDC_LST\',group_name,'Nu_Ra_Toomre_1977.png'];
         plot_line(data_Nu,plot_config);
-        
-        clear plot_config;
-        T_mean_var=1-dedalus_post_my{1}.z_list;
-        T_mean_sign='+1-z';
-        plot_config.legend_list{1}=1;
+     	if obj.dy_T_mean==-1
+            T_mean_var=1+obj.dy_T_mean*obj.z_list;
+            T_mean_sign='+1-z';
+            dy_T_mean_sign='-1';
+        end
+        plot_config.label_list={1};
         y_ind=round(linspace(1,length(dedalus_post_my{1}.z_list),5));
         for Ra_ind=1:6
-        	data_T0{Ra_ind}.x=dedalus_post_my{1+5*(Ra_ind-1)}.T_0+T_mean_var;
-            data_T0{Ra_ind}.y=dedalus_post_my{1+5*(Ra_ind-1)}.z_list;
-            plot_config.legend_list{Ra_ind+1}=['$Ra_T=',num2str(round(dedalus_post_my{1+5*(Ra_ind-1)}.Ra_T)),'$'];
+        	data_T0{Ra_ind}.x=dedalus_post_my{5*Ra_ind}.T_0+T_mean_var;
+            data_T0{Ra_ind}.y=dedalus_post_my{5*Ra_ind}.z_list;
+            plot_config.label_list{Ra_ind+1}=['$Ra_T=',num2str(round(dedalus_post_my{5*Ra_ind}.Ra_T)),'$'];
             data_T0{Ra_ind+6}.x=data_T0{Ra_ind}.x(y_ind);
             data_T0{Ra_ind+6}.y=data_T0{Ra_ind}.y(y_ind);
         end
-        plot_config.ylim_list=[1,0,1];
-        plot_config.xlim_list=[1,0,1];
-        plot_config.print_size=[1,900,900];
-        plot_config.loglog=[0,0];
         plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
         plot_config.Markerindex=3;
-        plot_config.user_color_style_marker_list={'k-','k-','b--','b--','r-.','r-.'...
-            ,'ksquare','ko','b^','bv','rx','r+'};
-        plot_config.fontsize_legend=20;
-        plot_config.name=['C:\Figure\DDC_LST\',group_name,'T_0_Ra.png'];
+        plot_config.user_color_style_marker_list={'k-','k-','k','r--','r--','m--','m--','bsquare','bo','r^','rv','mx','m+'};
         plot_line(data_T0,plot_config);
 end
 % 
