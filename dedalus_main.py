@@ -122,7 +122,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
     flag.bvp_tolerance=1e-10
-    flag.F_sin='z'
+    flag.F_sin=0
     #flag.kx=0.48*flag.Ra_T**0.4
     flag.kx=1
     flag.ky=0
@@ -137,7 +137,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.z_bc_u_v_right='neumann'
     
     flag.A_elevator=1/10*flag.Ra_T
-    flag.A_elevator_imag
+    flag.A_elevator_imag=flag.A_elevator
     flag.A_noise=0
     flag.initial_dt=0.0001
     
