@@ -91,7 +91,7 @@ elif flag.flow=='HB_benard':
     flag.z_bc_u_v_left='dirichlet'
     flag.z_bc_u_v_right='dirichlet'
     
-    flag.A_elevator=1/10
+    flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0
     flag.initial_dt=0.0001
 elif flag.flow in ['HB_benard_shear']:
@@ -112,9 +112,9 @@ elif flag.flow in ['HB_benard_shear']:
     #Yang et al. (2021) parameter
     Pr=10
     R_rho_T2S=0.5
-    Pe=10000
+    Pe=1
     Ri=1
-    flag.Ra_T=10^7
+    flag.Ra_T=10000
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.Pe_T=Pe
     flag.Pe_S=Pe
@@ -135,7 +135,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.z_bc_u_v_left='neumann'
     flag.z_bc_u_v_right='neumann'
     
-    flag.A_elevator=1/10
+    flag.A_elevator=1/10*flag.Ra_T
     flag.A_noise=0
     flag.initial_dt=0.0001
     
