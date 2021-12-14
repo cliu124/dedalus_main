@@ -928,6 +928,13 @@ class flag(object):
                 problem.add_bc("left(w_hat_imag)-right(w_hat_imag)=0")
                 problem.add_bc("left(p_hat_imag)-right(p_hat_imag)=0")
            
+            if self.z_bc_w_left=='dirichlet':
+                problem.add_bc("left(w_hat)=0")
+                print("Dirichlet for w left")
+            if self.z_bc_w_right=='dirichlet':
+                problem.add_bc("right(w_hat)=0")
+                print("Dirichlet for w right")
+           
             if self.z_bc_T_left=='periodic' and self.z_bc_T_right=='periodic':
                 problem.add_bc("left(T_hat_real)-right(T_hat_real)=0")
                 problem.add_bc("left(d_T_hat_real)-right(d_T_hat_real)=0")
@@ -937,7 +944,29 @@ class flag(object):
                 problem.add_bc("right(T_0)=0")
                 #problem.add_bc("left(d_T_0)-right(d_T_0)=0")
                 print("Periodic for T")
-               
+              
+            if self.z_bc_T_left=='dirichlet':
+                problem.add_bc("left(T_hat_real)=0")
+                problem.add_bc("left(T_hat_imag)=0")
+                problem.add_bc("left(T_0)=0")
+                print("Dirichlet for T left")
+            elif self.z_bc_T_left=='neumann':
+                problem.add_bc("left(d_T_hat_real)=0")
+                problem.add_bc("left(d_T_hat_imag)=0")
+                problem.add_bc("left(d_T_0)=0")
+                print("Neumann for T left")
+                
+            if self.z_bc_T_right=='dirichlet':
+                problem.add_bc("right(T_hat_real)=0")
+                problem.add_bc("right(T_hat_imag)=0")
+                problem.add_bc("right(T_0)=0")
+                print("Dirichlet for T right")
+            elif self.z_bc_T_right=='neumann':
+                problem.add_bc("right(d_T_hat_real)=0")
+                problem.add_bc("right(d_T_hat_imag)=0")
+                problem.add_bc("right(d_T_0)=0")
+                print("Neumann for T right")
+                
             
             if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
                 problem.add_bc("left(S_hat_real)-right(S_hat_real)=0")
@@ -949,6 +978,29 @@ class flag(object):
                 #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 print("Periodic for S")
            
+            if self.z_bc_S_left=='dirichlet':
+                problem.add_bc("left(S_hat_real)=0")
+                problem.add_bc("left(S_hat_imag)=0")
+                problem.add_bc("left(S_0)=0")
+                print("Dirichlet for S left")
+            elif self.z_bc_S_left=='neumann':
+                problem.add_bc("left(d_S_hat_real)=0")
+                problem.add_bc("left(d_S_hat_imag)=0")
+                problem.add_bc("left(d_S_0)=0")
+                print("Neumann for S left")
+                
+            if self.z_bc_S_right=='dirichlet':
+                problem.add_bc("right(S_hat_real)=0")
+                problem.add_bc("right(S_hat_imag)=0")
+                problem.add_bc("right(S_0)=0")
+                print("Dirichlet for S right")
+            elif self.z_bc_S_right=='neumann':
+                problem.add_bc("right(d_S_hat_real)=0")
+                problem.add_bc("right(d_S_hat_imag)=0")
+                problem.add_bc("right(d_S_0)=0")
+                print("Neumann for S right")
+            
+           
             if self.z_bc_u_v_left=='periodic' and self.z_bc_u_v_right=='periodic':
                 problem.add_bc("left(u_tilde_real)-right(u_tilde_real)=0")
                 problem.add_bc("left(v_tilde_real)-right(v_tilde_real)=0")
@@ -959,7 +1011,24 @@ class flag(object):
                 problem.add_bc("left(d_u_tilde_imag)-right(d_u_tilde_imag)=0")
                 problem.add_bc("left(d_v_tilde_imag)-right(d_v_tilde_imag)=0")
             
-            
+            if self.z_bc_u_v_left=='dirichlet':
+                problem.add_bc("left(u_tilde_real)=0")
+                problem.add_bc("left(u_tilde_imag)=0")
+                problem.add_bc("left(v_tilde_real)=0")
+                problem.add_bc("left(v_tilde_imag)=0")
+            elif self.z_bc_u_v_left=='neumann':
+                problem.add_bc("left(d_u_tilde_real)=0")
+                problem.add_bc("left(d_u_tilde_imag)=0")
+                problem.add_bc("left(d_v_tilde_real)=0")
+                problem.add_bc("left(d_v_tilde_imag)=0")
+                
+            if self.z_bc_u_v_right=='dirichlet':
+                problem.add_bc("right(u_tilde)=0")
+                problem.add_bc("right(v_tilde)=0")
+            elif self.z_bc_u_v_right=='neumann':
+                problem.add_bc("right(d_u_tilde)=0")
+                problem.add_bc("right(d_v_tilde)=0")
+                
              
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
