@@ -100,22 +100,22 @@ elif flag.flow in ['HB_benard_shear']:
     flag.tau=0.01
     
     #Radko (2016) parameter
-    Pr=10
-    R_rho_T2S=0.5
-    Pe=100
-    Ri=10
-    flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
-    flag.Ra_S2T=flag.Ra_T/R_rho_T2S
-    flag.F_sin=1
-    flag.ks=2*np.pi
+    #Pr=10
+    #R_rho_T2S=0.5
+    #Pe=100
+    #Ri=10
+    #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
+    #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    #flag.F_sin=1
+    #flag.ks=2*np.pi
     
     #Yang et al. (2021) parameter
-    # Pr=10
-    # R_rho_T2S=0.5
-    # Pe=1
-    # Ri=1
-    # flag.Ra_T=10000
-    # flag.Ra_S2T=0
+    Pr=10
+    R_rho_T2S=0.5
+    Pe=1
+    Ri=1
+    flag.Ra_T=10000
+    flag.Ra_S2T=0
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.Pe_T=Pe
     flag.Pe_S=Pe
@@ -124,17 +124,17 @@ elif flag.flow in ['HB_benard_shear']:
     flag.bvp_tolerance=1e-10
     flag.F_sin=0
     #flag.kx=0.48*flag.Ra_T**0.4
-    flag.kx=flag.Ra_T**0.25
+    flag.kx=1
     flag.ky=0
     flag.problem='BVP'
-    flag.z_bc_T_left='periodic'
-    flag.z_bc_T_right='periodic'
-    flag.z_bc_S_left='periodic'
-    flag.z_bc_S_right='periodic'
-    flag.z_bc_w_left='periodic'
-    flag.z_bc_w_right='periodic'
-    flag.z_bc_u_v_left='periodic'
-    flag.z_bc_u_v_right='periodic'
+    flag.z_bc_T_left='dirichlet'
+    flag.z_bc_T_right='dirichlet'
+    flag.z_bc_S_left='dirichlet'
+    flag.z_bc_S_right='dirichlet'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'
+    flag.z_bc_u_v_left='neumann'
+    flag.z_bc_u_v_right='neumann'
     
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_elevator_imag=flag.A_elevator
@@ -413,7 +413,7 @@ flag.stop_sim_time=20;
 #np.linspace(0,20000,21)
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[0.01]
+Pe_list=[0]
 for Pe in Pe_list:
     flag.Pe_T=Pe
     flag.Pe_S=Pe
