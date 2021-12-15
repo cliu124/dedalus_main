@@ -830,6 +830,232 @@ class flag(object):
             #     raise TypeError('flag.z_bc_S is not supported yet') 
 
         elif self.flow =='HB_benard_shear':
+            
+            if self.problem =='BVP':
+                problem = de.NLBVP(domain, variables=\
+                    ['u_tilde_real','d_u_tilde_real','v_tilde_real','d_v_tilde_real', \
+                     'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real', \
+                     'T_hat_imag','d_T_hat_imag', \
+                    'S_hat_real','d_S_hat_real','S_hat_imag','d_S_hat_imag', \
+                        'T_0','d_T_0','S_0','d_S_0'])
+                    #'u_tilde_imag','d_u_tilde_imag','v_tilde_imag','d_v_tilde_imag', \
+                    #'w_hat_imag','p_hat_imag',
+            elif self.problem == 'IVP':
+                problem = de.IVP(domain, variables=\
+                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+                    
+            problem.parameters['Pr'] = self.Pr 
+            problem.parameters['Ra_T'] = self.Ra_T
+            problem.parameters['Ra_S2T'] = self.Ra_S2T
+            problem.parameters['tau']=self.tau
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
+            problem.parameters['kx']=self.kx
+            problem.parameters['ky']=self.ky
+            problem.parameters['Pe_T']=self.Pe_T
+            problem.parameters['Pe_S']=self.Pe_S
+            problem.parameters['ks']=self.ks
+            problem.parameters['j']=1j
+            if self.F_sin=='z':
+                print('Couette shear')
+            else:
+                problem.parameters['F_sin']=self.F_sin
+            
+            if self.problem =='BVP':
+                #real
+                problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
+                problem.add_equation('dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=0')
+                problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
+                problem.add_equation('dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=0')
+                problem.add_equation('dz(w_hat_real)-(kx*u_tilde_real+ky*v_tilde_real)=0')
+                problem.add_equation('dz(p_hat_real)-(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=0')
+                problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
+                problem.add_equation('dz(S_hat_real)-d_S_hat_real=0')
+                
+                #imag
+                #problem.add_equation('dz(u_tilde_imag)-d_u_tilde_imag=0')
+                #problem.add_equation('dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=0')
+                #problem.add_equation('dz(v_tilde_imag)-d_v_tilde_imag=0')
+                #problem.add_equation('dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=0')
+                #problem.add_equation('dz(w_hat_imag)-(kx*u_tilde_imag+ky*v_tilde_imag)=0')
+                #problem.add_equation('dz(p_hat_imag)-(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=0')
+                #problem.add_equation('Ra_T*T_hat_imag-Ra_S2T*S_hat_imag=0')
+                problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
+                problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
+                #problem.add_equation('dz(T_0_imag)-d_T_0_imag=0')
+                #problem.add_equation('dz(S_0_imag)-d_S_0_imag=0')
+
+                #mean temperature and salinity
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('dz(S_0)-d_S_0=0')
+                #problem.add_equation('dz(d_T_0)=Pe_T*(2*kx*u_tilde_real*T_hat_real+2*kx*u_tilde_imag*T_hat_imag+2*ky*v_tilde_real*T_hat_real+2*ky*v_tilde_imag*T_hat_imag+2*w_hat_real*d_T_hat_real+2*w_hat_imag*d_T_hat_imag)')
+                #problem.add_equation('dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde_real*S_hat_real+2*kx*u_tilde_imag*S_hat_imag+2*ky*v_tilde_real*S_hat_real+2*ky*v_tilde_imag*S_hat_imag+2*w_hat_real*d_S_hat_real+2*w_hat_imag*d_S_hat_imag)')
+                problem.add_equation('dz(d_T_0)=Pe_T*(2*kx*u_tilde_real*T_hat_real+2*ky*v_tilde_real*T_hat_real+2*w_hat_real*d_T_hat_real)')
+                problem.add_equation('dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde_real*S_hat_real+2*ky*v_tilde_real*S_hat_real+2*w_hat_real*d_S_hat_real)')
+
+                #coupling between real and imag due to shear
+                if self.F_sin=='z':
+                    #problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*(z-1/2)*T_hat_imag=Pe_T*w_hat_real*d_T_0')
+                    #problem.add_equation('dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*(z-1/2)*T_hat_real=Pe_T*w_hat_imag*d_T_0')
+                    #problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)')   
+                    #problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)')   
+                    problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*(z-1/2)*T_hat_imag=Pe_T*w_hat_real*d_T_0')
+                    problem.add_equation('dz(d_T_hat_imag)-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*(z-1/2)*T_hat_real=0')
+                    problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)')   
+                    problem.add_equation('dz(d_S_hat_imag)-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=0')   
+                
+                
+                else:
+                    print(self.F_sin)
+                    problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*F_sin*sin(ks*z)*T_hat_imag=Pe_T*w_hat_real*d_T_0')
+                    problem.add_equation('dz(d_T_hat_imag)-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*F_sin*sin(ks*z)*T_hat_real=0')
+                    problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)')   
+                    problem.add_equation('dz(d_S_hat_imag)-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_real=0')   
+                #else:
+                #    print("Wrong flag of F_sin.")
+
+            elif self.problem=='IVP':
+                problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                problem.add_equation('dz(T_hat)-d_T_hat=0')
+                problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+                problem.add_equation('dz(S_hat)-d_S_hat=0')
+                problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+                problem.add_equation('dz(S_0)-d_S_0=0')
+                problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+            
+            if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
+                problem.add_bc("left(w_hat_real)-right(w_hat_real)=0")
+                problem.add_bc("left(p_hat_real)-right(p_hat_real)=0")
+                #problem.add_bc("left(w_hat_imag)-right(w_hat_imag)=0")
+                #problem.add_bc("left(p_hat_imag)-right(p_hat_imag)=0")
+           
+            if self.z_bc_w_left=='dirichlet':
+                problem.add_bc("left(w_hat_real)=0")
+                #problem.add_bc("left(w_hat_imag)=0")
+                print("Dirichlet for w left")
+                
+            if self.z_bc_w_right=='dirichlet':
+                problem.add_bc("right(w_hat_real)=0")
+                #problem.add_bc("right(w_hat_imag)=0")
+                print("Dirichlet for w right")
+           
+            if self.z_bc_T_left=='periodic' and self.z_bc_T_right=='periodic':
+                problem.add_bc("left(T_hat_real)-right(T_hat_real)=0")
+                problem.add_bc("left(d_T_hat_real)-right(d_T_hat_real)=0")
+                problem.add_bc("left(T_hat_imag)-right(T_hat_imag)=0")
+                problem.add_bc("left(d_T_hat_imag)-right(d_T_hat_imag)=0")
+                problem.add_bc("left(T_0)=0")
+                problem.add_bc("right(T_0)=0")
+                #problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                print("Periodic for T")
+              
+            if self.z_bc_T_left=='dirichlet':
+                problem.add_bc("left(T_hat_real)=0")
+                problem.add_bc("left(T_hat_imag)=0")
+                problem.add_bc("left(T_0)=0")
+                print("Dirichlet for T left")
+            elif self.z_bc_T_left=='neumann':
+                problem.add_bc("left(d_T_hat_real)=0")
+                problem.add_bc("left(d_T_hat_imag)=0")
+                problem.add_bc("left(d_T_0)=0")
+                print("Neumann for T left")
+                
+            if self.z_bc_T_right=='dirichlet':
+                problem.add_bc("right(T_hat_real)=0")
+                problem.add_bc("right(T_hat_imag)=0")
+                problem.add_bc("right(T_0)=0")
+                print("Dirichlet for T right")
+            elif self.z_bc_T_right=='neumann':
+                problem.add_bc("right(d_T_hat_real)=0")
+                problem.add_bc("right(d_T_hat_imag)=0")
+                problem.add_bc("right(d_T_0)=0")
+                print("Neumann for T right")
+                
+            if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
+                problem.add_bc("left(S_hat_real)-right(S_hat_real)=0")
+                problem.add_bc("left(d_S_hat_real)-right(d_S_hat_real)=0")
+                problem.add_bc("left(S_hat_imag)-right(S_hat_imag)=0")
+                problem.add_bc("left(d_S_hat_imag)-right(d_S_hat_imag)=0")
+                problem.add_bc("left(S_0)=0")
+                problem.add_bc("right(S_0)=0")
+                #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                print("Periodic for S")
+           
+            if self.z_bc_S_left=='dirichlet':
+                problem.add_bc("left(S_hat_real)=0")
+                problem.add_bc("left(S_hat_imag)=0")
+                problem.add_bc("left(S_0)=0")
+                print("Dirichlet for S left")
+            elif self.z_bc_S_left=='neumann':
+                problem.add_bc("left(d_S_hat_real)=0")
+                problem.add_bc("left(d_S_hat_imag)=0")
+                problem.add_bc("left(d_S_0)=0")
+                print("Neumann for S left")
+                
+            if self.z_bc_S_right=='dirichlet':
+                problem.add_bc("right(S_hat_real)=0")
+                problem.add_bc("right(S_hat_imag)=0")
+                problem.add_bc("right(S_0)=0")
+                print("Dirichlet for S right")
+            elif self.z_bc_S_right=='neumann':
+                problem.add_bc("right(d_S_hat_real)=0")
+                problem.add_bc("right(d_S_hat_imag)=0")
+                problem.add_bc("right(d_S_0)=0")
+                print("Neumann for S right")
+            
+            if self.z_bc_u_v_left=='periodic' and self.z_bc_u_v_right=='periodic':
+                problem.add_bc("left(u_tilde_real)-right(u_tilde_real)=0")
+                problem.add_bc("left(v_tilde_real)-right(v_tilde_real)=0")
+                problem.add_bc("left(d_u_tilde_real)-right(d_u_tilde_real)=0")
+                problem.add_bc("left(d_v_tilde_real)-right(d_v_tilde_real)=0")
+                #problem.add_bc("left(u_tilde_imag)-right(u_tilde_imag)=0")
+                #problem.add_bc("left(v_tilde_imag)-right(v_tilde_imag)=0")
+                #problem.add_bc("left(d_u_tilde_imag)-right(d_u_tilde_imag)=0")
+                #problem.add_bc("left(d_v_tilde_imag)-right(d_v_tilde_imag)=0")
+                print("Periodic for u,v")
+
+            if self.z_bc_u_v_left=='dirichlet':
+                problem.add_bc("left(u_tilde_real)=0")
+                #problem.add_bc("left(u_tilde_imag)=0")
+                problem.add_bc("left(v_tilde_real)=0")
+                #problem.add_bc("left(v_tilde_imag)=0")
+                print("Dirichlet for u,v left")
+
+            elif self.z_bc_u_v_left=='neumann':
+                problem.add_bc("left(d_u_tilde_real)=0")
+                #problem.add_bc("left(d_u_tilde_imag)=0")
+                problem.add_bc("left(d_v_tilde_real)=0")
+                #problem.add_bc("left(d_v_tilde_imag)=0")
+                print("Neumann for u,v left")
+
+            if self.z_bc_u_v_right=='dirichlet':
+                problem.add_bc("right(u_tilde_real)=0")
+                #problem.add_bc("right(u_tilde_imag)=0")
+                problem.add_bc("right(v_tilde_real)=0")
+                #problem.add_bc("right(v_tilde_imag)=0")
+                print("Dirichlet for u,v right")
+
+            elif self.z_bc_u_v_right=='neumann':
+                problem.add_bc("right(d_u_tilde_real)=0")
+                #problem.add_bc("right(d_u_tilde_imag)=0")
+                problem.add_bc("right(d_v_tilde_real)=0")
+                #problem.add_bc("right(d_v_tilde_imag)=0")
+                print("Neumann for u,v right")
+
+            
+            """
+            ##This version have one issue that cannot fix the phase, for any solution, multiply by e^{i\theta} is again a solution 
+            ##Thus, the Newton iteration cannot converge.
+            ##
             if self.problem =='BVP':
                 problem = de.NLBVP(domain, variables=\
                     ['u_tilde_real','d_u_tilde_real','v_tilde_real','d_v_tilde_real', \
@@ -1039,7 +1265,7 @@ class flag(object):
                 problem.add_bc("right(d_v_tilde_real)=0")
                 problem.add_bc("right(d_v_tilde_imag)=0")
                 print("Neumann for u,v right")
-
+            """
              
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
@@ -1451,17 +1677,17 @@ class flag(object):
                 S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
                 d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 
-                W0_imag=self.A_elevator_imag
-                u_tilde_imag['g'] = self.kx*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_u_tilde_imag['g'] = self.kx*np.pi*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                v_tilde_imag['g'] = self.ky*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_v_tilde_imag['g'] = self.ky*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                w_hat_imag['g'] = W0_imag*np.sin(np.pi*z) +self.A_noise*noise
-                p_hat_imag['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
-                d_T_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                S_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
-                d_S_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                # W0_imag=self.A_elevator_imag
+                # u_tilde_imag['g'] = self.kx*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # d_u_tilde_imag['g'] = self.kx*np.pi*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # v_tilde_imag['g'] = self.ky*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # d_v_tilde_imag['g'] = self.ky*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # w_hat_imag['g'] = W0_imag*np.sin(np.pi*z) +self.A_noise*noise
+                # p_hat_imag['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                # T_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
+                # d_T_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                # S_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
+                # d_S_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 
                 
                 T_0['g'] = self.A_noise*noise

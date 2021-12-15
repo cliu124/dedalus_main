@@ -42,6 +42,7 @@ classdef dedalus_post
 
         A_S=0;
         A_elevator=0;
+        A_elevator_imag=0;
         A_noise=0;
         A_shear=0;
         
