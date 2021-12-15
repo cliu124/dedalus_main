@@ -1778,6 +1778,10 @@ class flag(object):
                 logger.info('Perturbation norm: {}'.format(np.sum(np.abs(pert))))
                 logger.info('T_0 norm: {}'.format(np.sum(np.abs(solver.state['T_0']['g']))))
                 logger.info('S_0 norm: {}'.format(np.sum(np.abs(solver.state['S_0']['g']))))
+                if self.flow in ['HB_porous','HB_benard']:
+                    logger.info('w_hat norm: {}'.format(np.sum(np.abs(solver.state['w_hat']['g']))))
+                elif self.flow in ['HB_benard_shear']:
+                    logger.info('w_hat_real norm: {}'.format(np.sum(np.abs(solver.state['w_hat_real']['g']))))
 
                 #logger.info('R iterate: {}'.format(R['g'][0]))
             end_time = time.time()
