@@ -1776,6 +1776,9 @@ class flag(object):
             while np.sum(np.abs(pert)) > self.bvp_tolerance:
                 solver.newton_iteration()
                 logger.info('Perturbation norm: {}'.format(np.sum(np.abs(pert))))
+                logger.info('T_0 norm: {}'.format(np.sum(np.abs(solver.state['T_0']['g']))))
+                logger.info('S_0 norm: {}'.format(np.sum(np.abs(solver.state['S_0']['g']))))
+
                 #logger.info('R iterate: {}'.format(R['g'][0]))
             end_time = time.time()
              
