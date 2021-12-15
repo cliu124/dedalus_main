@@ -830,7 +830,7 @@ class flag(object):
             #     raise TypeError('flag.z_bc_S is not supported yet') 
 
         elif self.flow =='HB_benard_shear':
-            
+            """
             if self.problem =='BVP':
                 problem = de.NLBVP(domain, variables=\
                     ['u_tilde_real','d_u_tilde_real','v_tilde_real','d_v_tilde_real', \
@@ -1050,9 +1050,9 @@ class flag(object):
                 problem.add_bc("right(d_v_tilde_real)=0")
                 #problem.add_bc("right(d_v_tilde_imag)=0")
                 print("Neumann for u,v right")
-
-            
             """
+            
+            
             ##This version have one issue that cannot fix the phase, for any solution, multiply by e^{i\theta} is again a solution 
             ##Thus, the Newton iteration cannot converge.
             ##
@@ -1150,7 +1150,9 @@ class flag(object):
             if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
                 problem.add_bc("left(w_hat_real)-right(w_hat_real)=0")
                 problem.add_bc("left(p_hat_real)-right(p_hat_real)=0")
-                problem.add_bc("left(w_hat_imag)-right(w_hat_imag)=0")
+                #problem.add_bc("left(w_hat_imag)-right(w_hat_imag)=0")
+                problem.add_bc("left(w_hat_imag)=0")
+                problem.add_bc("right(w_hat_imag)=0")
                 problem.add_bc("left(p_hat_imag)-right(p_hat_imag)=0")
            
             if self.z_bc_w_left=='dirichlet':
@@ -1265,7 +1267,7 @@ class flag(object):
                 problem.add_bc("right(d_v_tilde_real)=0")
                 problem.add_bc("right(d_v_tilde_imag)=0")
                 print("Neumann for u,v right")
-            """
+            
              
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
