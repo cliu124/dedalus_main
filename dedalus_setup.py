@@ -1718,10 +1718,10 @@ class flag(object):
                 # d_S_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
                 
                 
-                # T_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
-                # d_T_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
-                # S_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
-                # d_S_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
+                T_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                d_T_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
+                S_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                d_S_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
             
                 
         else:

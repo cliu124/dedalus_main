@@ -4,7 +4,7 @@ clc;
 
 %------setup the main parameter for running
 Pr=10;
-Pe=300;
+Pe=100;
 tau=0.01;
 R_rho_T2S=0.5;
 Ri=1;
@@ -48,7 +48,7 @@ DDC_LST_list{3}.shear_Radko2016_reduced='MRBC';
 DDC_LST_list{4}.shear_Radko2016_reduced='Stokes';
 
 %put them altogether and run 
-for DDC_LST_ind=[1]%:length(DDC_LST_list)
+for DDC_LST_ind=1:length(DDC_LST_list)
 %     DDC_LST_list{DDC_LST_ind}=DDC_LST_list{DDC_LST_ind}.convert_shear();
     %the parameter setting that are shared by all cases...
     DDC_LST_list{DDC_LST_ind}.kx_list=kx_list;
