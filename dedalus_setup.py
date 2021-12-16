@@ -1096,7 +1096,7 @@ class flag(object):
             if self.problem =='BVP':
                 #real
                 problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
-                problem.add_equation('dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)-A*exp(-(z-z0)**2/sigma**2)*u_tilde_real=0')
+                problem.add_equation('dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=0')
                 problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
                 problem.add_equation('dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=0')
                 problem.add_equation('dz(w_hat_real)-(kx*u_tilde_real+ky*v_tilde_real)=0')
@@ -1110,7 +1110,7 @@ class flag(object):
                 problem.add_equation('dz(v_tilde_imag)-d_v_tilde_imag=0')
                 problem.add_equation('dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=0')
                 problem.add_equation('dz(w_hat_imag)-(kx*u_tilde_imag+ky*v_tilde_imag)=0')
-                problem.add_equation('dz(p_hat_imag)-(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=0')
+                problem.add_equation('dz(p_hat_imag)-(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)+A*exp(-(z-z0)**2/sigma**2)*w_hat_imag=0')
                 problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
                 problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
                 #problem.add_equation('dz(T_0_imag)-d_T_0_imag=0')
