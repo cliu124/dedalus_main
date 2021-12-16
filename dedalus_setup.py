@@ -1104,13 +1104,14 @@ class flag(object):
                 problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
                 problem.add_equation('dz(S_hat_real)-d_S_hat_real=0')
                 
+                #IBM: +A*exp(-(z-z0)**2/sigma**2)*w_hat_imag
                 #imag
                 problem.add_equation('dz(u_tilde_imag)-d_u_tilde_imag=0')
                 problem.add_equation('dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=0')
                 problem.add_equation('dz(v_tilde_imag)-d_v_tilde_imag=0')
                 problem.add_equation('dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=0')
                 problem.add_equation('dz(w_hat_imag)-(kx*u_tilde_imag+ky*v_tilde_imag)=0')
-                problem.add_equation('dz(p_hat_imag)-(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)+A*exp(-(z-z0)**2/sigma**2)*w_hat_imag=0')
+                problem.add_equation('dz(p_hat_imag)-(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=0')
                 problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
                 problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
                 #problem.add_equation('dz(T_0_imag)-d_T_0_imag=0')
@@ -1789,6 +1790,11 @@ class flag(object):
                     logger.info('w_hat norm: {}'.format(np.sum(np.abs(solver.state['w_hat']['g']))))
                 elif self.flow in ['HB_benard_shear']:
                     logger.info('w_hat_real norm: {}'.format(np.sum(np.abs(solver.state['w_hat_real']['g']))))
+                    logger.info('w_hat_imag norm: {}'.format(np.sum(np.abs(solver.state['w_hat_imag']['g']))))
+                    logger.info('T_hat_real norm: {}'.format(np.sum(np.abs(solver.state['T_hat_real']['g']))))
+                    logger.info('T_hat_imag norm: {}'.format(np.sum(np.abs(solver.state['T_hat_imag']['g']))))
+                    logger.info('S_hat_real norm: {}'.format(np.sum(np.abs(solver.state['S_hat_real']['g']))))
+                    logger.info('S_hat_imag norm: {}'.format(np.sum(np.abs(solver.state['S_hat_imag']['g']))))
 
                 #logger.info('R iterate: {}'.format(R['g'][0]))
             end_time = time.time()
