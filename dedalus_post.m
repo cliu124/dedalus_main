@@ -175,6 +175,11 @@ classdef dedalus_post
     
         T_0_handle=0;
         S_0_handle=0;
+        
+        IBM_A=1000;
+        IBM_z0=1/2;
+        IBM_sigma=0.0001
+        
     end
     
     methods

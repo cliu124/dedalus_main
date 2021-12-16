@@ -122,7 +122,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
     flag.bvp_tolerance=1e-10
-    flag.F_sin=0
+    flag.F_sin='z'
     #flag.kx=0.48*flag.Ra_T**0.4
     flag.kx=1
     flag.ky=0
@@ -413,7 +413,7 @@ flag.stop_sim_time=20;
 #np.linspace(0,20000,21)
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[0]
+Pe_list=[1]
 for Pe in Pe_list:
     flag.Pe_T=Pe
     flag.Pe_S=Pe

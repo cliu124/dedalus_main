@@ -105,6 +105,9 @@ class flag(object):
         self.initial_dt=0.01#initial time step.
         self.continuation=0 #if yes, use the existing data to continue the next computation
     
+        self.IBM_A=10000
+        self.IBM_z0=1/2
+        self.IBM_sigma=0.0001
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -1081,7 +1084,10 @@ class flag(object):
             problem.parameters['Pe_T']=self.Pe_T
             problem.parameters['Pe_S']=self.Pe_S
             problem.parameters['ks']=self.ks
-            problem.parameters['j']=1j
+            #problem.parameters['j']=1j
+            problem.parameters['z0']=self.IBM_z0
+            problem.parameters['sigma']=self.IBM_sigma
+            problem.parameters['A']=self.IBM_A
             if self.F_sin=='z':
                 print('Couette shear')
             else:
@@ -1089,7 +1095,7 @@ class flag(object):
             
             if self.problem =='BVP':
                 #real
-                problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
+                problem.add_equation('dz(u_tilde_real)-d_u_tilde_real+A*exp(-(z-z0)**2/sigma**2)*u_tilde_real=0')
                 problem.add_equation('dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=0')
                 problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
                 problem.add_equation('dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=0')
@@ -1150,10 +1156,11 @@ class flag(object):
             if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
                 problem.add_bc("left(w_hat_real)-right(w_hat_real)=0")
                 problem.add_bc("left(p_hat_real)-right(p_hat_real)=0")
-                #problem.add_bc("left(w_hat_imag)-right(w_hat_imag)=0")
-                problem.add_bc("left(w_hat_imag)=0")
-                problem.add_bc("right(w_hat_imag)=0")
-                #problem.add_bc("left(p_hat_imag)-right(p_hat_imag)=0")
+                problem.add_bc("left(w_hat_imag)-right(w_hat_imag)=0")
+                problem.add_bc("left(p_hat_imag)-right(p_hat_imag)=0")
+
+                #problem.add_bc("left(w_hat_imag)=0")
+                #problem.add_bc("right(w_hat_imag)=0")
            
             if self.z_bc_w_left=='dirichlet':
                 problem.add_bc("left(w_hat_real)=0")
