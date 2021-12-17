@@ -20,7 +20,7 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='HB_benard_shear'
+flag.flow='HB_porous_shear'
 #flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
@@ -46,10 +46,6 @@ if flag.flow=='HB_porous':
     flag.continuation=0
     flag.ky=0
     flag.problem='BVP'
-    #flag.z_bc_T='dirichlet'
-    #flag.z_bc_S='dirichlet'
-    #flag.z_bc_w='dirichlet'
-    #flag.z_bc_u_v='dirichlet'
     flag.z_bc_w_left='dirichlet'
     flag.z_bc_w_right='dirichlet'  
     flag.z_bc_T_left='dirichlet'
@@ -57,12 +53,32 @@ if flag.flow=='HB_porous':
     flag.z_bc_S_left='dirichlet'#BC for salinity
     flag.z_bc_S_right='dirichlet'
     flag.bvp_tolerance=1e-10
-    #flag.z_bc_u_v_left='dirichlet'#BC for the u,v,w...
-    #flag.z_bc_u_v_right='dirichlet'
     
     flag.A_elevator=1/10*flag.Ra_T
-    flag.A_noise=0
-    flag.initial_dt=0.0001
+    
+elif flag.flow == 'HB_porous_shear':
+    flag.Nz=1024
+    flag.Lz=1
+    flag.tau=0.01
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    #Ra_T_list=[10000,20000,40000]
+    flag.Ra_T=10000
+    flag.Ra_S2T=0
+    flag.continuation=0
+    
+    flag.ky=0
+    flag.problem='BVP'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'  
+    flag.z_bc_T_left='dirichlet'
+    flag.z_bc_T_right='dirichlet'
+    flag.z_bc_S_left='dirichlet'#BC for salinity
+    flag.z_bc_S_right='dirichlet'
+    flag.bvp_tolerance=1e-10
+    
+    flag.A_elevator=1/10*flag.Ra_T
+    
     
 elif flag.flow=='HB_benard':
     flag.Nz=1024
@@ -92,8 +108,6 @@ elif flag.flow=='HB_benard':
     flag.z_bc_u_v_right='dirichlet'
     
     flag.A_elevator=1/10*flag.Ra_T
-    flag.A_noise=0
-    flag.initial_dt=0.0001
 elif flag.flow in ['HB_benard_shear']:
     flag.Nz=1024
     flag.Lz=1
@@ -138,8 +152,6 @@ elif flag.flow in ['HB_benard_shear']:
     
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_elevator_imag=flag.A_elevator
-    flag.A_noise=0
-    flag.initial_dt=0.0001
     
 elif flag.flow=='test_periodic':
     flag.F_sin=1
@@ -152,7 +164,6 @@ elif flag.flow == 'IFSC_2D':
     flag.Ra_ratio=2 ##This is the special parameter for the Rayleigh ratio
     flag.dy_T_mean=1
     flag.dy_S_mean=1
-    
     
     #-------setup the grid points
     ##These are general setup
@@ -417,7 +428,7 @@ Pe_list=[1]
 for Pe in Pe_list:
     flag.Pe_T=Pe
     flag.Pe_S=Pe
-    #flag.kx=0.48*flag.Ra_T**0.4 #2D
+    flag.kx=0.48*flag.Ra_T**0.4 #2D
     #flag.kx=0.17*flag.Ra_T**0.52 #3D
     flag.ky=0
     flag.kx_2=0
