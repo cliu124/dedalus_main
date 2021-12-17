@@ -581,7 +581,7 @@ class flag(object):
             #Setup the B.C. update 2021/11/29...
             if self.z_bc_w_left=='dirichlet':
                 problem.add_bc("left(w_hat_real)=0")
-                problem.add_bc("left(w_hat_imag)")
+                problem.add_bc("left(w_hat_imag)=0")
                 print("Dirichlet B.C. for w left")
             elif self.z_bc_w_left=='neumann':
                 problem.add_bc("left(p_hat_real)=0")
