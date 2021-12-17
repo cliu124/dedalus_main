@@ -144,7 +144,7 @@ class flag(object):
                 domain = de.Domain([z_basis],grid_dtype=np.float64) 
             else:
                 domain = de.Domain([z_basis],grid_dtype=np.complex128) 
-        elif self.flow in ['HB_benard_shear']:
+        elif self.flow in ['HB_porous_shear','HB_benard_shear']:
             z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
             domain = de.Domain([z_basis],grid_dtype=np.float64) 
 
@@ -2022,7 +2022,7 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
-        elif self.flow in ['HB_porous','HB_benard','test_periodic','HB_benard_shear']:
+        elif self.flow in ['HB_porous','HB_porous_shear','HB_benard','test_periodic','HB_benard_shear']:
             #For IVP and BVP, they have some small difference. IVP can also set the dt for storage.
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
