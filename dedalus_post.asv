@@ -175,6 +175,22 @@ classdef dedalus_post
     
         T_0_handle=0;
         S_0_handle=0;
+        
+        IBM_A=1000;
+        IBM_z0=1/2;
+        IBM_sigma=0.0001
+       
+        z_T_BL=0;
+        z_S_BL=0;
+        d_T_0_overshoot=0;
+        d_S_0_overshoot=0;
+        
+        z_T_rms_max=0;
+        z_S_rms_max=0;
+        
+        T_rms_max=0;
+        S_rms_max=0;
+        
     end
     
     methods
@@ -282,15 +298,31 @@ classdef dedalus_post
             mid_ind=length(obj.z_list)/2;
             obj.Nu=-(obj.d_T_0+obj.dy_T_mean);%Nusselt number 
             obj.Nu_S=-(obj.d_S_0+obj.dy_S_mean); %nussel number for salinity... also add the background one...
-            obj.d_T_0_mid=obj.d_T_0(mid_ind); %d_T_0 at the mid plane
-            obj.d_S_0_mid=obj.d_S_0(mid_ind);
+            [T_BL_ind]=find(diff(sign(obj.d_T_0)));%min(abs(obj.d_T_0+obj.dy_T_mean));
+            obj.z_T_BL=obj.z_list(T_BL_ind(1));
+            obj.d_T_0_overshoot=max(obj.d_T_0+obj.dy_T_mean);
+            
+            [S_BL_ind]=find(diff(sign(obj.d_S_0)));
+            obj.z_S_BL=obj.z_list(S_BL_ind(1));
+            obj.d_S_0_overshoot=max(obj.d_T_0+obj.dy_S_mean);
+
+            obj.T_rms_max=max(obj.T_hat(mid_ind)*sqrt(2));
+            [~,max_ind]=max(obj.T_hat);
+            obj.z_T_rms_max=obj.z_list(max_ind(1));
+            
+            obj.S_rms_max=max(obj.S_ha)
+            obj.z_S_rms_max=
+            
+            obj.d_T_0_mid=obj.d_T_0(mid_ind)+obj.dy_T_mean; %d_T_0 at the mid plane
+            obj.d_S_0_mid=obj.d_S_0(mid_ind)+obj.dy_S_mean;
             obj.T_rms_mid=obj.T_hat(mid_ind)*sqrt(2);
             obj.S_rms_mid=obj.S_hat(mid_ind)*sqrt(2);
             obj.w_rms_mid=obj.w_hat(mid_ind)*sqrt(2);
-            if strcmp(obj.flow,'HB_porous')
-                obj.u_rms_mid=obj.kx*abs(obj.p_hat(mid_ind))*sqrt(2);
-            elseif strcmp(obj.flow,'HB_benard')
-                obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
+            switch obj.flow
+                case 'HB_porous'
+                    obj.u_rms_mid=obj.kx*abs(obj.p_hat(mid_ind))*sqrt(2);
+                case {'HB_benard','HB_benard_shear'}
+                    obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
             end
         end
         

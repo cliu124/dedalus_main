@@ -12,7 +12,7 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='test';
+group_name='wen_chini_2D';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -48,6 +48,9 @@ switch group_name
         slurm_num={'12687510',
                     '12687731',
                     '12687732'}; %Hewitt et al. (2012) 2D
+    case 'wen_chini_2D'
+        slurm_num={'12784615'};
+        
     case 'hewitt_3D'
 
         slurm_num={'12687744',
@@ -77,7 +80,16 @@ switch group_name
                 }
 
     case 'test'
-        slurm_num={'12783349'};
+        slurm_num={'12784649',...
+                    '12784650',...
+                    '12784652',...
+                    '12784653',...
+                    '12784654',...
+                    '12784655',...
+                    '12784656',...
+                    '12784658',...
+                    '12784660',...
+                    '12784661'};
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
                 %'12760763',
@@ -113,6 +125,17 @@ for slurm_ind=1:length(slurm_num)
             data_T{slurm_ind,content_ind}.x=dedalus_post_my{slurm_ind,content_ind}.T_0+background_T;
             data_T{slurm_ind,content_ind}.x=(data_T{slurm_ind,content_ind}.x-min(data_T{slurm_ind,content_ind}.x))/(max(data_T{slurm_ind,content_ind}.x)-min(data_T{slurm_ind,content_ind}.x));
             switch group_name
+                case 'hewitt_2D'
+                    data_z{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+                    data_z{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.z_T_BL;
+                    data_z{2}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+                    data_z{2}.y(slurm_ind)=dedalus_post_my{slurm_ind}.z_T_rms_max;
+                    %data_T_BL{slurm_ind}.x=deda
+                    %data_S_BL{slurm_ind}.x=dedalus_post_my{slurm_ind}.Ra_T;
+                    %data_S_BL{slurm_ind}.y=dedalus_post_my{slurm_ind}.S_BL;
+                    
+                case 'hewitt_3D'
+                
                 case {'HB_porous_diffusive_BC','HB_porous_finger_BC'}
                   if dedalus_post_my{slurm_ind,content_ind}.dy_S_mean<0
                       background_S=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
@@ -131,7 +154,7 @@ for slurm_ind=1:length(slurm_num)
                 case 'HB_porous_kx'
                     data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
                     data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
-                
+               
             end
         end
     end
@@ -150,6 +173,14 @@ switch group_name
         plot_config.xlim_list=[1,0.45,0.55];
         plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0_local.png'];
         plot_line(data_T,plot_config);
+        
+        plot_config.loglog=[1,1];
+        plot_config.xlim_list=0; 
+        plot_config.ylim_list=0
+        plot_config.label_list={1,'$Ra_T$','$z_T$'};
+        [eta,c0]=scaling(data_z{1}.x,data_z{1}.y);
+        plot_line(data_z,plot_config);
+    
     case 'hewitt_3D'
         plot_config.legend_list={1,'$Ra_T=4000$','$Ra_T=8000$','$Ra_T=16000$'};
         plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
