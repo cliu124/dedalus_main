@@ -191,6 +191,8 @@ classdef dedalus_post
         T_rms_max=0;
         S_rms_max=0;
         
+        HB_porous_shear_phi=0;
+        
     end
     
     methods

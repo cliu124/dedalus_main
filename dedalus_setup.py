@@ -108,6 +108,8 @@ class flag(object):
         self.IBM_A=10000
         self.IBM_z0=1/2
         self.IBM_sigma=0.0001
+        self.HB_porous_shear_phi=0
+    
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)

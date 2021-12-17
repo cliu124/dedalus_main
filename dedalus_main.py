@@ -122,7 +122,8 @@ elif flag.flow in ['HB_benard_shear']:
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.F_sin=1
     flag.ks=2*np.pi
-    
+    flag.HB_porous_shear_phi=0
+
     #Yang et al. (2021) parameter
     #Pr=10
     #R_rho_T2S=0.5
@@ -149,7 +150,6 @@ elif flag.flow in ['HB_benard_shear']:
     flag.z_bc_w_right='periodic'
     flag.z_bc_u_v_left='periodic'
     flag.z_bc_u_v_right='periodic'
-    
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_elevator_imag=flag.A_elevator
     
