@@ -301,11 +301,15 @@ classdef dedalus_post
             obj.Nu=-(obj.d_T_0+obj.dy_T_mean);%Nusselt number 
             obj.Nu_S=-(obj.d_S_0+obj.dy_S_mean); %nussel number for salinity... also add the background one...
             [T_BL_ind]=find(diff(sign(obj.d_T_0)));%min(abs(obj.d_T_0+obj.dy_T_mean));
-            obj.z_T_BL=obj.z_list(T_BL_ind(1));
+            if ~isempty(T_BL_ind)
+                obj.z_T_BL=obj.z_list(T_BL_ind(1));
+            end
             obj.d_T_0_overshoot=max(obj.d_T_0+obj.dy_T_mean);
             
             [S_BL_ind]=find(diff(sign(obj.d_S_0)));
-            obj.z_S_BL=obj.z_list(S_BL_ind(1));
+            if ~isempty(S_BL_ind)
+                obj.z_S_BL=obj.z_list(S_BL_ind(1));
+            end
             obj.d_S_0_overshoot=max(obj.d_T_0+obj.dy_S_mean);
 
             obj.T_rms_max=max(obj.T_hat(mid_ind)*sqrt(2));

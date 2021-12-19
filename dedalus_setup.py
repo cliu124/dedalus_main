@@ -538,7 +538,7 @@ class flag(object):
                     problem = de.NLBVP(domain, variables=[\
                         'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real','S_hat_real','d_S_hat_real', \
                         'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag','S_hat_imag','d_S_hat_imag', \
-                            'T_0','d_T_0','S_0','d_S_0'])
+                            'T_0','d_T_0','S_0','d_S_0','eta'])
                 elif self.problem == 'IVP':
                     problem = de.IVP(domain, variables=[\
                         'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
@@ -558,19 +558,19 @@ class flag(object):
                 #variable with _hat is the harmonic term
                 #variable with _0 is the horizontal average term
                 problem.substitutions["U"] = "Ra_T*sin(phi)*(1/2+dy_T_mean*z)-Ra_S2T*sin(phi)*(1/2+dy_S_mean*z)"
-                problem.add_equation('dz(w_hat_real)-(-(kx*kx+ky*ky)*p_hat_real)=0')
-                problem.add_equation('dz(p_hat_real)-(-w_hat_real+Ra_T*cos(phi)*T_hat_real-Ra_S2T*cos(phi)*S_hat_real)=0')
-                problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
-                problem.add_equation('dz(d_T_hat_real)-(w_hat_real*dy_T_mean+(kx*kx+ky*ky)*T_hat_real)+kx*U*T_hat_imag=w_hat_real*d_T_0')
-                problem.add_equation('dz(S_hat_real)-d_S_hat_real=0')
-                problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+kx*U*S_hat_imag/tau=1/tau*(w_hat_real*d_S_0)')   
+                problem.add_equation('dz(w_hat_real)-(-(kx*kx+ky*ky)*p_hat_real)-eta*w_hat_imag=0')
+                problem.add_equation('dz(p_hat_real)-(-w_hat_real+Ra_T*cos(phi)*T_hat_real-Ra_S2T*cos(phi)*S_hat_real)-eta*p_hat_imag=0')
+                problem.add_equation('dz(T_hat_real)-d_T_hat_real-eta*T_hat_imag=0')
+                problem.add_equation('dz(d_T_hat_real)-(w_hat_real*dy_T_mean+(kx*kx+ky*ky)*T_hat_real)+kx*U*T_hat_imag-eta*d_T_hat_imag=w_hat_real*d_T_0')
+                problem.add_equation('dz(S_hat_real)-d_S_hat_real-eta*S_hat_imag=0')
+                problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+kx*U*S_hat_imag/tau-eta*d_S_hat_imag=1/tau*(w_hat_real*d_S_0)')   
                 
-                problem.add_equation('dz(w_hat_imag)-(-(kx*kx+ky*ky)*p_hat_imag)=0')
-                problem.add_equation('dz(p_hat_imag)-(-w_hat_imag+Ra_T*cos(phi)*T_hat_imag-Ra_S2T*cos(phi)*S_hat_imag)=0')
-                problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
-                problem.add_equation('dz(d_T_hat_imag)-(w_hat_imag*dy_T_mean+(kx*kx+ky*ky)*T_hat_imag)-kx*U*T_hat_real=w_hat_imag*d_T_0')
-                problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
-                problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-kx*U*S_hat_real/tau=1/tau*(w_hat_imag*d_S_0)')   
+                problem.add_equation('dz(w_hat_imag)-(-(kx*kx+ky*ky)*p_hat_imag)+eta*w_hat_real=0')
+                problem.add_equation('dz(p_hat_imag)-(-w_hat_imag+Ra_T*cos(phi)*T_hat_imag-Ra_S2T*cos(phi)*S_hat_imag)+eta*p_hat_real=0')
+                problem.add_equation('dz(T_hat_imag)-d_T_hat_imag+eta*T_hat_real=0')
+                problem.add_equation('dz(d_T_hat_imag)-(w_hat_imag*dy_T_mean+(kx*kx+ky*ky)*T_hat_imag)-kx*U*T_hat_real+eta*d_T_hat_real=w_hat_imag*d_T_0')
+                problem.add_equation('dz(S_hat_imag)-d_S_hat_imag+eta*S_hat_real=0')
+                problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-kx*U*S_hat_real/tau+eta*d_S_hat_real=1/tau*(w_hat_imag*d_S_0)')   
                 
                 
                 problem.add_equation('dz(T_0)-d_T_0=0')
@@ -689,7 +689,11 @@ class flag(object):
                 #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 print("Periodic B.C. for S")
         
-            
+            if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
+                problem.add_bc("left(p_hat_imag)=0")
+            else:
+                problem.add_bc("left(w_hat_imag)=0")
+        
             
             #The bottom block is the old version that try to implement the second harmonic and the periodic B.C.... but both of them seems not working very well.
             #Here, try to add the second harmonic and the periodic B.C., 2021/11/28

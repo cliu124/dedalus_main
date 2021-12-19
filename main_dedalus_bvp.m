@@ -12,7 +12,7 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='wen_chini_2D';
+group_name='HB_porous_Nu_kx_Ra';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -44,6 +44,17 @@ switch group_name
     case 'HB_porous_kx'
         slurm_num={'12761570'}%,...%This is continued from 12639319
                    %'12761797'}; %This is continued from the previous case. 
+    case 'HB_porous_Nu_kx_Ra'
+        slurm_num={'12784649',...
+                    '12784650',...
+                    '12784652',...
+                    '12784653',...
+                    '12784654',...
+                    '12784655',...
+                    '12784656',...
+                    '12784658',...
+                    '12784660',...
+                    '12784661'};
     case 'hewitt_2D'
         slurm_num={'12687510',
                     '12687731',
@@ -80,16 +91,7 @@ switch group_name
                 }
 
     case 'test'
-        slurm_num={'12784649',...
-                    '12784650',...
-                    '12784652',...
-                    '12784653',...
-                    '12784654',...
-                    '12784655',...
-                    '12784656',...
-                    '12784658',...
-                    '12784660',...
-                    '12784661'};
+       
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
                 %'12760763',
@@ -99,8 +101,8 @@ switch group_name
         
 end
 
-flag.print=1;
-flag.visible=1;
+flag.print=0;
+flag.visible=0;
 flag.video=0;
 for slurm_ind=1:length(slurm_num)
     content=dir(['C:\Data\dedalus\dedalus_',...
@@ -154,7 +156,10 @@ for slurm_ind=1:length(slurm_num)
                 case 'HB_porous_kx'
                     data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
                     data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
-               
+%                 case 'HB_porous_Nu_kx_Ra'
+%                     data_Nu{1}.x()=dedalus_post_my{slurm_ind,content_ind}.kx;
+%                     data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
+%                     data_Nu{1}.z=
             end
         end
     end
