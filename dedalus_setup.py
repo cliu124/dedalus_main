@@ -538,7 +538,7 @@ class flag(object):
                     problem = de.NLBVP(domain, variables=[\
                         'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real','S_hat_real','d_S_hat_real', \
                         'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag','S_hat_imag','d_S_hat_imag', \
-                            'T_0','d_T_0','S_0','d_S_0','eta','int_phase_cond'])
+                            'T_0','d_T_0','S_0','d_S_0','eta'])
                     problem.meta['eta']['z']['constant'] = True
 
                 elif self.problem == 'IVP':
@@ -581,9 +581,9 @@ class flag(object):
                 problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*(p_hat_real*S_hat_real+p_hat_imag*S_hat_imag)+2*(w_hat_real*d_S_hat_real+w_hat_imag*d_S_hat_imag) )')
 
                 #integration of phase condition                
-                problem.add_equation('dz(int_phase_cond)-w_hat_imag=0')
-                problem.add_bc("left(int_phase_cond)=0")
-                problem.add_bc("right(int_phase_cond)=0")
+                # problem.add_equation('dz(int_phase_cond)-w_hat_imag=0')
+                # problem.add_bc("left(int_phase_cond)=0")
+                # problem.add_bc("right(int_phase_cond)=0")
                 
             #Setup the B.C. update 2021/11/29...
             if self.z_bc_w_left=='dirichlet':
@@ -696,10 +696,10 @@ class flag(object):
                 #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 print("Periodic B.C. for S")
         
-            # if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
-            #     problem.add_bc("left(p_hat_imag)=0")
-            # else:
-            #     problem.add_bc("left(w_hat_imag)=0")
+            if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
+                problem.add_bc("left(p_hat_imag)=0")
+            else:
+                problem.add_bc("left(w_hat_imag)=0")
         
             
             #The bottom block is the old version that try to implement the second harmonic and the periodic B.C.... but both of them seems not working very well.
@@ -1241,7 +1241,7 @@ class flag(object):
                      'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real', \
                      'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag', \
                     'S_hat_real','d_S_hat_real','S_hat_imag','d_S_hat_imag', \
-                        'T_0','d_T_0','S_0','d_S_0','eta','int_phase_cond'])
+                        'T_0','d_T_0','S_0','d_S_0','eta'])
                 problem.meta['eta']['z']['constant'] = True
 
             elif self.problem == 'IVP':
@@ -1458,10 +1458,10 @@ class flag(object):
                 problem.add_bc("right(d_v_tilde_imag)=0")
                 print("Neumann for u,v right")
             
-            # if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
-            #     problem.add_bc("left(p_hat_imag)=0")
-            # else:
-            #     problem.add_bc("left(w_hat_imag)=0")
+            if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
+                problem.add_bc("left(p_hat_imag)=0")
+            else:
+                problem.add_bc("left(w_hat_imag)=0")
             
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
