@@ -1315,10 +1315,10 @@ class flag(object):
                 #else:
                 #    print("Wrong flag of F_sin.")
 
-                #integral of the phase condition
-                problem.add_equation('dz(int_phase_cond)-w_hat_imag=0')
-                problem.add_bc('left(int_phase_cond)=0')
-                problem.add_bc('right(int_phase_cond)=0')
+                # #integral of the phase condition
+                # problem.add_equation('dz(int_phase_cond)-w_hat_imag=0')
+                # problem.add_bc('left(int_phase_cond)=0')
+                # problem.add_bc('right(int_phase_cond)=0')
                 
             elif self.problem=='IVP':
                 problem.add_equation('dz(u_tilde)-d_u_tilde=0')
