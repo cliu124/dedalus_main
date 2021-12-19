@@ -581,7 +581,7 @@ class flag(object):
                 problem.add_equation('dz(int_phase_cond)-w_hat_imag=0')
             
             problem.add_bc("left(int_phase_cond)=0")
-            problem.add_bc("right(int_phase_cond=0")
+            problem.add_bc("right(int_phase_cond)=0")
             
             #Setup the B.C. update 2021/11/29...
             if self.z_bc_w_left=='dirichlet':
