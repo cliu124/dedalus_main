@@ -538,7 +538,7 @@ class flag(object):
                     problem = de.NLBVP(domain, variables=[\
                         'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real','S_hat_real','d_S_hat_real', \
                         'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag','S_hat_imag','d_S_hat_imag', \
-                            'T_0','d_T_0','S_0','d_S_0','eta'])
+                            'T_0','d_T_0','S_0','d_S_0','eta','int_phase_cond'])
                     problem.meta['eta']['z']['constant'] = True
 
                 elif self.problem == 'IVP':
