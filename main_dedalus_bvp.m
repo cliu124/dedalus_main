@@ -12,7 +12,8 @@ close all;
 %     '12635575',
 %     '12639413'};
 
-group_name='HB_porous_Nu_kx_Ra';
+% group_name='HB_porous_Nu_kx_Ra';
+group_name='test';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -91,7 +92,7 @@ switch group_name
                 }
 
     case 'test'
-       
+        slurm_num={'12804512'};
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
                 %'12760763',
