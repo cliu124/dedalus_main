@@ -538,7 +538,7 @@ class flag(object):
                     problem = de.NLBVP(domain, variables=[\
                         'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real','S_hat_real','d_S_hat_real', \
                         'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag','S_hat_imag','d_S_hat_imag', \
-                            'T_0','d_T_0','S_0','d_S_0','eta'])
+                            'T_0','d_T_0','S_0','d_S_0','eta','int_phase_cond'])
                 elif self.problem == 'IVP':
                     problem = de.IVP(domain, variables=[\
                         'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
@@ -577,6 +577,11 @@ class flag(object):
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*(p_hat_real*T_hat_real+p_hat_imag*T_hat_imag)+2*(w_hat_real*d_T_hat_real+w_hat_imag*d_T_hat_imag)')
                 problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*(p_hat_real*S_hat_real+p_hat_imag*S_hat_imag)+2*(w_hat_real*d_S_hat_real+w_hat_imag*d_S_hat_imag) )')
+                
+                problem.add_equation('dz(int_phase_cond)-w_hat_imag=0')
+            
+            problem.add_bc("left(int_phase_cond)=0")
+            problem.add_bc("right(int_phase_cond=0")
             
             #Setup the B.C. update 2021/11/29...
             if self.z_bc_w_left=='dirichlet':
@@ -689,10 +694,10 @@ class flag(object):
                 #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 print("Periodic B.C. for S")
         
-            if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
-                problem.add_bc("left(p_hat_imag)=0")
-            else:
-                problem.add_bc("left(w_hat_imag)=0")
+            # if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
+            #     problem.add_bc("left(p_hat_imag)=0")
+            # else:
+            #     problem.add_bc("left(w_hat_imag)=0")
         
             
             #The bottom block is the old version that try to implement the second harmonic and the periodic B.C.... but both of them seems not working very well.
