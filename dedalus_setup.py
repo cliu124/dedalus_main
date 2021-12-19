@@ -105,7 +105,7 @@ class flag(object):
         self.initial_dt=0.01#initial time step.
         self.continuation=0 #if yes, use the existing data to continue the next computation
     
-        self.IBM_A=10000
+        self.IBM_A=0
         self.IBM_z0=1/2
         self.IBM_sigma=0.0001
         self.HB_porous_shear_phi=0
@@ -1262,9 +1262,9 @@ class flag(object):
             problem.parameters['Pe_S']=self.Pe_S
             problem.parameters['ks']=self.ks
             #problem.parameters['j']=1j
-            problem.parameters['z0']=self.IBM_z0
-            problem.parameters['sigma']=self.IBM_sigma
-            problem.parameters['A']=self.IBM_A
+            #problem.parameters['z0']=self.IBM_z0
+            #problem.parameters['sigma']=self.IBM_sigma
+            #problem.parameters['A']=self.IBM_A
             if self.F_sin=='z':
                 print('Couette shear')
             else:
@@ -1458,11 +1458,13 @@ class flag(object):
                 problem.add_bc("right(d_v_tilde_imag)=0")
                 print("Neumann for u,v right")
             
-            if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
-                problem.add_bc("left(p_hat_imag)=0")
-            else:
-                problem.add_bc("left(w_hat_imag)=0")
+            # if self.z_bc_w_left=='dirichlet' and self.z_bc_w_right=='dirichlet':
+            #     problem.add_bc("left(p_hat_imag)=0")
+            # else:
+            #     problem.add_bc("left(w_hat_imag)=0")
             
+            problem.add_bc("left(p_hat_imag)=0")
+
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
         elif self.flow=='test_periodic':
