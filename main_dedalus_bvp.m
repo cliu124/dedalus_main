@@ -92,7 +92,7 @@ switch group_name
                 }
 
     case 'test'
-        slurm_num={'12804512'};
+        slurm_num={'12804578'};
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
                 %'12760763',

@@ -2007,14 +2007,14 @@ class flag(object):
                 logger.info('S_0 norm: {}'.format(np.sum(np.abs(solver.state['S_0']['g']))))
                 if self.flow in ['HB_porous','HB_benard']:
                     logger.info('w_hat norm: {}'.format(np.sum(np.abs(solver.state['w_hat']['g']))))
-                elif self.flow in ['HB_benard_shear']:
+                elif self.flow in ['HB_benard_shear','HB_porous_shear']:
                     logger.info('w_hat_real norm: {}'.format(np.sum(np.abs(solver.state['w_hat_real']['g']))))
                     logger.info('w_hat_imag norm: {}'.format(np.sum(np.abs(solver.state['w_hat_imag']['g']))))
                     logger.info('T_hat_real norm: {}'.format(np.sum(np.abs(solver.state['T_hat_real']['g']))))
                     logger.info('T_hat_imag norm: {}'.format(np.sum(np.abs(solver.state['T_hat_imag']['g']))))
                     logger.info('S_hat_real norm: {}'.format(np.sum(np.abs(solver.state['S_hat_real']['g']))))
                     logger.info('S_hat_imag norm: {}'.format(np.sum(np.abs(solver.state['S_hat_imag']['g']))))
-
+                    logger.info('eta: {}'.format(solver.state['eta']['g']))
                 #logger.info('R iterate: {}'.format(R['g'][0]))
             end_time = time.time()
              
