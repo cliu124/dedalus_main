@@ -119,11 +119,11 @@ elif flag.flow in ['HB_benard_shear']:
     Pe=100
     Ri=10
     flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
-    flag.Ra_S2T=0
+    #flag.Ra_S2T=0
     
-    # flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.kx=2*np.pi/64
-    # flag.F_sin=1
+    flag.F_sin=1
     # flag.ks=2*np.pi
     # flag.HB_porous_shear_phi=0
 
@@ -146,14 +146,14 @@ elif flag.flow in ['HB_benard_shear']:
     #flag.kx=1
     flag.ky=0
     flag.problem='BVP'
-    flag.z_bc_T_left='dirichlet'
-    flag.z_bc_T_right='dirichlet'
-    flag.z_bc_S_left='dirichlet'
-    flag.z_bc_S_right='dirichlet'
-    flag.z_bc_w_left='dirichlet'
-    flag.z_bc_w_right='dirichlet'
-    flag.z_bc_u_v_left='neumann'
-    flag.z_bc_u_v_right='neumann'
+    flag.z_bc_T_left='periodic'
+    flag.z_bc_T_right='periodic'
+    flag.z_bc_S_left='periodic'
+    flag.z_bc_S_right='periodic'
+    flag.z_bc_w_left='periodic'
+    flag.z_bc_w_right='periodic'
+    flag.z_bc_u_v_left='periodic'
+    flag.z_bc_u_v_right='periodic'
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_elevator_imag=0#flag.A_elevator
     
@@ -428,7 +428,7 @@ flag.stop_sim_time=20;
 #np.linspace(0,20000,21)
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[1]
+Pe_list=[100]
 for Pe in Pe_list:
     flag.Pe_T=Pe
     flag.Pe_S=Pe
