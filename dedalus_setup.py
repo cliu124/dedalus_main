@@ -1644,7 +1644,7 @@ class flag(object):
     def initial_condition(self,domain,solver):
         #This function setup the initial condition for IVP and intitial guess for BVP
         
-        if not pathlib.Path('restart.h5').exists():
+        if not pathlib.Path('restart.h5').exists() and flag.problem != 'EVP':
             print('setup initial condition')
             #This initial condition also need to be modified
             if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
