@@ -14,7 +14,7 @@ mean_kolmogorov=[1,2*pi];
 Lz=1;
 mean='kolmogorov';
 operator='uvwpTS';
-Ny_full=62; %This needs to be 92 for high Pe, other case 62 or 32 is enough
+Ny_full=92; %This needs to be 92 for high Pe, other case 62 or 32 is enough
 %Up to 0.3 and 0.4 for the Pe=100, Ri=10
 %Up to 0.5 and 0.8 for the Pe=100, Ri=1 
 %Up to 3.5 and 1.5 for the Pe=10^4, R1
