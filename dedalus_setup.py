@@ -148,7 +148,10 @@ class flag(object):
                 domain = de.Domain([z_basis],grid_dtype=np.complex128) 
         elif self.flow in ['HB_porous_shear','HB_benard_shear']:
             z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
-            domain = de.Domain([z_basis],grid_dtype=np.float64) 
+            if self.problem == 'EVP':
+                domain = de.Domain([z_basis],grid_dtype=np.complex128) 
+            else:
+                domain = de.Domain([z_basis],grid_dtype=np.float64) 
 
         return domain
 
@@ -1249,7 +1252,13 @@ class flag(object):
                     ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
                     'w_hat','p_hat','T_hat','d_T_hat', \
                     'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
-                    
+            elif self.problem == 'EVP': 
+                problem = de.EVP(domain, variables=\
+                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat'],eigenvalue='lambda')
+            
+                
             problem.parameters['Pr'] = self.Pr 
             problem.parameters['Ra_T'] = self.Ra_T
             problem.parameters['Ra_S2T'] = self.Ra_S2T
@@ -1320,6 +1329,8 @@ class flag(object):
                 # problem.add_bc('left(int_phase_cond)=0')
                 # problem.add_bc('right(int_phase_cond)=0')
                 
+                problem.add_bc("left(p_hat_imag)=0")
+
             elif self.problem=='IVP':
                 problem.add_equation('dz(u_tilde)-d_u_tilde=0')
                 problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
@@ -1335,6 +1346,27 @@ class flag(object):
                 problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+            
+            elif self.problem =='EVP':
+                #real
+                problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                problem.add_equation('dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                problem.add_equation('dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                problem.add_equation('dz(T_hat)-d_T_hat=0')
+                problem.add_equation('dz(S_hat)-d_S_hat=0')
+                
+                #coupling between real and imag due to shear
+                if self.F_sin=='z':
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-1j*Pe_T*kx*(z-1/2)*T_hat-lambda*T_hat=0')
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-1j*Pe_S/tau*kx*(z-1/2)*S_hat-lambda*S_hat=0')   
+                else:
+                    print(self.F_sin)
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-1j*Pe_T*kx*F_sin*sin(ks*z)*T_hat-lambda*T_hat=0')
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-1j*Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat-lambda*S_hat=0')   
+              
             
             if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
                 problem.add_bc("left(w_hat_real)-right(w_hat_real)=0")
@@ -1463,7 +1495,6 @@ class flag(object):
             # else:
             #     problem.add_bc("left(w_hat_imag)=0")
             
-            problem.add_bc("left(p_hat_imag)=0")
 
             #elif self.z_bc_u_v =='periodic':
                 #need to to nothing for periodic BC. but change the basis as Fourier at the beginning    
@@ -2019,8 +2050,21 @@ class flag(object):
                     logger.info('eta: {}'.format(solver.state['eta']['g']))
                 #logger.info('R iterate: {}'.format(R['g'][0]))
             end_time = time.time()
-             
-        
+        elif self.problem=='EVP':
+            logger.info('Computing max growth rate')
+            solver.solve_dense(solver.pencils[0])
+            
+            # Filter infinite/nan eigenmodes
+            finite = np.isfinite(solver.eigenvalues)
+            solver.eigenvalues = solver.eigenvalues[finite]
+            solver.eigenvectors = solver.eigenvectors[:, finite]
+               
+            # Sort eigenmodes by eigenvalue
+            order = np.argsort(solver.eigenvalues)
+            solver.eigenvalues = solver.eigenvalues[order]
+            solver.eigenvectors = solver.eigenvectors[:, order]
+            logger.info(np.max(solver.eigenvalues))
+            
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
         if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
@@ -2066,4 +2110,5 @@ class flag(object):
             #Here is the place to output the post-processing of BVP
             solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
-                  
+        elif self.problem =='EVP':
+            post.merge_process_files('analysis',cleanup=True)
