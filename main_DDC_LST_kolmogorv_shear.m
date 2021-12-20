@@ -4,9 +4,9 @@ clc;
 
 %------setup the main parameter for running
 Pr=10;
-Pe=100;
+Pe=1;
 tau=0.01;
-R_rho_T2S=0.5;
+R_rho_T2S=0.99;
 Ri=1;
 dy_T_mean=-1;
 dy_S_mean=-1;
