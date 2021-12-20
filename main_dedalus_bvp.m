@@ -92,7 +92,7 @@ switch group_name
                 }
 
     case 'test'
-        slurm_num={'12805570'};
+        slurm_num={'12805624'};
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
                 %'12760763',
@@ -102,8 +102,8 @@ switch group_name
         
 end
 
-flag.print=0;
-flag.visible=0;
+flag.print=1;
+flag.visible=1;
 flag.video=0;
 for slurm_ind=1:length(slurm_num)
     content=dir(['C:\Data\dedalus\dedalus_',...

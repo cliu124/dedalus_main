@@ -564,19 +564,19 @@ class flag(object):
                 #variable with _hat is the harmonic term
                 #variable with _0 is the horizontal average term
                 problem.substitutions["U"] = "Ra_T*sin(phi)*(1/2+dy_T_mean*z)-Ra_S2T*sin(phi)*(1/2+dy_S_mean*z)"
-                problem.add_equation('dz(w_hat_real)-(-(kx*kx+ky*ky)*p_hat_real)=eta*w_hat_imag')
-                problem.add_equation('dz(p_hat_real)-(-w_hat_real+Ra_T*cos(phi)*T_hat_real-Ra_S2T*cos(phi)*S_hat_real)=eta*p_hat_imag')
-                problem.add_equation('dz(T_hat_real)-d_T_hat_real=eta*T_hat_imag')
-                problem.add_equation('dz(d_T_hat_real)-(w_hat_real*dy_T_mean+(kx*kx+ky*ky)*T_hat_real)+kx*U*T_hat_imag=w_hat_real*d_T_0+eta*d_T_hat_imag')
-                problem.add_equation('dz(S_hat_real)-d_S_hat_real=eta*S_hat_imag')
-                problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+kx*U*S_hat_imag/tau=1/tau*(w_hat_real*d_S_0)+eta*d_S_hat_imag')   
+                problem.add_equation('dz(w_hat_real)-(-(kx*kx+ky*ky)*p_hat_real)=0')
+                problem.add_equation('dz(p_hat_real)-(-w_hat_real+Ra_T*cos(phi)*T_hat_real-Ra_S2T*cos(phi)*S_hat_real)=0')
+                problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
+                problem.add_equation('dz(d_T_hat_real)-(w_hat_real*dy_T_mean+(kx*kx+ky*ky)*T_hat_real)+kx*U*T_hat_imag=w_hat_real*d_T_0-eta*T_hat_imag')
+                problem.add_equation('dz(S_hat_real)-d_S_hat_real=0')
+                problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+kx*U*S_hat_imag/tau=1/tau*(w_hat_real*d_S_0)-eta/tau*S_hat_imag')   
                 
-                problem.add_equation('dz(w_hat_imag)-(-(kx*kx+ky*ky)*p_hat_imag)=-eta*w_hat_real')
-                problem.add_equation('dz(p_hat_imag)-(-w_hat_imag+Ra_T*cos(phi)*T_hat_imag-Ra_S2T*cos(phi)*S_hat_imag)=-eta*p_hat_real')
-                problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=-eta*T_hat_real')
-                problem.add_equation('dz(d_T_hat_imag)-(w_hat_imag*dy_T_mean+(kx*kx+ky*ky)*T_hat_imag)-kx*U*T_hat_real=w_hat_imag*d_T_0-eta*d_T_hat_real')
-                problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=-eta*S_hat_real')
-                problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-kx*U*S_hat_real/tau=1/tau*(w_hat_imag*d_S_0)-eta*d_S_hat_real')   
+                problem.add_equation('dz(w_hat_imag)-(-(kx*kx+ky*ky)*p_hat_imag)=0')
+                problem.add_equation('dz(p_hat_imag)-(-w_hat_imag+Ra_T*cos(phi)*T_hat_imag-Ra_S2T*cos(phi)*S_hat_imag)=0')
+                problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
+                problem.add_equation('dz(d_T_hat_imag)-(w_hat_imag*dy_T_mean+(kx*kx+ky*ky)*T_hat_imag)-kx*U*T_hat_real=w_hat_imag*d_T_0+eta*T_hat_real')
+                problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
+                problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-kx*U*S_hat_real/tau=1/tau*(w_hat_imag*d_S_0)+eta/tau*S_hat_real')   
                 
                 
                 problem.add_equation('dz(T_0)-d_T_0=0')
@@ -1312,16 +1312,16 @@ class flag(object):
 
                 #coupling between real and imag due to shear
                 if self.F_sin=='z':
-                    problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*(z-1/2)*T_hat_imag=Pe_T*w_hat_real*d_T_0-eta*d_T_hat_imag')
-                    problem.add_equation('dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*(z-1/2)*T_hat_real=Pe_T*w_hat_imag*d_T_0+eta*d_T_hat_real')
-                    problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)-eta/tau*d_S_hat_imag')   
-                    problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)+eta/tau*d_S_hat_real')   
+                    problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*(z-1/2)*T_hat_imag=Pe_T*w_hat_real*d_T_0-eta*T_hat_imag')
+                    problem.add_equation('dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*(z-1/2)*T_hat_real=Pe_T*w_hat_imag*d_T_0+eta*T_hat_real')
+                    problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)-eta/tau*S_hat_imag')   
+                    problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)+eta/tau*S_hat_real')   
                 else:
                     print(self.F_sin)
-                    problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*F_sin*sin(ks*z)*T_hat_imag=Pe_T*w_hat_real*d_T_0-eta*d_T_hat_imag')
-                    problem.add_equation('dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*F_sin*sin(ks*z)*T_hat_real=Pe_T*w_hat_imag*d_T_0+eta*d_T_hat_real')
-                    problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)-eta/tau*d_S_hat_imag')   
-                    problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)+eta/tau*d_S_hat_real')   
+                    problem.add_equation('dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*F_sin*sin(ks*z)*T_hat_imag=Pe_T*w_hat_real*d_T_0-eta*T_hat_imag')
+                    problem.add_equation('dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*F_sin*sin(ks*z)*T_hat_real=Pe_T*w_hat_imag*d_T_0+eta*T_hat_real')
+                    problem.add_equation('dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)-eta/tau*S_hat_imag')   
+                    problem.add_equation('dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)+eta/tau*S_hat_real')   
                 #else:
                 #    print("Wrong flag of F_sin.")
 

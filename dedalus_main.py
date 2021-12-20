@@ -428,10 +428,12 @@ flag.stop_sim_time=20;
 #np.linspace(0,20000,21)
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[100]
-for Pe in Pe_list:
-    flag.Pe_T=Pe
-    flag.Pe_S=Pe
+#Pe_list=[100]
+#for Pe in Pe_list:
+#    flag.Pe_T=Pe
+#    flag.Pe_S=Pe
+F_sin_list=np.linspace(0.1,1,19)
+for flag.F_sin in F_sin_list:
     #flag.kx=0.48*flag.Ra_T**0.4 #2D
     #flag.kx=0.17*flag.Ra_T**0.52 #3D
     flag.ky=0
