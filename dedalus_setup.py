@@ -1484,21 +1484,21 @@ class flag(object):
                 problem.add_equation('dz(S_hat)-d_S_hat=0')
                 
                 #coupling between real and imag due to shear
-                # if self.F_sin=='z':
-                #     problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-1j*Pe_T*kx*(z-1/2)*T_hat-Pe_T*eig_val*T_hat=0')
-                #     problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-1j*Pe_S/tau*kx*(z-1/2)*S_hat-Pe_S*eig_val*S_hat=0')   
-                # else:
-                #     print(self.F_sin)
-                #     problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-1j*Pe_T*kx*F_sin*sin(ks*z)*T_hat-Pe_T*eig_val*T_hat=0')
-                #     problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-1j*Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat-Pe_S*eig_val*S_hat=0')   
-                
                 if self.F_sin=='z':
-                    problem.add_equation('dz(d_T_hat)/Pe_T-w_hat*dy_T_mean/Pe_T-(kx*kx+ky*ky)*T_hat/Pe_T-1j*kx*(z-1/2)*T_hat-eig_val*T_hat=0')
-                    problem.add_equation('dz(d_S_hat)/Pe_S-1/tau*w_hat*dy_S_mean/Pe_S-(kx*kx+ky*ky)*S_hat/Pe_S-1j/tau*kx*(z-1/2)*S_hat-eig_val*S_hat=0')   
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-1j*Pe_T*kx*(z-1/2)*T_hat-Pe_T*eig_val*T_hat=0')
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-1j*Pe_S/tau*kx*(z-1/2)*S_hat-Pe_S*eig_val*S_hat=0')   
                 else:
                     print(self.F_sin)
-                    problem.add_equation('dz(d_T_hat)/Pe_T-w_hat*dy_T_mean/Pe_T-(kx*kx+ky*ky)*T_hat/Pe_T-1j*kx*F_sin*sin(ks*z)*T_hat-eig_val*T_hat=0')
-                    problem.add_equation('dz(d_S_hat)/Pe_S-1/tau*w_hat*dy_S_mean/Pe_S-(kx*kx+ky*ky)*S_hat/Pe_S-1j/tau*kx*F_sin*sin(ks*z)*S_hat-eig_val*S_hat=0')   
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-1j*Pe_T*kx*F_sin*sin(ks*z)*T_hat-Pe_T*eig_val*T_hat=0')
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-1j*Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat-Pe_S*eig_val*S_hat=0')   
+                
+                # if self.F_sin=='z':
+                #     problem.add_equation('dz(d_T_hat)/Pe_T-w_hat*dy_T_mean/Pe_T-(kx*kx+ky*ky)*T_hat/Pe_T-1j*kx*(z-1/2)*T_hat-eig_val*T_hat=0')
+                #     problem.add_equation('dz(d_S_hat)/Pe_S-1/tau*w_hat*dy_S_mean/Pe_S-(kx*kx+ky*ky)*S_hat/Pe_S-1j/tau*kx*(z-1/2)*S_hat-eig_val*S_hat=0')   
+                # else:
+                #     print(self.F_sin)
+                #     problem.add_equation('dz(d_T_hat)/Pe_T-w_hat*dy_T_mean/Pe_T-(kx*kx+ky*ky)*T_hat/Pe_T-1j*kx*F_sin*sin(ks*z)*T_hat-eig_val*T_hat=0')
+                #     problem.add_equation('dz(d_S_hat)/Pe_S-1/tau*w_hat*dy_S_mean/Pe_S-(kx*kx+ky*ky)*S_hat/Pe_S-1j/tau*kx*F_sin*sin(ks*z)*S_hat-eig_val*S_hat=0')   
                 
                 
                 if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
@@ -2161,7 +2161,8 @@ class flag(object):
             order = np.argsort(solver.eigenvalues)
             solver.eigenvalues = solver.eigenvalues[order]
             solver.eigenvectors = solver.eigenvectors[:, order]
-            logger.info(np.max(solver.eigenvalues))
+            logger.info(np.max(np.real(solver.eigenvalues)))
+            logger.info(solver.eigenvalues)
             
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
