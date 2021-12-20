@@ -1643,82 +1643,141 @@ class flag(object):
 
     def initial_condition(self,domain,solver):
         #This function setup the initial condition for IVP and intitial guess for BVP
-        
-        if not pathlib.Path('restart.h5').exists() and self.problem != 'EVP':
-            print('setup initial condition')
-            #This initial condition also need to be modified
-            if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
-        
-                x = domain.grid(0)
-                z = domain.grid(1)
-                u = solver.state['u']
-                w = solver.state['w']
-                S = solver.state['S']
-                p = solver.state['p']
-                T = solver.state['T']
+        if self.problem == 'EVP':
+            print('Solving eigenvalue problem, no need for initial condition or initial guess')
+        else:  
+            if not pathlib.Path('restart.h5').exists():
+                print('setup initial condition')
+                #This initial condition also need to be modified
+                if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
+            
+                    x = domain.grid(0)
+                    z = domain.grid(1)
+                    u = solver.state['u']
+                    w = solver.state['w']
+                    S = solver.state['S']
+                    p = solver.state['p']
+                    T = solver.state['T']
+                    
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
+                    
+                    ##Add the random noise
+                    u0=self.A_noise*noise
+                    w0=self.A_noise*noise
+                    S0=self.A_noise*noise
+                    T0=self.A_noise*noise
+                    p0=self.A_noise*noise
+                    #Add the background shear
+                    u0 = u0+ self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
+                        + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
+                        + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
+                        + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
+                    
+                    #Compute the eigenvalue problem of elevator mode and add the elevator mode into initial condition
+                    if self.flow=='IFSC_2D':
+                        k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
+            
+                        w0 =w0 +self.A_elevator*np.sin(k_opt*x)
+              
+                        S0 =S0 -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+                        T0 =T0 -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
+                    elif self.flow in ['double_diffusive_2D']:
+                        k2=self.k_elevator**2
+                        
+                        #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
+                        #This should work for both finger regime and diffusive regime..
+                        A=[[-k2*self.Pr, self.Pr, -self.Pr/self.R_rho_T2S],
+                            [-self.dy_T_mean, -k2, 0],
+                            [-self.dy_S_mean, 0, -self.tau*k2]];
+                        #Compute eigenvalue and eigenvector of 
+                        
+                        eig_val,eig_vec=linalg.eig(A) #use linear algebra package to compute eigenvalue
+                        eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
+                        eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
+                        
+                        self.lambda_elevator=eig_val[eig_val_max_ind]
+                        w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                        T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
+                        S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
+                        #print(w0)
+                        ##This is sample code to setup the initial condition as whatever I want...
+                        #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
+                        #S['g']=S0[slices]
+                    elif self.flow in ['double_diffusive_shear_2D']:
+                        k2=self.k_elevator**2
+                        
+                        #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
+                        #This should work for both finger regime and diffusive regime..
+                        #This is the eigenvalue problem only for no shear case....
+                        A=[[-k2, self.Ra_T, -self.Ra_S2T],
+                            [-self.dy_T_mean, -k2, 0],
+                            [-self.dy_S_mean, 0, -self.tau*k2]]
+                        B=[[self.Re, 0,0],
+                           [0,self.Pe_T, 0],
+                           [0,0,self.Pe_S]];
+                        #Compute eigenvalue and eigenvector of 
+                        
+                        #Update 2021/10/05, use the scipy package of the linalg. This can also solve the generalized eigenvalue problem
+                        eig_val,eig_vec=linalg.eig(A,B) #use linear algebra package to compute eigenvalue
+                        eig_val[np.isinf(eig_val)]=-np.inf
+                        eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
+                        eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
+                        
+                        self.lambda_elevator=eig_val[eig_val_max_ind]
+                        w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
+                        T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
+                        S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
+                        #print(w0)
+                        ##This is sample code to setup the initial condition as whatever I want...
+                        #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
+                        #S['g']=S0[slices]
+                    
+                    #superpose the field of secondary mode that has variation in vertical direction
+                    #Right now just superpose a simple one...
+                    
+                    #u0 =u0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z))
+                    #w0 =w0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z)) #set the results weighted by the corresponding eigenvector 
+                    T0 =T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
+                    S0 =S0 + self.A_secondary_S*np.real(np.exp(1j*self.k_secondary*z))
+                        
+                    
+                    u['g']=u0
+                    w['g']=w0
+                    T['g']=T0
+                    S['g']=S0
+                    p['g']=p0
                 
-                gshape = domain.dist.grid_layout.global_shape(scales=1)
-                slices = domain.dist.grid_layout.slices(scales=1)
-                rand = np.random.RandomState(seed=23)
-                noise = rand.standard_normal(gshape)[slices]
-                
-                ##Add the random noise
-                u0=self.A_noise*noise
-                w0=self.A_noise*noise
-                S0=self.A_noise*noise
-                T0=self.A_noise*noise
-                p0=self.A_noise*noise
-                #Add the background shear
-                u0 = u0+ self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
-                    + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
-                    + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
-                    + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
-                
-                #Compute the eigenvalue problem of elevator mode and add the elevator mode into initial condition
-                if self.flow=='IFSC_2D':
-                    k_opt=(1/2*(-2-self.Ra_ratio+np.sqrt(self.Ra_ratio**2+8*self.Ra_ratio)))**(1/4)
-        
-                    w0 =w0 +self.A_elevator*np.sin(k_opt*x)
-          
-                    S0 =S0 -1/self.Ra_ratio*(k_opt**2+1/k_opt**2)*self.A_elevator*np.sin(k_opt*x)
-                    T0 =T0 -1/(k_opt**2)*self.A_elevator*np.sin(k_opt*x)
-                elif self.flow in ['double_diffusive_2D']:
+                elif self.flow in ['porous_media_2D']:
+                    #not fully benchmarked!!
+                    x = domain.grid(0)
+                    z = domain.grid(1)
+                    u = solver.state['u']
+                    w = solver.state['w']
+                    p = solver.state['p']
+                    T = solver.state['T']
+                    
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
+                    
+                    ##Add the random noise
+                    u0=self.A_noise*noise
+                    w0=self.A_noise*noise
+                    T0=self.A_noise*noise
+                    p0=self.A_noise*noise
+                    
                     k2=self.k_elevator**2
+                        
+                    #The matrix to compute the eigenvalue of the porous media convection...
+                    A=[[-1, self.Ra_T],
+                        [1, -k2] ]
+                    B=[[0, 0],
+                       [0, 1]];
                     
-                    #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
-                    #This should work for both finger regime and diffusive regime..
-                    A=[[-k2*self.Pr, self.Pr, -self.Pr/self.R_rho_T2S],
-                        [-self.dy_T_mean, -k2, 0],
-                        [-self.dy_S_mean, 0, -self.tau*k2]];
-                    #Compute eigenvalue and eigenvector of 
-                    
-                    eig_val,eig_vec=linalg.eig(A) #use linear algebra package to compute eigenvalue
-                    eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
-                    eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
-                    
-                    self.lambda_elevator=eig_val[eig_val_max_ind]
-                    w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
-                    T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
-                    S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
-                    #print(w0)
-                    ##This is sample code to setup the initial condition as whatever I want...
-                    #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
-                    #S['g']=S0[slices]
-                elif self.flow in ['double_diffusive_shear_2D']:
-                    k2=self.k_elevator**2
-                    
-                    #This A is the linear system for the eigenvalue problem... We already take the elevator mode, so that k_y=0 (vertical wavenumber)
-                    #This should work for both finger regime and diffusive regime..
-                    #This is the eigenvalue problem only for no shear case....
-                    A=[[-k2, self.Ra_T, -self.Ra_S2T],
-                        [-self.dy_T_mean, -k2, 0],
-                        [-self.dy_S_mean, 0, -self.tau*k2]]
-                    B=[[self.Re, 0,0],
-                       [0,self.Pe_T, 0],
-                       [0,0,self.Pe_S]];
-                    #Compute eigenvalue and eigenvector of 
-                    
-                    #Update 2021/10/05, use the scipy package of the linalg. This can also solve the generalized eigenvalue problem
                     eig_val,eig_vec=linalg.eig(A,B) #use linear algebra package to compute eigenvalue
                     eig_val[np.isinf(eig_val)]=-np.inf
                     eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
@@ -1727,353 +1786,296 @@ class flag(object):
                     self.lambda_elevator=eig_val[eig_val_max_ind]
                     w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
                     T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
-                    S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
-                    #print(w0)
-                    ##This is sample code to setup the initial condition as whatever I want...
-                    #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
-                    #S['g']=S0[slices]
-                
-                #superpose the field of secondary mode that has variation in vertical direction
-                #Right now just superpose a simple one...
-                
-                #u0 =u0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z))
-                #w0 =w0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z)) #set the results weighted by the corresponding eigenvector 
-                T0 =T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
-                S0 =S0 + self.A_secondary_S*np.real(np.exp(1j*self.k_secondary*z))
                     
-                
-                u['g']=u0
-                w['g']=w0
-                T['g']=T0
-                S['g']=S0
-                p['g']=p0
-            
-            elif self.flow in ['porous_media_2D']:
-                #not fully benchmarked!!
-                x = domain.grid(0)
-                z = domain.grid(1)
-                u = solver.state['u']
-                w = solver.state['w']
-                p = solver.state['p']
-                T = solver.state['T']
-                
-                gshape = domain.dist.grid_layout.global_shape(scales=1)
-                slices = domain.dist.grid_layout.slices(scales=1)
-                rand = np.random.RandomState(seed=23)
-                noise = rand.standard_normal(gshape)[slices]
-                
-                ##Add the random noise
-                u0=self.A_noise*noise
-                w0=self.A_noise*noise
-                T0=self.A_noise*noise
-                p0=self.A_noise*noise
-                
-                k2=self.k_elevator**2
+                    T0 =T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
+    
+                    u['g']=u0
+                    w['g']=w0
+                    T['g']=T0
+                    p['g']=p0
                     
-                #The matrix to compute the eigenvalue of the porous media convection...
-                A=[[-1, self.Ra_T],
-                    [1, -k2] ]
-                B=[[0, 0],
-                   [0, 1]];
-                
-                eig_val,eig_vec=linalg.eig(A,B) #use linear algebra package to compute eigenvalue
-                eig_val[np.isinf(eig_val)]=-np.inf
-                eig_val_max_ind=np.argmax(np.real(eig_val)) #compute the index of the eigenvalue
-                eig_vec_max=eig_vec[:,eig_val_max_ind] #get the corresponding eigen vector
-                
-                self.lambda_elevator=eig_val[eig_val_max_ind]
-                w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
-                T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
-                
-                T0 =T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
-
-                u['g']=u0
-                w['g']=w0
-                T['g']=T0
-                p['g']=p0
-                
-            elif self.flow =='HB_porous':
-                #initial guess
-                z = domain.grid(0)
-
-                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
-                w_hat = solver.state['w_hat']
-                p_hat = solver.state['p_hat']
-                T_hat = solver.state['T_hat']
-                d_T_hat = solver.state['d_T_hat']
-                S_hat = solver.state['S_hat']
-                d_S_hat = solver.state['d_S_hat']
-                T_0 = solver.state['T_0']
-                d_T_0 = solver.state['d_T_0']
-                S_0 = solver.state['S_0']
-                d_S_0 = solver.state['d_S_0']
-                
-                
-                W0=self.A_elevator;
-                gshape = domain.dist.grid_layout.global_shape(scales=1)
-                slices = domain.dist.grid_layout.slices(scales=1)
-                rand = np.random.RandomState(seed=23)
-                noise = rand.standard_normal(gshape)[slices]
-                if self.z_bc_T_left=='periodic' and self.z_bc_S_left=='periodic' and self.z_bc_w_left=='periodic':
-                    #periodic B.C.
-                    w_hat['g'] = W0 +self.A_noise*noise
-                    p_hat['g'] = W0/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    T_hat['g'] = 1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0+self.A_noise*noise
-                    d_T_hat['g'] =self.A_noise*noise
-                    S_hat['g'] = 1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0+self.A_noise*noise
-                    d_S_hat['g'] =self.A_noise*noise
-                    T_0['g'] = self.A_noise*noise
-                    d_T_0['g'] = self.A_noise*noise
-                    S_0['g'] = self.A_noise*noise
-                    d_S_0['g'] = self.A_noise*noise
+                elif self.flow =='HB_porous':
+                    #initial guess
+                    z = domain.grid(0)
+    
+                    #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                    w_hat = solver.state['w_hat']
+                    p_hat = solver.state['p_hat']
+                    T_hat = solver.state['T_hat']
+                    d_T_hat = solver.state['d_T_hat']
+                    S_hat = solver.state['S_hat']
+                    d_S_hat = solver.state['d_S_hat']
+                    T_0 = solver.state['T_0']
+                    d_T_0 = solver.state['d_T_0']
+                    S_0 = solver.state['S_0']
+                    d_S_0 = solver.state['d_S_0']
                     
-                else:
+                    
+                    W0=self.A_elevator;
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
+                    if self.z_bc_T_left=='periodic' and self.z_bc_S_left=='periodic' and self.z_bc_w_left=='periodic':
+                        #periodic B.C.
+                        w_hat['g'] = W0 +self.A_noise*noise
+                        p_hat['g'] = W0/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        T_hat['g'] = 1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0+self.A_noise*noise
+                        d_T_hat['g'] =self.A_noise*noise
+                        S_hat['g'] = 1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0+self.A_noise*noise
+                        d_S_hat['g'] =self.A_noise*noise
+                        T_0['g'] = self.A_noise*noise
+                        d_T_0['g'] = self.A_noise*noise
+                        S_0['g'] = self.A_noise*noise
+                        d_S_0['g'] = self.A_noise*noise
+                        
+                    else:
+                        #This is for the other B.C. like the 
+                        w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                        p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        T_0['g'] = self.A_noise*noise
+                        d_T_0['g'] = self.A_noise*noise
+                        S_0['g'] = self.A_noise*noise
+                        d_S_0['g'] = self.A_noise*noise
+                        
+                        if not (self.kx_2==0 and self.ky_2==0):
+                            w_hat_2 = solver.state['w_hat_2']
+                            p_hat_2 = solver.state['p_hat_2']
+                            T_hat_2 = solver.state['T_hat_2']
+                            d_T_hat_2 = solver.state['d_T_hat_2']
+                            S_hat_2 = solver.state['S_hat_2']
+                            d_S_hat_2 = solver.state['d_S_hat_2']
+                            w_hat_2['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                            p_hat_2['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))+self.A_noise*noise
+                            T_hat_2['g'] = 1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_T_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            S_hat_2['g'] = 1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_S_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        
+                elif self.flow =='HB_porous_shear':
+                    #initial guess
+                    z = domain.grid(0)
+    
+                    #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                    w_hat_real = solver.state['w_hat_real']
+                    p_hat_real = solver.state['p_hat_real']
+                    T_hat_real = solver.state['T_hat_real']
+                    d_T_hat_real = solver.state['d_T_hat_real']
+                    S_hat_real = solver.state['S_hat_real']
+                    d_S_hat_real = solver.state['d_S_hat_real']
+                    #T_0_real = solver.state['T_0_real']
+                    #d_T_0_real = solver.state['d_T_0_real']
+                    #S_0_real = solver.state['S_0_real']
+                    #d_S_0_real = solver.state['d_S_0_real']
+                    
+                    
+                    W0=self.A_elevator;
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
+                      
                     #This is for the other B.C. like the 
-                    w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                    p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                    d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                    S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                    d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                    T_0['g'] = self.A_noise*noise
-                    d_T_0['g'] = self.A_noise*noise
-                    S_0['g'] = self.A_noise*noise
-                    d_S_0['g'] = self.A_noise*noise
+                    w_hat_real['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                    p_hat_real['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    T_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_T_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    #T_0['g'] = self.A_noise*noise
+                    #d_T_0['g'] = self.A_noise*noise
+                    #S_0['g'] = self.A_noise*noise
+                    #d_S_0['g'] = self.A_noise*noise
+                                
+                elif self.flow =='HB_benard':
+                    z = domain.grid(0)
+    
+                    #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                    u_tilde = solver.state['u_tilde']
+                    d_u_tilde = solver.state['d_u_tilde']
+                    v_tilde = solver.state['v_tilde']
+                    d_v_tilde = solver.state['d_v_tilde']
+                    w_hat = solver.state['w_hat']
+                    p_hat = solver.state['p_hat']
+                    T_hat = solver.state['T_hat']
+                    d_T_hat = solver.state['d_T_hat']
+                    S_hat = solver.state['S_hat']
+                    d_S_hat = solver.state['d_S_hat']
+                    T_0 = solver.state['T_0']
+                    d_T_0 = solver.state['d_T_0']
+                    S_0 = solver.state['S_0']
+                    d_S_0 = solver.state['d_S_0']
                     
-                    if not (self.kx_2==0 and self.ky_2==0):
-                        w_hat_2 = solver.state['w_hat_2']
-                        p_hat_2 = solver.state['p_hat_2']
-                        T_hat_2 = solver.state['T_hat_2']
-                        d_T_hat_2 = solver.state['d_T_hat_2']
-                        S_hat_2 = solver.state['S_hat_2']
-                        d_S_hat_2 = solver.state['d_S_hat_2']
-                        w_hat_2['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                        p_hat_2['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))+self.A_noise*noise
-                        T_hat_2['g'] = 1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                        d_T_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                        S_hat_2['g'] = 1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                        d_S_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    W0=self.A_elevator;
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
                     
-            elif self.flow =='HB_porous_shear':
-                #initial guess
-                z = domain.grid(0)
-
-                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
-                w_hat_real = solver.state['w_hat_real']
-                p_hat_real = solver.state['p_hat_real']
-                T_hat_real = solver.state['T_hat_real']
-                d_T_hat_real = solver.state['d_T_hat_real']
-                S_hat_real = solver.state['S_hat_real']
-                d_S_hat_real = solver.state['d_S_hat_real']
-                #T_0_real = solver.state['T_0_real']
-                #d_T_0_real = solver.state['d_T_0_real']
-                #S_0_real = solver.state['S_0_real']
-                #d_S_0_real = solver.state['d_S_0_real']
-                
-                
-                W0=self.A_elevator;
-                gshape = domain.dist.grid_layout.global_shape(scales=1)
-                slices = domain.dist.grid_layout.slices(scales=1)
-                rand = np.random.RandomState(seed=23)
-                noise = rand.standard_normal(gshape)[slices]
-                  
-                #This is for the other B.C. like the 
-                w_hat_real['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                p_hat_real['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_T_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                #T_0['g'] = self.A_noise*noise
-                #d_T_0['g'] = self.A_noise*noise
-                #S_0['g'] = self.A_noise*noise
-                #d_S_0['g'] = self.A_noise*noise
-                            
-            elif self.flow =='HB_benard':
-                z = domain.grid(0)
-
-                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
-                u_tilde = solver.state['u_tilde']
-                d_u_tilde = solver.state['d_u_tilde']
-                v_tilde = solver.state['v_tilde']
-                d_v_tilde = solver.state['d_v_tilde']
-                w_hat = solver.state['w_hat']
-                p_hat = solver.state['p_hat']
-                T_hat = solver.state['T_hat']
-                d_T_hat = solver.state['d_T_hat']
-                S_hat = solver.state['S_hat']
-                d_S_hat = solver.state['d_S_hat']
-                T_0 = solver.state['T_0']
-                d_T_0 = solver.state['d_T_0']
-                S_0 = solver.state['S_0']
-                d_S_0 = solver.state['d_S_0']
-                
-                W0=self.A_elevator;
-                gshape = domain.dist.grid_layout.global_shape(scales=1)
-                slices = domain.dist.grid_layout.slices(scales=1)
-                rand = np.random.RandomState(seed=23)
-                noise = rand.standard_normal(gshape)[slices]
-                
-                #Set up the initial guess such that the
-                if self.F_sin==0:
+                    #Set up the initial guess such that the
+                    if self.F_sin==0:
+                        #without shear...
+                        u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                        p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        T_0['g'] = self.A_noise*noise
+                        d_T_0['g'] = self.A_noise*noise
+                        S_0['g'] = self.A_noise*noise
+                        d_S_0['g'] = self.A_noise*noise
+                    else:
+                        #with shear...
+                        u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                        p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                        T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                        d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                        T_0['g'] = self.A_noise*noise
+                        d_T_0['g'] = self.A_noise*noise
+                        S_0['g'] = self.A_noise*noise
+                        d_S_0['g'] = self.A_noise*noise
+                    
+                elif self.flow =='test_periodic':
+                    z = domain.grid(0)
+                    w_hat =solver.state['w_hat']
+                    p_hat = solver.state['p_hat']
+                    T_hat = solver.state['T_hat']
+                    d_T_hat = solver.state['d_T_hat']
+                    w_hat['g']=self.F_sin*np.sin(self.ks*z)
+                    p_hat['g']=self.F_sin*np.cos(self.ks*z)
+                    T_hat['g']=self.F_sin*np.sin(self.ks*z)
+                    d_T_hat['g']=self.F_sin*np.cos(self.ks*z)
+                elif self.flow=='HB_benard_shear':
+                    z = domain.grid(0)
+    
+                    #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                    u_tilde_real = solver.state['u_tilde_real']
+                    d_u_tilde_real = solver.state['d_u_tilde_real']
+                    v_tilde_real = solver.state['v_tilde_real']
+                    d_v_tilde_real = solver.state['d_v_tilde_real']
+                    w_hat_real = solver.state['w_hat_real']
+                    p_hat_real = solver.state['p_hat_real']
+                    T_hat_real = solver.state['T_hat_real']
+                    d_T_hat_real = solver.state['d_T_hat_real']
+                    S_hat_real = solver.state['S_hat_real']
+                    d_S_hat_real = solver.state['d_S_hat_real']
+                    
+                    u_tilde_imag = solver.state['u_tilde_imag']
+                    d_u_tilde_imag = solver.state['d_u_tilde_imag']
+                    v_tilde_imag = solver.state['v_tilde_imag']
+                    d_v_tilde_imag = solver.state['d_v_tilde_imag']
+                    w_hat_imag = solver.state['w_hat_imag']
+                    p_hat_imag = solver.state['p_hat_imag']
+                    T_hat_imag = solver.state['T_hat_imag']
+                    d_T_hat_imag = solver.state['d_T_hat_imag']
+                    S_hat_imag = solver.state['S_hat_imag']
+                    d_S_hat_imag = solver.state['d_S_hat_imag']
+                    
+                    T_0 = solver.state['T_0']
+                    d_T_0 = solver.state['d_T_0']
+                    S_0 = solver.state['S_0']
+                    d_S_0 = solver.state['d_S_0']
+                    
+                    W0=self.A_elevator;
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
+                    
+                    # #with shear...
+                    # T_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0
+                    # S_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0
+                    # p_hat_elevator=0#-(self.kx*self.kx+self.ky*self.ky)*W0+self.Ra_T*T_hat_elevator-self.Ra_S2T*S_hat_elevator
+                    # u_tilde_elevator=0#-self.kx/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
+                    # v_tilde_elevator=0#-self.ky/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
+                    
+                    # u_tilde_real['g'] = u_tilde_elevator+self.A_noise*noise
+                    # #d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    # v_tilde_real['g'] = v_tilde_elevator+self.A_noise*noise
+                    # #d_v_tilde_real['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    # w_hat_real['g'] = W0 +self.A_noise*noise
+                    # p_hat_real['g'] = p_hat_elevator+self.A_noise*noise
+                    # T_hat_real['g'] = T_hat_elevator+self.A_noise*noise
+                    # #d_T_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                    # S_hat_real['g'] = S_hat_elevator+self.A_noise*noise
+                    # #d_S_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                    
                     #without shear...
-                    u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                    p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                    d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                    S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                    d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                    T_0['g'] = self.A_noise*noise
-                    d_T_0['g'] = self.A_noise*noise
-                    S_0['g'] = self.A_noise*noise
-                    d_S_0['g'] = self.A_noise*noise
-                else:
-                    #with shear...
-                    u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                    p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                    T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                    d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                    S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                    d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                    T_0['g'] = self.A_noise*noise
-                    d_T_0['g'] = self.A_noise*noise
-                    S_0['g'] = self.A_noise*noise
-                    d_S_0['g'] = self.A_noise*noise
+                    u_tilde_real['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    v_tilde_real['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    d_v_tilde_real['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    w_hat_real['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                    p_hat_real['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    T_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_T_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    
+                    W0_imag=self.A_elevator_imag
+                    u_tilde_imag['g'] = self.kx*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    d_u_tilde_imag['g'] = self.kx*np.pi*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    v_tilde_imag['g'] = self.ky*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    d_v_tilde_imag['g'] = self.ky*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    w_hat_imag['g'] = W0_imag*np.sin(np.pi*z) +self.A_noise*noise
+                    p_hat_imag['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    T_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
+                    d_T_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    S_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
+                    d_S_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    
+                    
+                    # T_0['g'] = self.A_noise*noise
+                    # d_T_0['g'] = self.A_noise*noise
+                    # S_0['g'] = self.A_noise*noise
+                    # d_S_0['g'] = self.A_noise*noise
+               
                 
-            elif self.flow =='test_periodic':
-                z = domain.grid(0)
-                w_hat =solver.state['w_hat']
-                p_hat = solver.state['p_hat']
-                T_hat = solver.state['T_hat']
-                d_T_hat = solver.state['d_T_hat']
-                w_hat['g']=self.F_sin*np.sin(self.ks*z)
-                p_hat['g']=self.F_sin*np.cos(self.ks*z)
-                T_hat['g']=self.F_sin*np.sin(self.ks*z)
-                d_T_hat['g']=self.F_sin*np.cos(self.ks*z)
-            elif self.flow=='HB_benard_shear':
-                z = domain.grid(0)
-
-                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
-                u_tilde_real = solver.state['u_tilde_real']
-                d_u_tilde_real = solver.state['d_u_tilde_real']
-                v_tilde_real = solver.state['v_tilde_real']
-                d_v_tilde_real = solver.state['d_v_tilde_real']
-                w_hat_real = solver.state['w_hat_real']
-                p_hat_real = solver.state['p_hat_real']
-                T_hat_real = solver.state['T_hat_real']
-                d_T_hat_real = solver.state['d_T_hat_real']
-                S_hat_real = solver.state['S_hat_real']
-                d_S_hat_real = solver.state['d_S_hat_real']
+                    # u_tilde_imag['g'] = self.kx*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    # d_u_tilde_imag['g'] = self.kx*self.ks*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    # v_tilde_imag['g'] = self.ky*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    # d_v_tilde_imag['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    # w_hat_imag['g'] = W0*np.sin(self.ks*z) +self.A_noise*noise
+                    # p_hat_imag['g'] = (-self.ks*self.ks-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    # T_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(self.ks*z)+self.A_noise*noise
+                    # d_T_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                    # S_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(self.ks*z)+self.A_noise*noise
+                    # d_S_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+                    
+                    
+                    T_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                    d_T_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
+                    S_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
+                    d_S_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
                 
-                u_tilde_imag = solver.state['u_tilde_imag']
-                d_u_tilde_imag = solver.state['d_u_tilde_imag']
-                v_tilde_imag = solver.state['v_tilde_imag']
-                d_v_tilde_imag = solver.state['d_v_tilde_imag']
-                w_hat_imag = solver.state['w_hat_imag']
-                p_hat_imag = solver.state['p_hat_imag']
-                T_hat_imag = solver.state['T_hat_imag']
-                d_T_hat_imag = solver.state['d_T_hat_imag']
-                S_hat_imag = solver.state['S_hat_imag']
-                d_S_hat_imag = solver.state['d_S_hat_imag']
-                
-                T_0 = solver.state['T_0']
-                d_T_0 = solver.state['d_T_0']
-                S_0 = solver.state['S_0']
-                d_S_0 = solver.state['d_S_0']
-                
-                W0=self.A_elevator;
-                gshape = domain.dist.grid_layout.global_shape(scales=1)
-                slices = domain.dist.grid_layout.slices(scales=1)
-                rand = np.random.RandomState(seed=23)
-                noise = rand.standard_normal(gshape)[slices]
-                
-                # #with shear...
-                # T_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0
-                # S_hat_elevator=1/(-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0
-                # p_hat_elevator=0#-(self.kx*self.kx+self.ky*self.ky)*W0+self.Ra_T*T_hat_elevator-self.Ra_S2T*S_hat_elevator
-                # u_tilde_elevator=0#-self.kx/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
-                # v_tilde_elevator=0#-self.ky/(self.kx*self.kx+self.ky*self.ky)*p_hat_elevator
-                
-                # u_tilde_real['g'] = u_tilde_elevator+self.A_noise*noise
-                # #d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                # v_tilde_real['g'] = v_tilde_elevator+self.A_noise*noise
-                # #d_v_tilde_real['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                # w_hat_real['g'] = W0 +self.A_noise*noise
-                # p_hat_real['g'] = p_hat_elevator+self.A_noise*noise
-                # T_hat_real['g'] = T_hat_elevator+self.A_noise*noise
-                # #d_T_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
-                # S_hat_real['g'] = S_hat_elevator+self.A_noise*noise
-                # #d_S_hat_real['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
-                
-                #without shear...
-                u_tilde_real['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                v_tilde_real['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_v_tilde_real['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                w_hat_real['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                p_hat_real['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_T_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                
-                W0_imag=self.A_elevator_imag
-                u_tilde_imag['g'] = self.kx*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_u_tilde_imag['g'] = self.kx*np.pi*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                v_tilde_imag['g'] = self.ky*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                d_v_tilde_imag['g'] = self.ky*W0_imag*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                w_hat_imag['g'] = W0_imag*np.sin(np.pi*z) +self.A_noise*noise
-                p_hat_imag['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0_imag*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                T_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
-                d_T_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                S_hat_imag['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0_imag*np.sin(np.pi*z)+self.A_noise*noise
-                d_S_hat_imag['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0_imag*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                
-                
-                # T_0['g'] = self.A_noise*noise
-                # d_T_0['g'] = self.A_noise*noise
-                # S_0['g'] = self.A_noise*noise
-                # d_S_0['g'] = self.A_noise*noise
-           
+                    
+            else:
+                #Restart
+                print('restart')
+                write, last_dt = solver.load_state('restart.h5', -1)
             
-                # u_tilde_imag['g'] = self.kx*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                # d_u_tilde_imag['g'] = self.kx*self.ks*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                # v_tilde_imag['g'] = self.ky*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                # d_v_tilde_imag['g'] = self.ky*W0*np.cos(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                # w_hat_imag['g'] = W0*np.sin(self.ks*z) +self.A_noise*noise
-                # p_hat_imag['g'] = (-self.ks*self.ks-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(self.ks*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                # T_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(self.ks*z)+self.A_noise*noise
-                # d_T_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
-                # S_hat_imag['g'] = 1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(self.ks*z)+self.A_noise*noise
-                # d_S_hat_imag['g'] =1/(-self.ks*self.ks-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(self.ks*z)+self.A_noise*noise
+            #If set the continuation... then just load the existing data...
+            if self.continuation != 0:
+                #firstly make a copy of the old data
+                shutil.copytree('analysis','analysis'+str(self.continuation))
                 
-                
-                T_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
-                d_T_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
-                S_0['g'] =-np.sin(2*np.pi*z)+ self.A_noise*noise
-                d_S_0['g'] =-2*np.pi*np.cos(2*np.pi*z)+ self.A_noise*noise
-            
-                
-        else:
-            #Restart
-            print('restart')
-            write, last_dt = solver.load_state('restart.h5', -1)
-        
-        #If set the continuation... then just load the existing data...
-        if self.continuation != 0:
-            #firstly make a copy of the old data
-            shutil.copytree('analysis','analysis'+str(self.continuation))
-            
-            #Then load_state as the initial condition of IVP/initial guess of BVP
-            write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
+                #Then load_state as the initial condition of IVP/initial guess of BVP
+                write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
 
         
     def run(self,solver,domain,logger):
