@@ -1636,7 +1636,7 @@ class flag(object):
                 raise TypeError('flag.timesteppers is not defined yet') 
             solver =  problem.build_solver(ts)
             
-        elif self.problem =='BVP':
+        elif self.problem in ['BVP','EVP']:
             solver =  problem.build_solver()
             
         return solver
