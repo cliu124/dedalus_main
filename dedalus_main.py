@@ -145,7 +145,7 @@ elif flag.flow in ['HB_benard_shear']:
     #flag.kx=0.48*flag.Ra_T**0.4
     #flag.kx=1
     flag.ky=0
-    flag.problem='EVP'
+    flag.problem='BVP'
     flag.z_bc_T_left='periodic'
     flag.z_bc_T_right='periodic'
     flag.z_bc_S_left='periodic'

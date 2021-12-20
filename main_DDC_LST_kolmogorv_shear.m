@@ -4,13 +4,13 @@ clc;
 
 %------setup the main parameter for running
 Pr=10;
-Pe=1;
+Pe=100;
 tau=0.01;
-R_rho_T2S=0.99;
-Ri=1;
+R_rho_T2S=0.5;
+Ri=10;
 dy_T_mean=-1;
 dy_S_mean=-1;
-mean_kolmogorov=[0,2*pi];
+mean_kolmogorov=[1,2*pi];
 Lz=1;
 mean='kolmogorov';
 operator='uvwpTS';
