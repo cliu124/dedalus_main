@@ -7,7 +7,7 @@ Pr=10;
 Pe=100;
 tau=0.01;
 R_rho_T2S=0.5;
-Ri=1;
+Ri=10;
 dy_T_mean=-1;
 dy_S_mean=-1;
 mean_kolmogorov=[1,2*pi];
@@ -19,7 +19,8 @@ Ny_full=62; %This needs to be 92 for high Pe, other case 62 or 32 is enough
 %Up to 0.5 and 0.8 for the Pe=100, Ri=1 
 %Up to 3.5 and 1.5 for the Pe=10^4, R1
 % kx_list=linspace(0.005,0.2,60); %0.3
-kx_list=linspace(0.01,4,60); %0.4
+% kx_list=linspace(0.01,4,60); %0.4
+kx_list=2*pi/64;
 kz_list=0;
 solve='LST'; %%or finished if we would like to skip but just load the data..
 debug='kz=0';
