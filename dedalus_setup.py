@@ -542,7 +542,7 @@ class flag(object):
                     problem = de.NLBVP(domain, variables=[\
                         'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real','S_hat_real','d_S_hat_real', \
                         'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag','S_hat_imag','d_S_hat_imag', \
-                            'T_0','d_T_0','S_0','d_S_0','eta'])
+                            'T_0','d_T_0','S_0','d_S_0','eta','int_phase_cond'])
                     problem.meta['eta']['z']['constant'] = True
 
                 elif self.problem == 'IVP':
@@ -584,12 +584,12 @@ class flag(object):
                 problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*(p_hat_real*T_hat_real+p_hat_imag*T_hat_imag)+2*(w_hat_real*d_T_hat_real+w_hat_imag*d_T_hat_imag)')
                 problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*(p_hat_real*S_hat_real+p_hat_imag*S_hat_imag)+2*(w_hat_real*d_S_hat_real+w_hat_imag*d_S_hat_imag) )')
 
-                problem.add_bc("left(p_hat_imag)=0")
+                #problem.add_bc("left(p_hat_imag)=0")
 
                 #integration of phase condition                
-                # problem.add_equation('dz(int_phase_cond)-w_hat_imag=0')
-                # problem.add_bc("left(int_phase_cond)=0")
-                # problem.add_bc("right(int_phase_cond)=0")
+                problem.add_equation('dz(int_phase_cond)-T_hat_imag=0')
+                problem.add_bc("left(int_phase_cond)=0")
+                problem.add_bc("right(int_phase_cond)=0")
                 
             #Setup the B.C. update 2021/11/29...
             if self.z_bc_w_left=='dirichlet':
