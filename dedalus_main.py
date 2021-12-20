@@ -114,33 +114,36 @@ elif flag.flow in ['HB_benard_shear']:
     flag.tau=0.01
     
     # #Radko (2016) parameter
-    # Pr=10
-    # R_rho_T2S=0.5
-    # Pe=100
-    # Ri=10
-    # flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
+    Pr=10
+    R_rho_T2S=0.5
+    Pe=100
+    Ri=10
+    flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
+    flag.Ra_S2T=0
+    
     # flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    flag.kx=2*np.pi/64
     # flag.F_sin=1
     # flag.ks=2*np.pi
     # flag.HB_porous_shear_phi=0
 
     # Yang et al. (2021) parameter
-    Pr=10
-    R_rho_T2S=0.5
-    Pe=1
-    Ri=1
-    flag.Ra_T=10000
-    flag.Ra_S2T=0
+    #Pr=10
+    #R_rho_T2S=0.5
+    #Pe=1
+    #Ri=1
+    #flag.Ra_T=10000
+    #flag.Ra_S2T=0
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
-    flag.F_sin='z'
+    #flag.F_sin='z'
     
     flag.Pe_T=Pe
     flag.Pe_S=Pe
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
-    flag.bvp_tolerance=1e-10
+    flag.bvp_tolerance=1e-5
     #flag.kx=0.48*flag.Ra_T**0.4
-    flag.kx=1
+    #flag.kx=1
     flag.ky=0
     flag.problem='BVP'
     flag.z_bc_T_left='dirichlet'
