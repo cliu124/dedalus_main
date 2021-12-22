@@ -110,6 +110,9 @@ class flag(object):
         self.IBM_sigma=0.0001
         self.HB_porous_shear_phi=0
     
+        #impedance as Hewitt et al. (2014) for the two layer porous medium convection
+        self.HB_porous_2_layer_Omega=0
+        
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -135,7 +138,7 @@ class flag(object):
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         
         #For Harmonic balance method. Chebyshev in the vertical
-        elif self.flow in ['HB_porous','HB_benard','test_periodic']:
+        elif self.flow in ['HB_porous','HB_benard','test_periodic','HB_porous_2_layer']:
             #if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
             #    z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             #    #domain = de.Domain([z_basis],grid_dtype=np.float64)
@@ -532,7 +535,73 @@ class flag(object):
                 #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
                 print("Periodic B.C. for S")
          
-                
+        elif self.flow =='HB_porous_2_layer':
+            if self.problem =='BVP':
+                problem = de.NLBVP(domain, variables=[\
+                    'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                    'T_0','d_T_0','S_0','d_S_0',\
+                    'w_hat_top','p_hat_top','T_hat_top','d_T_hat_top','S_hat_top','d_S_hat_top', \
+                    'T_0_top','d_T_0_top','S_0_top','d_S_0_top'])
+            problem.parameters['Ra_T'] = self.Ra_T
+            problem.parameters['Ra_S2T'] = self.Ra_S2T
+            problem.parameters['tau']=self.tau
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
+            problem.parameters['kx']=self.kx
+            problem.parameters['ky']=self.ky
+            problem.parameters['Omega']=self.HB_porous_2_layer_Omega
+            
+            #bottom layer equation z\in [0,0.5]
+            problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
+            problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+            problem.add_equation('dz(T_hat)-d_T_hat=0')
+            problem.add_equation('dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+            problem.add_equation('dz(S_hat)-d_S_hat=0')
+            problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+            problem.add_equation('dz(T_0)-d_T_0=0')
+            problem.add_equation('dz(S_0)-d_S_0=0')
+            problem.add_equation('dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
+            problem.add_equation('dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
+             
+            #top layer equation z\in [0.5,1]
+            problem.add_equation('dz(w_hat_top)-(-(kx*kx+ky*ky)*p_hat_top)=0')
+            problem.add_equation('dz(p_hat_top)-(-w_hat_top+Ra_T*T_hat_top-Ra_S2T*S_hat_top)=0')
+            problem.add_equation('dz(T_hat_top)-d_T_hat_top=0')
+            problem.add_equation('dz(d_T_hat_top)-(w_hat_top*dy_T_mean+(kx*kx+ky*ky)*T_hat_top)=w_hat_top*d_T_0_top')
+            problem.add_equation('dz(S_hat_top)-d_S_hat_top=0')
+            problem.add_equation('dz(d_S_hat_top)-1/tau*w_hat_top*dy_S_mean-(kx*kx+ky*ky)*S_hat_top=1/tau*(w_hat_top*d_S_0_top)')   
+            problem.add_equation('dz(T_0_top)-d_T_0_top=0')
+            problem.add_equation('dz(S_0_top)-d_S_0_top=0')
+            problem.add_equation('dz(d_T_0_top)=-2*(kx*kx+ky*ky)*p_hat_top*T_hat_top+2*w_hat_top*d_T_hat_top')
+            problem.add_equation('dz(d_S_0_top)=1/tau*(-2*(kx*kx+ky*ky)*p_hat_top*S_hat_top+2*w_hat_top*d_S_hat_top)')
+               
+            #Add B.C. for z=0
+            problem.add_bc('left(w_hat)=0')
+            problem.add_bc('left(T_hat)=0')
+            problem.add_bc('left(S_hat)=0')
+            problem.add_bc('left(T_0)=0')
+            problem.add_bc('left(S_0)=0')
+            
+            #Add B.C. at z=1, note that z=1 needs to be implemented at the variable with top
+            problem.add_bc('right(w_hat_top)=0')
+            problem.add_bc('right(T_hat_top)=0')
+            problem.add_bc('right(S_hat_top)=0')
+            problem.add_bc('right(T_0_top)=0')
+            problem.add_bc('right(S_0_top)=0')
+            
+            #Add B.C. that they are continuous at the interface.
+            problem.add_bc('right(w_hat)-left(w_hat_top)=0')
+            problem.add_bc('right(p_hat)-left(p_hat_top)=Omega*right(w_hat)')
+            problem.add_bc('right(T_hat)-left(T_hat_top)=0')
+            problem.add_bc('right(d_T_hat)-left(d_T_hat_top)=0')
+            problem.add_bc('right(S_hat)-left(S_hat_top)=0')
+            problem.add_bc('right(d_S_hat)-left(d_S_hat_top)=0')
+            problem.add_bc('right(T_0)-left(T_0_top)=0')
+            problem.add_bc('right(d_T_0)-left(d_T_0_top)=0')
+            problem.add_bc('right(S_0)-left(S_0_top)=0')
+            problem.add_bc('right(d_S_0)-left(d_S_0_top)=0')
+
+            
         elif self.flow =='HB_porous_shear':
             #harmonic balance for the porous media
             #For different problem, we need to claim different dedalus problem.
@@ -1868,7 +1937,66 @@ class flag(object):
                             d_T_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                             S_hat_2['g'] = 1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
                             d_S_hat_2['g'] =1/(-np.pi**2-(self.kx_2*self.kx_2+self.ky_2*self.ky_2))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                        
+                       
+                elif self.flow =='HB_porous_2_layer':
+                    #initial guess
+                    z = domain.grid(0)
+    
+                    #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                    w_hat = solver.state['w_hat']
+                    p_hat = solver.state['p_hat']
+                    T_hat = solver.state['T_hat']
+                    d_T_hat = solver.state['d_T_hat']
+                    S_hat = solver.state['S_hat']
+                    d_S_hat = solver.state['d_S_hat']
+                    T_0 = solver.state['T_0']
+                    d_T_0 = solver.state['d_T_0']
+                    S_0 = solver.state['S_0']
+                    d_S_0 = solver.state['d_S_0']
+                    
+                    w_hat_top = solver.state['w_hat_top']
+                    p_hat_top = solver.state['p_hat_top']
+                    T_hat_top = solver.state['T_hat_top']
+                    d_T_hat_top = solver.state['d_T_hat_top']
+                    S_hat_top = solver.state['S_hat_top']
+                    d_S_hat_top = solver.state['d_S_hat_top']
+                    T_0_top = solver.state['T_0_top']
+                    d_T_0_top = solver.state['d_T_0_top']
+                    S_0_top = solver.state['S_0_top']
+                    d_S_0_top = solver.state['d_S_0_top']
+                    
+                    
+                    W0=self.A_elevator;
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
+                
+                    #This is for the other B.C. like the 
+                    w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                    p_hat['g'] = W0*np.pi*np.cos(np.pi*z)/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                    d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                    T_0['g'] = self.A_noise*noise
+                    d_T_0['g'] = self.A_noise*noise
+                    S_0['g'] = self.A_noise*noise
+                    d_S_0['g'] = self.A_noise*noise
+                    
+                      
+                    #This is for the other B.C. like the 
+                    w_hat_top['g'] = W0*np.sin(np.pi*(z+self.Lz)) +self.A_noise*noise
+                    p_hat_top['g'] = W0*np.pi*np.cos(np.pi*(z+self.Lz))/(-(self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                    T_hat_top['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*(z+self.Lz))+self.A_noise*noise
+                    d_T_hat_top['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*(z+self.Lz))+self.A_noise*noise
+                    S_hat_top['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*(z+self.Lz))+self.A_noise*noise
+                    d_S_hat_top['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*(z+self.Lz))+self.A_noise*noise
+                    T_0_top['g'] = self.A_noise*noise
+                    d_T_0_top['g'] = self.A_noise*noise
+                    S_0_top['g'] = self.A_noise*noise
+                    d_S_0_top['g'] = self.A_noise*noise
+                    
                 elif self.flow =='HB_porous_shear':
                     #initial guess
                     z = domain.grid(0)
@@ -2141,6 +2269,19 @@ class flag(object):
                 logger.info('S_0 norm: {}'.format(np.sum(np.abs(solver.state['S_0']['g']))))
                 if self.flow in ['HB_porous','HB_benard']:
                     logger.info('w_hat norm: {}'.format(np.sum(np.abs(solver.state['w_hat']['g']))))
+                    logger.info('T_hat norm: {}'.format(np.sum(np.abs(solver.state['T_hat']['g']))))
+                    logger.info('S_hat norm: {}'.format(np.sum(np.abs(solver.state['S_hat']['g']))))
+                elif self.flow in ['HB_porous_2_layer']:
+                    logger.info('w_hat norm: {}'.format(np.sum(np.abs(solver.state['w_hat']['g']))))
+                    logger.info('T_hat norm: {}'.format(np.sum(np.abs(solver.state['T_hat']['g']))))
+                    logger.info('S_hat norm: {}'.format(np.sum(np.abs(solver.state['S_hat']['g']))))
+                    
+                    logger.info('T_0_top norm: {}'.format(np.sum(np.abs(solver.state['T_0_top']['g']))))
+                    logger.info('S_0_top norm: {}'.format(np.sum(np.abs(solver.state['S_0_top']['g']))))
+                    logger.info('w_hat_top norm: {}'.format(np.sum(np.abs(solver.state['w_hat_top']['g']))))
+                    logger.info('T_hat_top norm: {}'.format(np.sum(np.abs(solver.state['T_hat_top']['g']))))
+                    logger.info('S_hat_top norm: {}'.format(np.sum(np.abs(solver.state['S_hat_top']['g']))))
+
                 elif self.flow in ['HB_benard_shear','HB_porous_shear']:
                     logger.info('w_hat_real norm: {}'.format(np.sum(np.abs(solver.state['w_hat_real']['g']))))
                     logger.info('w_hat_imag norm: {}'.format(np.sum(np.abs(solver.state['w_hat_imag']['g']))))
@@ -2195,7 +2336,7 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
-        elif self.flow in ['HB_porous','HB_porous_shear','HB_benard','test_periodic','HB_benard_shear']:
+        elif self.flow in ['HB_porous','HB_porous_shear','HB_benard','test_periodic','HB_benard_shear','HB_porous_2_layer']:
             #For IVP and BVP, they have some small difference. IVP can also set the dt for storage.
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)

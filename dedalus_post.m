@@ -214,7 +214,7 @@ classdef dedalus_post
             obj.visible=flag.visible;
             
             %display h5 file
-            h5disp(h5_name);
+            %h5disp(h5_name);
             
             %read the flag_table.
             flag_table=readtable([h5_name(1:end-14),'flag.txt']);
