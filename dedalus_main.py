@@ -20,7 +20,7 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='HB_benard_2_layer'
+flag.flow='HB_porous_2_layer'
 #flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
@@ -43,7 +43,7 @@ if flag.flow=='HB_porous':
     #Ra_T_list=[10000,20000,40000]
     flag.Ra_T=10000
     flag.Ra_S2T=0
-    flag.kx=0.48*flag.Ra_T**0.4 #2D
+    #flag.kx=0.48*flag.Ra_T**0.4 #2D
     flag.continuation=0
     flag.ky=0
     flag.problem='BVP'
@@ -441,15 +441,16 @@ flag.stop_sim_time=20;
 #flag.ky=flag.kx
 #Ra_T_list=[10000,20000,40000]
 #np.linspace(0,20000,21)
-#for flag.Ra_T in Ra_T_list:
+Ra_T_list=np.logspace(2,6,100)
+for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[1]
-for Pe in Pe_list:
-    flag.Pe_T=Pe
-    flag.Pe_S=Pe
+#Pe_list=[1]
+#for Pe in Pe_list:
+#    flag.Pe_T=Pe
+#    flag.Pe_S=Pe
 #F_sin_list=np.linspace(0.1,1,19)
 #for flag.F_sin in F_sin_list:
-    #flag.kx=0.48*flag.Ra_T**0.4 #2D
+    flag.kx=0.48*flag.Ra_T**0.4 #2D
     #flag.kx=0.17*flag.Ra_T**0.52 #3D
     flag.ky=0
     flag.kx_2=0

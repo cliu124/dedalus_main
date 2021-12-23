@@ -13,7 +13,8 @@ close all;
 %     '12639413'};
 
 % group_name='HB_porous_Nu_kx_Ra';
-group_name='HB_porous_Nu_kx_Ra';
+% group_name='HB_porous_Nu_kx_Ra';
+group_name='test';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -61,15 +62,16 @@ switch group_name
         slurm_num={'12687510',
                     '12687731',
                     '12687732'}; %Hewitt et al. (2012) 2D
-    case 'wen_chini_2D'
-        slurm_num={'12784615'};
-        
     case 'hewitt_3D'
-
         slurm_num={'12687744',
                   '12687755',
                   '12687756'}; %Hewitt et al. (2014) 3D
         %'12640113', %%This case is wierd... not right
+    
+    
+    case 'wen_chini_2D'
+        slurm_num={'12784615'};
+        
     case 'HB_benard_kx'
         slurm_num={'12760884'}; %Ra=10^6, kx=1~20, reproducing figure 7 of Toomre (1977)
     case 'HB_benard_Ra'
@@ -93,7 +95,7 @@ switch group_name
                 }
 
     case 'test'
-        slurm_num={'12808427'};
+        slurm_num={'12821151'};
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
                 %'12760763',
@@ -104,7 +106,7 @@ switch group_name
 end
 
 flag.print=1;
-flag.visible=0;
+flag.visible=1;
 flag.video=0;
 flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)
