@@ -297,7 +297,7 @@ classdef dedalus_post
             end
             
             
-            if obj.flow=='HB_porous_2_layer'
+            if strcmp(obj.flow,'HB_porous_2_layer')
                 obj.z_list=[h5read_complex(h5_name,'/scales/z/1.0');h5read_complex(h5_name,'/scales/z/1.0')+0.5];
                 obj.w_hat=[obj.w_hat;h5read_complex(h5_name,'/tasks/w_hat_top')];
                 obj.p_hat=[obj.p_hat;h5read_complex(h5_name,'/tasks/p_hat_top')];
@@ -326,31 +326,46 @@ classdef dedalus_post
             mid_ind=length(obj.z_list)/2;
             obj.Nu=-(obj.d_T_0+obj.dy_T_mean);%Nusselt number 
             obj.Nu_S=-(obj.d_S_0+obj.dy_S_mean); %nussel number for salinity... also add the background one...
-            [T_BL_ind]=find(diff(sign(obj.d_T_0)));%min(abs(obj.d_T_0+obj.dy_T_mean));
-            if ~isempty(T_BL_ind)
-                obj.z_T_BL=obj.z_list(T_BL_ind(1));
+%             [T_BL_ind]=find(diff(sign(obj.d_T_0)));%min(abs(obj.d_T_0+obj.dy_T_mean));
+%             if ~isempty(T_BL_ind)
+%                 obj.z_T_BL=obj.z_list(T_BL_ind(1));
+%             end
+            [obj.d_T_0_overshoot,d_T_0_max_ind]=max(obj.d_T_0+obj.dy_T_mean);
+            obj.z_T_BL=obj.z_list(d_T_0_max_ind);
+            if obj.z_T_BL>0.5
+                obj.z_T_BL=1-obj.z_T_BL;
             end
-            obj.d_T_0_overshoot=max(obj.d_T_0+obj.dy_T_mean);
             
-            [S_BL_ind]=find(diff(sign(obj.d_S_0)));
-            if ~isempty(S_BL_ind)
-                obj.z_S_BL=obj.z_list(S_BL_ind(1));
+%             [S_BL_ind]=find(diff(sign(obj.d_S_0)));
+%             if ~isempty(S_BL_ind)
+%                 obj.z_S_BL=obj.z_list(S_BL_ind(1));
+%             end
+            [obj.d_S_0_overshoot,d_S_0_max_ind]=max(obj.d_T_0+obj.dy_S_mean);
+            obj.z_S_BL=obj.z_list(d_S_0_max_ind);
+            if obj.z_S_BL>0.5
+                obj.z_S_BL=1-obj.z_S_BL;
             end
-            obj.d_S_0_overshoot=max(obj.d_T_0+obj.dy_S_mean);
-
+            
             obj.T_rms_max=max(obj.T_hat(mid_ind)*sqrt(2));
             [~,max_ind]=max(obj.T_hat);
             obj.z_T_rms_max=obj.z_list(max_ind(1));
+            if obj.z_T_rms_max>0.5
+                obj.z_T_rms_max=1-obj.z_T_rms_max;
+            end
             
             obj.S_rms_max=max(obj.S_hat(mid_ind)*sqrt(2));
             [~,max_ind]=max(obj.S_hat);
             obj.z_S_rms_max=obj.z_list(max_ind(1));
+            if obj.z_S_rms_max>0.5
+                obj.z_S_rms_max=1-obj.z_S_rms_max;
+            end
             
             obj.d_T_0_mid=obj.d_T_0(mid_ind)+obj.dy_T_mean; %d_T_0 at the mid plane
             obj.d_S_0_mid=obj.d_S_0(mid_ind)+obj.dy_S_mean;
             obj.T_rms_mid=obj.T_hat(mid_ind)*sqrt(2);
             obj.S_rms_mid=obj.S_hat(mid_ind)*sqrt(2);
             obj.w_rms_mid=obj.w_hat(mid_ind)*sqrt(2);
+            obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
             switch obj.flow
                 case 'HB_porous'
                     obj.u_rms_mid=obj.kx*abs(obj.p_hat(mid_ind))*sqrt(2);
@@ -2050,6 +2065,72 @@ classdef dedalus_post
                 26989.4	290.775
                 ];
 
+        end
+        
+        function porous_otero_bound=get_porous_otero_bound(obj)
+            porous_otero_bound.Ra_Nu_bound=[8.19727	1
+                    13.3407	1
+                    24.7062	1
+                    33.2891	1
+                    39.0272	1
+                    42.6792	1.14941
+                    48.5658	1.40239
+                    56.374	1.71104
+                    68.7717	2.19408
+                    81.4313	2.65049
+                    92.663	3.0465
+                    105.444	3.39874
+                    135.187	4.10574
+                    155.37	4.58044
+                    182.151	5.31743
+                    228.935	6.61812
+                    276.52	7.9948
+                    365.25	10.6679
+                    512.097	14.9605
+                    867.22	25.3447
+                    1240.3	36.6197
+                    1454.09	42.9368
+                    2142.57	63.2843
+                    2802.09	82.7802
+                    3889.81	114.941
+                    5618.76	166.074
+                    7799.85	230.596
+                    10000	295.694];
+
+            
+        end
+        
+        function porous_wen_2D=get_porous_wen_2D(obj)
+            porous_wen_2D.Ra_Nu_DNS=[1959.9	16.1351
+                    2431.05	19.8296
+                    3015.36	23.9539
+                    3842.38	30.4685
+                    4830.39	36.8042
+                    6072.65	45.2299
+                    7634.64	56.5502
+                    9470.28	70.7063
+                    18818.9	138.193
+                    37396.1	270.092
+                    47015	337.692
+                    58319	422.225
+                    73319.7	527.902
+                    92178.9	660.027
+                    ];
+            
+            porous_wen_2D.Ra_Nu_steady=[2430.73	18.5093
+                    3014.55	20.8701
+                    3789.31	23.9402
+                    4763.35	27.9391
+                    6068.38	31.5006
+                    7526.17	36.1357
+                    9333.84	40.7448
+                    11891.4	46.7369
+                    14947.1	52.6965
+                    18788.7	60.4483
+                    23617.5	69.3405
+                    29687.3	79.5407
+                    37318.4	92.8268
+                    ];
         end
         
     end

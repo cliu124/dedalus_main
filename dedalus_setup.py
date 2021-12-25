@@ -2356,3 +2356,14 @@ class flag(object):
             solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
     
+    def get_HB_porous_2_layer_Omega_k(self):
+        ##This is the data from figure 10(b) at Ra=5000 from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
+        Omega_list=[0.00249159,0.00498315,0.00631384,0.00996625,0.0126276,0.0199324,0.0252551, \
+               0.0299069,0.0398646,0.0496633,0.0598134,0.0797288,0.099326,0.119626,0.159457, \
+                0.198651, 0.239251, 0.3973, 0.637821, 0.808144, 0.794597, 1.27564, 1.58919, 1.61628, \
+                2.55126, 3.17836, 5.01696, 10.0339, 19.7312, 50.0002,100]
+        kx_list=2*np.pi*[2.42908,2.05674,2.5, 2.30496, 2.07447, 2.28723, 2.16312, 2.21631, 2.2695, 2.02128, \
+                    2.00355, 1.66667, 2.00355, 1.75532,1.29433, 1.25887, 1.25887, 0.762411, 1.01064,1.01064, \
+                        0.744681, 0.744681, 0.744681, 0.514184, 0.496454, 0.496454, 2.42908, 2.76596, \
+                        2.9078, 2.69504, 2.92553]
+        return Omega_list, kx_list
