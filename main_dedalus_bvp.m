@@ -14,7 +14,7 @@ close all;
 
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
-group_name='hewitt_2D_Ra';
+group_name='hewitt_2_layer_Omega';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -85,7 +85,8 @@ switch group_name
         slurm_num={'12760884'}; %Ra=10^6, kx=1~20, reproducing figure 7 of Toomre (1977)
     case 'HB_benard_Ra'
         slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
-    
+    case 'hewitt_2_layer_Omega'
+        slurm_num={'12829121'}
     case 'herring_1963_free'
         slurm_num={'12761527',...Ra=4*10^3, kx=0.8pi
             '12761528',... Ra=10^4, kx=pi
@@ -115,7 +116,7 @@ switch group_name
         
 end
 
-flag.print=0;
+flag.print=1;
 flag.visible=0;
 flag.video=0;
 flag.post_plot=1;
@@ -138,7 +139,7 @@ for slurm_ind=1:length(slurm_num)
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
 
             if flag.post_plot
-                %dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
+                dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
                 if dedalus_post_my{slurm_ind,content_ind}.dy_T_mean<0
                     background_T=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
                 elseif dedalus_post_my{slurm_ind,content_ind}.dy_T_mean>0
@@ -565,6 +566,186 @@ if flag.post_plot
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'Ra_overshoot.png'];
             plot_line(data_d_T_sparse,plot_config);
         
+        case 'hewitt_2_layer_Omega'
+            %Read the Raleigh number and order my data by Rayleigh number
+            for content_ind=1:length(dedalus_post_my)
+                Omega_list(content_ind)=dedalus_post_my{1,content_ind}.HB_porous_2_layer_Omega;
+            end
+            [Omega_list,ind]=sort(Omega_list);
+            dedalus_post_my=dedalus_post_my(1,ind);
+            %read the DNS data from Hewitt...
+            porous_hewitt_2_layer=dedalus_post_my{1}.get_porous_hewitt_2_layer();
+
+            %---------read Nusselt number and compare
+            for content_ind=1:length(dedalus_post_my)
+                data_Nu{1}.y(content_ind)=dedalus_post_my{1,content_ind}.Nu(1);
+            end
+            data_Nu{1}.x=Omega_list;
+            data_Nu{2}.x=porous_hewitt_2_layer.Omega_Nu(:,1);
+            data_Nu{2}.y=porous_hewitt_2_layer.Omega_Nu(:,2);
+            
+            %setup the plot config
+            plot_config.linwidth=3;
+            plot_config.label_list={1,'$\Omega$','$Nu$'};
+            plot_config.loglog=[1,1];
+            plot_config.Markerindex=3;
+            plot_config.xlim_list=0; plot_config.ylim_list=0;
+            plot_config.print_size=[1,1000,1000];
+            plot_config.user_color_style_marker_list={'k-','ro','b--','r-'}; 
+            plot_config.legend_list={1,'Single mode','DNS (Hewitt \it{et al.} \rm 2014)'};
+            plot_config.fontsize_legend=20;
+            plot_config.fontsize=32;
+            plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'Ra_Nu.png'];
+            plot_config.linewidth=3;
+            plot_config.ylim_list=[1,10,50];
+            plot_config.xtick_list=[1,0.001,0.01,0.1,1,10,100];
+            plot_config.ytick_list=[1,10,20,30,40];
+            plot_config.xlim_list=[1,0.001,100];
+            plot_config.loglog=[1,0];
+            plot_line(data_Nu,plot_config);
+            
+            
+            %---------read RMS value and plot their trend over Omega
+            for content_ind=1:length(dedalus_post_my)
+                data_rms{1}.y(content_ind)=dedalus_post_my{1,content_ind}.T_rms_mid;
+                data_rms{2}.y(content_ind)=dedalus_post_my{1,content_ind}.w_rms_mid;
+                data_rms{3}.y(content_ind)=dedalus_post_my{1,content_ind}.u_rms_mid;
+                data_rms{1}.x(content_ind)=dedalus_post_my{1,content_ind}.HB_porous_2_layer_Omega;
+            end
+            data_rms{2}.x=data_rms{1}.x;
+            data_rms{3}.x=data_rms{1}.x;
+            data_rms{4}.x=porous_hewitt_2_layer.Omega_T_rms(:,1);
+            data_rms{4}.y=porous_hewitt_2_layer.Omega_T_rms(:,2);
+            data_rms{5}.x=porous_hewitt_2_layer.Omega_w_rms(:,1);
+            data_rms{5}.y=porous_hewitt_2_layer.Omega_w_rms(:,2);
+            data_rms{6}.x=porous_hewitt_2_layer.Omega_u_rms(:,1);
+            data_rms{6}.y=porous_hewitt_2_layer.Omega_u_rms(:,2);
+            %plot config of rms value
+            plot_config.label_list={1,'$\Omega$',[]};
+            plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'Omega_rms.png'];
+            plot_config.Markerindex=3;
+            plot_config.user_color_style_marker_list={'r-','b--','k-.','rsquare','bo','k^'};    
+            plot_config.loglog=[1,0];
+            plot_config.linewidth=3;
+            plot_config.legend_list={1,'${T_{\textrm{rms}}}$','${w_{\textrm{rms}}}$','${u_{\textrm{rms}}}$',...
+                '${T_{\textrm{rms}}}$ (DNS)','${w_{\textrm{rms}}}$ (DNS)','${u_{\textrm{rms}}}$ (DNS)'};
+            plot_config.fontsize_legend=24;
+            plot_config.fontsize=32;
+            plot_config.ylim_list=[1,0,0.25];
+            plot_config.xlim_list=[1,0.001,100];
+            plot_config.xtick_list=[1,0.001,0.01,0.1,1,10,100];
+            plot_config.ytick_list=[1,0,0.05,0.1,0.15,0.2,0.25];
+            plot_line(data_rms,plot_config);
+            
+            %---------plot the profile over z for T_0 and rms.. for
+            %comparison
+            %get the index that corresponds to the Omega=0.04,0.25,1.28,10
+            [~,Omega_ind(1)]=min(abs(Omega_list-0.04));
+            [~,Omega_ind(2)]=min(abs(Omega_list-0.25));
+            [~,Omega_ind(3)]=min(abs(Omega_list-1.28));
+            [~,Omega_ind(4)]=min(abs(Omega_list-10));
+            
+            for ind=1:length(Omega_ind)
+                background_T=1-dedalus_post_my{Omega_ind(ind)}.z_list;
+                data_T{ind}.y=dedalus_post_my{Omega_ind(ind)}.z_list;
+                data_T{ind}.x=dedalus_post_my{Omega_ind(ind)}.T_0+background_T;
+            end
+            data_T{5}.x=porous_hewitt_2_layer.z_T_0_Omega_0p04(:,2);
+            data_T{5}.y=porous_hewitt_2_layer.z_T_0_Omega_0p04(:,1);
+            data_T{6}.x=porous_hewitt_2_layer.z_T_0_Omega_0p25(:,2);
+            data_T{6}.y=porous_hewitt_2_layer.z_T_0_Omega_0p25(:,1);
+            data_T{7}.x=porous_hewitt_2_layer.z_T_0_Omega_1p28(:,2);
+            data_T{7}.y=porous_hewitt_2_layer.z_T_0_Omega_1p28(:,1);
+            data_T{8}.x=porous_hewitt_2_layer.z_T_0_Omega_10(:,2);
+            data_T{8}.y=porous_hewitt_2_layer.z_T_0_Omega_10(:,1);
+            data_T=sparse_data(data_T,5,5);
+            
+            plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
+            plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0.png'];
+            plot_config.legend_list={1,'$\Omega=0.04$','$\Omega=0.25$', '$\Omega=1.28$','$\Omega=10$'...
+                    '$\Omega=0.04$ (DNS)', '$\Omega=0.25$ (DNS)', '$\Omega=1.28$ (DNS)','$\Omega=10$ (DNS)'};
+            plot_config.fontsize_legend=22;
+            plot_config.fontsize=32;
+            plot_config.linwidth=3;
+            plot_config.Markerindex=3;
+            plot_config.user_color_style_marker_list={'r-','k--','b-.','m:','rsquare','k^','bo','mx','r-','k--','b-.','m:'};
+            plot_config.print_size=[1,900,1000];
+            plot_config.xlim_list=[1,0,1];
+            plot_config.ylim_list=[1,0,1];
+            plot_config.loglog=[0,0];
+            plot_config.xtick_list=[1,0,0.2,0.4,0.6,0.8,1];
+            plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+            plot_line(data_T,plot_config);
+           
+            %plot of T_rms comparison...
+            rms_list={'T','w','u'};
+            plot_config.linwidth=3;
+            plot_config.fontsize=32;
+            plot_config.legend_list={0};
+            for rms_ind=1:length(rms_list)
+                clear data_T
+                rms_name=rms_list{rms_ind};
+                if rms_name=='u'
+                    suffix='_tilde';
+                else 
+                    suffix='_hat';
+                end
+                data_T{1}.x=abs(dedalus_post_my{Omega_ind(1)}.([rms_name,suffix]))*sqrt(2);
+                data_T{1}.y=dedalus_post_my{Omega_ind(1)}.z_list;
+                data_T{2}.x=abs(dedalus_post_my{Omega_ind(2)}.([rms_name,suffix]))*sqrt(2);
+                data_T{2}.y=dedalus_post_my{Omega_ind(2)}.z_list;
+                data_T{3}.x=abs(dedalus_post_my{Omega_ind(3)}.([rms_name,suffix]))*sqrt(2);
+                data_T{3}.y=dedalus_post_my{Omega_ind(3)}.z_list;
+                data_T{4}.x=abs(dedalus_post_my{Omega_ind(4)}.([rms_name,suffix]))*sqrt(2);
+                data_T{4}.y=dedalus_post_my{Omega_ind(4)}.z_list;
+
+                porous_hewitt_3D=dedalus_post_my{1}.get_porous_hewitt_3D();
+                data_T{5}.x=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_0p04'])(:,2);
+                data_T{5}.y=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_0p04'])(:,1);
+                data_T{6}.x=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_0p25'])(:,2);
+                data_T{6}.y=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_0p25'])(:,1);
+                data_T{7}.x=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_1p28'])(:,2);
+                data_T{7}.y=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_1p28'])(:,1);
+                data_T{8}.x=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_10'])(:,2);
+                data_T{8}.y=porous_hewitt_2_layer.(['z_',rms_name,'_rms_Omega_10'])(:,1);
+                %data_T=sparse_data(data_T,5,5);
+
+                %                 sparse_ind=1;
+%                 data_T{4}.x=porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])),2);
+%                 data_T{4}.y=porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])),1);
+%                 data_T{5}.x=porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])),2);
+%                 data_T{5}.y=porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])),1);
+%                 data_T{6}.x=porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])),2);
+%                 data_T{6}.y=porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])),1);
+% 
+%                 sparse_ind=5;
+%                 data_T{7}.x=porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])),2);
+%                 data_T{7}.y=porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_4000_z_',rms_name,'_rms'])),1);
+%                 data_T{8}.x=porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])),2);
+%                 data_T{8}.y=porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_8000_z_',rms_name,'_rms'])),1);
+%                 data_T{9}.x=porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])),2);
+%                 data_T{9}.y=porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])(1:sparse_ind:length(porous_hewitt_3D.(['Ra_16000_z_',rms_name,'_rms'])),1);
+
+                plot_config.label_list={1,['$',rms_name,'_{\textrm{rms}}$'],'$z$'};
+                plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,rms_name,'_rms.png'];
+                plot_config.Markerindex=3;
+                plot_config.user_color_style_marker_list={'r-','k--','b-.','m:','rsquare','k^','bo','mx','r-','k--','b-.','m:'};
+                plot_config.print_size=[1,600,1000];
+                switch rms_name
+                    case 'T'
+                        plot_config.xlim_list=[1,0,0.3];
+                    case 'u'
+                        plot_config.xlim_list=[1,0,0.2];
+                    case 'w'
+                        plot_config.xlim_list=[1,0,0.1];
+                end
+                plot_config.xtick_list=[1,0,0.1,0.2,0.3];
+                plot_line(data_T,plot_config);
+            end
+            
+            
+            
+            
         case 'HB_porous_thermal_BC'
             plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
             plot_config.Markerindex=3;
