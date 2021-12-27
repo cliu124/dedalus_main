@@ -69,8 +69,24 @@ elif flag.flow == 'HB_porous_2_layer':
     flag.HB_porous_2_layer_Omega=0
     flag.problem='BVP'
     flag.A_elevator=1/10*flag.Ra_T
+    flag.bvp_tolerance=1e-8
 
-    
+elif flag.flow == 'HB_porous_3_layer':
+    flag.Nz=512
+    flag.Lz=0.5
+    flag.tau=0.01
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
+    flag.Ra_T=5000
+    flag.Ra_S2T=0
+    flag.continuation=0
+    flag.kx=2*np.pi/(4/9)#0.48*flag.Ra_T**0.4 #2D
+    flag.HB_porous_3_layer_Pi=0.04
+    flag.HB_porous_3_layer_h=0.005
+    flag.problem='BVP'
+    flag.A_elevator=1/10*flag.Ra_T
+    flag.bvp_tolerance=1e-8
+
 elif flag.flow == 'HB_porous_shear':
     flag.Nz=1024
     flag.Lz=1
@@ -442,19 +458,23 @@ flag.stop_sim_time=20;
 #Ra_T_list=[10000,20000,40000]
 #np.linspace(0,20000,21)
 #Ra_T_list=np.logspace(2,6,100)
+
+#####This is the for loop for different Ra
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-#Pe_list=[1]
-#for Pe in Pe_list:
+Pe_list=[1]
+for Pe in Pe_list:
 #    flag.Pe_T=Pe
 #    flag.Pe_S=Pe
 #F_sin_list=np.linspace(0.1,1,19)
+#####This is the for loop for different shear amplitude
 #for flag.F_sin in F_sin_list:
 #    flag.kx=0.48*flag.Ra_T**0.4 #2D
     #flag.kx=0.17*flag.Ra_T**0.52 #3D
-Omega_list,kx_list = flag.get_HB_porous_2_layer_Omega_k()
-for index, flag.HB_porous_2_layer_Omega in enumerate(Omega_list):
-    flag.kx=kx_list[index]
+#####This is for loop for the HB_porous_2_layer with different Omega    
+#Omega_list,kx_list = flag.get_HB_porous_2_layer_Omega_k()
+#for index, flag.HB_porous_2_layer_Omega in enumerate(Omega_list):
+#    flag.kx=kx_list[index]
     flag.ky=0
     flag.kx_2=0
     flag.ky_2=flag.kx_2

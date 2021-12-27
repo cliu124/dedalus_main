@@ -15,6 +15,7 @@ close all;
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
 group_name='hewitt_2_layer_Omega';
+% group_name='test';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -86,7 +87,8 @@ switch group_name
     case 'HB_benard_Ra'
         slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
     case 'hewitt_2_layer_Omega'
-        slurm_num={'12829121'}
+        slurm_num={'12829183'};
+        %slurm_num={'12829121'}
     case 'herring_1963_free'
         slurm_num={'12761527',...Ra=4*10^3, kx=0.8pi
             '12761528',... Ra=10^4, kx=pi
@@ -105,7 +107,7 @@ switch group_name
                 }
 
     case 'test'
-        slurm_num={'12822554', '12822555'};
+        slurm_num={'12829183'};
         %slurm_num={'12821151'};
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
@@ -116,7 +118,7 @@ switch group_name
         
 end
 
-flag.print=1;
+flag.print=0;
 flag.visible=0;
 flag.video=0;
 flag.post_plot=1;

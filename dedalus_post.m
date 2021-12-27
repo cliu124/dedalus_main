@@ -2133,8 +2133,9 @@ classdef dedalus_post
                     ];
         end
         function porous_hewitt_2_layer=get_porous_hewitt_2_layer(obj)
+            %Here is the data digitized from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
             
-            
+            %Figure 8(a) of hewitt (2014) et al. 
             porous_hewitt_2_layer.Omega_Nu=[0.00250719	37.4737
                     0.00497608	37.4737
                     0.00628603	37.2632
@@ -2170,6 +2171,8 @@ classdef dedalus_post
                     50.3849	12.4211
                     100	12.2105
                     ];
+                
+            %Figure 8(b) of hewitt (2014) et al., T_rms, w_rms and u_rms 
             porous_hewitt_2_layer.Omega_T_rms=[0.00254335	0.0936508
                     0.00504316	0.0952381
                     0.00627043	0.0944444
@@ -2274,6 +2277,9 @@ classdef dedalus_post
                     49.6531	0.0484127
                     100	0.0492063
                     ];
+                
+            %temperature and RMS profile over z direction...
+            %from figure 7(a)
             porous_hewitt_2_layer.z_T_0_Omega_0p04=[0.25	0.991736
                     0.392857	0.983471
                     0.470238	0.975207
@@ -2367,6 +2373,9 @@ classdef dedalus_post
                     0.0833334	0.00826446
                     ];
 
+                     
+            %temperature and RMS profile over z direction...
+            %from figure 7(b)
             porous_hewitt_2_layer.z_T_0_Omega_0p25=[0.261905	0.991736
                 0.404762	0.987603
                 0.464286	0.971074
@@ -2452,7 +2461,9 @@ classdef dedalus_post
                 0.0819278	0.033195
                 0.1024096	0.0124481
                 ];
-
+     
+            %temperature and RMS profile over z direction...
+            %from figure 7(c)
             porous_hewitt_2_layer.z_T_0_Omega_1p28=[0.255952	0.991736
                 0.345238	0.983471
                 0.392857	0.971074
@@ -2557,6 +2568,9 @@ classdef dedalus_post
                 0.095238	0.0123967
                 ];
             
+                 
+            %temperature and RMS profile over z direction...
+            %from figure 7(d)
             porous_hewitt_2_layer.z_T_0_Omega_10=[0.130952	0.991736
                 0.244048	0.975207
                 0.285714	0.958678
@@ -2639,6 +2653,9 @@ classdef dedalus_post
                 0.0369048	0.0206612
                 ];
 
+            %Here, reorder the data for the following cases..
+            %make the first column as z just make consistent with other
+            %dataset from Hewitt also encoded here...
             struct_name={'z_T_0_Omega_0p04','z_T_rms_Omega_0p04','z_w_rms_Omega_0p04','z_u_rms_Omega_0p04',...
                 'z_T_0_Omega_0p25','z_T_rms_Omega_0p25','z_w_rms_Omega_0p25','z_u_rms_Omega_0p25',...
                 'z_T_0_Omega_1p28','z_T_rms_Omega_1p28','z_w_rms_Omega_1p28','z_u_rms_Omega_1p28',...
