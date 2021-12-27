@@ -140,7 +140,7 @@ class flag(object):
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         
         #For Harmonic balance method. Chebyshev in the vertical
-        elif self.flow in ['HB_porous','HB_benard','test_periodic','HB_porous_2_layer']:
+        elif self.flow in ['HB_porous','HB_benard','test_periodic','HB_porous_2_layer','HB_porous_3_layer']:
             #if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
             #    z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             #    #domain = de.Domain([z_basis],grid_dtype=np.float64)

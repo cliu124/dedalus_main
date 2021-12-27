@@ -194,6 +194,9 @@ classdef dedalus_post
         HB_porous_shear_phi=0;
         
         HB_porous_2_layer_Omega=0;
+        
+        HB_porous_3_layer_Pi=1;
+        HB_porous_3_layer_h=0.01;
     end
     
     methods
