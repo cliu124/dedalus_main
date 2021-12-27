@@ -630,16 +630,16 @@ class flag(object):
             #we need have additional parameter h and Pi... They need to be multiplied in a couple of places.
             
             #bottom layer equation z\in [0,(1-h)/2]
-            problem.add_equation('z_scale*dz(w_hat)-(-(kx*kx+ky*ky)*p_hat*Pi)=0')
-            problem.add_equation('z_scale*dz(p_hat)-(-w_hat/Pi+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+            problem.add_equation('z_scale*dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
+            problem.add_equation('z_scale*dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
             problem.add_equation('z_scale*dz(T_hat)-d_T_hat=0')
             problem.add_equation('z_scale*dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
             problem.add_equation('z_scale*dz(S_hat)-d_S_hat=0')
             problem.add_equation('z_scale*dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
             problem.add_equation('z_scale*dz(T_0)-d_T_0=0')
             problem.add_equation('z_scale*dz(S_0)-d_S_0=0')
-            problem.add_equation('z_scale*dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*Pi*T_hat+2*w_hat*d_T_hat')
-            problem.add_equation('z_scale*dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*Pi*S_hat+2*w_hat*d_S_hat)')
+            problem.add_equation('z_scale*dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
+            problem.add_equation('z_scale*dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
              
             #middle layer equation z\in [(1-h)/2,(1+h)/2]
             problem.add_equation('z_scale_mid*dz(w_hat_mid)-(-(kx*kx+ky*ky)*p_hat_mid*Pi)=0')
@@ -654,16 +654,16 @@ class flag(object):
             problem.add_equation('z_scale_mid*dz(d_S_0_mid)=1/tau*(-2*(kx*kx+ky*ky)*p_hat_mid*Pi*S_hat_mid+2*w_hat_mid*d_S_hat_mid)')
             
             #top layer equation z\in [(1+h)/2,1]
-            problem.add_equation('z_scale_top*dz(w_hat_top)-(-(kx*kx+ky*ky)*p_hat_top*Pi)=0')
-            problem.add_equation('z_scale_top*dz(p_hat_top)-(-w_hat_top/Pi+Ra_T*T_hat_top-Ra_S2T*S_hat_top)=0')
+            problem.add_equation('z_scale_top*dz(w_hat_top)-(-(kx*kx+ky*ky)*p_hat_top)=0')
+            problem.add_equation('z_scale_top*dz(p_hat_top)-(-w_hat_top+Ra_T*T_hat_top-Ra_S2T*S_hat_top)=0')
             problem.add_equation('z_scale_top*dz(T_hat_top)-d_T_hat_top=0')
             problem.add_equation('z_scale_top*dz(d_T_hat_top)-(w_hat_top*dy_T_mean+(kx*kx+ky*ky)*T_hat_top)=w_hat_top*d_T_0_top')
             problem.add_equation('z_scale_top*dz(S_hat_top)-d_S_hat_top=0')
             problem.add_equation('z_scale_top*dz(d_S_hat_top)-1/tau*w_hat_top*dy_S_mean-(kx*kx+ky*ky)*S_hat_top=1/tau*(w_hat_top*d_S_0_top)')   
             problem.add_equation('z_scale_top*dz(T_0_top)-d_T_0_top=0')
             problem.add_equation('z_scale_top*dz(S_0_top)-d_S_0_top=0')
-            problem.add_equation('z_scale_top*dz(d_T_0_top)=-2*(kx*kx+ky*ky)*p_hat_top*Pi*T_hat_top+2*w_hat_top*d_T_hat_top')
-            problem.add_equation('z_scale_top*dz(d_S_0_top)=1/tau*(-2*(kx*kx+ky*ky)*p_hat_top*Pi*S_hat_top+2*w_hat_top*d_S_hat_top)')
+            problem.add_equation('z_scale_top*dz(d_T_0_top)=-2*(kx*kx+ky*ky)*p_hat_top*T_hat_top+2*w_hat_top*d_T_hat_top')
+            problem.add_equation('z_scale_top*dz(d_S_0_top)=1/tau*(-2*(kx*kx+ky*ky)*p_hat_top*S_hat_top+2*w_hat_top*d_S_hat_top)')
                
             #Add B.C. for z=0
             problem.add_bc('left(w_hat)=0')
