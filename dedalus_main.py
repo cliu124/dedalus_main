@@ -81,7 +81,7 @@ elif flag.flow == 'HB_porous_3_layer':
     flag.Ra_S2T=0
     flag.continuation=0
     flag.kx=2*np.pi/(4/9)#0.48*flag.Ra_T**0.4 #2D
-    flag.HB_porous_3_layer_Pi=0.04
+    flag.HB_porous_3_layer_Pi=1#0.04
     flag.HB_porous_3_layer_h=0.005
     flag.problem='BVP'
     flag.A_elevator=1/10*flag.Ra_T
@@ -462,8 +462,8 @@ flag.stop_sim_time=20;
 #####This is the for loop for different Ra
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pe_list=[1]
-for Pe in Pe_list:
+Pi_list=[1,0.5,0.2,0.1,0.04]
+for flag.HB_porous_3_layer_Pi in Pi_list:
 #    flag.Pe_T=Pe
 #    flag.Pe_S=Pe
 #F_sin_list=np.linspace(0.1,1,19)
