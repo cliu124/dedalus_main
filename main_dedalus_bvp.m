@@ -14,8 +14,8 @@ close all;
 
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
-group_name='hewitt_2_layer_Omega';
-% group_name='test';
+% group_name='hewitt_2_layer_Omega';
+group_name='test';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -107,7 +107,7 @@ switch group_name
                 }
 
     case 'test'
-        slurm_num={'12829183'};
+        slurm_num={'12833450'};
         %slurm_num={'12821151'};
         %slurm_num={'12760848'}; %Ra=10^6, kx=1
         
@@ -118,8 +118,8 @@ switch group_name
         
 end
 
-flag.print=0;
-flag.visible=0;
+flag.print=1;
+flag.visible=1;
 flag.video=0;
 flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)

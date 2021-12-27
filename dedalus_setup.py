@@ -642,7 +642,7 @@ class flag(object):
             problem.add_equation('z_scale*dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*Pi*S_hat+2*w_hat*d_S_hat)')
              
             #middle layer equation z\in [(1-h)/2,(1+h)/2]
-            problem.add_equation('z_scale_mid*z_scale_mid*dz(w_hat_mid)-(-(kx*kx+ky*ky)*p_hat_mid*Pi)=0')
+            problem.add_equation('z_scale_mid*dz(w_hat_mid)-(-(kx*kx+ky*ky)*p_hat_mid*Pi)=0')
             problem.add_equation('z_scale_mid*dz(p_hat_mid)-(-w_hat_mid/Pi+Ra_T*T_hat_mid-Ra_S2T*S_hat_mid)=0')
             problem.add_equation('z_scale_mid*dz(T_hat_mid)-d_T_hat_mid=0')
             problem.add_equation('z_scale_mid*dz(d_T_hat_mid)-(w_hat_mid*dy_T_mean+(kx*kx+ky*ky)*T_hat_mid)=w_hat_mid*d_T_0_mid')

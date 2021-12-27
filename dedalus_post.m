@@ -235,14 +235,10 @@ classdef dedalus_post
         %read data for x, z, t, kx, kz, and compute Lx, Lz
             obj.x_list=h5read_complex(h5_name,'/scales/x/1.0');
             obj.Nx=length(obj.x_list);
-            if obj.flow=='HB_porous_2_layer'
-                obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
-                obj.z_list=[obj.z_list,obj.z_list+0.5];
-                obj.Nz=2*length(obj.z_list);
-            else
-                obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
-                obj.Nz=length(obj.z_list);
-            end
+            
+            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+            obj.Nz=length(obj.z_list);
+            
             obj.t_list=h5read_complex(h5_name,'/scales/sim_time');
             obj.kx_list=h5read_complex(h5_name,'/scales/kx');
             obj.kz_list=h5read_complex(h5_name,'/scales/kz');
@@ -301,7 +297,9 @@ classdef dedalus_post
             
             
             if strcmp(obj.flow,'HB_porous_2_layer')
-                obj.z_list=[h5read_complex(h5_name,'/scales/z/1.0');h5read_complex(h5_name,'/scales/z/1.0')+0.5];
+                obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+                obj.z_list=[obj.z_list;obj.z_list+0.5];
+                obj.Nz=2*obj.Nz;
                 obj.w_hat=[obj.w_hat;h5read_complex(h5_name,'/tasks/w_hat_top')];
                 obj.p_hat=[obj.p_hat;h5read_complex(h5_name,'/tasks/p_hat_top')];
                 obj.T_hat=[obj.T_hat;h5read_complex(h5_name,'/tasks/T_hat_top')];
@@ -313,7 +311,25 @@ classdef dedalus_post
                 obj.S_0=[obj.S_0;h5read_complex(h5_name,'/tasks/S_0_top')];
                 obj.d_S_0=[obj.d_S_0;h5read_complex(h5_name,'/tasks/d_S_0_top')];
                 obj.u_tilde=-obj.kx*obj.p_hat;
-
+            elseif strcmp(obj.flow,'HB_porous_3_layer')
+                h=obj.HB_porous_3_layer_h; Lz=obj.Lz;
+                z_list=h5read_complex(h5_name,'/scales/z/1.0');
+                obj.z_list=[(1-h)/2/Lz*z_list;(1-h)/2+h/Lz*z_list;(1+h)/2+(1-h)/2/Lz*z_list];
+                obj.Nz=3*obj.Nz;
+                
+                obj.w_hat=[obj.w_hat;h5read_complex(h5_name,'/tasks/w_hat_mid');h5read_complex(h5_name,'/tasks/w_hat_top')];
+                obj.p_hat=[obj.p_hat;h5read_complex(h5_name,'/tasks/p_hat_mid');h5read_complex(h5_name,'/tasks/p_hat_top')];
+                obj.T_hat=[obj.T_hat;h5read_complex(h5_name,'/tasks/T_hat_mid');h5read_complex(h5_name,'/tasks/T_hat_top')];
+                obj.d_T_hat=[obj.d_T_hat;h5read_complex(h5_name,'/tasks/d_T_hat_mid');h5read_complex(h5_name,'/tasks/d_T_hat_top')];
+                obj.S_hat=[obj.S_hat;h5read_complex(h5_name,'/tasks/S_hat_mid');h5read_complex(h5_name,'/tasks/S_hat_top')];
+                obj.d_S_hat=[obj.d_S_hat;h5read_complex(h5_name,'/tasks/d_S_hat_mid');h5read_complex(h5_name,'/tasks/d_S_hat_top')];
+                obj.T_0=[obj.T_0;h5read_complex(h5_name,'/tasks/T_0_mid');h5read_complex(h5_name,'/tasks/T_0_top')];
+                obj.d_T_0=[obj.d_T_0;h5read_complex(h5_name,'/tasks/d_T_0_mid');h5read_complex(h5_name,'/tasks/d_T_0_top')];
+                obj.S_0=[obj.S_0;h5read_complex(h5_name,'/tasks/S_0_top');h5read_complex(h5_name,'/tasks/S_0_top')];
+                obj.d_S_0=[obj.d_S_0;h5read_complex(h5_name,'/tasks/d_S_0_top');h5read_complex(h5_name,'/tasks/d_S_0_top')];
+                
+                Pi=obj.HB_porous_3_layer_Pi
+                obj.u_tilde=[-obj.kx*h5read_complex(h5_name,'/tasks/p_hat');-obj.kx*Pi*h5read_complex(h5_name,'/tasks/p_hat_mid');-obj.kx*h5read_complex(h5_name,'/tasks/p_hat_top')];
             end
             
             
@@ -326,7 +342,7 @@ classdef dedalus_post
                 obj.p_hat_2=obj.p_hat_2/obj.Ra_T;
             end
             
-            mid_ind=length(obj.z_list)/2;
+            mid_ind=obj.Nz/2;
             obj.Nu=-(obj.d_T_0+obj.dy_T_mean);%Nusselt number 
             obj.Nu_S=-(obj.d_S_0+obj.dy_S_mean); %nussel number for salinity... also add the background one...
 %             [T_BL_ind]=find(diff(sign(obj.d_T_0)));%min(abs(obj.d_T_0+obj.dy_T_mean));
@@ -349,14 +365,14 @@ classdef dedalus_post
                 obj.z_S_BL=1-obj.z_S_BL;
             end
             
-            obj.T_rms_max=max(obj.T_hat(mid_ind)*sqrt(2));
+            obj.T_rms_max=max(obj.T_hat*sqrt(2));
             [~,max_ind]=max(obj.T_hat);
             obj.z_T_rms_max=obj.z_list(max_ind(1));
             if obj.z_T_rms_max>0.5
                 obj.z_T_rms_max=1-obj.z_T_rms_max;
             end
             
-            obj.S_rms_max=max(obj.S_hat(mid_ind)*sqrt(2));
+            obj.S_rms_max=max(obj.S_hat*sqrt(2));
             [~,max_ind]=max(obj.S_hat);
             obj.z_S_rms_max=obj.z_list(max_ind(1));
             if obj.z_S_rms_max>0.5
