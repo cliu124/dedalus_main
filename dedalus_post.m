@@ -325,8 +325,8 @@ classdef dedalus_post
                 obj.d_S_hat=[obj.d_S_hat;h5read_complex(h5_name,'/tasks/d_S_hat_mid');h5read_complex(h5_name,'/tasks/d_S_hat_top')];
                 obj.T_0=[obj.T_0;h5read_complex(h5_name,'/tasks/T_0_mid');h5read_complex(h5_name,'/tasks/T_0_top')];
                 obj.d_T_0=[obj.d_T_0;h5read_complex(h5_name,'/tasks/d_T_0_mid');h5read_complex(h5_name,'/tasks/d_T_0_top')];
-                obj.S_0=[obj.S_0;h5read_complex(h5_name,'/tasks/S_0_top');h5read_complex(h5_name,'/tasks/S_0_top')];
-                obj.d_S_0=[obj.d_S_0;h5read_complex(h5_name,'/tasks/d_S_0_top');h5read_complex(h5_name,'/tasks/d_S_0_top')];
+                obj.S_0=[obj.S_0;h5read_complex(h5_name,'/tasks/S_0_mid');h5read_complex(h5_name,'/tasks/S_0_top')];
+                obj.d_S_0=[obj.d_S_0;h5read_complex(h5_name,'/tasks/d_S_0_mid');h5read_complex(h5_name,'/tasks/d_S_0_top')];
                 
                 Pi=obj.HB_porous_3_layer_Pi
                 obj.u_tilde=[-obj.kx*h5read_complex(h5_name,'/tasks/p_hat');-obj.kx*Pi*h5read_complex(h5_name,'/tasks/p_hat_mid');-obj.kx*h5read_complex(h5_name,'/tasks/p_hat_top')];
@@ -2151,6 +2151,16 @@ classdef dedalus_post
                     37318.4	92.8268
                     ];
         end
+        
+        function porous_pirozzoli_3D=get_porous_pirozzoli_3D(obj)
+            porous_pirozzoli_3D.Ra_Nu_DNS=[10000,99.84;
+                                           20000,193.71;
+                                           30000,281.14;
+                                           40000,370.17;
+                                           80000,709];
+            
+        end
+        
         function porous_hewitt_2_layer=get_porous_hewitt_2_layer(obj)
             %Here is the data digitized from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
             

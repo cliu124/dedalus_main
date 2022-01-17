@@ -20,7 +20,8 @@ flag=dedalus_setup.flag()
 
 
 #------------select the flow configuration and special parameters for each
-flag.flow='HB_porous_3_layer'
+#flag.flow='HB_porous_3_layer'
+flag.flow='HB_porous'
 #flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
@@ -43,10 +44,9 @@ if flag.flow=='HB_porous':
     #Ra_T_list=[10000,20000,40000]
     flag.Ra_T=10000
     flag.Ra_S2T=0
-    #flag.kx=0.48*flag.Ra_T**0.4 #2D
+    flag.kx=0.48*flag.Ra_T**0.4 #2D
     flag.continuation=0
     flag.ky=0
-    flag.problem='BVP'
     flag.z_bc_w_left='dirichlet'
     flag.z_bc_w_right='dirichlet'  
     flag.z_bc_T_left='dirichlet'
@@ -56,6 +56,10 @@ if flag.flow=='HB_porous':
     flag.bvp_tolerance=1e-10
     
     flag.A_elevator=1/10*flag.Ra_T
+    flag.problem='IVP'
+    if flag.problem =='IVP':
+        flag.initial_dt=0.01
+
 elif flag.flow == 'HB_porous_2_layer':
     flag.Nz=512
     flag.Lz=0.5
@@ -448,7 +452,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=0.5;
+flag.post_store_dt=0.1;
 flag.stop_sim_time=20;
 
 #------------ print these parameters in the screen
@@ -462,8 +466,8 @@ flag.stop_sim_time=20;
 #####This is the for loop for different Ra
 #for flag.Ra_T in Ra_T_list:
 #Lz_list=np.linspace(1,64,65)
-Pi_list=[1,0.5,0.2,0.1,0.04]
-for flag.HB_porous_3_layer_Pi in Pi_list:
+#Pi_list=[1,0.5,0.2,0.1,0.04]
+#for flag.HB_porous_3_layer_Pi in Pi_list:
 #    flag.Pe_T=Pe
 #    flag.Pe_S=Pe
 #F_sin_list=np.linspace(0.1,1,19)
@@ -475,6 +479,7 @@ for flag.HB_porous_3_layer_Pi in Pi_list:
 #Omega_list,kx_list = flag.get_HB_porous_2_layer_Omega_k()
 #for index, flag.HB_porous_2_layer_Omega in enumerate(Omega_list):
 #    flag.kx=kx_list[index]
+for flag.ky in [0]:
     flag.ky=0
     flag.kx_2=0
     flag.ky_2=flag.kx_2

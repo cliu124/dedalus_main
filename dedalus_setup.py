@@ -598,6 +598,7 @@ class flag(object):
             problem.add_bc('right(d_T_hat)-left(d_T_hat_top)=0')
             #Try this B.C. .. This is equivalent that the second order derivative of pressure should be zero... for small Omega, it is also ok...
             #problem.add_bc('right(d_T_hat)-left(d_T_hat_top)=(-kx*kx-ky*ky)/Ra_T*Omega*right(w_hat)')
+            
             problem.add_bc('right(S_hat)-left(S_hat_top)=0')
             problem.add_bc('right(d_S_hat)-left(d_S_hat_top)=0')
             problem.add_bc('right(T_0)-left(T_0_top)=0')
