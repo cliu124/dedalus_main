@@ -192,7 +192,9 @@ elif flag.flow in ['HB_benard_shear']:
     flag.z_bc_u_v_right='periodic'
     flag.A_elevator=1/10*flag.Ra_T
     flag.A_elevator_imag=0#flag.A_elevator
-    
+    if flag.problem =='IVP':
+        flag.initial_dt=0.001/flag.Ra_T
+
 elif flag.flow=='test_periodic':
     flag.F_sin=1
     flag.ks=2*np.pi
