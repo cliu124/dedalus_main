@@ -12,7 +12,8 @@ close all;
 %     '12639413'};
 
 % group_name='HB_porous_Nu_kx_Ra';
-group_name='HB_porous_Nu_kx_Ra';
+% group_name='HB_porous_Nu_kx_Ra';
+group_name='HB_porous_IVP';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -60,6 +61,9 @@ switch group_name
                     '12784660',...
                     '12784661'};
 %           slurm_num=slurm_num(1);
+    case 'HB_porous_IVP'
+        %slurm_num={'12989358','12989675','12989678'};
+        slurm_num={'12991007','12991008','12991009'};
     case 'hewitt_2D'
         %%These three case is comparing with the z depedence of the mean
         %%temeperature and rms..

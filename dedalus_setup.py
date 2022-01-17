@@ -1425,9 +1425,12 @@ class flag(object):
 
             elif self.problem == 'IVP':
                 problem = de.IVP(domain, variables=\
-                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
-                    'w_hat','p_hat','T_hat','d_T_hat', \
-                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+                    ['u_tilde_real','d_u_tilde_real','v_tilde_real','d_v_tilde_real', \
+                    'u_tilde_imag','d_u_tilde_imag','v_tilde_imag','d_v_tilde_imag', \
+                     'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real', \
+                     'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag', \
+                    'S_hat_real','d_S_hat_real','S_hat_imag','d_S_hat_imag', \
+                        'T_0','d_T_0','S_0','d_S_0'])
             elif self.problem == 'EVP': 
                 problem = de.EVP(domain, variables=\
                     ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
@@ -1508,6 +1511,69 @@ class flag(object):
                 #This B.C. works for the periodic B.C. and they can converge smoothly...
                 problem.add_bc("left(T_hat_imag)=0")
     
+            elif self.problem =='IVP':
+                #real
+                problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
+                problem.add_equation('-1/Pr*dt(u_tilde_real)+dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=0')
+                problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
+                problem.add_equation('-1/Pr*dt(v_tilde_real)+dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=0')
+                problem.add_equation('dz(w_hat_real)-(kx*u_tilde_real+ky*v_tilde_real)=0')
+                problem.add_equation('1/Pr*dt(w_hat_real)+dz(p_hat_real)-(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=0')
+                problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
+                problem.add_equation('dz(S_hat_real)-d_S_hat_real=0')
+                
+                #IBM: +A*exp(-(z-z0)**2/sigma**2)*w_hat_imag
+                #imag
+                problem.add_equation('dz(u_tilde_imag)-d_u_tilde_imag=0')
+                problem.add_equation('-1/Pr*dt(u_tilde_imag)+dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=0')
+                problem.add_equation('dz(v_tilde_imag)-d_v_tilde_imag=0')
+                problem.add_equation('-1/Pr*dt(v_tilde_imag)+dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=0')
+                problem.add_equation('dz(w_hat_imag)-(kx*u_tilde_imag+ky*v_tilde_imag)=0')
+                problem.add_equation('1/Pr*dt(w_hat_imag)+dz(p_hat_imag)-(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=0')
+                problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
+                problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
+                #problem.add_equation('dz(T_0_imag)-d_T_0_imag=0')
+                #problem.add_equation('dz(S_0_imag)-d_S_0_imag=0')
+
+                #mean temperature and salinity
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('dz(S_0)-d_S_0=0')
+                problem.add_equation('-dt(T_0)+dz(d_T_0)=Pe_T*(2*kx*u_tilde_real*T_hat_real+2*kx*u_tilde_imag*T_hat_imag+2*ky*v_tilde_real*T_hat_real+2*ky*v_tilde_imag*T_hat_imag+2*w_hat_real*d_T_hat_real+2*w_hat_imag*d_T_hat_imag)')
+                problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde_real*S_hat_real+2*kx*u_tilde_imag*S_hat_imag+2*ky*v_tilde_real*S_hat_real+2*ky*v_tilde_imag*S_hat_imag+2*w_hat_real*d_S_hat_real+2*w_hat_imag*d_S_hat_imag)')
+
+                #coupling between real and imag due to shear
+                if self.F_sin=='z':
+                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*(z-1/2)*T_hat_imag=Pe_T*w_hat_real*d_T_0-Pe_T*kx*eta*T_hat_imag')
+                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*(z-1/2)*T_hat_real=Pe_T*w_hat_imag*d_T_0+Pe_T*kx*eta*T_hat_real')
+                    problem.add_equation('-1/tau*dt(S_hat_real)+dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)-Pe_S*kx*eta/tau*S_hat_imag')   
+                    problem.add_equation('-1/tau*dt(S_hat_imag)+dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)+Pe_S*kx*eta/tau*S_hat_real')   
+                else:
+                    print(self.F_sin)
+                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*F_sin*sin(ks*z)*T_hat_imag=Pe_T*w_hat_real*d_T_0-Pe_T*kx*eta*T_hat_imag')
+                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*F_sin*sin(ks*z)*T_hat_real=Pe_T*w_hat_imag*d_T_0+Pe_T*kx*eta*T_hat_real')
+                    problem.add_equation('-1/tau*dt(S_hat_real)+dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)-Pe_S*kx*eta/tau*S_hat_imag')   
+                    problem.add_equation('-1/tau*dt(S_hat_imag)+dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*F_sin*sin(ks*z)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)+Pe_S*kx*eta/tau*S_hat_real')   
+                
+                
+                
+                ##old time dependent version
+                problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                problem.add_equation('dz(T_hat)-d_T_hat=0')
+                problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+                problem.add_equation('dz(S_hat)-d_S_hat=0')
+                problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+                problem.add_equation('dz(S_0)-d_S_0=0')
+                problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+            
+            if self.problem in ['IVP','BVP']:
+                #Add BC for IVP and BVP. 
                 if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
                     problem.add_bc("left(w_hat_real)-right(w_hat_real)=0")
                     problem.add_bc("left(p_hat_real)-right(p_hat_real)=0")
@@ -1632,21 +1698,21 @@ class flag(object):
                 
 
 
-            elif self.problem=='IVP':
-                problem.add_equation('dz(u_tilde)-d_u_tilde=0')
-                problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
-                problem.add_equation('dz(v_tilde)-d_v_tilde=0')
-                problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
-                problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
-                problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
-                problem.add_equation('dz(T_hat)-d_T_hat=0')
-                problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
-                problem.add_equation('dz(S_hat)-d_S_hat=0')
-                problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
-                problem.add_equation('dz(T_0)-d_T_0=0')
-                problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
-                problem.add_equation('dz(S_0)-d_S_0=0')
-                problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+            # elif self.problem=='IVP':
+            #     problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+            #     problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+            #     problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+            #     problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+            #     problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+            #     problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+            #     problem.add_equation('dz(T_hat)-d_T_hat=0')
+            #     problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+            #     problem.add_equation('dz(S_hat)-d_S_hat=0')
+            #     problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+            #     problem.add_equation('dz(T_0)-d_T_0=0')
+            #     problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+            #     problem.add_equation('dz(S_0)-d_S_0=0')
+            #     problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
             
             elif self.problem =='EVP':
                 #real
