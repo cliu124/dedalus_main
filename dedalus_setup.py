@@ -2504,7 +2504,7 @@ class flag(object):
                     if solver.iteration % 100 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
             
-            elif self.flow in ['HB_porous','HB_benard']:
+            elif self.flow in ['HB_porous','HB_benard','HB_porous_shear','HB_benard_shear']:
                 #This harmonic balance is 1D simulation and thus no CFL condition is required.... 
                 while solver.ok:
                     solver.step(dt)
