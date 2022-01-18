@@ -482,7 +482,7 @@ flag.stop_sim_time=1000/flag.Ra_T;
 #Omega_list,kx_list = flag.get_HB_porous_2_layer_Omega_k()
 #for index, flag.HB_porous_2_layer_Omega in enumerate(Omega_list):
 #    flag.kx=kx_list[index]
-for flag.ky in [0]:
+for flag.Ra_S2T in np.linspace(0,20000,21):
     flag.ky=0
     flag.kx_2=0
     flag.ky_2=flag.kx_2
