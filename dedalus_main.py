@@ -21,8 +21,8 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
-#flag.flow='HB_porous'
-flag.flow='HB_benard_shear'
+flag.flow='HB_porous'
+#flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
@@ -57,7 +57,7 @@ if flag.flow=='HB_porous':
     flag.bvp_tolerance=1e-10
     
     flag.A_elevator=1/10*flag.Ra_T
-    flag.problem='IVP'
+    flag.problem='BVP'
     if flag.problem =='IVP':
         flag.initial_dt=0.001/flag.Ra_T
 
@@ -461,7 +461,7 @@ flag.stop_sim_time=1000/flag.Ra_T;
 #------------ print these parameters in the screen
 
       
-#flag.ky=flag.kx
+#flag.ky=flag.kx                        
 #Ra_T_list=[10000,20000,40000]
 #np.linspace(0,20000,21)
 #Ra_T_list=np.logspace(2,6,100)
