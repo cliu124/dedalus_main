@@ -13,7 +13,7 @@ close all;
 
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
-group_name='hewitt_2D';
+group_name='trevisan_tau';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -113,7 +113,14 @@ switch group_name
                 '12761518',... Ra=10^5, kx=5
                 '12761515'%Ra=10^6, kx=5.25
                 }
-
+    case 'trevisan_tau'
+        slurm_num={'13036450',
+                    '13036451',
+                    '13036452'
+                    };
+    case 'trevisan_contour'
+        slurm_num={};
+    case 'trevisan_'
     case 'test'
         slurm_num={'12834379'};
         %slurm_num={'12821151'};
@@ -123,6 +130,7 @@ switch group_name
                 %'12760764'};
         %slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
         %        '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
+        
         
 end
 
@@ -1010,6 +1018,17 @@ if flag.post_plot
             plot_config.name=['C:\Figure\DDC_LST\',group_name,'T_0_Ra.png'];
             plot_line(data_T0,plot_config);
             
+        case 'trevisan_tau'
+            for slurm_ind=1:size(dedalus_post_my,1)
+                for content_ind=1:size(dedalus_post_my,2)
+                    tau(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.tau;
+                    Nu_S(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu_S(1);
+                    
+                end
+                [tau_tmp,ind]=sort(tau(slurm_ind,:));
+                tau(slurm_ind,:)=tau_tmp;  
+                Nu_S(slurm_ind,:)=Nu_S(slurm_ind,ind);
+            end
         case 'test'
             for content_ind=1:size(dedalus_post_my,2)
                 data_Nu{1}.x(content_ind)=dedalus_post_my{content_ind}.HB_porous_3_layer_h;

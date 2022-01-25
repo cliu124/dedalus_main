@@ -555,6 +555,9 @@ classdef dedalus_post
             
             %Plot the isocontour of T
             clear data plot_config
+            plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
+            
             x=linspace(0,2*pi,1000);
             z_ind=1:length(obj.z_list);
             y=obj.z_list(z_ind);
@@ -580,6 +583,9 @@ classdef dedalus_post
             plot_contour(data,plot_config);
             
             clear data plot_config
+            plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
+            
             x=linspace(0,2*pi,1000);
             z_ind=1:length(obj.z_list);
             y=obj.z_list(z_ind);

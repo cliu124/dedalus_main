@@ -50,7 +50,7 @@ if flag.flow=='HB_porous':
     
     #wavenumber-Ra scaling from Trevisan Bejan (1987)
     flag.Ra_T=50#[50,100,200,400,1000]
-    flag.kx=2*np.pi*1#2*np.pi*[1,1.25,2,3,5.83]
+    flag.kx=np.pi*1#2*np.pi*[1,1.25,2,3,5.83]
     
     flag.Ra_S2T=0
     flag.continuation=0
