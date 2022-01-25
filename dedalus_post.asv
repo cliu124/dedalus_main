@@ -559,7 +559,7 @@ classdef dedalus_post
             z_ind=1:length(obj.z_list);
             y=obj.z_list(z_ind);
             [data{1}.x,data{1}.y]=meshgrid(x,y);
-            data{1}.z=T_mean_var+obj.T_0+obj.T_hat(z_ind)*2*cos(x);
+            data{1}.z=obj.T_0+obj.T_hat(z_ind)*2*real(1i*exp(1i*x));
             %data{2}.y=obj.z_list;
 %             data{1}.u=obj.u_tilde(z_ind)*real(1i*exp(1i*x));
 %             data{1}.v=obj.w_hat(z_ind)*real(exp(1i*x));
@@ -574,9 +574,6 @@ classdef dedalus_post
             %plot_config.user_color_style_marker_list={'k-','b--'};
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','isocontour_T.png'];
             plot_config.print_size=[1,1000,900];
-%             plot_config.colormap='bluewhitered';
-            plot_config.zlim_list=[1,0,1];
-            plot_config.ztick_list=[1,0,0.2,0.4,0.6,0.8,1];
             plot_contour(data,plot_config);
             
             clear data plot_config
@@ -584,7 +581,10 @@ classdef dedalus_post
             z_ind=1:length(obj.z_list);
             y=obj.z_list(z_ind);
             [data{1}.x,data{1}.y]=meshgrid(x,y);
-            data{1}.z=S_mean_var+obj.S_0+obj.S_hat(z_ind)*2*cos(x);
+            data{1}.z=obj.S_0+obj.S_hat(z_ind)*2*real(1i*exp(1i*x));
+            %data{2}.y=obj.z_list;
+%             data{1}.u=obj.u_tilde(z_ind)*real(1i*exp(1i*x));
+%             data{1}.v=obj.w_hat(z_ind)*real(exp(1i*x));
             plot_config.xlim_list=[1,0,2*pi];
             plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
             plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
@@ -593,11 +593,8 @@ classdef dedalus_post
             plot_config.label_list={1,'$x k_x$','$z$'};
             plot_config.contour_line=0;
             plot_config.colorbar=1;
-%             plot_config.colormap='bluewhitered';
-            plot_config.zlim_list=[1,0,1];
-            plot_config.ztick_list=[1,0,0.2,0.4,0.6,0.8,1];
             %plot_config.user_color_style_marker_list={'k-','b--'};
-            plot_config.name=[obj.h5_name(1:end-3),'_HB_','isocontour_S.png'];
+            plot_config.name=[obj.h5_name(1:end-3),'_HB_','isocontour_T.png'];
             plot_config.print_size=[1,1000,900];
             plot_contour(data,plot_config);
             

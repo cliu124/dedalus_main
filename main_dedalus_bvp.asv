@@ -13,9 +13,10 @@ close all;
 
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
+group_name='hewitt_2D';
 % group_name='hewitt_2_layer_Omega';
-% group_name='HB_porous_Nu_kx_Ra';
-group_name='HB_porous_kx';
+% group_name='hewitt_2_layer_Omega';
+% group_name='HB_porous_kx';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -44,6 +45,9 @@ switch group_name
                    '12646319',
                    '12646320',
                    '12646324'}; %           '12646314',
+    case 'HB_porous_DDC'
+        slurm_num={'12997946'};
+        
     case 'HB_porous_kx'
         slurm_num={'12784649'};
         %slurm_num={'12761570'}%,...%This is continued from 12639319
@@ -60,6 +64,9 @@ switch group_name
                     '12784660',...
                     '12784661'};
 %           slurm_num=slurm_num(1);
+    case 'HB_porous_IVP'
+        %slurm_num={'12989358','12989675','12989678'};
+        slurm_num={'12991007','12991008','12991009'};
     case 'hewitt_2D'
         %%These three case is comparing with the z depedence of the mean
         %%temeperature and rms..
@@ -217,16 +224,25 @@ if flag.post_plot
             data_T{9}.x=porous_hewitt_2D.Ra_40000_z_T_0(1:sparse_ind:length(porous_hewitt_2D.Ra_40000_z_T_0),2);
             data_T{9}.y=porous_hewitt_2D.Ra_40000_z_T_0(1:sparse_ind:length(porous_hewitt_2D.Ra_40000_z_T_0),1);
 
+            %This is not used but just for the legend plotting
+            data_T{10}.x=NaN;
+            data_T{10}.y=NaN;
+            data_T{11}.x=NaN;
+            data_T{11}.y=NaN;
+            data_T{12}.x=NaN;
+            data_T{12}.y=NaN;
+            
             %plot_config.legend_list={1,'$Ra_T=10000$','$Ra_T=20000$','$Ra_T=40000$'};
             plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0.png'];
             plot_config.legend_list={1,'Ra=10000','Ra=20000', 'Ra=40000',...
                     'Ra=10000 (DNS)', 'Ra=20000 (DNS)','Ra=40000 (DNS)'};
+            plot_config.legend_index=[1,2,3,10,11,12];
             plot_config.fontsize_legend=26;
             plot_config.fontsize=32;
             plot_config.linwidth=3;
             plot_config.Markerindex=3;
-            plot_config.user_color_style_marker_list={'r-','k--','b-.','rsquare','k^','bo','r-','k--','b-.'};
+            plot_config.user_color_style_marker_list={'r-','k--','b-.','rsquare','k^','bo','r-','k--','b-.','r-square','k--^','b-.o'};
             plot_config.print_size=[1,900,1000];
             plot_config.linwidth=3;
 %             plot_config.legend_list={0};
@@ -274,6 +290,9 @@ if flag.post_plot
             data_T{9}.x=porous_hewitt_3D.Ra_16000_z_T_0(1:sparse_ind:length(porous_hewitt_3D.Ra_16000_z_T_0),2);
             data_T{9}.y=porous_hewitt_3D.Ra_16000_z_T_0(1:sparse_ind:length(porous_hewitt_3D.Ra_16000_z_T_0),1);
 
+            %
+            data_T{10}.x=NaN;
+            data_T{1}
             %plot_config.legend_list={1,'$Ra_T=4000$','$Ra_T=8000$','$Ra_T=16000$'};
             plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0.png'];
@@ -594,7 +613,12 @@ if flag.post_plot
                data{11}.x(Ra_ind)=data{Ra_ind}.x(kx_max_ind);
                data{11}.y(Ra_ind)=val;
                Ra=Ra_list(Ra_ind);
-               
+               data_rms_Ra{1}.x(Ra_ind)=Ra_list(Ra_ind);
+               data_rms_Ra{1}.y(Ra_ind)=dedalus_post_my{Ra_ind,kx_ind}.T_rms_mid;
+               data_rms_Ra{2}.x(Ra_ind)=Ra_list(Ra_ind);
+               data_rms_Ra{2}.y(Ra_ind)=dedalus_post_my{Ra_ind,kx_ind}.w_rms_mid;
+               data_rms_Ra{3}.x(Ra_ind)=Ra_list(Ra_ind);
+               data_rms_Ra{3}.y(Ra_ind)=dedalus_post_my{Ra_ind,kx_ind}.u_rms_mid;
                %Add the wavenumber that I am using from Hewitt.. and
                %correspoding Nusselt number.
                data{12}.x(Ra_ind)=0.48*Ra^(0.4);
@@ -626,8 +650,9 @@ if flag.post_plot
             Ra_ind=10; Nu=281.086;
             data{14}.x=linspace(1,200,200);
             data{14}.y=ones(1,200)*Nu;
-            
-            plot_config.user_color_style_marker_list={'k-','k-','k-','k-','k-','k-','k-','k-','k-','k-','b*--','r:o','m--','m--','m--*','m--x'};
+            data{15}.x=10;
+            data{15}.y=37.25;
+            plot_config.user_color_style_marker_list={'k-','k-','k-','k-','k-','k-','k-','k-','k-','k-','b*','ro','m--','m--','msquare','m--x'};
             plot_config.Markerindex=3;
             plot_config.xtick_list=[1,1,10,100];
             plot_config.ytick_list=[1,1,10,100,1000,10000];
@@ -636,7 +661,7 @@ if flag.post_plot
             plot_config.print_size=[1,1000,1000];
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'Nu_kx.png'];
             plot_config.fontsize=32;
-
+            plot_config.linewidth=3;
             plot_line(data,plot_config);
            
         case 'HB_porous_kx'
@@ -651,7 +676,8 @@ if flag.post_plot
                 data{ind}.x=dedalus_post_my{ind*10}.T_0+1-dedalus_post_my{ind*5}.z_list;
                 data{ind}.y=dedalus_post_my{ind*10}.z_list;
             end
-            plot_config.user_color_style_marker_list={'k-','b--','r-.','--','r-','r--','m-','m--'};
+            data=sparse_data(data,5,200);
+            plot_config.user_color_style_marker_list={'k-','b--','r-.','m:','ko','bsquare','r*','mx','k-','b--','r-.','m:'};
             plot_config.legend_list={1,'$k_x=10$','$k_x=20$','$k_x=30$','$k_x=40$','$k_x=50$','$k_x=60$','$k_x=70$','$k_x=80$'};
             plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0_kx.png'];
@@ -664,7 +690,9 @@ if flag.post_plot
             plot_config.linewidth=3;
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0_kx.png'];
             plot_line(data,plot_config);
+            plot_config.legend_list={0};
             plot_config.ylim_list=[1,0,0.03];
+            plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0_kx_boundary.png'];
             plot_line(data,plot_config);
 %             
 %             

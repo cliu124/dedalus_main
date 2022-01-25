@@ -71,9 +71,13 @@ set(gcf,'color','white');
 
 
 switch plot_config.panel_num
-  case {1,2} 
+  case {1,2,4} 
     try
-        pcolor(data{1}.x,data{1}.y,data{1}.z); hold on;
+        if plot_config.panel_num==1
+            pcolor(data{1}.x,data{1}.y,data{1}.z); hold on;
+        elseif plot_config.panel_num==4
+            contour(data{1}.x,data{1}.y,data{1}.z); hold on;
+        end
     catch 
        warning('data is not a matrix, plot_contour does not work'); 
     end

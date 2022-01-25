@@ -43,9 +43,16 @@ if flag.flow=='HB_porous':
     flag.dy_S_mean=-1
     #flag.Ra_T=4000
     #Ra_T_list=[10000,20000,40000]
+    
+    #wavenumber-Ra scaling from Hewitt
     flag.Ra_T=10000
-    flag.Ra_S2T=0
     flag.kx=0.48*flag.Ra_T**0.4 #2D
+    
+    #wavenumber-Ra scaling from Trevisan Bejan (1987)
+    flag.Ra_T=50#[50,100,200,400,1000]
+    flag.kx=2*np.pi*1#2*np.pi*[1,1.25,2,3,5.83]
+    
+    flag.Ra_S2T=0
     flag.continuation=0
     flag.ky=0
     flag.z_bc_w_left='dirichlet'
@@ -482,7 +489,8 @@ flag.stop_sim_time=1000/flag.Ra_T;
 #Omega_list,kx_list = flag.get_HB_porous_2_layer_Omega_k()
 #for index, flag.HB_porous_2_layer_Omega in enumerate(Omega_list):
 #    flag.kx=kx_list[index]
-for flag.Ra_S2T in np.linspace(0,20000,21):
+#for flag.Ra_S2T in np.linspace(0,20000,21):
+for flag.tau in np.divide(1,[0.02,0.04,0.1,0.2,0.4,1,2,4,10,20,40,100]):
     flag.ky=0
     flag.kx_2=0
     flag.ky_2=flag.kx_2

@@ -57,8 +57,8 @@ function frame=plot_line(data,plot_config)
 %%---------Set default input:
 field_all={'label_list','title_list','xlim_list','ylim_list','legend_list',...
   'xtick_list','ytick_list','name','Markerindex','user_color_style_marker_list'...
-  ,'print_size','print','resolution','loglog','marker_face_index','fontsize','fontsize_legend','markersize','linewidth','xticklabels_list','yticklabels_list','visible'}; %%add the linewidth flag and default value is 1.5
-field_default={{0},{0},0,0,{0},0,0,'test',1,0,0,1,300,[0,0],zeros(length(data)),40,40,12,1.5,{0},{0},1};
+  ,'print_size','print','resolution','loglog','marker_face_index','fontsize','fontsize_legend','markersize','linewidth','xticklabels_list','yticklabels_list','visible','legend_index'}; %%add the linewidth flag and default value is 1.5
+field_default={{0},{0},0,0,{0},0,0,'test',1,0,0,1,300,[0,0],zeros(length(data)),40,40,12,1.5,{0},{0},1,0};
 field_no_list=find(~isfield(plot_config,field_all)); %%fine whether there is already the field in the plot_config
 for i=field_no_list
   plot_config.(field_all{i})=field_default{i};
@@ -93,6 +93,7 @@ set(gcf,'color','white');
 %%The data are stored as the column vector
 for i=1:length(data)
   tmp=plot(data{i}.x,data{i}.y,this_color{i},'Linewidth',plot_config.linewidth,'Markersize',plot_config.markersize); hold on;
+  plot_handle.(['index',num2str(i)])=tmp;
   %%Marker face color, to plot the filled marker
   if plot_config.marker_face_index(i)
         set(tmp,'MarkerFaceColor',plot_config.marker_face_color{i});
@@ -138,7 +139,13 @@ if plot_config.title_list{1}
 end
 
 if plot_config.legend_list{1}
-  lg=legend(plot_config.legend_list{2:end});
+  if plot_config.legend_index(1)==0
+     plot_config.legend_index=1:(length(plot_config.legend_list)-1);
+  end
+  for ind=1:length(plot_config.legend_index) 
+      legend_index_tmp(ind)=plot_handle.(['index',num2str(plot_config.legend_index(ind))]);
+  end
+  lg=legend(legend_index_tmp,plot_config.legend_list(2:end));
   try
   set(lg,'Interpreter','Latex','Location','best','FontWeight','bold','Fontname', 'Times New Roman', 'Fontsize', plot_config.fontsize_legend);
   catch 

@@ -13,7 +13,7 @@ close all;
 
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
-group_name='HB_porous_IVP';
+group_name='hewitt_2D';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -45,6 +45,9 @@ switch group_name
                    '12646319',
                    '12646320',
                    '12646324'}; %           '12646314',
+    case 'HB_porous_DDC'
+        slurm_num={'12997946'};
+        
     case 'HB_porous_kx'
         slurm_num={'12784649'};
         %slurm_num={'12761570'}%,...%This is continued from 12639319
@@ -123,8 +126,8 @@ switch group_name
         
 end
 
-flag.print=0;
-flag.visible=0;
+flag.print=1;
+flag.visible=1;
 flag.video=0;
 flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)
@@ -146,7 +149,7 @@ for slurm_ind=1:length(slurm_num)
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
 
             if flag.post_plot
-                %dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
+                dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
                 if dedalus_post_my{slurm_ind,content_ind}.dy_T_mean<0
                     background_T=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
                 elseif dedalus_post_my{slurm_ind,content_ind}.dy_T_mean>0
@@ -221,16 +224,25 @@ if flag.post_plot
             data_T{9}.x=porous_hewitt_2D.Ra_40000_z_T_0(1:sparse_ind:length(porous_hewitt_2D.Ra_40000_z_T_0),2);
             data_T{9}.y=porous_hewitt_2D.Ra_40000_z_T_0(1:sparse_ind:length(porous_hewitt_2D.Ra_40000_z_T_0),1);
 
+            %This is not used but just for the legend plotting
+            data_T{10}.x=NaN;
+            data_T{10}.y=NaN;
+            data_T{11}.x=NaN;
+            data_T{11}.y=NaN;
+            data_T{12}.x=NaN;
+            data_T{12}.y=NaN;
+            
             %plot_config.legend_list={1,'$Ra_T=10000$','$Ra_T=20000$','$Ra_T=40000$'};
             plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0.png'];
             plot_config.legend_list={1,'Ra=10000','Ra=20000', 'Ra=40000',...
                     'Ra=10000 (DNS)', 'Ra=20000 (DNS)','Ra=40000 (DNS)'};
+            plot_config.legend_index=[1,2,3,10,11,12];
             plot_config.fontsize_legend=26;
             plot_config.fontsize=32;
             plot_config.linwidth=3;
             plot_config.Markerindex=3;
-            plot_config.user_color_style_marker_list={'r-','k--','b-.','rsquare','k^','bo','r-','k--','b-.'};
+            plot_config.user_color_style_marker_list={'r-','k--','b-.','rsquare','k^','bo','r-','k--','b-.','r-square','k--^','b-.o'};
             plot_config.print_size=[1,900,1000];
             plot_config.linwidth=3;
 %             plot_config.legend_list={0};
@@ -278,16 +290,24 @@ if flag.post_plot
             data_T{9}.x=porous_hewitt_3D.Ra_16000_z_T_0(1:sparse_ind:length(porous_hewitt_3D.Ra_16000_z_T_0),2);
             data_T{9}.y=porous_hewitt_3D.Ra_16000_z_T_0(1:sparse_ind:length(porous_hewitt_3D.Ra_16000_z_T_0),1);
 
+            %
+            data_T{10}.x=NaN;
+            data_T{10}.y=NaN;
+            data_T{11}.x=NaN;
+            data_T{11}.y=NaN;
+            data_T{12}.x=NaN;
+            data_T{12}.y=NaN;
             %plot_config.legend_list={1,'$Ra_T=4000$','$Ra_T=8000$','$Ra_T=16000$'};
             plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0.png'];
             plot_config.legend_list={1,'Ra=4000','Ra=8000', 'Ra=16000',...
                     'Ra=4000 (DNS)', 'Ra=8000 (DNS)','Ra=16000 (DNS)'};
+            plot_config.legend_index=[1,2,3,10,11,12];
             plot_config.fontsize_legend=26;
             plot_config.fontsize=32;
             plot_config.linwidth=3;
             plot_config.Markerindex=3;
-            plot_config.user_color_style_marker_list={'r-','k--','b-.','rsquare','k^','bo','r-','k--','b-.'};
+            plot_config.user_color_style_marker_list={'r-','k--','b-.','rsquare','k^','bo','r-','k--','b-.','r-square','k--^','b-.o'};
             plot_config.print_size=[1,900,1000];
             plot_config.xlim_list=[1,0.45,0.55];
             plot_line(data_T,plot_config);
@@ -373,13 +393,20 @@ if flag.post_plot
             data_Nu{4}.y=porous_wen_2D.Ra_Nu_steady(:,2);
             data_Nu{5}.x=porous_otero_bound.Ra_Nu_bound(:,1);
             data_Nu{5}.y=porous_otero_bound.Ra_Nu_bound(:,2);
+            
+            %For legend plotting
+%             data_Nu{8}.x=NaN;
+%             data_Nu{8}.y=NaN;
+%             data_Nu{9}.x=NaN;
+%             data_Nu{9}.y=NaN;
+%             
             plot_config.linwidth=3;
             plot_config.label_list={1,'$Ra$','$Nu$'};
             plot_config.loglog=[1,1];
             plot_config.Markerindex=3;
             plot_config.xlim_list=0; plot_config.ylim_list=0;
             plot_config.print_size=[1,1000,1000];
-            plot_config.user_color_style_marker_list={'k-','r^','rsquare','bo','b--','r-','r-'}; 
+            plot_config.user_color_style_marker_list={'k-','r^','rsquare','bo','b--','r-^','r-^'}; 
             plot_config.legend_list={1,'Single mode','DNS (Hewitt \it{et al.} \rm 2012)', 'DNS (Wen \it{et al.} \rm 2015)',...
                'Steady solutions (Wen \it{et al.} \rm 2015)','Upper bound (Otero \it{et al.} \rm 2004)'};
             plot_config.fontsize_legend=20;
@@ -662,7 +689,12 @@ if flag.post_plot
                 data{ind}.y=dedalus_post_my{ind*10}.z_list;
             end
             data=sparse_data(data,5,200);
-            plot_config.user_color_style_marker_list={'k-','b--','r-.','m:','ko','bsquare','r*','mx','k-','b--','r-.','m:'};
+            data{13}.x=NaN; data{13}.y=NaN;
+            data{14}.x=NaN; data{14}.y=NaN;
+            data{15}.x=NaN; data{15}.y=NaN;
+            data{16}.x=NaN; data{16}.y=NaN;
+            plot_config.legend_index=[1,2,3,4,13,14,15,16];
+            plot_config.user_color_style_marker_list={'k-','b--','r-.','m:','ko','bsquare','r*','mx','k-','b--','r-.','m:','k-o','b--square','r-.*','m:x'};
             plot_config.legend_list={1,'$k_x=10$','$k_x=20$','$k_x=30$','$k_x=40$','$k_x=50$','$k_x=60$','$k_x=70$','$k_x=80$'};
             plot_config.label_list={1,'$\bar{T}_0+1-z$','$z$'};
             plot_config.name=['C:\Figure\DDC_LST\HB_porous_',group_name,'T_0_kx.png'];
