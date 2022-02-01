@@ -2220,6 +2220,52 @@ classdef dedalus_post
             
         end
         
+        function porous_trevisan_tau=get_porous_trevisan_tau(obj)
+            porous_trevisan_tau.Sh_Le_Ra_50=[0.2,1.02;
+                                            0.4,1.08;
+                                            1,1.42;
+                                            2,2.12;
+                                            4,3.19;
+                                            10,5.19;
+                                            20,7.49;
+                                            40,10.62;
+                                            100,14.71];
+            porous_trevisan_tau.Sh_Le_Ra_100=[0.2,1.15;
+                                            0.4,1.50;
+                                            1,2.68;
+                                            2,4.04;
+                                            4,5.84;
+                                            10,9.55;
+                                            20,13.73;
+                                            40,18.50];
+            porous_trevisan_tau.Sh_Le_Ra_200=[0.1,1.09;
+                                            0.2,1.32;
+                                            0.4,2.01;
+                                            1,4.06;
+                                            2,6.17;
+                                            4,8.93;
+                                            10,14.71;
+                                            20,21.52;
+                                            40,30.11];
+            porous_trevisan_tau.Sh_Le_Ra_400=[0.1,1.16;
+                                            0.2,1.58;
+                                            0.4,2.79;
+                                            1,6.26;
+                                            2,9.83;
+                                            4,14.47;
+                                            10,24.03;
+                                            20,32.76];
+            porous_trevisan_tau.Sh_Le_Ra_1000=[0.02,1.01;
+                                            0.04,1.04;
+                                            0.1,1.24;
+                                            0.2,1.87;
+                                            0.4,3.87;
+                                            1,10.62;
+                                            2,18.32;
+                                            4,27.84;
+                                            10,46.29];
+        end
+        
         function porous_hewitt_2_layer=get_porous_hewitt_2_layer(obj)
             %Here is the data digitized from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
             

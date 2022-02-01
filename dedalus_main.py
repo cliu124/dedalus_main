@@ -45,14 +45,21 @@ if flag.flow=='HB_porous':
     #Ra_T_list=[10000,20000,40000]
     
     #wavenumber-Ra scaling from Hewitt
-    flag.Ra_T=10000
-    flag.kx=0.48*flag.Ra_T**0.4 #2D
+    #flag.Ra_T=10000
+    #flag.kx=0.48*flag.Ra_T**0.4 #2D
+    #flag.Ra_S2T=0
+
+    #wavenumber-Ra scaling from Trevisan Bejan (1987), salinity is passive scalar
+    #flag.Ra_T=50#[50,100,200,400,1000]
+    #flag.kx=np.pi*1#2*np.pi*[1,1.25,2,3,5.83]
+    #flag.Ra_S2T=0
+
+    #wavenumber-Ra scaling from Rosenberg & Spera (1991), salinity is also active
+    flag.Ra_T=100 #[100,150,300,600]
+    flag.kx=np.pi*1
+    R_rho_S2T=0.2
+    flag.Ra_S2T=R_rho_S2T*flag.Ra_T
     
-    #wavenumber-Ra scaling from Trevisan Bejan (1987)
-    flag.Ra_T=50#[50,100,200,400,1000]
-    flag.kx=np.pi*1#2*np.pi*[1,1.25,2,3,5.83]
-    
-    flag.Ra_S2T=0
     flag.continuation=0
     flag.ky=0
     flag.z_bc_w_left='dirichlet'

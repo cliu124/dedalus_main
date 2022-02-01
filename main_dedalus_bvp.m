@@ -13,7 +13,7 @@ close all;
 
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
-group_name='trevisan_tau';
+group_name='trevisan_contour';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -114,12 +114,14 @@ switch group_name
                 '12761515'%Ra=10^6, kx=5.25
                 }
     case 'trevisan_tau'
-        slurm_num={'13036450',
-                    '13036451',
-                    '13036452'
+        slurm_num={'13037570',
+                    '13037571',
+                    '13037572',
+                    '13037573',
+                    '13037574'
                     };
     case 'trevisan_contour'
-        slurm_num={};
+        slurm_num={'13039828'};
     case 'trevisan_'
     case 'test'
         slurm_num={'12834379'};
@@ -1028,7 +1030,31 @@ if flag.post_plot
                 [tau_tmp,ind]=sort(tau(slurm_ind,:));
                 tau(slurm_ind,:)=tau_tmp;  
                 Nu_S(slurm_ind,:)=Nu_S(slurm_ind,ind);
+                data{slurm_ind}.x=1./tau(slurm_ind,:);
+                data{slurm_ind}.y=Nu_S(slurm_ind,:);
             end
+            porous_trevisan_tau=dedalus_post_my{1,1}.get_porous_trevisan_tau
+            data{6}.x=porous_trevisan_tau.Sh_Le_Ra_50(:,1);
+            data{6}.y=porous_trevisan_tau.Sh_Le_Ra_50(:,2);
+            data{7}.x=porous_trevisan_tau.Sh_Le_Ra_100(:,1);
+            data{7}.y=porous_trevisan_tau.Sh_Le_Ra_100(:,2);
+            data{8}.x=porous_trevisan_tau.Sh_Le_Ra_200(:,1);
+            data{8}.y=porous_trevisan_tau.Sh_Le_Ra_200(:,2);
+            data{9}.x=porous_trevisan_tau.Sh_Le_Ra_400(:,1);
+            data{9}.y=porous_trevisan_tau.Sh_Le_Ra_400(:,2);
+            data{10}.x=porous_trevisan_tau.Sh_Le_Ra_1000(:,1);
+            data{10}.y=porous_trevisan_tau.Sh_Le_Ra_1000(:,2);
+            plot_config.loglog=[1,1];
+            plot_config.Markerindex=3;
+            plot_config.user_color_style_marker_list={'k-','b--','r:','m-','g--','ko','bsquare','r^','m*','gdiamond'};
+            plot_config.label_list={1,'Le','Sh'};
+            plot_config.name=['C:\Figure\DDC_LST\',group_name,'Sh_Le.png'];
+            plot_config.print_size=[1,1000,900];
+            plot_config.legend_list={'Ra=50','Ra=100','Ra=200','Ra=400','Ra=1000','Ra=50 (DNS)','Ra=100 (DNS)','Ra=200 (DNS)','Ra=400 (DNS)','Ra=1000 (DNS)'}
+            plot_config.fontsize_legend=22;
+            plot_line(data,plot_config);
+        case 'trevisan_contour'
+            
         case 'test'
             for content_ind=1:size(dedalus_post_my,2)
                 data_Nu{1}.x(content_ind)=dedalus_post_my{content_ind}.HB_porous_3_layer_h;
