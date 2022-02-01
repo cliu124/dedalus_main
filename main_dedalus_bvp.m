@@ -122,7 +122,10 @@ switch group_name
                     };
     case 'trevisan_contour'
         slurm_num={'13039828'};
-    case 'trevisan_'
+    case 'rosenberg_tau'
+        slurm_num={};
+    case 'rosenberg_R_rho'
+        slurm_num={};
     case 'test'
         slurm_num={'12834379'};
         %slurm_num={'12821151'};
