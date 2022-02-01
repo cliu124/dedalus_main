@@ -2318,50 +2318,50 @@ classdef dedalus_post
             
         end
         
-        function porous_rosenberg_R_rho=get_porous_rosenberg_R_rho(obj)
-            porous_rosenberg_R_rho.Nu_R_rho_Ra_100=[0.00E+00	2.61741
+        function porous_rosenberg_R_rho_S2T=get_porous_rosenberg_R_rho_S2T(obj)
+            porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_100=[0.00E+00	2.61741
                                                     0.0997811	2.46966
                                                     0.19979	2.36412
                                                     0.301229	2.13193
                                                     0.40056	1.68865
                                                     ];
-            porous_rosenberg_R_rho.Nu_R_rho_Ra_150=[-2.88E-04	3.25066
+            porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_150=[-2.88E-04	3.25066
                                                     0.100434	3.1029
                                                     0.201156	2.95515
                                                     0.301177	2.72296
                                                     0.399781	2.46966
                                                     ];
-            porous_rosenberg_R_rho.Nu_R_rho_Ra_300=[2.64E-04	5.02375
+            porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_300=[2.64E-04	5.02375
                                                     0.100283	4.81266
                                                     0.20102	4.49604
                                                     0.301046	4.20053
                                                     0.400363	3.90501
                                                     ];
-            porous_rosenberg_R_rho.Nu_R_rho_Ra_600=[5.61E-06	7.93668
+            porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_600=[5.61E-06	7.93668
                                                     0.100036	7.59894
                                                     0.251861	7.00792
                                                     0.400148	6.33245
                                                     ];
 
-            porous_rosenberg_R_rho.Sh_R_rho_Ra_100=[0	12.0533
+            porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_100=[0	12.0533
                                                 0.0998217	11.3867
                                                 0.20107	10.613
                                                 0.300178	9.41329
                                                 0.4	6.82667
                                                 ];
-            porous_rosenberg_R_rho.Sh_R_rho_Ra_150=[0	20.48
+            porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_150=[0	20.48
                                                 0.100535	19.4932
                                                 0.199643	18.4001
                                                 0.300178	15.92
                                                 0.400713	13.3331
                                                 ];
-            porous_rosenberg_R_rho.Sh_R_rho_Ra_300=[0	23.4667
+            porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_300=[0	23.4667
                                                 0.0998217	22.2667
                                                 0.200357	20.5332
                                                 0.300178	18.48
                                                 0.4	16
                                                 ];
-            porous_rosenberg_R_rho.Sh_R_rho_Ra_600=[7.13E-04	41.4931
+            porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_600=[7.13E-04	41.4931
                                                 0.100535	39.7599
                                                 0.250267	36.1999
                                                 0.4	31.68
