@@ -57,8 +57,9 @@ if flag.flow=='HB_porous':
     #wavenumber-Ra scaling from Rosenberg & Spera (1991), salinity is also active
     flag.Ra_T=100 #[100,150,300,600]
     flag.kx=np.pi*1
-    R_rho_S2T=0.2
-    flag.Ra_S2T=R_rho_S2T*flag.Ra_T
+    #R_rho_S2T=0.2
+    #flag.Ra_S2T=R_rho_S2T*flag.Ra_T
+    flag.tau=1/20
     
     flag.continuation=0
     flag.ky=0
@@ -497,7 +498,9 @@ flag.stop_sim_time=1000/flag.Ra_T;
 #for index, flag.HB_porous_2_layer_Omega in enumerate(Omega_list):
 #    flag.kx=kx_list[index]
 #for flag.Ra_S2T in np.linspace(0,20000,21):
-for flag.tau in np.divide(1,[0.02,0.04,0.1,0.2,0.4,1,2,4,10,20,40,100]):
+#for flag.tau in np.divide(1,[0.02,0.04,0.1,0.2,0.4,1,2,4,10,20,40,100]):
+for R_rho_S2T in [0,0.1,0.2,0.3,0.4]:
+    flag.Ra_S2T=R_rho_S2T*flag.Ra_T
     flag.ky=0
     flag.kx_2=0
     flag.ky_2=flag.kx_2

@@ -2266,6 +2266,109 @@ classdef dedalus_post
                                             10,46.29];
         end
         
+        function porous_rosenberg_tau=get_porous_rosenberg_tau(obj)
+            porous_rosenberg_tau.Nu_Le_Ra_100=[10.1601	2.3531
+                                                30.1779	2.43848
+                                                50.1957	2.44032
+                                                100.16	2.47005
+                                                ];
+            porous_rosenberg_tau.Nu_Le_Ra_150=[10	2.87112
+                                                19.9288	2.94728
+                                                30.0178	2.98991
+                                                40.1068	2.98242
+                                                50.1957	3.00834
+                                                100	3.0716
+                                                ];
+            porous_rosenberg_tau.Nu_Le_Ra_300=[10	4.55847
+                                                19.9288	4.61793
+                                                29.8577	4.61055
+                                                40.1068	4.51941
+                                                50.0356	4.56216
+                                                100.16	4.57506
+                                                ];
+            porous_rosenberg_tau.Nu_Le_Ra_600=[10	7.28162
+                                                30.0178	7.26676
+                                                50.0356	7.28531
+                                                100.32	7.3148
+                                                ];
+
+            porous_rosenberg_tau.Sh_Le_Ra_100=[30.0065	14.1058
+                                                50.0044	17.4086
+                                                100.165	25.2837
+                                                ];
+            porous_rosenberg_tau.Sh_Le_Ra_150=[10.0012	10.6767
+                                                20.0329	15.2547
+                                                30.021	18.5302
+                                                40.1235	20.7513
+                                                50.0315	23.63
+                                                100.624	33.3952
+                                                ];
+            porous_rosenberg_tau.Sh_Le_Ra_300=[9.96697	15.4732
+                                                20.1263	21.0477
+                                                30.0367	24.8794
+                                                40.1468	28.7889
+                                                50.261	31.2109
+                                                100.679	45.3298
+                                                ];
+            porous_rosenberg_tau.Sh_Le_Ra_600=[9.93587	26.5573
+                                                30.1923	45.8387
+                                                50.3155	57.5053
+                                                100.774	77.3766
+                                                ];
+            
+        end
+        
+        function porous_rosenberg_R_rho=get_porous_rosenberg_R_rho(obj)
+            porous_rosenberg_R_rho.Nu_R_rho_Ra_100=[0.00E+00	2.61741
+                                                    0.0997811	2.46966
+                                                    0.19979	2.36412
+                                                    0.301229	2.13193
+                                                    0.40056	1.68865
+                                                    ];
+            porous_rosenberg_R_rho.Nu_R_rho_Ra_150=[-2.88E-04	3.25066
+                                                    0.100434	3.1029
+                                                    0.201156	2.95515
+                                                    0.301177	2.72296
+                                                    0.399781	2.46966
+                                                    ];
+            porous_rosenberg_R_rho.Nu_R_rho_Ra_300=[2.64E-04	5.02375
+                                                    0.100283	4.81266
+                                                    0.20102	4.49604
+                                                    0.301046	4.20053
+                                                    0.400363	3.90501
+                                                    ];
+            porous_rosenberg_R_rho.Nu_R_rho_Ra_600=[5.61E-06	7.93668
+                                                    0.100036	7.59894
+                                                    0.251861	7.00792
+                                                    0.400148	6.33245
+                                                    ];
+
+            porous_rosenberg_R_rho.Sh_R_rho_Ra_100=[0	12.0533
+                                                0.0998217	11.3867
+                                                0.20107	10.613
+                                                0.300178	9.41329
+                                                0.4	6.82667
+                                                ];
+            porous_rosenberg_R_rho.Sh_R_rho_Ra_150=[0	20.48
+                                                0.100535	19.4932
+                                                0.199643	18.4001
+                                                0.300178	15.92
+                                                0.400713	13.3331
+                                                ];
+            porous_rosenberg_R_rho.Sh_R_rho_Ra_300=[0	23.4667
+                                                0.0998217	22.2667
+                                                0.200357	20.5332
+                                                0.300178	18.48
+                                                0.4	16
+                                                ];
+            porous_rosenberg_R_rho.Sh_R_rho_Ra_600=[7.13E-04	41.4931
+                                                0.100535	39.7599
+                                                0.250267	36.1999
+                                                0.4	31.68
+                                                ];
+            
+        end
+        
         function porous_hewitt_2_layer=get_porous_hewitt_2_layer(obj)
             %Here is the data digitized from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
             
