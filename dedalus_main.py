@@ -81,7 +81,7 @@ if flag.flow=='HB_porous':
     flag.A_elevator=1/10*flag.Ra_T
     flag.problem='IVP'
     if flag.problem =='IVP':
-        flag.initial_dt=0.001/flag.Ra_T
+        flag.initial_dt=0.000001/flag.Ra_T
 
 elif flag.flow == 'HB_porous_2_layer':
     flag.Nz=512
@@ -477,8 +477,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=1/flag.Ra_T;
-flag.stop_sim_time=1000/flag.Ra_T;
+flag.post_store_dt=0.00001/flag.Ra_T;
+flag.stop_sim_time=0.0001/flag.Ra_T;
 
 #------------ print these parameters in the screen
 
