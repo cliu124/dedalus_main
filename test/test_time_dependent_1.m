@@ -32,6 +32,17 @@ figure(2)
 plot(t,y_num,'b'); hold on;
 plot(t,double(subs(y,t)),'--r');
 
+%%for constructing convex hull
+%a11: [-16,5]
+%a12: [-9/2,33/2]
+%a21: [-33/2,8/2]
+%a22: [-16,5]
+
+A=[-1-9*cos(6*t)^2+6*sin(12*t), 12*cos(6*t)^2+9/2*sin(12*t);
+    -12*sin(6*t)^2+9/2*sin(12*t), -1-9*sin(6*t)^2-6*sin(12*t)];
+
+
+
 
 function dv=f(t,v)
     A=[-1-9*cos(6*t)^2+6*sin(12*t), 12*cos(6*t)^2+9/2*sin(12*t);

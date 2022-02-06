@@ -14,7 +14,7 @@ close all;
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='trevisan_contour';
-group_name='rosenberg_tau';
+group_name='mamou_contour_neumann';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -133,7 +133,12 @@ switch group_name
                    '13060751',
                    '13060752',
                    '13060753'};
-    case 'mamou'
+    case 'mamou_contour_dirichlet'
+        slurm_num={'13062713'};
+    case 'mamou_contour_neumann'
+        slurm_num={'13064536',
+                   '13064537'};
+    case 'mamou_contour_neumann'
     case 'test'
         slurm_num={'12834379'};
         %slurm_num={'12821151'};
@@ -147,8 +152,8 @@ switch group_name
         
 end
 
-flag.print=0;
-flag.visible=0;
+flag.print=1;
+flag.visible=1;
 flag.video=0;
 flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)
@@ -170,7 +175,7 @@ for slurm_ind=1:length(slurm_num)
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
 
             if flag.post_plot
-                %dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
+                dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
                 if dedalus_post_my{slurm_ind,content_ind}.dy_T_mean<0
                     background_T=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
                 elseif dedalus_post_my{slurm_ind,content_ind}.dy_T_mean>0

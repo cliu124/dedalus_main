@@ -55,17 +55,17 @@ if flag.flow=='HB_porous':
     #flag.Ra_S2T=0
 
     #wavenumber-Ra scaling from Rosenberg & Spera (1991), salinity is also active
-    #flag.Ra_T=100 #[100,150,300,600]
-    #flag.kx=np.pi*1
-    #R_rho_S2T=0.2
-    #flag.Ra_S2T=R_rho_S2T*flag.Ra_T
-    #flag.tau=1/20
+    flag.Ra_T=600 #[100,150,300,600]
+    flag.kx=np.pi*1
+    R_rho_S2T=0.5
+    flag.Ra_S2T=R_rho_S2T*flag.Ra_T
+    flag.tau=1/20
     
     #wavenumber-Ra for the case of Mamou
-    flag.Ra_T=55
-    flag.Ra_S2T=0.1*flag.Ra_T
-    flag.kx=np.pi*1#This is aspect ratio A=1, which leads to a wavelength as 2...
-    flag.tau=1/5
+    #flag.Ra_T=55
+    #flag.Ra_S2T=0.1*flag.Ra_T
+    #flag.kx=np.pi*1#This is aspect ratio A=1, which leads to a wavelength as 2...
+    #flag.tau=1/5
     
     
     flag.continuation=0
@@ -79,7 +79,7 @@ if flag.flow=='HB_porous':
     flag.bvp_tolerance=1e-10
     
     flag.A_elevator=1/10*flag.Ra_T
-    flag.problem='BVP'
+    flag.problem='IVP'
     if flag.problem =='IVP':
         flag.initial_dt=0.001/flag.Ra_T
 
