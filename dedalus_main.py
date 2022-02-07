@@ -21,7 +21,7 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
-flag.flow='HB_porous'
+flag.flow='HB_benard'
 #flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
@@ -81,7 +81,7 @@ if flag.flow=='HB_porous':
     flag.A_elevator=1/10*flag.Ra_T
     flag.problem='IVP'
     if flag.problem =='IVP':
-        flag.initial_dt=0.000001/flag.Ra_T
+        flag.initial_dt=0.00001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
 
 elif flag.flow == 'HB_porous_2_layer':
     flag.Nz=512
@@ -144,16 +144,17 @@ elif flag.flow=='HB_benard':
     flag.tau=0.01
     
     flag.Ra_T=100000
-    flag.Ra_S2T=0
+    
+    
     #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     flag.F_sin=0
     flag.ks=2*np.pi
-    flag.dy_T_mean=-1
-    flag.dy_S_mean=-1
+    flag.dy_T_mean=1
+    flag.dy_S_mean=1
     flag.bvp_tolerance=1e-10
     #flag.kx=0.48*flag.Ra_T**0.4
-    flag.kx=2*np.pi/0.5
+    #flag.kx=2*np.pi/0.5
     flag.ky=0
     flag.problem='BVP'
     flag.z_bc_T_left='dirichlet'
@@ -477,8 +478,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=0.00001/flag.Ra_T;
-flag.stop_sim_time=0.0001/flag.Ra_T;
+flag.post_store_dt=0.0001/flag.Ra_T;
+flag.stop_sim_time=0.001/flag.Ra_T;
 
 #------------ print these parameters in the screen
 
@@ -508,7 +509,15 @@ flag.stop_sim_time=0.0001/flag.Ra_T;
 #for flag.tau in np.divide(1,[0.02,0.04,0.1,0.2,0.4,1,2,4,10,20,40,100]):
 #for R_rho_S2T in [0,0.1,0.2,0.3,0.4]:
     #flag.Ra_S2T=R_rho_S2T*flag.Ra_T
-for flag.ky in [0]:    
+    
+#This is the loop for the Yang (2015) comparison of bounded salt finger    
+for R_rho_T2S in [10,5,2,1,0.5,0.2,0.1]:    
+    #R_rho_T2S=10#[10,5,2,1,0.5,0.2,0.1]
+    flag.Ra_S2T=flag.Ra_T/R_rho_T2S #10^6, 2*10^6, 5*10^6, 10^7, 2*10^7, 5*10^7, 10^8
+    Ra_S=flag.Ra_S2T/flag.tau
+    flag.kx=14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2)
+#This is just for nothing need to loop    
+#for flag.ky in [0]:    
     flag.ky=0
     flag.kx_2=0
     flag.ky_2=flag.kx_2

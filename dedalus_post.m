@@ -2369,6 +2369,24 @@ classdef dedalus_post
             
         end
         
+        function finger_width_yang=get_finger_width_yang(obj)
+            finger_width_yang=[3.37E+05	0.672211
+                6.39E+05	0.584655
+                3.37E+06	0.384664
+                3.06E+07	0.224896
+                3.48E+08	0.124615
+                1.47E+09	0.087443
+                5.81E+09	0.0626907
+                2.37E+10	0.0449449
+                6.19E+10	0.0358739
+                1.56E+11	0.0283279
+                3.96E+11	0.0226106
+                1.03E+12	0.0180472
+                2.61E+12	0.0144048
+                4.64E+12	0.0123948
+                ];
+        end
+        
         function porous_hewitt_2_layer=get_porous_hewitt_2_layer(obj)
             %Here is the data digitized from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
             

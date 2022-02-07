@@ -14,7 +14,7 @@ close all;
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='trevisan_contour';
-group_name='mamou_contour_neumann';
+group_name='rosenberg_time_dependent';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -133,6 +133,8 @@ switch group_name
                    '13060751',
                    '13060752',
                    '13060753'};
+    case 'rosenberg_time_dependent'
+        slurm_num={'13094886'};
     case 'mamou_contour_dirichlet'
         slurm_num={'13062713'};
     case 'mamou_contour_neumann'
