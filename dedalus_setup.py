@@ -1545,10 +1545,10 @@ class flag(object):
 
                 #coupling between real and imag due to shear
                 if self.F_sin=='z':
-                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*(z-1/2)*T_hat_imag=Pe_T*w_hat_real*d_T_0-Pe_T*kx*eta*T_hat_imag')
-                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*(z-1/2)*T_hat_real=Pe_T*w_hat_imag*d_T_0+Pe_T*kx*eta*T_hat_real')
-                    problem.add_equation('-1/tau*dt(S_hat_real)+dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)-Pe_S*kx*eta/tau*S_hat_imag')   
-                    problem.add_equation('-1/tau*dt(S_hat_imag)+dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)+Pe_S*kx*eta/tau*S_hat_real')   
+                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*(z-1/2)*T_hat_imag=Pe_T*w_hat_real*d_T_0')
+                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag-Pe_T*kx*(z-1/2)*T_hat_real=Pe_T*w_hat_imag*d_T_0')
+                    problem.add_equation('-1/tau*dt(S_hat_real)+dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real+Pe_S/tau*kx*(z-1/2)*S_hat_imag=Pe_S/tau*(w_hat_real*d_S_0)')   
+                    problem.add_equation('-1/tau*dt(S_hat_imag)+dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag-Pe_S/tau*kx*(z-1/2)*S_hat_real=Pe_S/tau*(w_hat_imag*d_S_0)')   
                 else:
                     print(self.F_sin)
                     problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real+Pe_T*kx*F_sin*sin(ks*z)*T_hat_imag=Pe_T*w_hat_real*d_T_0')

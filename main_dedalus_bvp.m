@@ -107,8 +107,9 @@ switch group_name
                    '13109064',%%density ratio R_\rho=Ra_T/Ra_S=5
                    '13109065',%R_\rho=10
                    '13109799',%R_\rho=50
-                   '13109795'};%R_\rho=2, but neumann boundary condition for u and v velocity
-        slurm_num=slurm_num(5);
+                   '13109795',%R_\rho=2, but neumann boundary condition for u and v velocity
+                   '13113091'};%R_\rho=2, but with tau=1/3 
+        slurm_num=slurm_num(6);
     case 'HB_benard_diffusive_kx'
         slurm_num={''};
     case 'hewitt_2_layer_Omega'
