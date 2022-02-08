@@ -515,7 +515,7 @@ for R_rho_T2S in [10,5,2,1,0.5,0.2,0.1]:
     #R_rho_T2S=10#[10,5,2,1,0.5,0.2,0.1]
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S #10^6, 2*10^6, 5*10^6, 10^7, 2*10^7, 5*10^7, 10^8
     Ra_S=flag.Ra_S2T/flag.tau
-    flag.kx=14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2)
+    flag.kx=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
 #This is just for nothing need to loop    
 #for flag.ky in [0]:    
     flag.ky=0

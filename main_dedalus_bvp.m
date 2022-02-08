@@ -14,7 +14,8 @@ close all;
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='trevisan_contour';
-group_name='rosenberg_time_dependent';
+% group_name='rosenberg_time_dependent';
+group_name='HB_benard_yang';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -95,6 +96,10 @@ switch group_name
         slurm_num={'12760884'}; %Ra=10^6, kx=1~20, reproducing figure 7 of Toomre (1977)
     case 'HB_benard_Ra'
         slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
+    case 'HB_benard_yang'
+        slurm_num={'13100451', %, 
+                   '13100497'};
+%         slurm_num=slurm_num(1);
     case 'hewitt_2_layer_Omega'
         slurm_num={'12829183'};
         %slurm_num={'12829121'}
@@ -154,8 +159,8 @@ switch group_name
         
 end
 
-flag.print=1;
-flag.visible=1;
+flag.print=0;
+flag.visible=0;
 flag.video=0;
 flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)
@@ -177,7 +182,7 @@ for slurm_ind=1:length(slurm_num)
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
 
             if flag.post_plot
-                dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
+                %dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
                 if dedalus_post_my{slurm_ind,content_ind}.dy_T_mean<0
                     background_T=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
                 elseif dedalus_post_my{slurm_ind,content_ind}.dy_T_mean>0
@@ -1037,6 +1042,42 @@ if flag.post_plot
             plot_config.fontsize_legend=20;
             plot_config.name=['C:\Figure\DDC_LST\',group_name,'T_0_Ra.png'];
             plot_line(data_T0,plot_config);
+            
+        case 'HB_benard_yang'
+            z_list=dedalus_post_my{1,1}.z_list;
+            for slurm_ind=1:size(dedalus_post_my,1)
+                for content_ind=1:size(dedalus_post_my,2)
+                    Ra_S2T(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_S2T;
+                    S_0(:,content_ind)=dedalus_post_my{slurm_ind,content_ind}.S_0;
+                    T_0(:,content_ind)=dedalus_post_my{slurm_ind,content_ind}.T_0;
+                end
+                [Ra_S2T_tmp,ind]=sort(Ra_S2T(slurm_ind,:));
+                Ra_S2T(slurm_ind,:)=Ra_S2T_tmp;  
+                S_0=S_0(:,ind);
+                T_0=T_0(:,ind);
+                
+                content_len=size(dedalus_post_my,2);
+                for content_ind=1:size(dedalus_post_my,2)
+                    data{content_ind}.x=S_0(:,content_ind)+z_list+content_ind-1;
+                    data{content_ind}.y=z_list;
+                    data{content_ind+content_len}.x=T_0(:,content_ind)+z_list+content_ind-1;
+                    data{content_ind+content_len}.y=z_list;
+                end
+                plot_config.label_list={1,'','$z$'};
+                plot_config.Markerindex=3;
+                plot_config.user_color_style_marker_list={'k-','k-','k-','k-','k-','k-','k-','b--','b--','b--','b--','b--','b--','b--'};
+                switch slurm_ind
+                    case 1
+                         plot_config.name=['C:\Figure\DDC_LST\',group_name,'_Ra_1e5.png'];
+                    case 2
+                         plot_config.name=['C:\Figure\DDC_LST\',group_name,'_Ra_1e6.png'];
+                end
+                plot_config.xlim_list=[1,-0.1,7.1];
+                plot_config.ylim_list=[1,-0.1,1.1];
+                plot_config.xtick_list=[1,0,1,2,3,4,5,6,7];
+                plot_config.ytick_list=[1,0,0.5,1];
+                plot_line(data,plot_config);
+            end
             
         case 'trevisan_tau'
             for slurm_ind=1:size(dedalus_post_my,1)

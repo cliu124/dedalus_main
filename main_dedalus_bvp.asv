@@ -14,7 +14,8 @@ close all;
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='trevisan_contour';
-group_name='rosenberg_tau';
+% group_name='rosenberg_time_dependent';
+group_name='HB_benard_yang';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -95,6 +96,10 @@ switch group_name
         slurm_num={'12760884'}; %Ra=10^6, kx=1~20, reproducing figure 7 of Toomre (1977)
     case 'HB_benard_Ra'
         slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
+    case 'HB_benard_yang'
+        slurm_num={'13100451', %, 
+                   '13100497'};
+%         slurm_num=slurm_num(1);
     case 'hewitt_2_layer_Omega'
         slurm_num={'12829183'};
         %slurm_num={'12829121'}
@@ -133,6 +138,14 @@ switch group_name
                    '13060751',
                    '13060752',
                    '13060753'};
+    case 'rosenberg_time_dependent'
+        slurm_num={'13094886'};
+    case 'mamou_contour_dirichlet'
+        slurm_num={'13062713'};
+    case 'mamou_contour_neumann'
+        slurm_num={'13064536',
+                   '13064537'};
+    case 'mamou_contour_neumann'
     case 'test'
         slurm_num={'12834379'};
         %slurm_num={'12821151'};
@@ -1030,6 +1043,27 @@ if flag.post_plot
             plot_config.name=['C:\Figure\DDC_LST\',group_name,'T_0_Ra.png'];
             plot_line(data_T0,plot_config);
             
+        case 'HB_benard_yang'
+            z_list=dedalus_post_my{1,1}.z_list;
+            for slurm_ind=1:size(dedalus_post_my,1)
+                for content_ind=1:size(dedalus_post_my,2)
+                    Ra_S2T(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_S2T;
+                    S_0(:,content_ind)=dedalus_post_my{slurm_ind,content_ind}.S_0;
+                    T_0(:,content_ind)=dedalus_post_my{slurm_ind,content_ind}.T_0;
+                end
+                [Ra_S2T_tmp,ind]=sort(Ra_S2T(slurm_ind,:));
+                Ra_S2T(slurm_ind,:)=Ra_S2T_tmp;  
+                S_0=S_0(:,ind);
+                T_0=T_0(:,ind);
+                
+                content_len=size()
+                for content_ind=1:size(dedalus_post_my,2)
+                    data{content_ind}.x=S_0(:,content_ind)+z_list+content_ind-1;
+                    data{content_ind}.y=z_list;
+                    data{content_ind+}
+                end
+            end
+            
         case 'trevisan_tau'
             for slurm_ind=1:size(dedalus_post_my,1)
                 for content_ind=1:size(dedalus_post_my,2)
@@ -1042,6 +1076,7 @@ if flag.post_plot
                 Nu_S(slurm_ind,:)=Nu_S(slurm_ind,ind);
                 data{slurm_ind}.x=1./tau(slurm_ind,:);
                 data{slurm_ind}.y=Nu_S(slurm_ind,:);
+                eta_Nu_S_Le(slurm_ind)=scaling(data{slurm_ind}.x(1:4),data{slurm_ind}.y(1:4));
             end
             porous_trevisan_tau=dedalus_post_my{1,1}.get_porous_trevisan_tau
             data{6}.x=porous_trevisan_tau.Sh_Le_Ra_50(:,1);
@@ -1115,6 +1150,7 @@ if flag.post_plot
             plot_line(data_Nu,plot_config);
             
             plot_config.xlim_list=[1,9.9,101];
+            plot_config.xtick_list=[1,10,100];
             plot_config.ylim_list=[1,10,100];
             plot_config.loglog=[1,1];
             plot_config.label_list={1,'Le','Sh'};
@@ -1129,7 +1165,7 @@ if flag.post_plot
                     Nu(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
                     Nu_S(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu_S(1);
                 end
-                [R_rho_S2T,ind]=sort(R_rho_S2T(slurm_ind,:));
+                [R_rho_S2T_tmp,ind]=sort(R_rho_S2T(slurm_ind,:));
                 R_rho_S2T(slurm_ind,:)=R_rho_S2T_tmp;  
                 Nu_S(slurm_ind,:)=Nu_S(slurm_ind,ind);
                 Nu(slurm_ind,:)=Nu(slurm_ind,ind);
@@ -1138,44 +1174,46 @@ if flag.post_plot
                 data_Nu{slurm_ind}.x=R_rho_S2T(slurm_ind,:);
                 data_Nu{slurm_ind}.y=Nu(slurm_ind,:);
             end
-            porous_rosenberg_R_rho=dedalus_post_my{1,1}.get_porous_rosenberg_R_rho();
-            data_Nu{5}.x=porous_rosenberg_R_rho.Nu_Le_Ra_100(:,1);
-            data_Nu{5}.y=porous_rosenberg_R_rho.Nu_Le_Ra_100(:,2);
-            data_Nu{6}.x=porous_rosenberg_tau.Nu_Le_Ra_150(:,1);
-            data_Nu{6}.y=porous_rosenberg_tau.Nu_Le_Ra_150(:,2);
-            data_Nu{7}.x=porous_rosenberg_tau.Nu_Le_Ra_300(:,1);
-            data_Nu{7}.y=porous_rosenberg_tau.Nu_Le_Ra_300(:,2);
-            data_Nu{8}.x=porous_rosenberg_tau.Nu_Le_Ra_600(:,1);
-            data_Nu{8}.y=porous_rosenberg_tau.Nu_Le_Ra_600(:,2);
+            porous_rosenberg_R_rho_S2T=dedalus_post_my{1,1}.get_porous_rosenberg_R_rho_S2T();
+            data_Nu{5}.x=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_100(:,1);
+            data_Nu{5}.y=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_100(:,2);
+            data_Nu{6}.x=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_150(:,1);
+            data_Nu{6}.y=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_150(:,2);
+            data_Nu{7}.x=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_300(:,1);
+            data_Nu{7}.y=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_300(:,2);
+            data_Nu{8}.x=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_600(:,1);
+            data_Nu{8}.y=porous_rosenberg_R_rho_S2T.Nu_R_rho_Ra_600(:,2);
          
-            data_Nu_S{5}.x=porous_rosenberg_tau.Sh_Le_Ra_100(:,1);
-            data_Nu_S{5}.y=porous_rosenberg_tau.Sh_Le_Ra_100(:,2);
-            data_Nu_S{6}.x=porous_rosenberg_tau.Sh_Le_Ra_150(:,1);
-            data_Nu_S{6}.y=porous_rosenberg_tau.Sh_Le_Ra_150(:,2);
-            data_Nu_S{7}.x=porous_rosenberg_tau.Sh_Le_Ra_300(:,1);
-            data_Nu_S{7}.y=porous_rosenberg_tau.Sh_Le_Ra_300(:,2);
-            data_Nu_S{8}.x=porous_rosenberg_tau.Sh_Le_Ra_600(:,1);
-            data_Nu_S{8}.y=porous_rosenberg_tau.Sh_Le_Ra_600(:,2);
+            data_Nu_S{5}.x=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_100(:,1);
+            data_Nu_S{5}.y=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_100(:,2);
+            data_Nu_S{6}.x=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_150(:,1);
+            data_Nu_S{6}.y=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_150(:,2);
+            data_Nu_S{7}.x=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_300(:,1);
+            data_Nu_S{7}.y=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_300(:,2);
+            data_Nu_S{8}.x=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_600(:,1);
+            data_Nu_S{8}.y=porous_rosenberg_R_rho_S2T.Sh_R_rho_Ra_600(:,2);
             plot_config.loglog=[1,1];
             plot_config.Markerindex=3;
             plot_config.user_color_style_marker_list={'k-','b--','r:','m-','ko','bsquare','r^','m*'};
-            plot_config.label_list={1,'Le','Nu'};
+            plot_config.label_list={1,'$R_\rho^*$','Nu'};
             plot_config.print_size=[1,1000,900];
             plot_config.legend_list={1,'Ra=100','Ra=150','Ra=300','Ra=600','Ra=100 (DNS)','Ra=150 (DNS)','Ra=300 (DNS)','Ra=600 (DNS)'};
             plot_config.fontsize_legend=22;
             plot_config.loglog=[1,1];
-            plot_config.xlim_list=[1,10,100];
-            plot_config.ylim_list=[1,1,8];
-            plot_config.name=['C:\Figure\DDC_LST\',group_name,'Nu_Le.png'];
-            plot_config.fontsize_legend=14;
+            plot_config.xlim_list=[1,0,0.401];
+            plot_config.ylim_list=[1,0,15];
+            plot_config.name=['C:\Figure\DDC_LST\',group_name,'Nu_R_rho.png'];
+            plot_config.fontsize_legend=20;
+            plot_config.loglog=[0,0];
             plot_line(data_Nu,plot_config);
             
-            plot_config.xlim_list=[1,9.9,101];
-            plot_config.ylim_list=[1,10,100];
+            plot_config.xlim_list=[1,0,0.401];
+            plot_config.ylim_list=[1,0,80];
             plot_config.loglog=[1,1];
-            plot_config.label_list={1,'Le','Sh'};
-            plot_config.name=['C:\Figure\DDC_LST\',group_name,'Sh_Le.png'];
-            plot_config.fontsize_legend=18;
+            plot_config.label_list={1,'$R_\rho^*$','Sh'};
+            plot_config.name=['C:\Figure\DDC_LST\',group_name,'Sh_R_rho.png'];
+            plot_config.fontsize_legend=20;
+            plot_config.loglog=[0,0];
             plot_line(data_Nu_S,plot_config);
             
             
