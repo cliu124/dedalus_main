@@ -97,9 +97,13 @@ switch group_name
     case 'HB_benard_Ra'
         slurm_num={'12761067'}; %kx=1, Ra=10^6~10^10, reproducing figure 4 of Toomre (1977)
     case 'HB_benard_yang'
-        slurm_num={'13100451', %, 
-                   '13100497'};
+%         slurm_num={'13100451', %, 
+%                    '13100497'};
+         slurm_num={
+                    '13106633'};
 %         slurm_num=slurm_num(1);
+    case 'HB_benard_salt_finger_kx'
+        slurm_num={''};
     case 'hewitt_2_layer_Omega'
         slurm_num={'12829183'};
         %slurm_num={'12829121'}
