@@ -15,7 +15,8 @@ close all;
 % group_name='HB_porous_Nu_kx_Ra';
 % group_name='trevisan_contour';
 % group_name='rosenberg_time_dependent';
-group_name='HB_benard_yang';
+% group_name='HB_benard_yang';
+group_name='HB_benard_salt_finger_kx';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
@@ -99,10 +100,16 @@ switch group_name
     case 'HB_benard_yang'
 %         slurm_num={'13100451', %, 
 %                    '13100497'};
-         slurm_num={
-                    '13106633'};
+         slurm_num={'13106633'};
 %         slurm_num=slurm_num(1);
     case 'HB_benard_salt_finger_kx'
+        slurm_num={'13107994',%R_\rho=Ra_T/Ra_S=2
+                   '13109064',%%density ratio R_\rho=Ra_T/Ra_S=5
+                   '13109065',%R_\rho=10
+                   '13109799',%R_\rho=50
+                   '13109795'};%R_\rho=2, but neumann boundary condition for u and v velocity
+        slurm_num=slurm_num(5);
+    case 'HB_benard_diffusive_kx'
         slurm_num={''};
     case 'hewitt_2_layer_Omega'
         slurm_num={'12829183'};
@@ -163,7 +170,7 @@ switch group_name
         
 end
 
-flag.print=0;
+flag.print=1;
 flag.visible=0;
 flag.video=0;
 flag.post_plot=1;
@@ -186,7 +193,9 @@ for slurm_ind=1:length(slurm_num)
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
 
             if flag.post_plot
-                %dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
+                if flag.print || flag.visible
+                    dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
+                end
                 if dedalus_post_my{slurm_ind,content_ind}.dy_T_mean<0
                     background_T=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
                 elseif dedalus_post_my{slurm_ind,content_ind}.dy_T_mean>0
@@ -1082,6 +1091,13 @@ if flag.post_plot
                 plot_config.ytick_list=[1,0,0.5,1];
                 plot_line(data,plot_config);
             end
+        case 'HB_benard_salt_finger_kx'
+            for content_ind=1:size(dedalus_post_my,2)
+                Nu(content_ind)=dedalus_post_my{1,content_ind}.Nu(1);
+                Nu_S(content_ind)=dedalus_post_my{1,content_ind}.Nu_S(1);
+                kx(content_ind)=dedalus_post_my{1,content_ind}.kx;
+            end
+            
             
         case 'trevisan_tau'
             for slurm_ind=1:size(dedalus_post_my,1)

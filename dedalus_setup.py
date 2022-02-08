@@ -1509,7 +1509,9 @@ class flag(object):
                 # problem.add_bc('right(int_phase_cond)=0')
                 
                 #This B.C. works for the periodic B.C. and they can converge smoothly...
-                problem.add_bc("left(T_hat_imag)=0")
+                #problem.add_bc("left(T_hat_imag)=0")
+    
+                problem.add_bc("left(p_hat_imag)=0")
     
             elif self.problem =='IVP':
                 #real
