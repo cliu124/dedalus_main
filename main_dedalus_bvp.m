@@ -16,10 +16,11 @@ close all;
 % group_name='trevisan_contour';
 % group_name='rosenberg_time_dependent';
 % group_name='HB_benard_yang';
-group_name='HB_benard_salt_finger_kx';
+% group_name='HB_benard_diffusive_shear';
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
+group_name='HB_benard_salt_finger_kx';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -108,10 +109,19 @@ switch group_name
                    '13109065',%R_\rho=10
                    '13109799',%R_\rho=50
                    '13109795',%R_\rho=2, but neumann boundary condition for u and v velocity
-                   '13113091'};%R_\rho=2, but with tau=1/3 
-        slurm_num=slurm_num(6);
+                   '13145554',%R_\rho=2, but with tau=0.1. 
+                   '13113091',%R_\rho=2, but with tau=1/3 
+                   '13146399',%%tau continuation, from tau=0.01,0.02,0.03,0.04,0.05  %%%0.03,1/3,0.03,0.01
+                   '13146406',%R_rho_S2T continuation, with R_rho_S2T=2,3,4...50
+                   '13146408',
+                   '13146411',
+                   '13146434'
+                   };
+        slurm_num=slurm_num(12);
     case 'HB_benard_diffusive_kx'
         slurm_num={''};
+    case 'HB_benard_diffusive_shear'
+        slurm_num={'13114223'};
     case 'hewitt_2_layer_Omega'
         slurm_num={'12829183'};
         %slurm_num={'12829121'}

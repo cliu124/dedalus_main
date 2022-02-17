@@ -11,5 +11,8 @@ diagnostics = bisection(Constraints, Objective,sdpsettings('solver','bisection',
 
 
 
+
+
+
 %,sdpsettings('solver','mosek')
 

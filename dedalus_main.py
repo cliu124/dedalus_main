@@ -141,18 +141,18 @@ elif flag.flow == 'HB_porous_shear':
 elif flag.flow=='HB_benard':
     flag.Nz=1024
     flag.Lz=1
-    flag.tau=1/3
+    flag.tau=0.01
     
-    flag.Ra_T=100000
+    flag.Ra_T=1.25*100000
     
-    R_rho_T2S=2
+    R_rho_T2S=1/4
     #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     
     flag.F_sin=0
     flag.ks=2*np.pi
-    flag.dy_T_mean=1
-    flag.dy_S_mean=1
+    flag.dy_T_mean=-1
+    flag.dy_S_mean=-1
     flag.bvp_tolerance=1e-10
     #flag.kx=0.48*flag.Ra_T**0.4
     #flag.kx=2*np.pi/0.5
@@ -164,10 +164,10 @@ elif flag.flow=='HB_benard':
     flag.z_bc_S_right='dirichlet'
     flag.z_bc_w_left='dirichlet'
     flag.z_bc_w_right='dirichlet'
-    flag.z_bc_u_v_left='dirichlet'
-    flag.z_bc_u_v_right='dirichlet'
+    flag.z_bc_u_v_left='neumann'
+    flag.z_bc_u_v_right='neumann'
     
-    flag.A_elevator=1/1000*flag.Ra_T
+    flag.A_elevator=1/100000*flag.Ra_T
 elif flag.flow in ['HB_benard_shear']:
     flag.Nz=1024
     flag.Lz=1
@@ -216,7 +216,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.A_elevator=1/10000*flag.Ra_T
     flag.A_elevator_imag=0#flag.A_elevator
     if flag.problem =='IVP':
-        flag.initial_dt=0.001/flag.Ra_T
+        flag.initial_dt=0.00001/flag.Ra_T
 
 elif flag.flow=='test_periodic':
     flag.F_sin=1
@@ -478,8 +478,12 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
 
 #-----------------setup storing for post-processing
-flag.post_store_dt=0.0001/flag.Ra_T;
-flag.stop_sim_time=0.001/flag.Ra_T;
+if flag.flow in ['HB_benard_shear']:
+    flag.post_store_dt=0.01/flag.Ra_T
+    flag.stop_sim_time=10/flag.Ra_T
+else:
+    flag.post_store_dt=0.000001/flag.Ra_T;
+    flag.stop_sim_time=0.00001/flag.Ra_T;
 
 #------------ print these parameters in the screen
 

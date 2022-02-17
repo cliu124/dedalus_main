@@ -1186,6 +1186,229 @@ class flag(object):
             # else:
             #     raise TypeError('flag.z_bc_S is not supported yet') 
 
+        elif self.flow =='HB_benard_2_layer':
+            #Harmonic balance for Benard problem at high Prandtl number
+            #Not fully benchmarked!!!!
+            
+            if self.problem =='BVP':
+                problem = de.NLBVP(domain, variables=\
+                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0', \
+                    'u_tilde_top','d_u_tilde_top','v_tilde_top','d_v_tilde_top',\
+                    'w_hat_top','p_hat_top','T_hat_top','d_T_hat_top',\
+                    'S_hat_top','d_S_hat_top','T_0_top','d_T_0_top','S_0_top','d_S_0_top'])
+            
+            elif self.problem == 'IVP':
+                problem = de.IVP(domain, variables=\
+                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0',\
+                    'u_tilde_top','d_u_tilde_top','v_tilde_top','d_v_tilde_top', \
+                    'w_hat_top','p_hat_top','T_hat_top','d_T_hat_top', \
+                    'S_hat_top','d_S_hat_top','T_0_top','d_T_0_top','S_0_top','d_S_0_top'])
+                    
+            problem.parameters['Pr'] = self.Pr 
+            problem.parameters['Ra_T'] = self.Ra_T
+            problem.parameters['Ra_S2T'] = self.Ra_S2T
+            problem.parameters['tau']=self.tau
+            problem.parameters['dy_T_mean']=self.dy_T_mean
+            problem.parameters['dy_S_mean']=self.dy_S_mean
+            problem.parameters['kx']=self.kx
+            problem.parameters['ky']=self.ky
+            problem.parameters['Pe_T']=self.Pe_T
+            problem.parameters['Pe_S']=self.Pe_S
+            problem.parameters['F_sin']=self.F_sin
+            problem.parameters['ks']=self.ks
+            problem.parameters['j']=1j
+            if self.problem =='BVP':
+                problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                problem.add_equation('dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                problem.add_equation('dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                problem.add_equation('dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                problem.add_equation('dz(T_hat)-d_T_hat=0')
+                problem.add_equation('dz(S_hat)-d_S_hat=0')
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('dz(S_0)-d_S_0=0')
+
+                problem.add_equation('dz(u_tilde_top)-d_u_tilde_top=0')
+                problem.add_equation('dz(d_u_tilde_top)-(kx*p_hat_top+(kx*kx+ky*ky)*u_tilde_top)=0')
+                problem.add_equation('dz(v_tilde_top)-d_v_tilde_top=0')
+                problem.add_equation('dz(d_v_tilde_top)-(ky*p_hat_top+(kx*kx+ky*ky)*v_tilde_top)=0')
+                problem.add_equation('dz(w_hat_top)-(kx*u_tilde_top+ky*v_tilde_top)=0')
+                problem.add_equation('dz(p_hat_top)-(kx*d_u_tilde_top+ky*d_v_tilde_top-(kx*kx+ky*ky)*w_hat_top+Ra_T*T_hat_top-Ra_S2T*S_hat_top)=0')
+                problem.add_equation('dz(T_hat_top)-d_T_hat_top=0')
+                problem.add_equation('dz(S_hat_top)-d_S_hat_top=0')
+                problem.add_equation('dz(T_0_top)-d_T_0_top=0')
+                problem.add_equation('dz(S_0_top)-d_S_0_top=0')
+
+
+                if self.F_sin==0:
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat=Pe_T*w_hat*d_T_0')
+                    problem.add_equation('dz(d_T_0)=Pe_T*(2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat)')
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=Pe_S/tau*(w_hat*d_S_0)')   
+                    problem.add_equation('dz(d_S_0)=Pe_S/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+                    
+                    problem.add_equation('dz(d_T_hat_top)-w_hat_top*dy_T_mean-(kx*kx+ky*ky)*T_hat_top=Pe_T*w_hat_top*d_T_0_top')
+                    problem.add_equation('dz(d_T_0_top)=Pe_T*(2*kx*u_tilde_top*T_hat_top+2*ky*v_tilde_top*T_hat_top+2*w_hat_top*d_T_hat_top)')
+                    problem.add_equation('dz(d_S_hat_top)-1/tau*w_hat_top*dy_S_mean-(kx*kx+ky*ky)*S_hat_top=Pe_S/tau*(w_hat_top*d_S_0_top)')   
+                    problem.add_equation('dz(d_S_0_top)=Pe_S/tau*(2*kx*u_tilde_top*S_hat_top+2*ky*v_tilde_top*S_hat_top+2*w_hat_top*d_S_hat_top)')
+                
+                else:
+                    problem.add_equation('dz(d_T_hat)-w_hat*dy_T_mean-(kx*kx+ky*ky)*T_hat-Pe_T*j*kx*F_sin*sin(ks*z)*T_hat=Pe_T*w_hat*d_T_0')
+                    #problem.add_equation('dz(d_T_0)=Pe_T*(kx*conj(u_tilde)*T_hat+kx*u_tilde*conj(T_hat)+ky*conj(v_tilde)*T_hat+ky*v_tilde*conj(T_hat)+conj(w_hat)*d_T_hat+w_hat*conj(d_T_hat))')
+                    problem.add_equation('dz(d_T_0)=Pe_T*(kx*(u_tilde)*T_hat+kx*u_tilde*(T_hat)+ky*(v_tilde)*T_hat+ky*v_tilde*(T_hat)+(w_hat)*d_T_hat+w_hat*(d_T_hat))')
+
+                    problem.add_equation('dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat-Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat=Pe_S/tau*(w_hat*d_S_0)')   
+                    #problem.add_equation('dz(d_S_0)=Pe_S/tau*(kx*conj(u_tilde)*S_hat+kx*u_tilde*conj(S_hat)+ky*conj(v_tilde)*S_hat+ky*v_tilde*conj(S_hat)+conj(w_hat)*d_S_hat+w_hat*conj(d_S_hat))')
+                    problem.add_equation('dz(d_S_0)=Pe_S/tau*(kx*(u_tilde)*S_hat+kx*u_tilde*(S_hat)+ky*(v_tilde)*S_hat+ky*v_tilde*(S_hat)+(w_hat)*d_S_hat+w_hat*(d_S_hat))')
+
+                    problem.add_equation('dz(d_T_hat_top)-w_hat_top*dy_T_mean-(kx*kx+ky*ky)*T_hat_top-Pe_T*j*kx*F_sin*sin(ks*z)*T_hat_top=Pe_T*w_hat_top*d_T_0_top')
+                    #problem.add_equation('dz(d_T_0)=Pe_T*(kx*conj(u_tilde)*T_hat+kx*u_tilde*conj(T_hat)+ky*conj(v_tilde)*T_hat+ky*v_tilde*conj(T_hat)+conj(w_hat)*d_T_hat+w_hat*conj(d_T_hat))')
+                    problem.add_equation('dz(d_T_0_top)=Pe_T*(kx*(u_tilde_top)*T_hat_top+kx*u_tilde_top*(T_hat_top)+ky*(v_tilde_top)*T_hat_top+ky*v_tilde_top*(T_hat_top)+(w_hat_top)*d_T_hat_top+w_hat_top*(d_T_hat_top))')
+
+                    problem.add_equation('dz(d_S_hat_top)-1/tau*w_hat_top*dy_S_mean-(kx*kx+ky*ky)*S_hat_top-Pe_S/tau*j*kx*F_sin*sin(ks*z)*S_hat_top=Pe_S/tau*(w_hat_top*d_S_0_top)')   
+                    #problem.add_equation('dz(d_S_0)=Pe_S/tau*(kx*conj(u_tilde)*S_hat+kx*u_tilde*conj(S_hat)+ky*conj(v_tilde)*S_hat+ky*v_tilde*conj(S_hat)+conj(w_hat)*d_S_hat+w_hat*conj(d_S_hat))')
+                    problem.add_equation('dz(d_S_0_top)=Pe_S/tau*(kx*(u_tilde_top)*S_hat_top+kx*u_tilde_top*(S_hat_top)+ky*(v_tilde_top)*S_hat_top+ky*v_tilde_top*(S_hat_top)+(w_hat_top)*d_S_hat_top+w_hat_top*(d_S_hat_top))')
+
+
+            elif self.problem=='IVP':
+                problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                problem.add_equation('dz(T_hat)-d_T_hat=0')
+                problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+                problem.add_equation('dz(S_hat)-d_S_hat=0')
+                problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+                problem.add_equation('dz(S_0)-d_S_0=0')
+                problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+            
+                problem.add_equation('dz(u_tilde_top)-d_u_tilde_top=0')
+                problem.add_equation('-1/Pr*dt(u_tilde_top)+dz(d_u_tilde_top)-(kx*p_hat_top+(kx*kx+ky*ky)*u_tilde_top)=0')
+                problem.add_equation('dz(v_tilde_top)-d_v_tilde_top=0')
+                problem.add_equation('-1/Pr*dt(v_tilde_top)+dz(d_v_tilde_top)-(ky*p_hat_top+(kx*kx+ky*ky)*v_tilde_top)=0')
+                problem.add_equation('dz(w_hat_top)-(kx*u_tilde_top+ky*v_tilde_top)=0')
+                problem.add_equation('1/Pr*dt(w_hat_top)+dz(p_hat_top)-(kx*d_u_tilde_top+ky*d_v_tilde_top-(kx*kx+ky*ky)*w_hat_top+Ra_T*T_hat_top-Ra_S2T*S_hat_top)=0')
+                problem.add_equation('dz(T_hat_top)-d_T_hat_top=0')
+                problem.add_equation('-dt(T_hat_top)+dz(d_T_hat_top)-(w_hat_top*dy_T_mean+(kx*kx+ky*ky)*T_hat_top)=w_hat_top*d_T_0_top')
+                problem.add_equation('dz(S_hat_top)-d_S_hat_top=0')
+                problem.add_equation('-1/tau*dt(S_hat_top)+dz(d_S_hat_top)-1/tau*w_hat_top*dy_S_mean-(kx*kx+ky*ky)*S_hat_top=1/tau*(w_hat_top*d_S_0_top)')   
+                problem.add_equation('dz(T_0_top)-d_T_0_top=0')
+                problem.add_equation('-dt(T_0_top)+dz(d_T_0_top)=2*kx*u_tilde_top*T_hat_top+2*ky*v_tilde_top*T_hat_top+2*w_hat_top*d_T_hat_top')
+                problem.add_equation('dz(S_0_top)-d_S_0_top=0')
+                problem.add_equation('-1/tau*dt(S_0_top)+dz(d_S_0_top)=1/tau*(2*kx*u_tilde_top*S_hat_top+2*ky*v_tilde_top*S_hat_top+2*w_hat_top*d_S_hat_top)')
+                        
+            if self.z_bc_w_left=='dirichlet':
+                problem.add_bc("left(w_hat)=0")
+                print("Dirichlet for w left")
+            if self.z_bc_w_right=='dirichlet':
+                problem.add_bc("right(w_hat_top)=0")
+                print("Dirichlet for w right")
+            
+            if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
+                problem.add_bc("left(w_hat)-right(w_hat_top)=0")
+                problem.add_bc("left(p_hat)-right(p_hat_top)=0")
+                
+            if self.z_bc_T_left=='dirichlet':
+                problem.add_bc("left(T_hat)=0")
+                problem.add_bc("left(T_0)=0")
+                print("Dirichlet for T left")
+            elif self.z_bc_T_left=='neumann':
+                problem.add_bc("left(d_T_hat)=0")
+                problem.add_bc("left(d_T_0)=0")
+                print("Neumann for T left")
+                
+            if self.z_bc_T_right=='dirichlet':
+                problem.add_bc("right(T_hat_top)=0")
+                problem.add_bc("right(T_0_top)=0")
+                print("Dirichlet for T right")
+            elif self.z_bc_T_right=='neumann':
+                problem.add_bc("right(d_T_hat_top)=0")
+                problem.add_bc("right(d_T_0_top)=0")
+                print("Neumann for T right")
+            
+            if self.z_bc_T_left=='periodic' and self.z_bc_T_right=='periodic':
+                problem.add_bc("left(T_hat)-right(T_hat_top)=0")
+                problem.add_bc("left(d_T_hat)-right(d_T_hat_top)=0")
+                problem.add_bc("left(T_0)=0")
+                problem.add_bc("right(T_0_top)=0")
+                #problem.add_bc("left(d_T_0)-right(d_T_0)=0")
+                print("Periodic for T")
+               
+            if self.z_bc_S_left=='dirichlet':
+                problem.add_bc("left(S_hat)=0")
+                problem.add_bc("left(S_0)=0")
+                print("Dirichlet for S left")
+            elif self.z_bc_S_left=='neumann':
+                problem.add_bc("left(d_S_hat)=0")
+                problem.add_bc("left(d_S_0)=0")
+                print("Neumann for S left")
+                
+            if self.z_bc_S_right=='dirichlet':
+                problem.add_bc("right(S_hat_top)=0")
+                problem.add_bc("right(S_0_top)=0")
+                print("Dirichlet for S right")
+            elif self.z_bc_S_right=='neumann':
+                problem.add_bc("right(d_S_hat_top)=0")
+                problem.add_bc("right(d_S_0_top)=0")
+                print("Neumann for S right")
+            
+            if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
+                problem.add_bc("left(S_hat)-right(S_hat_top)=0")
+                problem.add_bc("left(d_S_hat)-right(d_S_hat_top)=0")
+                problem.add_bc("left(S_0)=0")
+                problem.add_bc("right(S_0_top)=0")
+                #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                print("Periodic for S")
+           
+            if self.z_bc_u_v_left=='dirichlet':
+                problem.add_bc("left(u_tilde)=0")
+                problem.add_bc("left(v_tilde)=0")
+            elif self.z_bc_u_v_left=='neumann':
+                problem.add_bc("left(d_u_tilde)=0")
+                problem.add_bc("left(d_v_tilde)=0")
+                
+            if self.z_bc_u_v_right=='dirichlet':
+                problem.add_bc("right(u_tilde_top)=0")
+                problem.add_bc("right(v_tilde_top)=0")
+            elif self.z_bc_u_v_right=='neumann':
+                problem.add_bc("right(d_u_tilde_top)=0")
+                problem.add_bc("right(d_v_tilde_top)=0")
+                
+            if self.z_bc_u_v_left=='periodic' and self.z_bc_u_v_right=='periodic':
+                problem.add_bc("left(u_tilde)-right(u_tilde_top)=0")
+                problem.add_bc("left(v_tilde)-right(v_tilde_top)=0")
+                problem.add_bc("left(d_u_tilde)-right(d_u_tilde_top)=0")
+                problem.add_bc("left(d_v_tilde)-right(d_v_tilde_top)=0")
+            
+            #Add B.C. that they are continuous at the interface.
+            problem.add_bc('right(u_tilde)-left(u_tilde_top)=0')
+            problem.add_bc('right(v_tilde)-left(v_tilde_top)=0')
+            problem.add_bc('right(d_u_tilde)-left(d_u_tilde_top)=0')
+            problem.add_bc('right(d_v_tilde)-left(d_v_tilde_top)=0')
+            problem.add_bc('right(w_hat)-left(w_hat_top)=0')
+            problem.add_bc('right(p_hat)-left(p_hat_top)=0')
+            problem.add_bc('right(T_hat)-left(T_hat_top)=0')
+            problem.add_bc('right(d_T_hat)-left(d_T_hat_top)=0')
+            
+            problem.add_bc('right(S_hat)-left(S_hat_top)=0')
+            problem.add_bc('right(d_S_hat)-left(d_S_hat_top)=0')
+            problem.add_bc('right(T_0)-left(T_0_top)=0')
+            problem.add_bc('right(d_T_0)-left(d_T_0_top)=0')
+            problem.add_bc('right(S_0)-left(S_0_top)=0')
+            problem.add_bc('right(d_S_0)-left(d_S_0_top)=0')
+    
+            
+
+
+
         elif self.flow =='HB_benard_shear':
             """
             if self.problem =='BVP':
