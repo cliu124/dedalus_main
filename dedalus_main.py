@@ -21,7 +21,7 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
-flag.flow='HB_benard_shear'
+flag.flow='HB_benard'
 #flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
 #flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
