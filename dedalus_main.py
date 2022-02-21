@@ -148,7 +148,7 @@ elif flag.flow=='HB_benard':
     flag.tau=0.1
     flag.Ra_T=100000
     R_rho_T2S=2
-
+    flag.continuation_asymmetric=1
     #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     
@@ -167,8 +167,8 @@ elif flag.flow=='HB_benard':
     flag.z_bc_S_right='dirichlet'
     flag.z_bc_w_left='dirichlet'
     flag.z_bc_w_right='dirichlet'
-    flag.z_bc_u_v_left='neumann'
-    flag.z_bc_u_v_right='neumann'
+    flag.z_bc_u_v_left='dirichlet'
+    flag.z_bc_u_v_right='dirichlet'
     
     flag.A_elevator=1/100000*flag.Ra_T
 elif flag.flow in ['HB_benard_shear']:
