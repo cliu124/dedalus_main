@@ -132,6 +132,7 @@ classdef dedalus_post
         initial_dt=0.01;
         continuation=0;
         
+        continuation_asymmetric=0
         %variable for harmonic balance
         w_hat;
         p_hat;
@@ -197,6 +198,8 @@ classdef dedalus_post
         
         HB_porous_3_layer_Pi=1;
         HB_porous_3_layer_h=0.01;
+        
+        initial_kz=2*pi
     end
     
     methods

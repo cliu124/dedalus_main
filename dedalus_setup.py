@@ -2724,14 +2724,6 @@ class flag(object):
                 print('restart')
                 write, last_dt = solver.load_state('restart.h5', -1)
             
-            #If set the continuation... then just load the existing data...
-            if self.continuation != 0:
-                #firstly make a copy of the old data
-                shutil.copytree('analysis','analysis'+str(self.continuation))
-                
-                #Then load_state as the initial condition of IVP/initial guess of BVP
-                write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
-                
                 if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
                     z = domain.grid(0)
     
@@ -2765,7 +2757,15 @@ class flag(object):
                     d_T_0['g'] = np.flip(d_T_0['g'])
                     S_0['g'] = np.flip(S_0['g'])
                     d_S_0['g'] = np.flip(d_S_0['g'])
-                    
+                  
+            #If set the continuation... then just load the existing data...
+            if self.continuation != 0:
+                #firstly make a copy of the old data
+                shutil.copytree('analysis','analysis'+str(self.continuation))
+                
+                #Then load_state as the initial condition of IVP/initial guess of BVP
+                write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
+                  
                     
         
     def run(self,solver,domain,logger):
