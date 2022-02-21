@@ -141,18 +141,21 @@ elif flag.flow == 'HB_porous_shear':
 elif flag.flow=='HB_benard':
     flag.Nz=1024
     flag.Lz=1
-    flag.tau=0.01
-    
-    flag.Ra_T=1.25*100000
-    
-    R_rho_T2S=1/4
+    #flag.tau=0.01
+    #flag.Ra_T=1.25*100000
+    #R_rho_T2S=1/4
+
+    flag.tau=0.1
+    flag.Ra_T=100000
+    R_rho_T2S=2
+
     #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     
     flag.F_sin=0
     flag.ks=2*np.pi
-    flag.dy_T_mean=-1
-    flag.dy_S_mean=-1
+    flag.dy_T_mean=1
+    flag.dy_S_mean=1
     flag.bvp_tolerance=1e-10
     #flag.kx=0.48*flag.Ra_T**0.4
     #flag.kx=2*np.pi/0.5
@@ -522,7 +525,7 @@ else:
 #    flag.kx=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
 
 #This is just try to study the wavenumber 
-for flag.kx in np.linspace(1,60,60):
+for flag.kx in [1]:# np.linspace(1,60,60):
     #R_rho_T2S=2
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     

@@ -114,11 +114,11 @@ switch group_name
                    '13113091',%R_\rho=2, but with tau=1/3 
                    '13146399',%%tau continuation, from tau=0.01,0.02,0.03,0.04,0.05  %%%0.03,1/3,0.03,0.01
                    '13146406',%R_rho_S2T continuation, with R_rho_S2T=2,3,4...50
-                   '13146408',
-                   '13146411',
-                   '13146434'
+                   '13146408',%R_rho_S2T=2, tau=0.1, W0=1 initial condition only 1 layer
+                   '13146411',%R_rho_S2T=2, tau=0.1, W0=10, 100, initial condition, solution show the three layer structure
+                   '13146434'%R_rho_S2T=2, tau=0.1, W0=1000, shows asymmetric solution...
                    };
-%         slurm_num=slurm_num(10);
+        slurm_num=slurm_num(end-2:end);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};

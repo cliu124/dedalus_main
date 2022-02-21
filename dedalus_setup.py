@@ -105,6 +105,8 @@ class flag(object):
         self.initial_dt=0.01#initial time step.
         self.continuation=0 #if yes, use the existing data to continue the next computation
     
+        self.continuation_asymmetric=0
+    
         self.IBM_A=0
         self.IBM_z0=1/2
         self.IBM_sigma=0.0001
@@ -2585,16 +2587,16 @@ class flag(object):
                         #This is the initial guess try to find layer like Gough & Toomre (1982) for diffusive regime
                         if self.F_sin==0:
                             #without shear...
-                            #u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                            #d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                            #v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                            #d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                            #w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                            #p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                            #T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                            #d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                            #S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                            #d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                            p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                             
                             T_0['g'] = W0*np.sin(self.initial_kz*z)+ self.A_noise*noise
                             d_T_0['g'] = W0*self.initial_kz*np.cos(self.initial_kz*z)+self.A_noise*noise
@@ -2729,7 +2731,42 @@ class flag(object):
                 
                 #Then load_state as the initial condition of IVP/initial guess of BVP
                 write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
-
+                
+                if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
+                    z = domain.grid(0)
+    
+                    #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                    u_tilde = solver.state['u_tilde']
+                    d_u_tilde = solver.state['d_u_tilde']
+                    v_tilde = solver.state['v_tilde']
+                    d_v_tilde = solver.state['d_v_tilde']
+                    w_hat = solver.state['w_hat']
+                    p_hat = solver.state['p_hat']
+                    T_hat = solver.state['T_hat']
+                    d_T_hat = solver.state['d_T_hat']
+                    S_hat = solver.state['S_hat']
+                    d_S_hat = solver.state['d_S_hat']
+                    T_0 = solver.state['T_0']
+                    d_T_0 = solver.state['d_T_0']
+                    S_0 = solver.state['S_0']
+                    d_S_0 = solver.state['d_S_0']
+                    
+                    u_tilde['g'] = np.flip(u_tilde['g'])
+                    d_u_tilde['g'] = np.flip(d_u_tilde['g'])
+                    v_tilde['g'] = np.flip(v_tilde['g'])
+                    d_v_tilde['g'] = np.flip(d_v_tilde['g'])
+                    w_hat['g'] = np.flip(w_hat['g'])
+                    p_hat['g'] = np.flip(p_hat['g'])
+                    T_hat['g'] = np.flip(T_hat['g'])
+                    d_T_hat['g'] = np.flip(d_T_hat['g'])
+                    S_hat['g'] = np.flip(S_hat['g'])
+                    d_S_hat['g'] = np.flip(d_S_hat['g'])
+                    T_0['g'] = np.flip(T_0['g'])
+                    d_T_0['g'] = np.flip(d_T_0['g'])
+                    S_0['g'] = np.flip(S_0['g'])
+                    d_S_0['g'] = np.flip(d_S_0['g'])
+                    
+                    
         
     def run(self,solver,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
