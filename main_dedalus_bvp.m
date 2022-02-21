@@ -21,6 +21,7 @@ close all;
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
 group_name='HB_benard_salt_finger_kx';
+% group_name='HB_benard_diffusive_kx';
 %All of these are for porous media
 switch group_name
     case 'HB_porous_thermal_BC'
@@ -117,11 +118,14 @@ switch group_name
                    '13146411',
                    '13146434'
                    };
-        slurm_num=slurm_num(12);
+%         slurm_num=slurm_num(10);
     case 'HB_benard_diffusive_kx'
-        slurm_num={''};
+        slurm_num={'13175327',
+                    '13175339'};
+        slurm_num=slurm_num(2);
     case 'HB_benard_diffusive_shear'
-        slurm_num={'13114223'};
+        slurm_num={'13114223'
+                   };
     case 'hewitt_2_layer_Omega'
         slurm_num={'12829183'};
         %slurm_num={'12829121'}
@@ -181,7 +185,7 @@ switch group_name
         
 end
 
-flag.print=1;
+flag.print=0;
 flag.visible=0;
 flag.video=0;
 flag.post_plot=1;

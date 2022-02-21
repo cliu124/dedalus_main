@@ -115,6 +115,9 @@ class flag(object):
         self.HB_porous_3_layer_Pi=1
         self.HB_porous_3_layer_h=0.1
         
+        #wavenumber in the vertical 
+        self.initial_kz=2*np.pi
+        
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -2541,40 +2544,65 @@ class flag(object):
                     rand = np.random.RandomState(seed=23)
                     noise = rand.standard_normal(gshape)[slices]
                     
-                    #Set up the initial guess such that the
-                    if self.F_sin==0:
-                        #without shear...
-                        u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                        p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                        d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                        S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                        d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                        T_0['g'] = self.A_noise*noise
-                        d_T_0['g'] = self.A_noise*noise
-                        S_0['g'] = self.A_noise*noise
-                        d_S_0['g'] = self.A_noise*noise
-                    else:
-                        #with shear...
-                        u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
-                        p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
-                        T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
-                        d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                        S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
-                        d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
-                        T_0['g'] = self.A_noise*noise
-                        d_T_0['g'] = self.A_noise*noise
-                        S_0['g'] = self.A_noise*noise
-                        d_S_0['g'] = self.A_noise*noise
-                    
+                    if self.dy_T_mean == 1 and self.dy_S_mean ==1:
+                        #This is for the salt finger regime. This can work to find the three layer and asymmetric solutions.
+                        
+                        #Set up the initial guess such that the
+                        if self.F_sin==0:
+                            #without shear...
+                            u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                            p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            T_0['g'] = self.A_noise*noise
+                            d_T_0['g'] = self.A_noise*noise
+                            S_0['g'] = self.A_noise*noise
+                            d_S_0['g'] = self.A_noise*noise
+                        else:
+                            #with shear...
+                            u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                            p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            T_0['g'] = self.A_noise*noise
+                            d_T_0['g'] = self.A_noise*noise
+                            S_0['g'] = self.A_noise*noise
+                            d_S_0['g'] = self.A_noise*noise
+                            
+                    elif self.dy_T_mean==-1 and self.dy_S_mean==-1:  
+                        #This is the initial guess try to find layer like Gough & Toomre (1982) for diffusive regime
+                        if self.F_sin==0:
+                            #without shear...
+                            #u_tilde['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            #d_u_tilde['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            #v_tilde['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            #d_v_tilde['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            #w_hat['g'] = W0*np.sin(np.pi*z) +self.A_noise*noise
+                            #p_hat['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                            #T_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            #d_T_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            #S_hat['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                            #d_S_hat['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                            
+                            T_0['g'] = W0*np.sin(self.initial_kz*z)+ self.A_noise*noise
+                            d_T_0['g'] = W0*self.initial_kz*np.cos(self.initial_kz*z)+self.A_noise*noise
+                            S_0['g'] = W0*np.sin(self.initial_kz*z)+self.A_noise*noise
+                            d_S_0['g'] = W0*self.initial_kz*np.cos(self.initial_kz*z)+self.A_noise*noise
+                        
+                        
+                        
                 elif self.flow =='test_periodic':
                     z = domain.grid(0)
                     w_hat =solver.state['w_hat']
