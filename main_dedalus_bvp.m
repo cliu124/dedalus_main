@@ -119,7 +119,7 @@ switch group_name
                    '13146434',%R_rho_S2T=2, tau=0.1, W0=1000, shows asymmetric solution...
                    '13178472'%R_rho_S2T=2, tau=0.1, asymmetricsolution, continued from the previous one.
                    };
-        slurm_num=slurm_num(end);
+        slurm_num=slurm_num(end-1);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};

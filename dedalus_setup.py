@@ -2743,19 +2743,19 @@ class flag(object):
                     S_0 = solver.state['S_0']
                     d_S_0 = solver.state['d_S_0']
                     
-                    u_tilde['g'] = -np.flip(u_tilde['g'])
+                    u_tilde['g'] = np.flip(u_tilde['g'])
                     d_u_tilde['g'] = -np.flip(d_u_tilde['g'])
-                    v_tilde['g'] = -np.flip(v_tilde['g'])
+                    v_tilde['g'] = np.flip(v_tilde['g'])
                     d_v_tilde['g'] = -np.flip(d_v_tilde['g'])
                     w_hat['g'] = -np.flip(w_hat['g'])
-                    p_hat['g'] = -np.flip(p_hat['g'])
+                    p_hat['g'] = np.flip(p_hat['g'])
                     T_hat['g'] = -np.flip(T_hat['g'])
-                    d_T_hat['g'] = -np.flip(d_T_hat['g'])
+                    d_T_hat['g'] = np.flip(d_T_hat['g'])
                     S_hat['g'] = -np.flip(S_hat['g'])
-                    d_S_hat['g'] = -np.flip(d_S_hat['g'])
-                    T_0['g'] = np.flip(T_0['g'])
+                    d_S_hat['g'] = np.flip(d_S_hat['g'])
+                    T_0['g'] = -np.flip(T_0['g'])
                     d_T_0['g'] = np.flip(d_T_0['g'])
-                    S_0['g'] = np.flip(S_0['g'])
+                    S_0['g'] = -np.flip(S_0['g'])
                     d_S_0['g'] = np.flip(d_S_0['g'])
                   
             #If set the continuation... then just load the existing data...
