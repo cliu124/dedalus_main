@@ -145,18 +145,20 @@ class flag(object):
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         
         #For Harmonic balance method. Chebyshev in the vertical
-        elif self.flow in ['HB_porous','HB_benard','test_periodic','HB_porous_2_layer','HB_porous_3_layer']:
+        #elif self.flow in ['HB_porous','HB_benard','test_periodic','HB_porous_2_layer','HB_porous_3_layer']:
             #if self.z_bc_w =='periodic' and self.z_bc_S =='periodic' and self.z_bc_T=='periodic' and self.z_bc_u_v == 'periodic':
             #    z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
             #    #domain = de.Domain([z_basis],grid_dtype=np.float64)
             #else:
             #    z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
-            z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
-            if self.F_sin==0:
-                domain = de.Domain([z_basis],grid_dtype=np.float64) 
-            else:
-                domain = de.Domain([z_basis],grid_dtype=np.complex128) 
-        elif self.flow in ['HB_porous_shear','HB_benard_shear']:
+            #z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
+            #if self.F_sin==0:
+            #    domain = de.Domain([z_basis],grid_dtype=np.float64) 
+            #else:
+            #    domain = de.Domain([z_basis],grid_dtype=np.complex128) 
+        elif self.flow in ['HB_porous','HB_benard','test_periodic',\
+                           'HB_porous_2_layer','HB_porous_3_layer',\
+                           'HB_porous_shear','HB_benard_shear']:
             if self.problem == 'EVP':
                 z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=1)
                 domain = de.Domain([z_basis],grid_dtype=np.complex128) 
@@ -1015,7 +1017,13 @@ class flag(object):
                     ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
                     'w_hat','p_hat','T_hat','d_T_hat', \
                     'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
-                    
+            elif self.problem =='EVP':
+                problem = de.EVP(domain, variables=\
+                    ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    'w_hat','p_hat','T_hat','d_T_hat', \
+                    'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'] \
+                        ,eigenvalue='eig_val')
+            
             problem.parameters['Pr'] = self.Pr 
             problem.parameters['Ra_T'] = self.Ra_T
             problem.parameters['Ra_S2T'] = self.Ra_S2T
@@ -1070,6 +1078,25 @@ class flag(object):
                 problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
                 problem.add_equation('dz(S_0)-d_S_0=0')
                 problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+            
+            elif self.problem =='EVP':
+                problem.substitutions['dt(A)'] = "eig_val*A"
+                problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                problem.add_equation('dz(T_hat)-d_T_hat=0')
+                problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+                problem.add_equation('dz(S_hat)-d_S_hat=0')
+                problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+                problem.add_equation('dz(S_0)-d_S_0=0')
+                problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
+            
+            
             
             if self.z_bc_w_left=='dirichlet':
                 problem.add_bc("left(w_hat)=0")
