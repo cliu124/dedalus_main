@@ -118,9 +118,11 @@ switch group_name
                    '13146411',%R_rho_S2T=2, tau=0.1, W0=10, 100, initial condition, solution show the three layer structure
                    '13146434',%R_rho_S2T=2, tau=0.1, W0=1000, shows asymmetric solution...
                    '13178474',%R_rho_S2T=2, tau=0.1, asymmetricsolution, continued from the previous one.
-                   '13207267'%time dependence
+                   '13207271',%time dependence
+                   '13207272',
+                   '13207274'
                    };
-        slurm_num=slurm_num(end);
+        slurm_num=slurm_num(end-2:end);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};

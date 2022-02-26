@@ -2756,8 +2756,8 @@ class flag(object):
                     rand = np.random.RandomState(seed=23)
                     noise = rand.standard_normal(gshape)[slices]
                     
-                    print(gshape)
-                    print(slices)
+                    #print(gshape)
+                    #print(slices)
                     z = domain.grid(0)
     
                     #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
@@ -2776,8 +2776,8 @@ class flag(object):
                     S_0 = solver.state['S_0']
                     d_S_0 = solver.state['d_S_0']
                     
-                    print(np.size(u_tilde['g']))
-                    print(np.size(noise))
+                    #print(np.size(u_tilde['g']))
+                    #print(np.size(noise))
                     u_tilde['g'] = u_tilde['g']+self.A_noise*noise
                     #d_u_tilde['g'] = d_u_tilde['g']+self.A_noise*noise
                     v_tilde['g'] = v_tilde['g']+self.A_noise*noise
