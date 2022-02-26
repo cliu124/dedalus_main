@@ -2750,6 +2750,46 @@ class flag(object):
                 #Restart
                 print('restart')
                 write, last_dt = solver.load_state('restart.h5', -1)
+                if self.A_noise !=0 and self.flow =='HB_benard':
+                    gshape = domain.dist.grid_layout.global_shape(scales=1)
+                    slices = domain.dist.grid_layout.slices(scales=1)
+                    rand = np.random.RandomState(seed=23)
+                    noise = rand.standard_normal(gshape)[slices]
+                    
+                    
+                    z = domain.grid(0)
+    
+                    #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                    u_tilde = solver.state['u_tilde']
+                    d_u_tilde = solver.state['d_u_tilde']
+                    v_tilde = solver.state['v_tilde']
+                    d_v_tilde = solver.state['d_v_tilde']
+                    w_hat = solver.state['w_hat']
+                    p_hat = solver.state['p_hat']
+                    T_hat = solver.state['T_hat']
+                    d_T_hat = solver.state['d_T_hat']
+                    S_hat = solver.state['S_hat']
+                    d_S_hat = solver.state['d_S_hat']
+                    T_0 = solver.state['T_0']
+                    d_T_0 = solver.state['d_T_0']
+                    S_0 = solver.state['S_0']
+                    d_S_0 = solver.state['d_S_0']
+                    
+                    u_tilde['g'] = (u_tilde['g'])+self.A_noise*noise
+                    d_u_tilde['g'] = (d_u_tilde['g'])+self.A_noise*noise
+                    v_tilde['g'] = (v_tilde['g'])+self.A_noise*noise
+                    d_v_tilde['g'] = (d_v_tilde['g'])+self.A_noise*noise
+                    w_hat['g'] = (w_hat['g'])+self.A_noise*noise
+                    p_hat['g'] = (p_hat['g'])+self.A_noise*noise
+                    T_hat['g'] = (T_hat['g'])+self.A_noise*noise
+                    d_T_hat['g'] = (d_T_hat['g'])+self.A_noise*noise
+                    S_hat['g'] = (S_hat['g'])+self.A_noise*noise
+                    d_S_hat['g'] = (d_S_hat['g'])+self.A_noise*noise
+                    T_0['g'] = (T_0['g'])+self.A_noise*noise
+                    d_T_0['g'] = (d_T_0['g'])+self.A_noise*noise
+                    S_0['g'] = (S_0['g'])+self.A_noise*noise
+                    d_S_0['g'] = (d_S_0['g'])+self.A_noise*noise
+                  
             
                 if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
                     z = domain.grid(0)
