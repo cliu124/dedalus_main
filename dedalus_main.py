@@ -148,7 +148,7 @@ elif flag.flow=='HB_benard':
     flag.tau=0.1
     flag.Ra_T=100000
     R_rho_T2S=2
-    flag.continuation_asymmetric=1
+    flag.continuation_asymmetric=0
     #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     
@@ -171,6 +171,10 @@ elif flag.flow=='HB_benard':
     flag.z_bc_u_v_right='dirichlet'
     
     flag.A_elevator=1/100000*flag.Ra_T
+    
+    if flag.problem =='IVP':
+        flag.initial_dt=0.00001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
+
 elif flag.flow in ['HB_benard_shear']:
     flag.Nz=1024
     flag.Lz=1
@@ -219,7 +223,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.A_elevator=1/10000*flag.Ra_T
     flag.A_elevator_imag=0#flag.A_elevator
     if flag.problem =='IVP':
-        flag.initial_dt=0.00001/flag.Ra_T
+        flag.initial_dt=0.000001/flag.Ra_T
 
 elif flag.flow=='test_periodic':
     flag.F_sin=1
@@ -484,6 +488,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
 if flag.flow in ['HB_benard_shear']:
     flag.post_store_dt=0.01/flag.Ra_T
     flag.stop_sim_time=10/flag.Ra_T
+elif flag.flow in ['HB_benard']:
+    flag.post_store_dt=0.000001/flag.Ra_T
+    flag.stop_sim_time=0.00001/flag.Ra_T
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;
     flag.stop_sim_time=0.00001/flag.Ra_T;
