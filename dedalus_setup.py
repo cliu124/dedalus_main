@@ -2756,7 +2756,8 @@ class flag(object):
                     rand = np.random.RandomState(seed=23)
                     noise = rand.standard_normal(gshape)[slices]
                     
-                    
+                    print(gshape)
+                    print(slices)
                     z = domain.grid(0)
     
                     #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
@@ -2775,20 +2776,22 @@ class flag(object):
                     S_0 = solver.state['S_0']
                     d_S_0 = solver.state['d_S_0']
                     
-                    u_tilde['g'] = (u_tilde['g'])+self.A_noise*noise
-                    d_u_tilde['g'] = (d_u_tilde['g'])+self.A_noise*noise
-                    v_tilde['g'] = (v_tilde['g'])+self.A_noise*noise
-                    d_v_tilde['g'] = (d_v_tilde['g'])+self.A_noise*noise
-                    w_hat['g'] = (w_hat['g'])+self.A_noise*noise
-                    p_hat['g'] = (p_hat['g'])+self.A_noise*noise
-                    T_hat['g'] = (T_hat['g'])+self.A_noise*noise
-                    d_T_hat['g'] = (d_T_hat['g'])+self.A_noise*noise
-                    S_hat['g'] = (S_hat['g'])+self.A_noise*noise
-                    d_S_hat['g'] = (d_S_hat['g'])+self.A_noise*noise
-                    T_0['g'] = (T_0['g'])+self.A_noise*noise
-                    d_T_0['g'] = (d_T_0['g'])+self.A_noise*noise
-                    S_0['g'] = (S_0['g'])+self.A_noise*noise
-                    d_S_0['g'] = (d_S_0['g'])+self.A_noise*noise
+                    print(np.size(u_tilde['g']))
+                    print(np.size(noise))
+                    u_tilde['g'] = u_tilde['g']+self.A_noise*noise
+                    #d_u_tilde['g'] = d_u_tilde['g']+self.A_noise*noise
+                    v_tilde['g'] = v_tilde['g']+self.A_noise*noise
+                    #d_v_tilde['g'] = d_v_tilde['g']+self.A_noise*noise
+                    w_hat['g'] = w_hat['g']+self.A_noise*noise
+                    p_hat['g'] = p_hat['g']+self.A_noise*noise
+                    T_hat['g'] = T_hat['g']+self.A_noise*noise
+                    #d_T_hat['g'] = d_T_hat['g']+self.A_noise*noise
+                    S_hat['g'] = S_hat['g']+self.A_noise*noise
+                    #d_S_hat['g'] = d_S_hat['g']+self.A_noise*noise
+                    T_0['g'] = T_0['g']+self.A_noise*noise
+                    #d_T_0['g'] = d_T_0['g']+self.A_noise*noise
+                    S_0['g'] = S_0['g']+self.A_noise*noise
+                    #d_S_0['g'] = d_S_0['g']+self.A_noise*noise
                   
             
                 if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
