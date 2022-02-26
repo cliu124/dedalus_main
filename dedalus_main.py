@@ -171,9 +171,9 @@ elif flag.flow=='HB_benard':
     flag.z_bc_u_v_right='dirichlet'
     
     flag.A_elevator=1/100000*flag.Ra_T
-    flag.A_noise=0.001
+    flag.A_noise=0.01
     if flag.problem =='IVP':
-        flag.initial_dt=0.000001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
+        flag.initial_dt=0.0001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
 
 elif flag.flow in ['HB_benard_shear']:
     flag.Nz=1024
@@ -489,8 +489,8 @@ if flag.flow in ['HB_benard_shear']:
     flag.post_store_dt=0.01/flag.Ra_T
     flag.stop_sim_time=10/flag.Ra_T
 elif flag.flow in ['HB_benard']:
-    flag.post_store_dt=0.00001/flag.Ra_T
-    flag.stop_sim_time=0.0001/flag.Ra_T
+    flag.post_store_dt=0.001/flag.Ra_T
+    flag.stop_sim_time=0.01/flag.Ra_T
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;
     flag.stop_sim_time=0.00001/flag.Ra_T;

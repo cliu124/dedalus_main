@@ -2751,8 +2751,8 @@ class flag(object):
                 print('restart')
                 write, last_dt = solver.load_state('restart.h5', -1)
                 if self.A_noise !=0 and self.flow =='HB_benard':
-                    gshape = domain.dist.grid_layout.global_shape(scales=1)
-                    slices = domain.dist.grid_layout.slices(scales=1)
+                    gshape = domain.dist.grid_layout.global_shape(scales=2)
+                    slices = domain.dist.grid_layout.slices(scales=2)
                     rand = np.random.RandomState(seed=23)
                     noise = rand.standard_normal(gshape)[slices]
                     
