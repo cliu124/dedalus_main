@@ -3172,6 +3172,13 @@ class flag(object):
             logger.info(np.max(solver.eigenvalues))
             logger.info(solver.eigenvalues)
             
+            #store the eigenvalue and eigenvectors into a new field
+            #Update 2022/02/28
+            eigenvalues=domain.new_field('eigenvalues')
+            eigenvectors=domain.new_field('eigenvectors')
+            eigenvalues['g']=solver.eigenvalues
+            eigenvectors['g']=solver.eigenvectors
+            
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
         if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
@@ -3213,6 +3220,9 @@ class flag(object):
                 self.analysis = solver.evaluator.add_file_handler('analysis')
                 self.analysis.add_system(solver.state)
                 #For BVP problem, here need to do nothing
+            #elif self.problem in ['EVP']:
+            #    self.analysis = solver.evaluator.add_file_handler('analysis')
+            #    self.analysis.add_system(solver.state)
 
     def post_store_after_run(self,solver):
         #merge step for the IVP and BVP...
