@@ -145,8 +145,9 @@ switch group_name
                    '13207820',%one layer solution + EVP
                    '13207821',%stair case solution + EVP
                    '13207822',%asymmetric solution + EVP
+                   '13207889'
                    }       
-        slurm_num=slurm_num(end-2:end);
+        slurm_num=slurm_num(end);
 %         slurm_num=slurm_num(end-6);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',

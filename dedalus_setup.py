@@ -3174,8 +3174,8 @@ class flag(object):
             
             #store the eigenvalue and eigenvectors into a new field
             #Update 2022/02/28
-            eigenvalues=domain.new_field('eigenvalues')
-            eigenvectors=domain.new_field('eigenvectors')
+            eigenvalues=domain.new_field()
+            eigenvectors=domain.new_field()
             eigenvalues['g']=solver.eigenvalues
             eigenvectors['g']=solver.eigenvectors
             
