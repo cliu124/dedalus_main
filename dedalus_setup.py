@@ -3240,7 +3240,7 @@ class flag(object):
                 with h5py.File('./analysis/analysis_s1.h', 'w') as f:
                     eigenvalues = f.create_dataset("eigenvalues", data=solver.eigenvalues)
                     eigenvectors = f.create_dataset("eigenvectors", data=solver.eigenvectors)
-                    print('Write eigenvalues and eigenvectors into ./analysis/analysis_s1.h')
+                    print('Write eigenvalues and eigenvectors into ./analysis/analysis_s1.h5')
             if self.EVP_secondary and self.problem =='BVP':
                 
                 #if I would like to compute the stability of the secondary state, 
