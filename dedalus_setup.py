@@ -3176,9 +3176,11 @@ class flag(object):
             #print(solver.eigenvectors.shape)
             logger.info(order)
             solver.eigenvectors = solver.eigenvectors[:, order]
+            logger.info('The maximum real part of the all eigenvalues are \n')
             logger.info(np.max(np.real(solver.eigenvalues)))
-            logger.info(np.max(solver.eigenvalues))
-            logger.info(solver.eigenvalues)
+            logger.info('Corresponding complex eigenvalue is:\n')
+            logger.info((solver.eigenvalues[0]))
+            #logger.info(solver.eigenvalues)
             
             #store the eigenvalue and eigenvectors into a new field
             #Update 2022/02/28
@@ -3265,7 +3267,7 @@ class flag(object):
             with h5py.File('./analysis/analysis_s1.h5', 'a') as f:
                 eigenvalues = f.create_dataset("eigenvalues", data=solver.eigenvalues)
                 eigenvectors = f.create_dataset("eigenvectors", data=solver.eigenvectors)
-                print('Write eigenvalues and eigenvectors into ./analysis/analysis_s1.h5')
+                print('Append eigenvalues and eigenvectors into ./analysis/analysis_s1.h5')
              
     def get_HB_porous_2_layer_Omega_k(self):
         ##This is the data from figure 10(b) at Ra=5000 from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.

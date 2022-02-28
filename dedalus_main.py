@@ -186,6 +186,9 @@ elif flag.flow=='HB_benard':
     flag.z_bc_u_v_right='dirichlet'
     
     flag.A_elevator=1/100000*flag.Ra_T
+    #For Nz=128, A_elevator=1 give 1-layer solution, A_elevator=650 give 2 layer solution, A_elevator=10 gives asymmetric solution
+    #For Nz=1024, A_elevator=1 give 1-layer solution, A_elevator=10-100 gives 2-layer solution, A_elevator=1000 gives asymmetric solution.
+    
     flag.A_noise=0.01
     if flag.problem =='IVP':
         flag.initial_dt=10**3/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 

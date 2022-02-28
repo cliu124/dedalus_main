@@ -129,6 +129,7 @@ classdef dedalus_post
         
         timesteppers='RK443';%
         analysis=0;%
+        solver=0;
         initial_dt=0.01;
         continuation=0;
         
@@ -221,7 +222,7 @@ classdef dedalus_post
         
         eigenvalues=0;
         eigenvectors=0;
-        
+        eigenvector_lead=struct;
         
     end
     
@@ -280,9 +281,39 @@ classdef dedalus_post
         end
         
         function obj = dedalus_post_bvp(obj)
+            h5_name=obj.h5_name;
+            
+            %%Read the eigenvalue problem if performed the secondary
+            %%stability analysis
+            if obj.EVP_secondary
+                obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
+                obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
+                obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+%                 eigenvector_lead=obj.eigenvectors(1,:);
+                if strcmp(obj.flow,'HB_benard')
+                    obj.eigenvector_lead.u_tilde=obj.eigenvectors(1,1:obj.Nz);
+                    obj.eigenvector_lead.d_u_tilde=obj.eigenvectors(1,obj.Nz+1:2*obj.Nz);
+                    obj.eigenvector_lead.v_tilde=obj.eigenvectors(1,2*obj.Nz+1:3*obj.Nz);
+                    obj.eigenvector_lead.d_v_tilde=obj.eigenvectors(1,3*obj.Nz+1:4*obj.Nz);
+                    obj.eigenvector_lead.w_hat=obj.eigenvectors(1,4*obj.Nz+1:5*obj.Nz);
+                    obj.eigenvector_lead.p_hat=obj.eigenvectors(1,5*obj.Nz+1:6*obj.Nz);
+                    obj.eigenvector_lead.T_hat=obj.eigenvectors(1,6*obj.Nz+1:7*obj.Nz);
+                    obj.eigenvector_lead.d_T_hat=obj.eigenvectors(1,7*obj.Nz+1:8*obj.Nz);
+                    obj.eigenvector_lead.S_hat=obj.eigenvectors(1,8*obj.Nz+1:9*obj.Nz);
+                    obj.eigenvector_lead.d_S_hat=obj.eigenvectors(1,9*obj.Nz+1:10*obj.Nz);
+                    obj.eigenvector_lead.T_0=obj.eigenvectors(1,10*obj.Nz+1:11*obj.Nz);
+                    obj.eigenvector_lead.d_T_0=obj.eigenvectors(1,11*obj.Nz+1:12*obj.Nz);
+                    obj.eigenvector_lead.S_0=obj.eigenvectors(1,12*obj.Nz+1:13*obj.Nz);
+                    obj.eigenvector_lead.d_S_0=obj.eigenvectors(1,13*obj.Nz+1:14*obj.Nz);
+
+                elseif strcmp(obj.flow,'HB_porous')
+
+                end
+            end
+            
+            
             %read the data for BVP... These are results for harmonic
             %balance...
-            h5_name=obj.h5_name;
             obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
             obj.w_hat=h5read_complex(h5_name,'/tasks/w_hat');
             obj.p_hat=h5read_complex(h5_name,'/tasks/p_hat');
@@ -675,30 +706,7 @@ classdef dedalus_post
         
         
         function obj=dedalus_post_evp(obj)
-            h5_name=obj.h5_name;
-            obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
-            obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
-            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
-            eigenvector_lead=obj.eigenvectors(1,:);
-            if strcmp(obj.flow,'HB_benard')
-                obj.u_tilde=eigenvector_lead(1:obj.Nz);
-                obj.d_u_tilde=eigenvector_lead(obj.Nz+1:2*obj.Nz);
-                obj.v_tilde=eigenvector_lead(2*obj.Nz+1:3*obj.Nz);
-                obj.d_v_tilde=eigenvector_lead(3*obj.Nz+1:4*obj.Nz);
-                obj.w_hat=eigenvector_lead(4*obj.Nz+1:5*obj.Nz);
-                obj.p_hat=eigenvector_lead(5*obj.Nz+1:6*obj.Nz);
-                obj.T_hat=eigenvector_lead(6*obj.Nz+1:7*obj.Nz);
-                obj.d_T_hat=eigenvector_lead(7*obj.Nz+1:8*obj.Nz);
-                obj.S_hat=eigenvector_lead(8*obj.Nz+1:9*obj.Nz);
-                obj.d_S_hat=eigenvector_lead(9*obj.Nz+1:10*obj.Nz);
-                obj.T_0=eigenvector_lead(10*obj.Nz+1:11*obj.Nz);
-                obj.d_T_0=eigenvector_lead(11*obj.Nz+1:12*obj.Nz);
-                obj.S_0=eigenvector_lead(12*obj.Nz+1:13*obj.Nz);
-                obj.d_S_0=eigenvector_lead(13*obj.Nz+1:14*obj.Nz);
-
-            elseif strcmp(obj.flow,'HB_porous')
-                
-            end
+            
             
         
         end

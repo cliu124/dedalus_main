@@ -142,8 +142,9 @@ switch group_name
                    '13207556',%IVP from 13207555
                    '13207561',%IVP from 13207553
                    '13207562',%IVP from 13207554
+                   '13208452'
                    }       
-        slurm_num=slurm_num(end-2:end);
+        slurm_num=slurm_num(end);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};
@@ -210,8 +211,8 @@ switch group_name
         
 end
 
-flag.print=1;
-flag.visible=1;
+flag.print=0;
+flag.visible=0;
 flag.video=0;
 flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)
@@ -231,16 +232,16 @@ for slurm_ind=1:length(slurm_num)
             %data_Nu{1}.y(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
             switch dedalus_post_my{slurm_ind,content_ind}.problem
-                case {'BVP','IVP'}
+                case {'BVP','IVP','EVP'}
                     dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_bvp();
                     if flag.print || flag.visible
                         dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
                     end
-                case 'EVP'
-                    dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_evp();
-                    if flag.print || flag.visible
-                        dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.evp_plot;
-                    end
+%                 case 'EVP'
+%                     dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_evp();
+%                     if flag.print || flag.visible
+%                         dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.evp_plot;
+%                     end
 %                 case 'IVP'
                 otherwise
                     error('Wrong problem for dedalus');

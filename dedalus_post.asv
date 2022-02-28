@@ -129,6 +129,7 @@ classdef dedalus_post
         
         timesteppers='RK443';%
         analysis=0;%
+        solver=0;
         initial_dt=0.01;
         continuation=0;
         
@@ -221,7 +222,7 @@ classdef dedalus_post
         
         eigenvalues=0;
         eigenvectors=0;
-        
+        eigenvector_lead=0;
         
     end
     
@@ -280,6 +281,34 @@ classdef dedalus_post
         end
         
         function obj = dedalus_post_bvp(obj)
+            %%Read the eigenvalue problem if any
+            if strcmp(obj.flow,'EVP')
+                obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
+                obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
+                obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+                eigenvector_lead=obj.eigenvectors(1,:);
+                if strcmp(obj.flow,'HB_benard')
+                    obj.eigenvector_lead.u_tilde=eigenvector_lead(1,1:obj.Nz);
+                    obj.eigenvector_lead.d_u_tilde=eigenvector_lead(1,obj.Nz+1:2*obj.Nz);
+                    obj.eigenvector_lead.v_tilde=eigenvector_lead(1,2*obj.Nz+1:3*obj.Nz);
+                    obj.eigenvector_lead.d_v_tilde=eigenvector_lead(1,3*obj.Nz+1:4*obj.Nz);
+                    obj.eigenvector_lead.w_hat=eigenvector_lead(1,4*obj.Nz+1:5*obj.Nz);
+                    obj.eigenvector_lead.p_hat=eigenvector_lead(1,5*obj.Nz+1:6*obj.Nz);
+                    obj.T_hat=eigenvector_lead(1,6*obj.Nz+1:7*obj.Nz);
+                    obj.d_T_hat=eigenvector_lead(1,7*obj.Nz+1:8*obj.Nz);
+                    obj.S_hat=eigenvector_lead(1,8*obj.Nz+1:9*obj.Nz);
+                    obj.d_S_hat=eigenvector_lead(1,9*obj.Nz+1:10*obj.Nz);
+                    obj.T_0=eigenvector_lead(1,10*obj.Nz+1:11*obj.Nz);
+                    obj.d_T_0=eigenvector_lead(1,11*obj.Nz+1:12*obj.Nz);
+                    obj.S_0=eigenvector_lead(1,12*obj.Nz+1:13*obj.Nz);
+                    obj.d_S_0=eigenvector_lead(1,13*obj.Nz+1:14*obj.Nz);
+
+                elseif strcmp(obj.flow,'HB_porous')
+
+                end
+            end
+            
+            
             %read the data for BVP... These are results for harmonic
             %balance...
             h5_name=obj.h5_name;
@@ -622,7 +651,7 @@ classdef dedalus_post
             z_ind=1:length(obj.z_list);
             y=obj.z_list(z_ind);
             [data{1}.x,data{1}.y]=meshgrid(x,y);
-            data{1}.z=T_mean_var+obj.T_0+obj.T_hat(z_ind,1)*2*cos(x);
+            data{1}.z=T_mean_var+obj.T_0(z_ind,1)+obj.T_hat(z_ind,1)*2*cos(x);
             %data{2}.y=obj.z_list;
 %             data{1}.u=obj.u_tilde(z_ind)*real(1i*exp(1i*x));
 %             data{1}.v=obj.w_hat(z_ind)*real(exp(1i*x));
@@ -650,7 +679,7 @@ classdef dedalus_post
             z_ind=1:length(obj.z_list);
             y=obj.z_list(z_ind);
             [data{1}.x,data{1}.y]=meshgrid(x,y);
-            data{1}.z=S_mean_var+obj.S_0+obj.S_hat(z_ind)*2*cos(x);
+            data{1}.z=S_mean_var+obj.S_0(z_ind,1)+obj.S_hat(z_ind,1)*2*cos(x);
             plot_config.xlim_list=[1,0,2*pi];
             plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
             plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
@@ -675,30 +704,7 @@ classdef dedalus_post
         
         
         function obj=dedalus_post_evp(obj)
-            h5_name=obj.h5_name;
-            obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
-            obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
-            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
-            eigenvector_lead=obj.eigenvectors(1,:);
-            if strcmp(obj.flow,'HB_benard')
-                obj.u_tilde=eigenvector_lead(1:obj.Nz);
-                obj.d_u_tilde=eigenvector_lead(obj.Nz+1:2*obj.Nz);
-                obj.v_tilde=eigenvector_lead(2*obj.Nz+1:3*obj.Nz);
-                obj.d_v_tilde=eigenvector_lead(3*obj.Nz+1:4*obj.Nz);
-                obj.w_hat=eigenvector_lead(4*obj.Nz+1:5*obj.Nz);
-                obj.p_hat=eigenvector_lead(5*obj.Nz+1:6*obj.Nz);
-                obj.T_hat=eigenvector_lead(6*obj.Nz+1:7*obj.Nz);
-                obj.d_T_hat=eigenvector_lead(7*obj.Nz+1:8*obj.Nz);
-                obj.S_hat=eigenvector_lead(8*obj.Nz+1:9*obj.Nz);
-                obj.d_S_hat=eigenvector_lead(9*obj.Nz+1:10*obj.Nz);
-                obj.T_0=eigenvector_lead(10*obj.Nz+1:11*obj.Nz);
-                obj.d_T_0=eigenvector_lead(11*obj.Nz+1:12*obj.Nz);
-                obj.S_0=eigenvector_lead(12*obj.Nz+1:13*obj.Nz);
-                obj.d_S_0=eigenvector_lead(13*obj.Nz+1:14*obj.Nz);
-
-            elseif strcmp(obj.flow,'HB_porous')
-                
-            end
+            
             
         
         end
