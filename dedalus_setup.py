@@ -3162,15 +3162,16 @@ class flag(object):
             
             # Filter infinite/nan eigenmodes
             finite = np.isfinite(solver.eigenvalues)
+            print(solver.eigenvectors.shape)
             solver.eigenvalues = solver.eigenvalues[finite]
             solver.eigenvectors = solver.eigenvectors[:, finite]
-            print(np.size(solver.eigenvectors))   
+            print(solver.eigenvectors.shape)   
             # Sort eigenmodes by eigenvalue
             # Update 2022/02/28, order is based on the real part of the eigenvalues and also sort from the largest one to the smallest one.
             # which also require a flip to flip the order. 
             order = np.flip(np.argsort(np.real(solver.eigenvalues)))
             solver.eigenvalues = solver.eigenvalues[order]
-            print(np.size(solver.eigenvectors))
+            print(solver.eigenvectors.shape)
             logger.info(order)
             solver.eigenvectors = solver.eigenvectors[:, order]
             logger.info(np.max(np.real(solver.eigenvalues)))
