@@ -587,6 +587,7 @@ class flag(object):
                     #setup the problem
                     #put total variable on the RHS, but need to substract the linear part of the base state. This will guarantee that when perturbation=0 (without _tot or _base) , RHS is zero (homogeneous). Dedalus will check this
                     #The LHS is not tricky, just the original problem will be OK.
+                    print('Add equation of EVP for HB_porous')
                     problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
                     problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
                     problem.add_equation('dz(T_hat)-d_T_hat=0')
