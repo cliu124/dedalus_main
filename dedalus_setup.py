@@ -1388,23 +1388,27 @@ class flag(object):
             if self.z_bc_u_v_left=='dirichlet':
                 problem.add_bc("left(u_tilde)=0")
                 problem.add_bc("left(v_tilde)=0")
+                print("Dirichet for u,v left")
             elif self.z_bc_u_v_left=='neumann':
                 problem.add_bc("left(d_u_tilde)=0")
                 problem.add_bc("left(d_v_tilde)=0")
+                print('Neumann for u,v left')
                 
             if self.z_bc_u_v_right=='dirichlet':
                 problem.add_bc("right(u_tilde)=0")
                 problem.add_bc("right(v_tilde)=0")
+                print('Dirichlet for u,v, right')
             elif self.z_bc_u_v_right=='neumann':
                 problem.add_bc("right(d_u_tilde)=0")
                 problem.add_bc("right(d_v_tilde)=0")
+                print('Neumann for u,v right')
                 
             if self.z_bc_u_v_left=='periodic' and self.z_bc_u_v_right=='periodic':
                 problem.add_bc("left(u_tilde)-right(u_tilde)=0")
                 problem.add_bc("left(v_tilde)-right(v_tilde)=0")
                 problem.add_bc("left(d_u_tilde)-right(d_u_tilde)=0")
                 problem.add_bc("left(d_v_tilde)-right(d_v_tilde)=0")
-                
+                print('Periodic for u,v')
             # if self.z_bc_u_v =='dirichlet':
             #     problem.add_bc("left(u_tilde) = 0")
             #     problem.add_bc("right(u_tilde) = 0")
