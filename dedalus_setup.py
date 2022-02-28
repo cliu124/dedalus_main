@@ -1195,7 +1195,12 @@ class flag(object):
                 if  pathlib.Path('restart.h5').exists():
                     print('restart for EVP')
                     #self.EVP_trivial=0
-                    solver_tmp =  problem.build_solver()
+                    problem_tmp = de.NLBVP(domain, variables=\
+                                           ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                                            'w_hat','p_hat','T_hat','d_T_hat', \
+                                                'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+            
+                    solver_tmp =  problem_tmp.build_solver()
                     write, last_dt = solver_tmp.load_state('restart.h5', -1)
                     state=solver_tmp.state
                     for varname in state.keys():
