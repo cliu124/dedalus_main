@@ -107,6 +107,8 @@ class flag(object):
         #flag for the time stepper.. default value
         self.timesteppers='RK443'
         self.analysis=0#Add analysis
+        self.solver=0#add solver as a temporal variable
+        
         self.initial_dt=0.01#initial time step.
         self.continuation=0 #if yes, use the existing data to continue the next computation
     
@@ -3162,16 +3164,16 @@ class flag(object):
             
             # Filter infinite/nan eigenmodes
             finite = np.isfinite(solver.eigenvalues)
-            print(solver.eigenvectors.shape)
+            #print(solver.eigenvectors.shape)
             solver.eigenvalues = solver.eigenvalues[finite]
             solver.eigenvectors = solver.eigenvectors[:, finite]
-            print(solver.eigenvectors.shape)   
+            #print(solver.eigenvectors.shape)   
             # Sort eigenmodes by eigenvalue
             # Update 2022/02/28, order is based on the real part of the eigenvalues and also sort from the largest one to the smallest one.
             # which also require a flip to flip the order. 
             order = np.flip(np.argsort(np.real(solver.eigenvalues)))
             solver.eigenvalues = solver.eigenvalues[order]
-            print(solver.eigenvectors.shape)
+            #print(solver.eigenvectors.shape)
             logger.info(order)
             solver.eigenvectors = solver.eigenvectors[:, order]
             logger.info(np.max(np.real(solver.eigenvalues)))
@@ -3222,7 +3224,7 @@ class flag(object):
             if self.problem == 'IVP':
                 analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
                 analysis.add_system(solver.state)
-            elif self.problem in ['BVP','EVP']:
+            elif self.problem in ['BVP']:
                 self.analysis = solver.evaluator.add_file_handler('analysis')
                 self.analysis.add_system(solver.state)
                 #For BVP problem, here need to do nothing
@@ -3234,36 +3236,37 @@ class flag(object):
         #merge step for the IVP and BVP...
         if self.problem == 'IVP':
             post.merge_process_files('analysis',cleanup=True)
-        elif self.problem in ['BVP','EVP']:
+        elif self.problem in ['BVP']:
             #Here is the place to output the post-processing of BVP
             print('post store after run')
             solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
             
-            #write the eigenvalues and eigenvectors into the code...
-            if self.problem =='EVP':
-                with h5py.File('./analysis/analysis_s1.h5', 'a') as f:
-                    eigenvalues = f.create_dataset("eigenvalues", data=solver.eigenvalues)
-                    eigenvectors = f.create_dataset("eigenvectors", data=solver.eigenvectors)
-                    print('Write eigenvalues and eigenvectors into ./analysis/analysis_s1.h5')
             if self.EVP_secondary and self.problem =='BVP':
                 
                 #if I would like to compute the stability of the secondary state, 
                 #Then, continuation number +1, and linearize around this state to redo the eigenvalue problem.
-                self.continuation=self.continuation+1
+                #self.continuation=self.continuation+1
                 self_EVP_secondary=self
                 self_EVP_secondary.problem='EVP'
                 domain_EVP_secondary=self_EVP_secondary.build_domain()
                 solver_EVP_secondary=self_EVP_secondary.governing_equation(domain_EVP_secondary,solver)
                 logger = logging.getLogger(__name__)
                 self_EVP_secondary.print_screen(logger)
-                shutil.copytree('analysis','analysis'+str(self.continuation))
+                #shutil.copytree('analysis','analysis'+str(self.continuation))
                 #self_EVP_secondary.initial_condition(domain_EVP_secondary,solver)
                 self_EVP_secondary.post_store(solver_EVP_secondary)
                 self_EVP_secondary.print_file() #move print file to here.
                 self_EVP_secondary.run(solver_EVP_secondary,domain_EVP_secondary,logger)
                 self_EVP_secondary.post_store_after_run(solver_EVP_secondary)
-                
+           
+        #write the eigenvalues and eigenvectors into the code...
+        elif self.problem =='EVP':
+            with h5py.File('./analysis/analysis_s1.h5', 'a') as f:
+                eigenvalues = f.create_dataset("eigenvalues", data=solver.eigenvalues)
+                eigenvectors = f.create_dataset("eigenvectors", data=solver.eigenvectors)
+                print('Write eigenvalues and eigenvectors into ./analysis/analysis_s1.h5')
+             
     def get_HB_porous_2_layer_Omega_k(self):
         ##This is the data from figure 10(b) at Ra=5000 from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
         Omega_list=[0.00249159,0.00498315,0.00631384,0.00996625,0.0126276,0.0199324,0.0252551, \
