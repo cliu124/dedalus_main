@@ -118,12 +118,37 @@ switch group_name
                    '13146411',%R_rho_S2T=2, tau=0.1, W0=10, 100, initial condition, solution show the three layer structure
                    '13146434',%R_rho_S2T=2, tau=0.1, W0=1000, shows asymmetric solution...
                    '13178474',%R_rho_S2T=2, tau=0.1, asymmetricsolution, continued from the previous one.
-                   '13207276',%IVP, 13146408+
-                   '13207277',
-                   '13207278',
-                   
+                   '13207297',%IVP, 13146408+noise
+                   '13207298',%IVP, 13146411+noise
+                   '13207299'%IVP, 13146434+noise
+                   %'13207282',%IVP, %R_rho_S2T=2, tau=0.1, W0=1 initial condition only 1 layer
+                   %'13207283',%IVP, %R_rho_S2T=2, tau=0.1, W0=10 initial condition only 1 layer
+                   %'13207284'%IVP, %R_rho_S2T=2, tau=0.1, W0=1000 initial condition only 1 layer
                    };
-        slurm_num=slurm_num(end-2:end);
+               
+        %This are new computation with the 512 grid point... 1024 is
+        %difficult for eigenvalue computation, dedalus will be out of
+        %memory.
+        %Nz=512;
+        slurm_num={'13207457',%R_rho_S2T=2, tau=0.1, W0=1 initial condition only 1 layer
+                   '13207473'%R_rho_S2T=2, tau=0.1, W0=500.. (Note for different grid, the initial guess converge to staircase is different) initial condition, solution show the three layer structure
+                   '13207459'%R_rho_S2T=2, tau=0.1, W0=1000, shows asymmetric solution...
+                   };       
+               
+        %this is for Nz=128       
+        slurm_num={'13207555',%one layer solution, R_rho_S2T=2, tau=0.1
+                   '13207553',%staircase 2 layer solution, R_rho_S2T=2, tau=0.1
+                   '13207554',%asymmetric solution, R_rho_S2T=2, tau=0.1
+                   '13207556',%IVP from 13207555
+                   '13207561',%IVP from 13207553
+                   '13207562'%IVP from 13207554
+                   '13207820',%one layer solution + EVP
+                   '13207821',%stair case solution + EVP
+                   '13207822',%asymmetric solution + EVP
+                   '13207955'
+                   }       
+        slurm_num=slurm_num(end);
+%         slurm_num=slurm_num(end-6);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};
@@ -207,58 +232,72 @@ for slurm_ind=1:length(slurm_num)
 
             dedalus_post_my{slurm_ind,content_ind}=dedalus_post(h5_name,flag);
             dedalus_post_my{slurm_ind,content_ind}.uvw_hewitt=1;
-            dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_bvp();
             %data_Nu{1}.x(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
             %data_Nu{1}.y(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
-
-            if flag.post_plot
-                if flag.print || flag.visible
-                    dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
-                end
-                if dedalus_post_my{slurm_ind,content_ind}.dy_T_mean<0
-                    background_T=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
-                elseif dedalus_post_my{slurm_ind,content_ind}.dy_T_mean>0
-                    background_T=dedalus_post_my{slurm_ind,content_ind}.z_list;
-                end
-                switch group_name
-%                     case 'hewitt_2D'
-%                         data_z{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
-%                         data_z{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.z_T_BL;
-%                         data_z{2}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
-%                         data_z{2}.y(slurm_ind)=dedalus_post_my{slurm_ind}.z_T_rms_max;
-%                         %data_T_BL{slurm_ind}.x=deda
-%                         %data_S_BL{slurm_ind}.x=dedalus_post_my{slurm_ind}.Ra_T;
-%                         %data_S_BL{slurm_ind}.y=dedalus_post_my{slurm_ind}.S_BL;
-%                     case 'hewitt_3D'
-%                         
-                    case {'HB_porous_diffusive_BC','HB_porous_finger_BC'}
-                      if dedalus_post_my{slurm_ind,content_ind}.dy_S_mean<0
-                          background_S=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
-                      elseif dedalus_post_my{slurm_ind,content_ind}.dy_S_mean>0
-                          background_S=dedalus_post_my{slurm_ind,content_ind}.z_list;
-                      end
-                      data_S{slurm_ind,content_ind}.y=dedalus_post_my{slurm_ind,content_ind}.z_list;
-                      data_S{slurm_ind,content_ind}.x=dedalus_post_my{slurm_ind,content_ind}.S_0+background_S;
-                      data_S{slurm_ind,content_ind}.x=(data_S{slurm_ind,content_ind}.x-min(data_S{slurm_ind,content_ind}.x))/(max(data_S{slurm_ind,content_ind}.x)-min(data_S{slurm_ind,content_ind}.x));            
-                    case 'HB_benard_kx'
-                        data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
-                        data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
-                    case 'HB_benard_Ra'
-                        data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
-                        data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
-                    case 'HB_porous_kx'
-                        data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
-                        data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
-                    case 'HB_porous_Nu_kx_Ra'
-                        %data_Nu{1}.x()=dedalus_post_my{slurm_ind,content_ind}.kx;
-                        %data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
-                        data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
-                end
+            switch dedalus_post_my{slurm_ind,content_ind}.problem
+                case 'BVP'
+                    dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_bvp();
+                    if flag.print || flag.visible
+                        dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
+                    end
+                case 'EVP'
+                    
+                case 'IVP'
+                otherwise
+                    error('Wrong problem for dedalus');
             end
         end
     end
 end
+
+%%------old plotting
+if flag.post_plot
+% 
+%     if dedalus_post_my{slurm_ind,content_ind}.dy_T_mean<0
+%         background_T=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
+%     elseif dedalus_post_my{slurm_ind,content_ind}.dy_T_mean>0
+%         background_T=dedalus_post_my{slurm_ind,content_ind}.z_list;
+%     end
+%     switch group_name
+% %                     case 'hewitt_2D'
+% %                         data_z{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+% %                         data_z{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.z_T_BL;
+% %                         data_z{2}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+% %                         data_z{2}.y(slurm_ind)=dedalus_post_my{slurm_ind}.z_T_rms_max;
+% %                         %data_T_BL{slurm_ind}.x=deda
+% %                         %data_S_BL{slurm_ind}.x=dedalus_post_my{slurm_ind}.Ra_T;
+% %                         %data_S_BL{slurm_ind}.y=dedalus_post_my{slurm_ind}.S_BL;
+% %                     case 'hewitt_3D'
+% %                         
+%         case {'HB_porous_diffusive_BC','HB_porous_finger_BC'}
+%           if dedalus_post_my{slurm_ind,content_ind}.dy_S_mean<0
+%               background_S=1-dedalus_post_my{slurm_ind,content_ind}.z_list;
+%           elseif dedalus_post_my{slurm_ind,content_ind}.dy_S_mean>0
+%               background_S=dedalus_post_my{slurm_ind,content_ind}.z_list;
+%           end
+%           data_S{slurm_ind,content_ind}.y=dedalus_post_my{slurm_ind,content_ind}.z_list;
+%           data_S{slurm_ind,content_ind}.x=dedalus_post_my{slurm_ind,content_ind}.S_0+background_S;
+%           data_S{slurm_ind,content_ind}.x=(data_S{slurm_ind,content_ind}.x-min(data_S{slurm_ind,content_ind}.x))/(max(data_S{slurm_ind,content_ind}.x)-min(data_S{slurm_ind,content_ind}.x));            
+%         case 'HB_benard_kx'
+%             data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
+%             data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
+%         case 'HB_benard_Ra'
+%             data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
+%             data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
+%         case 'HB_porous_kx'
+%             data_Nu{1}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
+%             data_Nu{1}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
+%         case 'HB_porous_Nu_kx_Ra'
+%             %data_Nu{1}.x()=dedalus_post_my{slurm_ind,content_ind}.kx;
+%             %data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
+%             data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
+%     end
+% end
+
+%%----
+
+
 %%plotting
 if flag.post_plot
     switch group_name

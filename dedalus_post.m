@@ -217,7 +217,12 @@ classdef dedalus_post
         var_list=0;
         
         
-        EVP_secondary=1;
+        EVP_secondary=0;
+        
+        eigenvalues=0;
+        eigenvectors=0;
+        
+        
     end
     
     methods
@@ -413,6 +418,8 @@ classdef dedalus_post
                     obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
             end
         end
+        
+        
         
         function obj=bvp_plot(obj)
             plot_config.print=obj.print;
@@ -633,6 +640,19 @@ classdef dedalus_post
             
             %Plot the isocontour of S
         end
+        
+        
+        function obj=dedalus_post_evp(obj)
+            h5_name=obj.h5_name;
+            obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
+            obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
+            
+        end
+        
+        function obj=evp_plot(obj)
+            
+        end
+        
         
         function obj=snapshot(obj,variable_name)
             %%plot the snapshot of salinity and generate video if any

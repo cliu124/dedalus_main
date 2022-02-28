@@ -3166,7 +3166,9 @@ class flag(object):
             solver.eigenvectors = solver.eigenvectors[:, finite]
                
             # Sort eigenmodes by eigenvalue
-            order = np.argsort(solver.eigenvalues)
+            # Update 2022/02/28, order is based on the real part of the eigenvalues and also sort from the largest one to the smallest one.
+            # which also require a flip to flip the order. 
+            order = np.flip(np.argsort(np.real(solver.eigenvalues)))
             solver.eigenvalues = solver.eigenvalues[order]
             solver.eigenvectors = solver.eigenvectors[:, order]
             logger.info(np.max(np.real(solver.eigenvalues)))
