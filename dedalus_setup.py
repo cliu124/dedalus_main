@@ -3155,7 +3155,8 @@ class flag(object):
                 solver_EVP_secondary=self_EVP_secondary.governing_equation(domain_EVP_secondary,solver)
                 logger = logging.getLogger(__name__)
                 self_EVP_secondary.print_screen(logger)
-                self_EVP_secondary.initial_condition(domain_EVP_secondary,solver)
+                shutil.copytree('analysis','analysis'+str(self.continuation))
+                #self_EVP_secondary.initial_condition(domain_EVP_secondary,solver)
                 self_EVP_secondary.post_store(solver_EVP_secondary)
                 self_EVP_secondary.print_file() #move print file to here.
                 self_EVP_secondary.run(solver_EVP_secondary,domain_EVP_secondary,logger)
