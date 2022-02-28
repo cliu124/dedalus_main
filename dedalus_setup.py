@@ -6,6 +6,7 @@ from scipy import linalg
 from dedalus.tools import post
 from dedalus.extras import flow_tools
 import shutil
+import logging
 
 
 class flag(object):
@@ -124,7 +125,7 @@ class flag(object):
         self.initial_kz=2*np.pi
         
         #the default EVP_trivial=1, when EVP_trivial=0, do the linearization of non-trivial state and compute secondary stability results. 
-        self.EVP_trivial=1
+        self.EVP_secondary=0
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -181,7 +182,9 @@ class flag(object):
 
         return domain
 
-    def governing_equation(self,domain):
+    def governing_equation(self,domain,solver_in=0):
+        #Update 2022/02/27, add one argument as solver_in=0, which in default is not useful, but will be used when solving the eigenvalue problem of a non-trivial state
+        
         #This function setup the governing equations
         
         if self.flow in ['IFSC_2D']:
@@ -1189,20 +1192,15 @@ class flag(object):
             
             elif self.problem =='EVP':
                 problem.substitutions['dt(A)'] = "eig_val*A"
-                #if self.EVP_trivial:
+                if self.EVP_secondary:
                 
-                    ##Fill the branch that lineraize around the non-trivial state and compute secondary stability
-                if  pathlib.Path('restart.h5').exists():
-                    print('restart for EVP')
-                    #self.EVP_trivial=0
-                    problem_tmp = de.NLBVP(domain, variables=\
-                                           ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
-                                            'w_hat','p_hat','T_hat','d_T_hat', \
-                                                'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
+                    #problem_tmp = de.NLBVP(domain, variables=\
+                    #                       ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                    #                        'w_hat','p_hat','T_hat','d_T_hat', \
+                    #                            'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
             
-                    solver_tmp =  problem_tmp.build_solver()
-                    write, last_dt = solver_tmp.load_state('restart.h5', -1)
-                    state=solver_tmp.state
+                    #solver_tmp =  problem_tmp.build_solver()
+                    state=solver_in.state
                     for varname in state.keys():
                         problem.substitutions['{0}_tot'.format(varname)]='{0}0'.format(varname)+'+'+varname 
                         ncc = domain.new_field(name='{0}0'.format(varname))
@@ -1223,6 +1221,11 @@ class flag(object):
                     problem.add_equation('-dt(T_0)+dz(d_T_0_tot)=2*kx*u_tilde_tot*T_hat_tot+2*ky*v_tilde_tot*T_hat_tot+2*w_hat_tot*d_T_hat_tot')
                     problem.add_equation('dz(S_0_tot)-d_S_0_tot=0')
                     problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0_tot)=1/tau*(2*kx*u_tilde_tot*S_hat_tot+2*ky*v_tilde_tot*S_hat_tot+2*w_hat_tot*d_S_hat_tot)')
+                
+                    ##Fill the branch that lineraize around the non-trivial state and compute secondary stability
+                #if  pathlib.Path('restart.h5').exists():
+                #    print('restart for EVP')
+                    #self.EVP_trivial=0
                 else:
                     #I do not have any data to load, just solve the eigenvalue problem
                     problem.add_equation('dz(u_tilde)-d_u_tilde=0')
@@ -1240,6 +1243,7 @@ class flag(object):
                     problem.add_equation('dz(S_0)-d_S_0=0')
                     problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
                 
+                    
             if self.z_bc_w_left=='dirichlet':
                 problem.add_bc("left(w_hat)=0")
                 print("Dirichlet for w left")
@@ -3138,6 +3142,23 @@ class flag(object):
             solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
     
+            if self.EVP_secondary and self.problem =='BVP':
+                
+                #if I would like to compute the stability of the secondary state, 
+                #Then, continuation number +1, and linearize around this state to redo the eigenvalue problem.
+                self.continuation=self.continuation+1
+                self_EVP_secondary=self
+                self_EVP_secondary.problem='EVP'
+                domain_EVP_secondary=self_EVP_secondary.build_domain()
+                solver_EVP_secondary=self_EVP_secondary.governing_equation(domain_EVP_secondary,solver)
+                logger = logging.getLogger(__name__)
+                self_EVP_secondary.print_screen(logger)
+                self_EVP_secondary.initial_condition(domain_EVP_secondary,solver_EVP_secondary)
+                self_EVP_secondary.post_store(solver_EVP_secondary)
+                self_EVP_secondary.print_file() #move print file to here.
+                self_EVP_secondary.run(solver_EVP_secondary,domain_EVP_secondary,logger)
+                self_EVP_secondary.post_store_after_run(solver_EVP_secondary)
+                
     def get_HB_porous_2_layer_Omega_k(self):
         ##This is the data from figure 10(b) at Ra=5000 from Hewitt DR, Neufeld JA, Lister JR. High Rayleigh number convection in a porous medium containing a thin low-permeability layer. Journal of fluid mechanics. 2014 Oct;756:844-69.
         Omega_list=[0.00249159,0.00498315,0.00631384,0.00996625,0.0126276,0.0199324,0.0252551, \

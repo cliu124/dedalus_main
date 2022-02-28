@@ -173,7 +173,8 @@ elif flag.flow=='HB_benard':
     #flag.kx=0.48*flag.Ra_T**0.4
     #flag.kx=2*np.pi/0.5
     flag.ky=0
-    flag.problem='EVP'
+    flag.EVP_secondary=1
+    flag.problem='BVP'
     flag.z_bc_T_left='dirichlet'
     flag.z_bc_T_right='dirichlet'
     flag.z_bc_S_left='dirichlet'
