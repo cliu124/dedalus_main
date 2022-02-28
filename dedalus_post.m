@@ -217,7 +217,7 @@ classdef dedalus_post
         var_list=0;
         
         
-        EVP_trivial=1;
+        EVP_secondary=1;
     end
     
     methods

@@ -36,7 +36,7 @@ flag.shear_Radko2016_reduced='primitive'
 
 
 if flag.flow=='HB_porous':
-    flag.Nz=1024
+    flag.Nz=128
     flag.Lz=1
     flag.tau=0.01
     flag.dy_T_mean=-1
@@ -79,7 +79,8 @@ if flag.flow=='HB_porous':
     flag.bvp_tolerance=1e-10
     
     flag.A_elevator=1/10*flag.Ra_T
-    flag.problem='IVP'
+    flag.problem='BVP'
+    flag.EVP_secondary=1
     if flag.problem =='IVP':
         flag.initial_dt=0.00001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
 

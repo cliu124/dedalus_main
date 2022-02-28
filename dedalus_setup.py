@@ -480,6 +480,10 @@ class flag(object):
                     problem = de.IVP(domain, variables=[\
                         'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
                         'T_0','d_T_0','S_0','d_S_0'])
+                elif self.problem == 'EVP':
+                    problem = de.EVP(domain, variables=[\
+                        'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'T_0','d_T_0','S_0','d_S_0'],eigenvalue='eig_val')
             else:   
                 #setup the problem variable. This has two scales...
                 if self.problem =='BVP':
@@ -492,6 +496,12 @@ class flag(object):
                         'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
                         'w_hat_2','p_hat_2','T_hat_2','d_T_hat_2','S_hat_2','d_S_hat_2', \
                         'T_0','d_T_0','S_0','d_S_0'])
+                elif self.problem == 'EVP':
+                    problem = de.EVP(domain, variables=[\
+                        'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'w_hat_2','p_hat_2','T_hat_2','d_T_hat_2','S_hat_2','d_S_hat_2', \
+                        'T_0','d_T_0','S_0','d_S_0'],eigenvalue='eig_val')
+                
                 #also get the kx_2 and ky_2 as parameters
                 problem.parameters['kx_2']=self.kx_2
                 problem.parameters['ky_2']=self.ky_2
@@ -556,7 +566,79 @@ class flag(object):
                     problem.add_equation('-dt(T_hat_2)+dz(d_T_hat_2)-(w_hat_2*dy_T_mean+(kx_2*kx_2+ky_2*ky_2)*T_hat_2)=w_hat_2*d_T_0_2')
                     problem.add_equation('dz(S_hat_2)-d_S_hat_2=0')
                     problem.add_equation('-1/tau*dt(S_hat_2)+dz(d_S_hat_2)-1/tau*w_hat_2*dy_S_mean-(kx_2*kx_2+ky_2*ky_2)*S_hat_2=1/tau*(w_hat_2*d_S_0)')   
+            elif self.flow == 'EVP':    
+                problem.substitutions['dt(A)'] = "eig_val*A"
+                if self.EVP_secondary:
+                    state=solver_in.state
+                    if self.kx_2==0 and self.ky_2==0:
+                        var_list=['w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'T_0','d_T_0','S_0','d_S_0']
+                    else:
+                        var_list=['w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
+                        'w_hat_2','p_hat_2','T_hat_2','d_T_hat_2','S_hat_2','d_S_hat_2', \
+                        'T_0','d_T_0','S_0','d_S_0']
+                        
+                    for varname in var_list:
+                        problem.substitutions['{0}_tot'.format(varname)]='{0}_base'.format(varname)+'+'+varname 
+                        ncc = domain.new_field(name='{0}_base'.format(varname))
+                        ncc['c'] = state[varname]['c']
+                        problem.parameters['{0}_base'.format(varname)] = ncc
                     
+                    #setup the problem
+                    #put total variable on the RHS, but need to substract the linear part of the base state. This will guarantee that when perturbation=0 (without _tot or _base) , RHS is zero (homogeneous). Dedalus will check this
+                    #The LHS is not tricky, just the original problem will be OK.
+                    problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
+                    problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                    problem.add_equation('dz(T_hat)-d_T_hat=0')
+                    problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat_tot*d_T_0_tot  -dz(d_T_hat_base)+(w_hat_base*dy_T_mean+(kx*kx+ky*ky)*T_hat_base) ')
+                    problem.add_equation('dz(S_hat)-d_S_hat=0')
+                    problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat_tot*d_S_0_tot)  -dz(d_S_hat_base)+1/tau*w_hat_base*dy_S_mean+(kx*kx+ky*ky)*S_hat_base ')   
+                    problem.add_equation('dz(T_0)-d_T_0=0')
+                    problem.add_equation('dz(S_0)-d_S_0=0')
+                
+                    if self.kx_2==0 and self.ky_2==0:
+                        problem.add_equation('-dt(T_0)+dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat_tot*T_hat_tot+2*w_hat_tot*d_T_hat_tot -dz(d_T_0_base)')
+                        problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat_tot*S_hat_tot+2*w_hat_tot*d_S_hat_tot) -dz(d_S_0_base)')
+                    else:
+                        #Modify the mean equations, also add the contribution from the second harmonic
+                        problem.add_equation('-dt(T_0)+dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat_tot*T_hat_tot+2*w_hat_tot*d_T_hat_tot-2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2_tot*T_hat_2_tot+2*w_hat_2_tot*d_T_hat_2_tot -dz(d_T_0_base)')
+                        problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat_tot*S_hat_tot+2*w_hat_tot*d_S_hat_tot -2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2_tot*S_hat_2_tot+2*w_hat_2_tot*d_S_hat_2_tot) -dz(d_S_0_base)')
+                        #Add the dynamics of the second harmonic
+                        problem.add_equation('dz(w_hat_2)-(-(kx_2*kx_2+ky_2*ky_2)*p_hat_2)=0')
+                        problem.add_equation('dz(p_hat_2)-(-w_hat_2+Ra_T*T_hat_2-Ra_S2T*S_hat_2)=0')
+                        problem.add_equation('dz(T_hat_2)-d_T_hat_2=0')
+                        problem.add_equation('-dt(T_hat_2)+dz(d_T_hat_2)-(w_hat_2*dy_T_mean+(kx_2*kx_2+ky_2*ky_2)*T_hat_2)=w_hat_2_tot*d_T_0_2_tot  -dz(d_T_hat_2_base)+(w_hat_2_base*dy_T_mean+(kx_2*kx_2+ky_2*ky_2)*T_hat_2_base)')
+                        problem.add_equation('dz(S_hat_2)-d_S_hat_2=0')
+                        problem.add_equation('-1/tau*dt(S_hat_2)+dz(d_S_hat_2)-1/tau*w_hat_2*dy_S_mean-(kx_2*kx_2+ky_2*ky_2)*S_hat_2=1/tau*(w_hat_2_tot*d_S_0_tot)  -dz(d_S_hat_2_base)+1/tau*w_hat_2_base*dy_S_mean+(kx_2*kx_2+ky_2*ky_2)*S_hat_2_base ')   
+                    
+                
+                else:
+                    problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
+                    problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                    problem.add_equation('dz(T_hat)-d_T_hat=0')
+                    problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+                    problem.add_equation('dz(S_hat)-d_S_hat=0')
+                    problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+                    problem.add_equation('dz(T_0)-d_T_0=0')
+                    problem.add_equation('dz(S_0)-d_S_0=0')
+                
+                    if self.kx_2==0 and self.ky_2==0:
+                        problem.add_equation('-dt(T_0)+dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat')
+                        problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat)')
+                    else:
+                        #Modify the mean equations, also add the contribution from the second harmonic
+                        problem.add_equation('-dt(T_0)+dz(d_T_0)=-2*(kx*kx+ky*ky)*p_hat*T_hat+2*w_hat*d_T_hat-2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2*T_hat_2+2*w_hat_2*d_T_hat_2')
+                        problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(-2*(kx*kx+ky*ky)*p_hat*S_hat+2*w_hat*d_S_hat -2*(kx_2*kx_2+ky_2*ky_2)*p_hat_2*S_hat_2+2*w_hat_2*d_S_hat_2)')
+                        #Add the dynamics of the second harmonic
+                        problem.add_equation('dz(w_hat_2)-(-(kx_2*kx_2+ky_2*ky_2)*p_hat_2)=0')
+                        problem.add_equation('dz(p_hat_2)-(-w_hat_2+Ra_T*T_hat_2-Ra_S2T*S_hat_2)=0')
+                        problem.add_equation('dz(T_hat_2)-d_T_hat_2=0')
+                        problem.add_equation('-dt(T_hat_2)+dz(d_T_hat_2)-(w_hat_2*dy_T_mean+(kx_2*kx_2+ky_2*ky_2)*T_hat_2)=w_hat_2*d_T_0_2')
+                        problem.add_equation('dz(S_hat_2)-d_S_hat_2=0')
+                        problem.add_equation('-1/tau*dt(S_hat_2)+dz(d_S_hat_2)-1/tau*w_hat_2*dy_S_mean-(kx_2*kx_2+ky_2*ky_2)*S_hat_2=1/tau*(w_hat_2*d_S_0)')   
+                
+                    
+                 
             # if self.z_bc_w=='periodic' and self.z_bc_T=='periodic' and self.z_bc_S=='periodic':
             #     problem.add_equation('T_0=0',condition="(nz==0)")
             #     problem.add_equation('S_0=0',condition="(nz==0)")
@@ -1194,12 +1276,6 @@ class flag(object):
                 problem.substitutions['dt(A)'] = "eig_val*A"
                 if self.EVP_secondary:
                 
-                    #problem_tmp = de.NLBVP(domain, variables=\
-                    #                       ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
-                    #                        'w_hat','p_hat','T_hat','d_T_hat', \
-                    #                            'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'])
-            
-                    #solver_tmp =  problem_tmp.build_solver()
                     state=solver_in.state
                     for varname in ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
                                     'w_hat','p_hat','T_hat','d_T_hat', \
@@ -1208,7 +1284,11 @@ class flag(object):
                         ncc = domain.new_field(name='{0}_base'.format(varname))
                         ncc['c'] = state[varname]['c']
                         problem.parameters['{0}_base'.format(varname)] = ncc
-                                    
+                               
+                    #Make sure that the RHS is zero when variable in EVP is evaluated as zero.    
+                    #put total variable on the RHS, but need to substract the linear part of the base state. This will guarantee that when perturbation=0 (without _tot or _base) , RHS is zero (homogeneous). Dedalus will check this
+                    #The LHS is not tricky, just the original problem will be OK.
+                    
                     problem.add_equation('dz(u_tilde)-d_u_tilde=0')
                     problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
                     problem.add_equation('dz(v_tilde)-d_v_tilde=0')
@@ -1224,10 +1304,6 @@ class flag(object):
                     problem.add_equation('dz(S_0)-d_S_0=0')
                     problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde_tot*S_hat_tot+2*ky*v_tilde_tot*S_hat_tot+2*w_hat_tot*d_S_hat_tot) -dz(d_S_0_base)')
                 
-                    ##Fill the branch that lineraize around the non-trivial state and compute secondary stability
-                #if  pathlib.Path('restart.h5').exists():
-                #    print('restart for EVP')
-                    #self.EVP_trivial=0
                 else:
                     #I do not have any data to load, just solve the eigenvalue problem
                     problem.add_equation('dz(u_tilde)-d_u_tilde=0')
