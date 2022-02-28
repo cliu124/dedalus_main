@@ -566,7 +566,8 @@ class flag(object):
                     problem.add_equation('-dt(T_hat_2)+dz(d_T_hat_2)-(w_hat_2*dy_T_mean+(kx_2*kx_2+ky_2*ky_2)*T_hat_2)=w_hat_2*d_T_0_2')
                     problem.add_equation('dz(S_hat_2)-d_S_hat_2=0')
                     problem.add_equation('-1/tau*dt(S_hat_2)+dz(d_S_hat_2)-1/tau*w_hat_2*dy_S_mean-(kx_2*kx_2+ky_2*ky_2)*S_hat_2=1/tau*(w_hat_2*d_S_0)')   
-            elif self.flow == 'EVP':    
+            
+            elif self.problem == 'EVP':    
                 problem.substitutions['dt(A)'] = "eig_val*A"
                 if self.EVP_secondary:
                     state=solver_in.state
@@ -587,7 +588,7 @@ class flag(object):
                     #setup the problem
                     #put total variable on the RHS, but need to substract the linear part of the base state. This will guarantee that when perturbation=0 (without _tot or _base) , RHS is zero (homogeneous). Dedalus will check this
                     #The LHS is not tricky, just the original problem will be OK.
-                    print('Add equation of EVP for HB_porous')
+                    #print('Add equation of EVP for HB_porous')
                     problem.add_equation('dz(w_hat)-(-(kx*kx+ky*ky)*p_hat)=0')
                     problem.add_equation('dz(p_hat)-(-w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
                     problem.add_equation('dz(T_hat)-d_T_hat=0')
@@ -638,8 +639,6 @@ class flag(object):
                         problem.add_equation('dz(S_hat_2)-d_S_hat_2=0')
                         problem.add_equation('-1/tau*dt(S_hat_2)+dz(d_S_hat_2)-1/tau*w_hat_2*dy_S_mean-(kx_2*kx_2+ky_2*ky_2)*S_hat_2=1/tau*(w_hat_2*d_S_0)')   
                 
-                    
-                 
             # if self.z_bc_w=='periodic' and self.z_bc_T=='periodic' and self.z_bc_S=='periodic':
             #     problem.add_equation('T_0=0',condition="(nz==0)")
             #     problem.add_equation('S_0=0',condition="(nz==0)")
