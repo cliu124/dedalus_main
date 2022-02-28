@@ -145,7 +145,7 @@ switch group_name
                    '13207820',%one layer solution + EVP
                    '13207821',%stair case solution + EVP
                    '13207822',%asymmetric solution + EVP
-                   '13207977'
+                   '13208000'
                    }       
         slurm_num=slurm_num(end);
 %         slurm_num=slurm_num(end-6);
