@@ -211,7 +211,18 @@ classdef dedalus_post
         Gjac_eig=0;
         Gjac_B=0;
         
+        Gjac_num_bc=0;
+        Gjac_B_bc=0;
+        
         var_list=0;
+        
+        
+        EVP_secondary=0;
+        
+        eigenvalues=0;
+        eigenvectors=0;
+        
+        
     end
     
     methods
@@ -407,6 +418,8 @@ classdef dedalus_post
                     obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
             end
         end
+        
+        
         
         function obj=bvp_plot(obj)
             plot_config.print=obj.print;
@@ -627,6 +640,42 @@ classdef dedalus_post
             
             %Plot the isocontour of S
         end
+        
+        
+        function obj=dedalus_post_evp(obj)
+            h5_name=obj.h5_name;
+            obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
+            obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
+            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+            eigenvector_lead=obj.eigenvectors(1,:);
+            if strcmp(obj.flow,'HB_benard')
+                obj.u_tilde=eigenvector_lead(1:obj.Nz);
+                obj.d_u_tilde=eigenvector_lead(obj.Nz+1:2*obj.Nz);
+                obj.v_tilde=eigenvector_lead(2*obj.Nz+1, 3*obj.Nz);
+                obj.d_v_tilde=eigenvector_lead(3*obj.Nz+1:4*obj.Nz);
+                obj.w_hat=h5read_complex(h5_name,'/tasks/w_hat');
+                obj.p_hat=h5read_complex(h5_name,'/tasks/p_hat');
+                obj.T_hat=h5read_complex(h5_name,'/tasks/T_hat');
+                obj.d_T_hat=h5read_complex(h5_name,'/tasks/d_T_hat');
+                obj.S_hat=h5read_complex(h5_name,'/tasks/S_hat');
+                obj.d_S_hat=h5read_complex(h5_name,'/tasks/d_S_hat');
+                obj.T_0=h5read_complex(h5_name,'/tasks/T_0');
+                obj.d_T_0=h5read_complex(h5_name,'/tasks/d_T_0');
+                obj.S_0=h5read_complex(h5_name,'/tasks/S_0');
+                obj.d_S_0=h5read_complex(h5_name,'/tasks/d_S_0');
+
+
+            elseif strcmp(obj.flow,'HB_porous')
+                
+            end
+            
+        
+        end
+        
+        function obj=evp_plot(obj)
+            
+        end
+        
         
         function obj=snapshot(obj,variable_name)
             %%plot the snapshot of salinity and generate video if any
@@ -1353,10 +1402,24 @@ classdef dedalus_post
                Pr=obj.Pr;
                
                obj.Gjac_B=blkdiag(0*I,1/Pr*I,0*I,1/Pr*I,0*I,1/Pr*I,0*I,I,0*I,1/tau*I,0*I,I,0*I,1/tau*I);
-               tic
-               obj.Gjac_num_bc
-               obj.
-               obj.Gjac_eig=eig(obj.Gjac_num,obj.Gjac_B);
+               bc_ind=[1,obj.Nz,... %%b.c. index for u_tilde
+                        2*obj.Nz+1,3*obj.Nz,...%b.c. index for v_tilde
+                        4*obj.Nz+1,5*obj.Nz,...%b.c. index for w_hat
+                        6*obj.Nz+1,7*obj.Nz,...%b.c. index for T_hat
+                        8*obj.Nz+1,9*obj.Nz,...%b.c. index for S_hat
+                        10*obj.Nz+1,11*obj.Nz,...%b.c. index for T_0
+                        12*obj.Nz+1,13*obj.Nz,...%b.c. index for S_0
+                        ];
+                    
+               obj.Gjac_num_bc=obj.Gjac_num;
+               obj.Gjac_num_bc(bc_ind,:)=[];
+               obj.Gjac_num_bc(:,bc_ind)=[];
+               
+               obj.Gjac_B_bc=obj.Gjac_B;
+               obj.Gjac_B_bc(bc_ind,:)=[];
+               obj.Gjac_B_bc(:,bc_ind)=[];
+               
+               obj.Gjac_eig=eig(obj.Gjac_num_bc,obj.Gjac_B_bc);
                %obj.Gjac_eig=eigs(obj.Gjac_num,obj.Gjac_B,1,'largestreal');
                %obj.Gjac_eig=sort(arrayfun(@(sigma)eigs(obj.Gjac_num,obj.Gjac_B,1,sigma),linspace(-10,10,10).'),'descend')
                toc

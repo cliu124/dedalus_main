@@ -646,7 +646,30 @@ classdef dedalus_post
             h5_name=obj.h5_name;
             obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
             obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
+            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+            eigenvector_lead=obj.eigenvectors(1,:);
+            if strcmp(obj.flow,'HB_benard')
+                obj.u_tilde=eigenvector_lead(1:obj.Nz);
+                obj.d_u_tilde=eigenvector_lead(obj.Nz+1:2*obj.Nz);
+                obj.v_tilde=eigenvector_lead(2*obj.Nz+1:3*obj.Nz);
+                obj.d_v_tilde=eigenvector_lead(3*obj.Nz+1:4*obj.Nz);
+                obj.w_hat=eigenvector_lead(4*obj.Nz+1:5*obj.Nz);
+                obj.p_hat=eigenvector_lead(5*obj.Nz+1:6*obj.Nz);
+                obj.T_hat=eigenvector_lead(6*obj.Nz+1:7*obj.Nz);
+                obj.d_T_hat=eigenvector_lead(7*obj.Nz+1:8*obj.Nz);
+                obj.S_hat=eigenvector_lead(8*obj.Nz+1:9*obj.Nz);
+                obj.d_S_hat=eigenvector_lead(9*obj.Nz+1:10*obj.Nz);
+                obj.T_0=eigenvector_lead(10*obj.Nz+1:11*obj.Nz);
+                obj.d_T_0=eigenvector_lead(11*obj.Nz+1:12*obj.Nz);
+                obj.S_0=eigenvector_lead(12*obj.Nz+1:13*obj.Nz);
+                obj.d_S_0=eigenvector_lead(13*obj.Nz+1:14*obj.Nz);
+
+
+            elseif strcmp(obj.flow,'HB_porous')
+                
+            end
             
+        
         end
         
         function obj=evp_plot(obj)

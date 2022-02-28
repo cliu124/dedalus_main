@@ -3170,7 +3170,7 @@ class flag(object):
             # which also require a flip to flip the order. 
             order = np.flip(np.argsort(np.real(solver.eigenvalues)))
             solver.eigenvalues = solver.eigenvalues[order]
-            solver.eigenvectors = solver.eigenvectors[:, order]
+            solver.eigenvectors = solver.eigenvectors[order, :]
             logger.info(np.max(np.real(solver.eigenvalues)))
             logger.info(np.max(solver.eigenvalues))
             logger.info(solver.eigenvalues)
