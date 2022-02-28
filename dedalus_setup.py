@@ -1209,20 +1209,20 @@ class flag(object):
                         ncc['c'] = state[varname]['c']
                         problem.parameters['{0}0'.format(varname)] = ncc
                                     
-                    problem.add_equation('dz(u_tilde_tot)-d_u_tilde_tot=0')
-                    problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde_tot)-(kx*p_hat_tot+(kx*kx+ky*ky)*u_tilde_tot)=0')
-                    problem.add_equation('dz(v_tilde_tot)-d_v_tilde_tot=0')
-                    problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde_tot)-(ky*p_hat_tot+(kx*kx+ky*ky)*v_tilde_tot)=0')
-                    problem.add_equation('dz(w_hat_tot)-(kx*u_tilde_tot+ky*v_tilde_tot)=0')
-                    problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat_tot)-(kx*d_u_tilde_tot+ky*d_v_tilde_tot-(kx*kx+ky*ky)*w_hat_tot+Ra_T*T_hat_tot-Ra_S2T*S_hat_tot)=0')
-                    problem.add_equation('dz(T_hat_tot)-d_T_hat_tot=0')
-                    problem.add_equation('-dt(T_hat)+dz(d_T_hat_tot)-(w_hat_tot*dy_T_mean+(kx*kx+ky*ky)*T_hat_tot)=w_hat_tot*d_T_0_tot')
-                    problem.add_equation('dz(S_hat_tot)-d_S_hat_tot=0')
-                    problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat_tot)-1/tau*w_hat_tot*dy_S_mean-(kx*kx+ky*ky)*S_hat_tot=1/tau*(w_hat_tot*d_S_0_tot)')   
-                    problem.add_equation('dz(T_0_tot)-d_T_0_tot=0')
-                    problem.add_equation('-dt(T_0)+dz(d_T_0_tot)=2*kx*u_tilde_tot*T_hat_tot+2*ky*v_tilde_tot*T_hat_tot+2*w_hat_tot*d_T_hat_tot')
-                    problem.add_equation('dz(S_0_tot)-d_S_0_tot=0')
-                    problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0_tot)=1/tau*(2*kx*u_tilde_tot*S_hat_tot+2*ky*v_tilde_tot*S_hat_tot+2*w_hat_tot*d_S_hat_tot)')
+                    problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                    problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                    problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                    problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                    problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                    problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                    problem.add_equation('dz(T_hat)-d_T_hat=0')
+                    problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat_tot*d_T_0_tot')
+                    problem.add_equation('dz(S_hat)-d_S_hat=0')
+                    problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat_tot*d_S_0_tot)')   
+                    problem.add_equation('dz(T_0)-d_T_0=0')
+                    problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde_tot*T_hat_tot+2*ky*v_tilde_tot*T_hat_tot+2*w_hat_tot*d_T_hat_tot')
+                    problem.add_equation('dz(S_0)-d_S_0=0')
+                    problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde_tot*S_hat_tot+2*ky*v_tilde_tot*S_hat_tot+2*w_hat_tot*d_S_hat_tot)')
                 
                     ##Fill the branch that lineraize around the non-trivial state and compute secondary stability
                 #if  pathlib.Path('restart.h5').exists():
