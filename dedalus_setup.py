@@ -7,6 +7,7 @@ from dedalus.tools import post
 from dedalus.extras import flow_tools
 import shutil
 import logging
+import h5py
 
 
 class flag(object):
@@ -3174,10 +3175,10 @@ class flag(object):
             
             #store the eigenvalue and eigenvectors into a new field
             #Update 2022/02/28
-            eigenvalues=domain.new_field()
-            eigenvectors=domain.new_field()
-            eigenvalues['g']=solver.eigenvalues
-            eigenvectors['g']=solver.eigenvectors
+            #eigenvalues=domain.new_field()
+            #eigenvectors=domain.new_field()
+            #eigenvalues['g']=solver.eigenvalues
+            #eigenvectors['g']=solver.eigenvectors
             
     def post_store(self,solver):
         #This post-processing variable need to be modified for different flow configuration
@@ -3233,6 +3234,12 @@ class flag(object):
             print('post store after run')
             solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
+            
+            #write the eigenvalues and eigenvectors into the code...
+            if self.problem =='EVP':
+                with h5py.File('./analysis/analysis_s1.h', 'w') as f:
+                    eigenvalues = f.create_dataset("eigenvalues", data=solver.eigenvalues)
+                    eigenvectors = f.create_dataset("eigenvectors", data=solver.eigenvectors)
     
             if self.EVP_secondary and self.problem =='BVP':
                 
