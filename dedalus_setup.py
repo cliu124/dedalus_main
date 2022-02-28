@@ -351,6 +351,7 @@ class flag(object):
                 print("Dirichlet for w right")
             
             if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
+                print('Periodic for w')
                 #For DNS, the periodic domain in the vertical does not need to do anything but just change the vertical basis as the Fourier one.
                 #problem.add_bc("left(w_hat)-right(w_hat)=0")
                 #problem.add_bc("left(p_hat)-right(p_hat)=0")
@@ -1188,25 +1189,15 @@ class flag(object):
             
             elif self.problem =='EVP':
                 problem.substitutions['dt(A)'] = "eig_val*A"
-                if self.EVP_trivial:
-                    problem.add_equation('dz(u_tilde)-d_u_tilde=0')
-                    problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
-                    problem.add_equation('dz(v_tilde)-d_v_tilde=0')
-                    problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
-                    problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
-                    problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
-                    problem.add_equation('dz(T_hat)-d_T_hat=0')
-                    problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
-                    problem.add_equation('dz(S_hat)-d_S_hat=0')
-                    problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
-                    problem.add_equation('dz(T_0)-d_T_0=0')
-                    problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
-                    problem.add_equation('dz(S_0)-d_S_0=0')
-                    problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
-                else:
+                #if self.EVP_trivial:
+                
                     ##Fill the branch that lineraize around the non-trivial state and compute secondary stability
-                    state=solver.state
-                    
+                if  pathlib.Path('restart.h5').exists():
+                    print('restart for EVP')
+                    #self.EVP_trivial=0
+                    solver_tmp =  problem.build_solver()
+                    write, last_dt = solver_tmp.load_state('restart.h5', -1)
+                    state=solver_tmp.state
                     for varname in state.keys():
                         problem.substitutions['{0}_tot'.format(varname)]='{0}0'.format(varname)+'+'+varname 
                         ncc = domain.new_field(name='{0}0'.format(varname))
@@ -1227,8 +1218,23 @@ class flag(object):
                     problem.add_equation('-dt(T_0)+dz(d_T_0_tot)=2*kx*u_tilde_tot*T_hat_tot+2*ky*v_tilde_tot*T_hat_tot+2*w_hat_tot*d_T_hat_tot')
                     problem.add_equation('dz(S_0_tot)-d_S_0_tot=0')
                     problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0_tot)=1/tau*(2*kx*u_tilde_tot*S_hat_tot+2*ky*v_tilde_tot*S_hat_tot+2*w_hat_tot*d_S_hat_tot)')
+                else:
+                    #I do not have any data to load, just solve the eigenvalue problem
+                    problem.add_equation('dz(u_tilde)-d_u_tilde=0')
+                    problem.add_equation('-1/Pr*dt(u_tilde)+dz(d_u_tilde)-(kx*p_hat+(kx*kx+ky*ky)*u_tilde)=0')
+                    problem.add_equation('dz(v_tilde)-d_v_tilde=0')
+                    problem.add_equation('-1/Pr*dt(v_tilde)+dz(d_v_tilde)-(ky*p_hat+(kx*kx+ky*ky)*v_tilde)=0')
+                    problem.add_equation('dz(w_hat)-(kx*u_tilde+ky*v_tilde)=0')
+                    problem.add_equation('1/Pr*dt(w_hat)+dz(p_hat)-(kx*d_u_tilde+ky*d_v_tilde-(kx*kx+ky*ky)*w_hat+Ra_T*T_hat-Ra_S2T*S_hat)=0')
+                    problem.add_equation('dz(T_hat)-d_T_hat=0')
+                    problem.add_equation('-dt(T_hat)+dz(d_T_hat)-(w_hat*dy_T_mean+(kx*kx+ky*ky)*T_hat)=w_hat*d_T_0')
+                    problem.add_equation('dz(S_hat)-d_S_hat=0')
+                    problem.add_equation('-1/tau*dt(S_hat)+dz(d_S_hat)-1/tau*w_hat*dy_S_mean-(kx*kx+ky*ky)*S_hat=1/tau*(w_hat*d_S_0)')   
+                    problem.add_equation('dz(T_0)-d_T_0=0')
+                    problem.add_equation('-dt(T_0)+dz(d_T_0)=2*kx*u_tilde*T_hat+2*ky*v_tilde*T_hat+2*w_hat*d_T_hat')
+                    problem.add_equation('dz(S_0)-d_S_0=0')
+                    problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde*S_hat+2*ky*v_tilde*S_hat+2*w_hat*d_S_hat)')
                 
-            
             if self.z_bc_w_left=='dirichlet':
                 problem.add_bc("left(w_hat)=0")
                 print("Dirichlet for w left")
@@ -2880,7 +2886,7 @@ class flag(object):
         else:
             #Restart
             print('restart')
-            self.EVP_trivial=0
+            #self.EVP_trivial=0
             write, last_dt = solver.load_state('restart.h5', -1)
             if self.A_noise !=0 and self.flow =='HB_benard':
                 gshape = domain.dist.grid_layout.global_shape(scales=2)
