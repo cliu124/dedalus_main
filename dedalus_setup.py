@@ -3239,7 +3239,7 @@ class flag(object):
             
             #write the eigenvalues and eigenvectors into the code...
             if self.problem =='EVP':
-                with h5py.File('./analysis/analysis_s1.h5', 'w') as f:
+                with h5py.File('./analysis/analysis_s1.h5', 'a') as f:
                     eigenvalues = f.create_dataset("eigenvalues", data=solver.eigenvalues)
                     eigenvectors = f.create_dataset("eigenvectors", data=solver.eigenvectors)
                     print('Write eigenvalues and eigenvectors into ./analysis/analysis_s1.h5')
