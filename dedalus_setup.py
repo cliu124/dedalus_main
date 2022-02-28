@@ -1201,7 +1201,9 @@ class flag(object):
             
                     #solver_tmp =  problem_tmp.build_solver()
                     state=solver_in.state
-                    for varname in state.keys():
+                    for varname in ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
+                                    'w_hat','p_hat','T_hat','d_T_hat', \
+                                        'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0']:
                         problem.substitutions['{0}_tot'.format(varname)]='{0}0'.format(varname)+'+'+varname 
                         ncc = domain.new_field(name='{0}0'.format(varname))
                         ncc['c'] = state[varname]['c']
