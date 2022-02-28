@@ -97,7 +97,13 @@ elif flag.flow == 'HB_porous_2_layer':
     flag.problem='BVP'
     flag.A_elevator=1/10*flag.Ra_T
     flag.bvp_tolerance=1e-8
-
+    flag.z_bc_T_left='dirichlet'
+    flag.z_bc_T_right='dirichlet'
+    flag.z_bc_S_left='dirichlet'
+    flag.z_bc_S_right='dirichlet'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'
+    
 elif flag.flow == 'HB_porous_3_layer':
     flag.Nz=256
     flag.Lz=0.5
@@ -113,7 +119,13 @@ elif flag.flow == 'HB_porous_3_layer':
     flag.problem='BVP'
     flag.A_elevator=1/10*flag.Ra_T
     flag.bvp_tolerance=1e-8
-
+    flag.z_bc_T_left='dirichlet'
+    flag.z_bc_T_right='dirichlet'
+    flag.z_bc_S_left='dirichlet'
+    flag.z_bc_S_right='dirichlet'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'
+    
 elif flag.flow == 'HB_porous_shear':
     flag.Nz=1024
     flag.Lz=1
@@ -139,7 +151,7 @@ elif flag.flow == 'HB_porous_shear':
     
     
 elif flag.flow=='HB_benard':
-    flag.Nz=1024
+    flag.Nz=128
     flag.Lz=1
     #flag.tau=0.01
     #flag.Ra_T=1.25*100000
@@ -161,7 +173,7 @@ elif flag.flow=='HB_benard':
     #flag.kx=0.48*flag.Ra_T**0.4
     #flag.kx=2*np.pi/0.5
     flag.ky=0
-    flag.problem='IVP'
+    flag.problem='EVP'
     flag.z_bc_T_left='dirichlet'
     flag.z_bc_T_right='dirichlet'
     flag.z_bc_S_left='dirichlet'
@@ -174,7 +186,7 @@ elif flag.flow=='HB_benard':
     flag.A_elevator=1/100000*flag.Ra_T
     flag.A_noise=0.01
     if flag.problem =='IVP':
-        flag.initial_dt=0.001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
+        flag.initial_dt=10**3/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
 
 elif flag.flow in ['HB_benard_shear']:
     flag.Nz=1024
@@ -490,8 +502,8 @@ if flag.flow in ['HB_benard_shear']:
     flag.post_store_dt=0.01/flag.Ra_T
     flag.stop_sim_time=10/flag.Ra_T
 elif flag.flow in ['HB_benard']:
-    flag.post_store_dt=1/flag.Ra_T
-    flag.stop_sim_time=100/flag.Ra_T
+    flag.post_store_dt=10**3/flag.Ra_T
+    flag.stop_sim_time=10**7/flag.Ra_T
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;
     flag.stop_sim_time=0.00001/flag.Ra_T;

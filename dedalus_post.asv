@@ -211,13 +211,7 @@ classdef dedalus_post
         Gjac_eig=0;
         Gjac_B=0;
         
-        Gjac_num_bc=0;
-        Gjac_B_bc=0;
-        
         var_list=0;
-        
-        
-        EVP_trivial=1;
     end
     
     methods
@@ -1359,24 +1353,10 @@ classdef dedalus_post
                Pr=obj.Pr;
                
                obj.Gjac_B=blkdiag(0*I,1/Pr*I,0*I,1/Pr*I,0*I,1/Pr*I,0*I,I,0*I,1/tau*I,0*I,I,0*I,1/tau*I);
-               bc_ind=[1,obj.Nz,... %%b.c. index for u_tilde
-                        2*obj.Nz+1,3*obj.Nz,...%b.c. index for v_tilde
-                        4*obj.Nz+1,5*obj.Nz,...%b.c. index for w_hat
-                        6*obj.Nz+1,7*obj.Nz,...%b.c. index for T_hat
-                        8*obj.Nz+1,9*obj.Nz,...%b.c. index for S_hat
-                        10*obj.Nz+1,11*obj.Nz,...%b.c. index for T_0
-                        12*obj.Nz+1,13*obj.Nz,...%b.c. index for S_0
-                        ];
-                    
-               obj.Gjac_num_bc=obj.Gjac_num;
-               obj.Gjac_num_bc(bc_ind,:)=[];
-               obj.Gjac_num_bc(:,bc_ind)=[];
-               
-               obj.Gjac_B_bc=obj.Gjac_B;
-               obj.Gjac_B_bc(bc_ind,:)=[];
-               obj.Gjac_B_bc(:,bc_ind)=[];
-               
-               obj.Gjac_eig=eig(obj.Gjac_num_bc,obj.Gjac_B_bc);
+               tic
+               obj.Gjac_num_bc
+               obj.
+               obj.Gjac_eig=eig(obj.Gjac_num,obj.Gjac_B);
                %obj.Gjac_eig=eigs(obj.Gjac_num,obj.Gjac_B,1,'largestreal');
                %obj.Gjac_eig=sort(arrayfun(@(sigma)eigs(obj.Gjac_num,obj.Gjac_B,1,sigma),linspace(-10,10,10).'),'descend')
                toc
