@@ -136,15 +136,19 @@ switch group_name
                    };       
                
         %this is for Nz=128       
-        slurm_num={'13208042',%one layer solution, R_rho_S2T=2, tau=0.1 + EVP
-                   '13208045',%staircase 2 layer solution, R_rho_S2T=2, tau=0.1 + EVP
-                   '13208046',%asymmetric solution, R_rho_S2T=2, tau=0.1 + EVP
+        slurm_num={'13208705',%one layer solution, R_rho_S2T=2, tau=0.1 + EVP
+                   '13208739',%staircase 2 layer solution, R_rho_S2T=2, tau=0.1 + EVP
+                   '13208744',%asymmetric solution, R_rho_S2T=2, tau=0.1 + EVP
                    '13207556',%IVP from 13207555
                    '13207561',%IVP from 13207553
                    '13207562',%IVP from 13207554
-                   '13208452'
+                   '13208655',%tau=0.01, R_rho_S2T=2, W0=1
+                   '13208656',%tau=0.01,R_rho_S2T=2, W0=10
+                   '13208657',%tau=0.01,R_rho_S2T=2, W0=100
+                   '13208658' %tau=0.01,R_rho_S2T=2, W0=1000
+                   '13208758'%tau=0.01,R_rho_S2T=2, 1-layer solution, continued from tau=0.1
                    }       
-        slurm_num=slurm_num(end);
+        slurm_num=slurm_num(end-4:end);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};

@@ -3174,7 +3174,7 @@ class flag(object):
             order = np.flip(np.argsort(np.real(solver.eigenvalues)))
             solver.eigenvalues = solver.eigenvalues[order]
             #print(solver.eigenvectors.shape)
-            logger.info(order)
+            #logger.info(order)
             solver.eigenvectors = solver.eigenvectors[:, order]
             logger.info('The maximum real part of the all eigenvalues are \n')
             logger.info(np.max(np.real(solver.eigenvalues)))
