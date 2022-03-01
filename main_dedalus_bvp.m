@@ -163,10 +163,13 @@ switch group_name
                    '13209993',%continued from 13208656
                    '13209994',%continued from 13208657
                    '13209995',%continued from 13208658
-                   '13209996' %continued from 13208758
+                   '13209996',%continued from 13208758
+                   '13210532',%another one layer kind of asymmetric solution, from initial guess
+                   '13210528'%3 layer solution, continued from 13208658, but with kx as linspace(1, kx_final,10) so I can preserve symmetric...
                    };  
-        slurm_num={'13209071'};
+%         slurm_num={'13209071'};
 %         slurm_num=slurm_num(end-9:end-5);
+        slurm_num=slurm_num(end);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};

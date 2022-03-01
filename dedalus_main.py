@@ -171,7 +171,7 @@ elif flag.flow=='HB_benard':
     flag.dy_T_mean=1
     flag.dy_S_mean=1
     flag.bvp_tolerance=1e-10
-    flag.EVP_homogeneous_tolerance=1e-8
+    flag.EVP_homogeneous_tolerance=1e5
     #flag.kx=0.48*flag.Ra_T**0.4
     #flag.kx=2*np.pi/0.5
     flag.ky=0
@@ -545,13 +545,14 @@ else:
     
 #This is the loop for the Yang (2015) comparison of bounded salt finger    
 #for R_rho_T2S in [10,5,2,1,0.5,0.2,0.1]:    
-#for R_rho_T2S in [2]:#[10,5,2,1,0.5,0.2,0.1]
-flag.Ra_S2T=flag.Ra_T/R_rho_T2S #10^6, 2*10^6, 5*10^6, 10^7, 2*10^7, 5*10^7, 10^8
-Ra_S=flag.Ra_S2T/flag.tau
-kx_final=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
-
+for R_rho_T2S in [2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10]:#[10,5,2,1,0.5,0.2,0.1]
+#for R_rho_T2S in [2,1.8,1.6,1.4,1.3,1,0.8,0.6,0.4,0.2,0.1]:
+    flag.Ra_S2T=flag.Ra_T/R_rho_T2S #10^6, 2*10^6, 5*10^6, 10^7, 2*10^7, 5*10^7, 10^8
+    Ra_S=flag.Ra_S2T/flag.tau
+    kx_final=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+    flag.kx=kx_final
 #This is just try to study the wavenumber 
-for flag.kx in np.linspace(1,kx_final,10):
+#for flag.kx in np.linspace(1,kx_final,10):
     #R_rho_T2S=2
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     
