@@ -3176,6 +3176,9 @@ class flag(object):
             #print(solver.eigenvectors.shape)
             #logger.info(order)
             solver.eigenvectors = solver.eigenvectors[:, order]
+            
+            #Update 2022/03/01, only store the eigenvector corresponding to the largest real part to save space. Also note that python start from 0 index
+            solver.eigenvectors = solver.eigenvectors[:,0]
             logger.info('The maximum real part of the all eigenvalues are \n')
             logger.info(np.max(np.real(solver.eigenvalues)))
             logger.info('Corresponding complex eigenvalue is:\n')
@@ -3254,11 +3257,11 @@ class flag(object):
                 domain_EVP_secondary=self_EVP_secondary.build_domain()
                 solver_EVP_secondary=self_EVP_secondary.governing_equation(domain_EVP_secondary,solver)
                 logger = logging.getLogger(__name__)
-                self_EVP_secondary.print_screen(logger)
+                #self_EVP_secondary.print_screen(logger)
                 #shutil.copytree('analysis','analysis'+str(self.continuation))
                 #self_EVP_secondary.initial_condition(domain_EVP_secondary,solver)
-                self_EVP_secondary.post_store(solver_EVP_secondary)
-                self_EVP_secondary.print_file() #move print file to here.
+                #self_EVP_secondary.post_store(solver_EVP_secondary)
+                #self_EVP_secondary.print_file() #move print file to here.
                 self_EVP_secondary.run(solver_EVP_secondary,domain_EVP_secondary,logger)
                 self_EVP_secondary.post_store_after_run(solver_EVP_secondary)
                 

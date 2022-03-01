@@ -287,7 +287,7 @@ classdef dedalus_post
             
             %%Read the eigenvalue problem if performed the secondary
             %%stability analysis
-            if obj.EVP_secondary
+            if obj.EVP_secondary==1 & (strcmp(obj.problem,'BVP') | strcmp(obj.problem,'EVP'))
                 obj.eigenvalues=h5read_complex(h5_name,'/eigenvalues');
                 obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
                 obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
