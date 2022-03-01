@@ -3116,6 +3116,9 @@ class flag(object):
             while np.sum(np.abs(pert)) > self.bvp_tolerance:
                 solver.newton_iteration()
                 logger.info('Perturbation norm: {}'.format(np.sum(np.abs(pert))))
+                #Update 2022/03/01: also print the Nusselt number for T and S on the screen. 
+                logger.info('Nu: {}'.format(-(solver.state['d_T_0']['g'][0]+self.dy_S_mean)))
+                logger.info('Nu_S: {}'.format(-(solver.state['d_S_0']['g'][0]+self.dy_T_mean)))
                 logger.info('T_0 norm: {}'.format(np.sum(np.abs(solver.state['T_0']['g']))))
                 logger.info('S_0 norm: {}'.format(np.sum(np.abs(solver.state['S_0']['g']))))
                 if self.flow in ['HB_porous','HB_benard']:

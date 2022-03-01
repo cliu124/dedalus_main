@@ -292,6 +292,9 @@ classdef dedalus_post
                 obj.eigenvectors=h5read_complex(h5_name,'/eigenvectors');
                 obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
 %                 eigenvector_lead=obj.eigenvectors(1,:);
+                if size(obj.eigenvectors,2)==1
+                   obj.eigenvectors=obj.eigenvectors'; 
+                end
                 if strcmp(obj.flow,'HB_benard')
                     obj.eigenvector_lead.u_tilde=obj.eigenvectors(1,1:obj.Nz);
                     obj.eigenvector_lead.d_u_tilde=obj.eigenvectors(1,obj.Nz+1:2*obj.Nz);

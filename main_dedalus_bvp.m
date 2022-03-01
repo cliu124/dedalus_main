@@ -157,8 +157,16 @@ switch group_name
                    '13209070',%kx continuation from 13208657
                    '13209071',%kx continuation from 13208658
                    '13209072' %kx continuation from 13208758
-                   }       
-        slurm_num=slurm_num(end-9:end-5);
+                   }; 
+        %Nz=128, wavenumber from yang's scaling...  tau =0.01, Pr=7, Ra_T=100000, R_rho_T2S=2      
+        slurm_num={'13209992',%continued from 13208655
+                   '13209993',%continued from 13208656
+                   '13209994',%continued from 13208657
+                   '13209995',%continued from 13208658
+                   '13209996' %continued from 13208758
+                   };  
+        slurm_num={'13209071'};
+%         slurm_num=slurm_num(end-9:end-5);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};
@@ -225,7 +233,7 @@ switch group_name
         
 end
 
-flag.print=0;
+flag.print=1;
 flag.visible=0;
 flag.video=0;
 flag.post_plot=1;
