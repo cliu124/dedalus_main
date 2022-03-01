@@ -3261,7 +3261,10 @@ class flag(object):
                 self_EVP_secondary.print_file() #move print file to here.
                 self_EVP_secondary.run(solver_EVP_secondary,domain_EVP_secondary,logger)
                 self_EVP_secondary.post_store_after_run(solver_EVP_secondary)
-           
+                print('self.problem='+self.problem)
+                print('self_EVP_secondary.problem='+self_EVP_secondary.problem)
+                self.problem='BVP'
+                self_EVP_secondary.problem='BVP'
         #write the eigenvalues and eigenvectors into the code...
         elif self.problem =='EVP':
             with h5py.File('./analysis/analysis_s1.h5', 'a') as f:

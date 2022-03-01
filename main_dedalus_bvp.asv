@@ -136,14 +136,24 @@ switch group_name
                    };       
                
         %this is for Nz=128       
-        slurm_num={'13208042',%one layer solution, R_rho_S2T=2, tau=0.1 + EVP
-                   '13208045',%staircase 2 layer solution, R_rho_S2T=2, tau=0.1 + EVP
-                   '13208046',%asymmetric solution, R_rho_S2T=2, tau=0.1 + EVP
+        slurm_num={'13208705',%one layer solution, R_rho_S2T=2, tau=0.1 + EVP
+                   '13208739',%staircase 2 layer solution, R_rho_S2T=2, tau=0.1 + EVP
+                   '13208744',%asymmetric solution, R_rho_S2T=2, tau=0.1 + EVP
                    '13207556',%IVP from 13207555
                    '13207561',%IVP from 13207553
                    '13207562',%IVP from 13207554
+                   '13208655',%tau=0.01, R_rho_S2T=2, W0=1
+                   '13208656',%tau=0.01,R_rho_S2T=2, W0=10
+                   '13208657',%tau=0.01,R_rho_S2T=2, W0=100
+                   '13208658',%tau=0.01,R_rho_S2T=2, W0=1000
+                   '13208758',%tau=0.01,R_rho_S2T=2, 1-layer solution, continued from tau=0.1
+                   '13208908',%IVP from 13208655
+                   '13208911',%IVP from 13208656
+                   '13208912',%IVP from 13208657
+                   '13208914',%IVP from 13208658
+                   '13208916' %IVP from 13208
                    }       
-%         slurm_num=slurm_num(end-6);
+        slurm_num=slurm_num(end-4:end);
     case 'HB_benard_diffusive_kx'
         slurm_num={'13175327',
                     '13175339'};
@@ -231,17 +241,17 @@ for slurm_ind=1:length(slurm_num)
             %data_Nu{1}.y(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);
             switch dedalus_post_my{slurm_ind,content_ind}.problem
-                case 'BVP'
+                case {'BVP','IVP','EVP'}
                     dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_bvp();
                     if flag.print || flag.visible
                         dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.bvp_plot;
                     end
-                case 'EVP'
-                    dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_evp();
-                    if flag.print || flag.visible
-                        dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.evp_plot;
-                    end
-                case 'IVP'
+%                 case 'EVP'
+%                     dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.dedalus_post_evp();
+%                     if flag.print || flag.visible
+%                         dedalus_post_my{slurm_ind,content_ind}=dedalus_post_my{slurm_ind,content_ind}.evp_plot;
+%                     end
+%                 case 'IVP'
                 otherwise
                     error('Wrong problem for dedalus');
             end
@@ -1151,11 +1161,11 @@ if flag.post_plot
         case 'HB_benard_salt_finger_kx'
             
             
-            for content_ind=1:size(dedalus_post_my,2)
-                Nu(content_ind)=dedalus_post_my{1,content_ind}.Nu(1);
-                Nu_S(content_ind)=dedalus_post_my{1,content_ind}.Nu_S(1);
-                kx(content_ind)=dedalus_post_my{1,content_ind}.kx;
-            end
+%             for content_ind=1:size(dedalus_post_my,2)
+%                 Nu(content_ind)=dedalus_post_my{1,content_ind}.Nu(1);
+%                 Nu_S(content_ind)=dedalus_post_my{1,content_ind}.Nu_S(1);
+%                 kx(content_ind)=dedalus_post_my{1,content_ind}.kx;
+%             end
             
             
         case 'trevisan_tau'
