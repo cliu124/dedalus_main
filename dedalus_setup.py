@@ -3244,7 +3244,7 @@ class flag(object):
             solver.evaluator.evaluate_handlers([self.analysis], world_time=0, wall_time=0, sim_time=0, timestep=0, iteration=0)
             post.merge_process_files('analysis',cleanup=True)
             
-            if self.EVP_secondary and self.problem =='BVP':
+            if self.EVP_secondary:
                 
                 #if I would like to compute the stability of the secondary state, 
                 #Then, continuation number +1, and linearize around this state to redo the eigenvalue problem.
@@ -3261,10 +3261,16 @@ class flag(object):
                 self_EVP_secondary.print_file() #move print file to here.
                 self_EVP_secondary.run(solver_EVP_secondary,domain_EVP_secondary,logger)
                 self_EVP_secondary.post_store_after_run(solver_EVP_secondary)
-                print('self.problem='+self.problem)
-                print('self_EVP_secondary.problem='+self_EVP_secondary.problem)
-                self.problem='BVP'
+                
+                #print('self.problem='+self.problem)
+                #print('self_EVP_secondary.problem='+self_EVP_secondary.problem)
+                #self.problem='BVP'
+                #Update 2022/02/28, note that this local version of self works more like a pointer...
+                #self_EVP_secondary.problem='EVP' will also change self.problem='EVP', so here, I need to change it back
+                #Otherwise, the next continuation of the BVP will not work...
                 self_EVP_secondary.problem='BVP'
+                
+                
         #write the eigenvalues and eigenvectors into the code...
         elif self.problem =='EVP':
             with h5py.File('./analysis/analysis_s1.h5', 'a') as f:

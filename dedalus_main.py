@@ -158,7 +158,7 @@ elif flag.flow=='HB_benard':
     #flag.Ra_T=1.25*100000
     #R_rho_T2S=1/4
 
-    flag.tau=0.1
+    flag.tau=0.01
     flag.Ra_T=100000
     R_rho_T2S=2
     flag.continuation_asymmetric=0
@@ -550,7 +550,7 @@ else:
 #    flag.kx=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
 
 #This is just try to study the wavenumber 
-for flag.kx in [1]:# np.linspace(1,60,60):
+for flag.kx in np.linspace(1,60,60):
     #R_rho_T2S=2
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     
