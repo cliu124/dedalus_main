@@ -545,13 +545,13 @@ else:
     
 #This is the loop for the Yang (2015) comparison of bounded salt finger    
 #for R_rho_T2S in [10,5,2,1,0.5,0.2,0.1]:    
-#    #R_rho_T2S=10#[10,5,2,1,0.5,0.2,0.1]
-#    flag.Ra_S2T=flag.Ra_T/R_rho_T2S #10^6, 2*10^6, 5*10^6, 10^7, 2*10^7, 5*10^7, 10^8
-#    Ra_S=flag.Ra_S2T/flag.tau
-#    flag.kx=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+for R_rho_T2S in [2]:#[10,5,2,1,0.5,0.2,0.1]
+    flag.Ra_S2T=flag.Ra_T/R_rho_T2S #10^6, 2*10^6, 5*10^6, 10^7, 2*10^7, 5*10^7, 10^8
+    Ra_S=flag.Ra_S2T/flag.tau
+    flag.kx=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
 
 #This is just try to study the wavenumber 
-for flag.kx in np.linspace(1,60,60):
+#for flag.kx in np.linspace(1,60,60):
     #R_rho_T2S=2
     #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
     
