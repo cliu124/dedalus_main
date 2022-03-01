@@ -91,7 +91,7 @@ class flag(object):
         self.ky_2=0
         self.problem='IVP' #This can be IVP, BVP, EVP depends on the problem you want to solve
         self.bvp_tolerance=1e-11 #This is the tolerance for BVP.
-        
+        self.EVP_homogeneous_tolerance=1e-10
         #self.z_bc_T_S_w='dirichlet' #This can be also dirichlet
         #Update 2022/02/25, change the default setting as periodic B.C.
         self.z_bc_u_v_left='periodic' #This can be periodic, dirichlet, or neumann
@@ -486,7 +486,7 @@ class flag(object):
                 elif self.problem == 'EVP':
                     problem = de.EVP(domain, variables=[\
                         'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
-                        'T_0','d_T_0','S_0','d_S_0'],eigenvalue='eig_val')
+                        'T_0','d_T_0','S_0','d_S_0'],eigenvalue='eig_val',tolerance=self.EVP_homogeneous_tolerance)
             else:   
                 #setup the problem variable. This has two scales...
                 if self.problem =='BVP':
@@ -503,7 +503,7 @@ class flag(object):
                     problem = de.EVP(domain, variables=[\
                         'w_hat','p_hat','T_hat','d_T_hat','S_hat','d_S_hat', \
                         'w_hat_2','p_hat_2','T_hat_2','d_T_hat_2','S_hat_2','d_S_hat_2', \
-                        'T_0','d_T_0','S_0','d_S_0'],eigenvalue='eig_val')
+                        'T_0','d_T_0','S_0','d_S_0'],eigenvalue='eig_val',tolerance=self.EVP_homogeneous_tolerance)
                 
                 #also get the kx_2 and ky_2 as parameters
                 problem.parameters['kx_2']=self.kx_2
@@ -1218,7 +1218,7 @@ class flag(object):
                     ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
                     'w_hat','p_hat','T_hat','d_T_hat', \
                     'S_hat','d_S_hat','T_0','d_T_0','S_0','d_S_0'] \
-                        ,eigenvalue='eig_val')
+                        ,eigenvalue='eig_val',tolerance=self.EVP_homogeneous_tolerance)
             
             problem.parameters['Pr'] = self.Pr 
             problem.parameters['Ra_T'] = self.Ra_T
@@ -1921,7 +1921,7 @@ class flag(object):
                 problem = de.EVP(domain, variables=\
                     ['u_tilde','d_u_tilde','v_tilde','d_v_tilde', \
                     'w_hat','p_hat','T_hat','d_T_hat', \
-                    'S_hat','d_S_hat'],eigenvalue='eig_val')
+                    'S_hat','d_S_hat'],eigenvalue='eig_val',tolerance=self.EVP_homogeneous_tolerance)
             
                 
             problem.parameters['Pr'] = self.Pr 

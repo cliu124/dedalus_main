@@ -117,6 +117,8 @@ classdef dedalus_post
         
         problem='IVP';% #This can be IVP, BVP, EVP depends on the problem you want to solve
         bvp_tolerance=1e-11;% #This is the tolerance for BVP.
+        EVP_homogeneous_tolerance=1e-10;
+        
         z_bc_w_left='dirichlet';% #This can be also dirichlet
         z_bc_u_v_left='dirichlet';% #This can be periodic, dirichlet, or neumann
         z_bc_T_left='dirichlet';

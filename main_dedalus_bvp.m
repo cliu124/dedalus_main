@@ -152,11 +152,11 @@ switch group_name
                    '13208912',%IVP from 13208657
                    '13208914',%IVP from 13208658
                    '13208916',%IVP from 13208758
-                   '13208921',%kx continuation from 13208655
-                   '13208922',%kx continuation from 13208656
-                   '13208923',%kx continuation from 13208657
-                   '13208924',%kx continuation from 13208658
-                   '13208925' %kx continuation from 13208758
+                   '13208967',%kx continuation from 13208655
+                   '13208968',%kx continuation from 13208656
+                   '13208969',%kx continuation from 13208657
+                   '13208970',%kx continuation from 13208658
+                   '13208971' %kx continuation from 13208758
                    }       
         slurm_num=slurm_num(end-4:end);
     case 'HB_benard_diffusive_kx'

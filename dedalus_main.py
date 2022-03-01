@@ -171,6 +171,7 @@ elif flag.flow=='HB_benard':
     flag.dy_T_mean=1
     flag.dy_S_mean=1
     flag.bvp_tolerance=1e-10
+    flag.EVP_homogeneous_tolerance=1e-8
     #flag.kx=0.48*flag.Ra_T**0.4
     #flag.kx=2*np.pi/0.5
     flag.ky=0
