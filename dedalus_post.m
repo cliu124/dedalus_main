@@ -225,7 +225,7 @@ classdef dedalus_post
         eigenvalues=0;
         eigenvectors=0;
         eigenvector_lead=struct;
-        
+        no_ylabel=0;
     end
     
     methods
@@ -244,7 +244,7 @@ classdef dedalus_post
             obj.print=flag.print;
             obj.video=flag.video;
             obj.visible=flag.visible;
-            
+            obj.no_ylabel=flag.no_ylabel
             %display h5 file
             %h5disp(h5_name);
             
@@ -649,6 +649,12 @@ classdef dedalus_post
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline.png'];
             plot_contour(data,plot_config);
             
+            if obj.no_ylabel
+                plot_config.label_list{3}='';
+                plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline_no_ylabel.png'];
+                plot_contour(data,plot_config);
+            end
+            
             %Plot the isocontour of T
             clear data plot_config
             plot_config.print=obj.print;
@@ -677,6 +683,11 @@ classdef dedalus_post
             plot_config.zlim_list=[1,0,1];
             plot_config.ztick_list=[1,0,0.2,0.4,0.6,0.8,1];
             plot_contour(data,plot_config);
+            if obj.no_ylabel
+                plot_config.label_list{3}='';
+                plot_config.name=[obj.h5_name(1:end-3),'_HB_','isocontour_T_no_ylabel.png'];
+                plot_contour(data,plot_config);
+            end
             
             clear data plot_config
             plot_config.print=obj.print;
@@ -702,7 +713,11 @@ classdef dedalus_post
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','isocontour_S.png'];
             plot_config.print_size=[1,1000,900];
             plot_contour(data,plot_config);
-            
+            if obj.no_ylabel
+                plot_config.label_list{3}='';
+                plot_config.name=[obj.h5_name(1:end-3),'_HB_','isocontour_S_no_ylabel.png'];
+                plot_contour(data,plot_config);
+            end
             
 %             plot_config.panel_num=4;
             
@@ -2769,6 +2784,55 @@ classdef dedalus_post
                 2.61E+12	0.0144048
                 4.64E+12	0.0123948
                 ];
+        end
+        
+        function Nu_salt_finger_yang=get_Nu_salt_finger_yang(obj)
+           
+           %Data from Yang Y, Van Der Poel EP, Ostilla-Mónico R, Sun C, Verzicco R, Grossmann S, Lohse D. Salinity transfer in bounded double diffusive convection. Journal of fluid mechanics. 2015 Apr;768:476-91. 
+           %THe first column is the density ratio
+           Nu_salt_finger_yang.Ra_T_1e5_Nu=[10,1.0052;
+                                            5,1.0125;
+                                            2,1.035;
+                                            1,1.0775;
+                                            0.5,1.1706;
+                                            0.2,1.4265;
+                                            0.1,1.8826];
+           Nu_salt_finger_yang.Ra_T_1e5_Nu_S=[10,8.6347;
+                                            5,11.064;
+                                            2,15.05;
+                                            1,17.854;
+                                            0.5,22.107;
+                                            0.2,29.259;
+                                            0.1,35.342]; 
+           Nu_salt_finger_yang.Ra_T_1e5_Re=[10,0.1107;
+                                            5,0.1814;
+                                            2,0.3521;
+                                            1,0.5254;
+                                            0.5,0.8275;
+                                            0.2,1.4652;
+                                            0.1,2.3496]; 
+           Nu_salt_finger_yang.Ra_T_1e6_Nu=[10,1.0116;
+                                            5,1.0277;
+                                            2,1.0789;
+                                            1,1.1791;
+                                            0.5,1.3929;
+                                            0.2,2.0197;
+                                            0.1,3.0231];
+           Nu_salt_finger_yang.Ra_T_1e6_Nu_S=[10,17.352;
+                                            5,22.037;
+                                            2,29.542;
+                                            1,35.516;
+                                            0.5,42.5;
+                                            0.2,56.184;
+                                            0.1,68.098]; 
+           Nu_salt_finger_yang.Ra_T_1e6_Re=[10,0.2773;
+                                            5,0.4584;
+                                            2,0.8727;
+                                            1,1.3349;
+                                            0.5,2.0749;
+                                            0.2,3.8484;
+                                            0.1,6.2142]; 
+
         end
         
         function porous_hewitt_2_layer=get_porous_hewitt_2_layer(obj)

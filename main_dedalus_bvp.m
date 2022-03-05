@@ -20,7 +20,11 @@ close all;
 % group_name='hewitt_2_layer_Omega';
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
-group_name='HB_benard_salt_finger_kx';
+% group_name='HB_benard_salt_finger_R_rho_T2S';
+group_name='HB_benard_salt_finger_tau';
+% group_name='HB_benard_salt_finger_kx'
+% group_name='HB_benard_salt_finger_profile_S1_yang';
+% group_name = 'HB_benard_salt_finger_profile';
 % group_name='HB_benard_diffusive_kx';
 %All of these are for porous media
 switch group_name
@@ -104,7 +108,7 @@ switch group_name
 %                    '13100497'};
          slurm_num={'13106633'};
 %         slurm_num=slurm_num(1);
-    case 'HB_benard_salt_finger_kx'
+    case 'HB_benard_salt_finger_test'
         slurm_num={'13107994',%R_\rho=Ra_T/Ra_S=2
                    '13109064',%%density ratio R_\rho=Ra_T/Ra_S=5
                    '13109065',%R_\rho=10
@@ -152,11 +156,6 @@ switch group_name
                    '13208912',%IVP from 13208657
                    '13208914',%IVP from 13208658
                    '13208916',%IVP from 13208758
-                   '13209068',%kx continuation from 13208655
-                   '13209069',%kx continuation from 13208656
-                   '13209070',%kx continuation from 13208657
-                   '13209071',%kx continuation from 13208658
-                   '13209072' %kx continuation from 13208758
                    }; 
         %Nz=128, wavenumber from yang's scaling...  tau =0.01, Pr=7, Ra_T=100000, R_rho_T2S=2      
         slurm_num={'13209992',%continued from 13208655
@@ -165,12 +164,100 @@ switch group_name
                    '13209995',%continued from 13208658
                    '13209996',%continued from 13208758
                    '13210532',%another one layer kind of asymmetric solution, from initial guess
-                   '13210528'%3 layer solution, continued from 13208658, but with kx as linspace(1, kx_final,10) so I can preserve symmetric...
-                   };  
+                   '13210528',%3 layer solution, continued from 13208658, but with kx as linspace(1, kx_final,10) so I can preserve symmetric...
+                   '13209068',%kx continuation from 13208655
+                   '13209069',%kx continuation from 13208656
+                   '13209070',%kx continuation from 13208657
+                   '13209071',%kx continuation from 13208658
+                   '13209072' %kx continuation from 13208758
+                     };  
 %         slurm_num={'13209071'};
 %         slurm_num=slurm_num(end-9:end-5);
-        slurm_num=slurm_num(end);
+%         slurm_num=slurm_num(end-13:end);
+
+    case 'HB_benard_salt_finger_profile'
+        slurm_num={'13209992',%continued from 13208655
+                   '13209993',%continued from 13208656
+                   '13209994',%continued from 13208657
+                   '13209995',%continued from 13208658
+                   '13209996',%continued from 13208758
+                   '13210532',%another one layer kind of asymmetric solution, from initial guess
+                   '13210528',%3 layer solution, continued from 13208658, but with kx as linspace(1, kx_final,10) so I can preserve symmetric...
+                   };
+    case 'HB_benard_salt_finger_profile_S1_yang'
+        slurm_num={'13220808'};
+    case 'HB_benard_salt_finger_kx'
+        slurm_num={'13217936',%%kx increasing,[10:1:60], from 13209992, S2
+                   %'13217937',%%kx increasing,[10:1:60], from 13209993, A2, branch jump, needs to be replcaed as 13220800
+                   '13220800',%kx increasing, dense grid, from 13209993, A2,
+                   '13217938',%%kx increasing,[10:1:60], from 13209994, S2L
+                   %'13217939',%%kx increasing,[10:1:60], from 13209995, A3, branch jump, needs to be replaced as 13219318
+                   '13219318',%kx increasing, 10 to 50, dense grid... from 13209995
+                   '13217940',%%kx increasing,[10:1:60], from 13209996, S1
+                   '13217941',%%kx increasing,[10:1:60], from 13210532, A1
+                   '13217942',%%kx increasing,[10:1:60], from 13210528, S3
+                   ...
+                   '13217945',%%kx decreasing, [9.7815:0.1:20], from 13209992, S2
+                   %'13217946',%%kx decreasing, [9.7815:0.1:20], from 13209993, A2, branch jump, replaced as 13219282
+                   '13219282',%%kx decreasing, 9.7815 to 0.1, dense grid, A2 from 13209993
+                   '13217947',%%kx decreasing, [9.7815:0.1:20], from 13209994, S2L
+                   '13217948',%%kx decreasing, [9.7815:0.1:20], from 13209995, A3
+                   '13217949',%%kx decreasing, [9.7815:0.1:20], from 13209996, S1
+                   %'13217950',%%kx decreasing, [9.7815:0.1:20], from 13210532, A1, branch jump, replaced as 13219306
+                   '13220804',%%kx decreasing, 9.7815 to 0.1, dense grid, A1 from 13210532
+                   %'13217951',%%kx decreasing, [9.7815:0.1:20], from 13210528, S3, branch jump, replaced as 13219307
+                   '13219307' %kx decreasing, 0.97815 to 0.1, dense grid
+                   };
+    case 'HB_benard_salt_finger_R_rho_T2S'    
+        slurm_num={ %%next one is continuing with increasing R_rho_T2S
+                   '13210696',%%R_rho_T2S increasing, from 13209992
+                   '13210702',%%R_rho_T2S increasing, from 13209993
+                   '13210703',%%R_rho_T2S increasing, from 13209994
+                   '13210704',%%R_rho_T2S increasing, from 13209995
+                   '13210705',%%R_rho_T2S increasing, from 13209996
+                   '13210706',%%R_rho_T2S increasing, from 13210532
+                   '13210707',%%R_rho_T2S increasing, from 13210528
+                   ... %%next one is continuing with decreasing R_rho_T2S
+                   '13210709',%%R_rho_T2S decreasing, from 13209992
+                   '13210710',%%R_rho_T2S decreasing, from 13209993
+                   '13210711',%%R_rho_T2S decreasing, from 13209994
+                   '13210712',%%R_rho_T2S decreasing, from 13209995
+                   '13210713',%%R_rho_T2S decreasing, from 13209996
+                   '13210714',%%R_rho_T2S decreasing, from 13210532
+                   '13210715',%%R_rho_T2S decreasing, from 13210528
+                   ...
+                   '13212083',%%R_rho_T2S increasing, from 10-500 from 13210696
+                   '13212084',%%R_rho_T2S increasing, from 10-500 from 13210702
+                   '13212085',%%R_rho_T2S increasing, from 10-500 from 13210703
+                   '13212086',%%R_rho_T2S increasing, from 10-500 from 13210704
+                   '13212087',%%R_rho_T2S increasing, from 10-500 from 13210705
+                   '13212088',%%R_rho_T2S increasing, from 10-500 from 13210706
+                   '13212089'%%R_rho_T2S increasing, from 10-500 from 13210707
+                   }
+%           slurm_num=slurm_num(end);
+    case 'HB_benard_salt_finger_tau'
+               slurm_num={'13212525',%tau continuation, from 13209992
+                          '13212526',%tau continuation, from 13209993
+                          '13212527',%tau continuation, from 13209994
+                          '13212528',%tau continuation, from 13209995
+                          '13212529',%tau continuation, from 13209996
+                          '13212530',%tau continuation, from 13210532
+                          '13212531' %tau continuation, from 13210528
+                          };
+                      
+               %I need to check what they actually continue from
+               slurm_num={'13217806',%tau continuation 0.01:0.01:1, from 13209992
+                          '13217807',%tau continuation, from 13209993
+                          '13217808',%tau continuation, from 13209994
+                          '13217809',%tau continuation, from 13209995
+                          '13217810',%tau continuation, from 13209996
+                          '13217812',%tau continuation, from 13210532
+                          '13217813',%tau continuation, from 13210528
+                          };
+               slurm_num=slurm_num(end);
+                      
     case 'HB_benard_diffusive_kx'
+        
         slurm_num={'13175327',
                     '13175339'};
         slurm_num=slurm_num(2);
@@ -239,6 +326,7 @@ end
 flag.print=1;
 flag.visible=0;
 flag.video=0;
+flag.no_ylabel=0;
 flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)
     content=dir(['C:\Data\dedalus\dedalus_',...
@@ -1174,7 +1262,112 @@ if flag.post_plot
                 plot_config.ytick_list=[1,0,0.5,1];
                 plot_line(data,plot_config);
             end
+            
         case 'HB_benard_salt_finger_kx'
+            for slurm_ind=1:size(dedalus_post_my,1)
+                for content_ind=1:size(dedalus_post_my,2)
+                    if ~isempty(dedalus_post_my{slurm_ind,content_ind})
+                        data{slurm_ind}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
+                        data{slurm_ind}.y(content_ind)=abs(dedalus_post_my{slurm_ind,content_ind}.Nu_S(1));
+
+                        eig_inf_ind=find(real(dedalus_post_my{slurm_ind,content_ind}.eigenvalues)>10^6);
+                        dedalus_post_my{slurm_ind,content_ind}.eigenvalues(eig_inf_ind)=[];
+                        lambda_max{slurm_ind}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.eigenvalues(1);
+                    end
+                end
+            end
+            sol_num=7;
+            for sol_ind=1:sol_num
+                %%combine the data that increase R_rho_S2T and decrease
+                %%R_rho_S2T
+                data_all{sol_ind}.x=[data{sol_ind}.x,data{sol_ind+sol_num}.x];
+                data_all{sol_ind}.y=[data{sol_ind}.y,data{sol_ind+sol_num}.y];
+                lambda_max_all{sol_ind}.y=[lambda_max{sol_ind}.y,lambda_max{sol_ind+sol_num}.y];
+                
+                %sort data
+                [~,ind]=sort(data_all{sol_ind}.x);
+%                 ind=ind(2:end);
+                data_all{sol_ind}.x=data_all{sol_ind}.x(ind);
+                data_all{sol_ind}.y=data_all{sol_ind}.y(ind);
+                lambda_max_all{sol_ind}.x=data_all{sol_ind}.x;
+                lambda_max_all{sol_ind}.y=lambda_max_all{sol_ind}.y(ind);
+                stable_ind=find(real(lambda_max_all{sol_ind}.y)<=0);
+                if isempty(stable_ind)
+                    data_all_stable{sol_ind}.x=NaN;
+                    data_all_stable{sol_ind}.y=NaN;
+                    data_all_stable_2{sol_ind}.x=NaN;
+                    data_all_stable_2{sol_ind}.y=NaN;
+                elseif isempty(find(diff(stable_ind)>1))
+                    data_all_stable{sol_ind}.x=data_all{sol_ind}.x(stable_ind);
+                    data_all_stable{sol_ind}.y=data_all{sol_ind}.y(stable_ind);
+                    data_all_stable_2{sol_ind}.x=NaN; data_all_stable_2{sol_ind}.y=NaN;
+                else
+                    stable_2_ind=find(diff(stable_ind)>1);
+                    stable_2_ind=stable_2_ind(1);
+                    data_all_stable{sol_ind}.x=data_all{sol_ind}.x(stable_ind(1:stable_2_ind));
+                    data_all_stable{sol_ind}.y=data_all{sol_ind}.y(stable_ind(1:stable_2_ind));
+                    data_all_stable_2{sol_ind}.x=data_all{sol_ind}.x(stable_ind(1+stable_2_ind:end));
+                    data_all_stable_2{sol_ind}.y=data_all{sol_ind}.y(stable_ind(1+stable_2_ind:end));
+                end
+                
+                unstable_ind=find(real(lambda_max_all{sol_ind}.y)>0);
+                if isempty(unstable_ind)
+                    data_all_unstable{sol_ind}.x=NaN;
+                    data_all_unstable{sol_ind}.y=NaN;
+                    data_all_unstable_2{sol_ind}.x=NaN; data_all_unstable_2{sol_ind}.y=NaN;
+                elseif isempty(find(diff(unstable_ind)>1, 1))
+                    data_all_unstable{sol_ind}.x=data_all{sol_ind}.x(unstable_ind);
+                    data_all_unstable{sol_ind}.y=data_all{sol_ind}.y(unstable_ind);
+                    data_all_unstable_2{sol_ind}.x=NaN; data_all_unstable_2{sol_ind}.y=NaN;
+                else
+                    unstable_2_ind=find(diff(unstable_ind)>1);
+                    unstable_2_ind=unstable_2_ind(1);
+                    data_all_unstable{sol_ind}.x=data_all{sol_ind}.x(unstable_ind(1:unstable_2_ind));
+                    data_all_unstable{sol_ind}.y=data_all{sol_ind}.y(unstable_ind(1:unstable_2_ind));
+                    data_all_unstable_2{sol_ind}.x=data_all{sol_ind}.x(unstable_ind(1+unstable_2_ind:end));
+                    data_all_unstable_2{sol_ind}.y=data_all{sol_ind}.y(unstable_ind(1+unstable_2_ind:end));
+                end
+%                 if all(real(lambda_max{sol_ind}.y)>0)
+%                     %plot_config.user_color_style_marker_list{sol_ind}=[color_list{sol_ind},'--'];
+%                 elseif all(real(lambda_max{sol_ind}.y)<0)
+%                     %plot_config.user_color_style_marker_list{sol_ind}=[color_list{sol_ind},'-'];
+%                 else 
+%                     error('There is a transition of stability in parameter regime');
+%                 end
+            end
+            %Nu_salt_finger_yang=dedalus_post_my{1,1}.get_Nu_salt_finger_yang();
+            plot_config.legend_list={1,'S2','A2','S2L','A3','S1','A1','S3'};
+            order=[5,1,7,3,6,2,4];%This will give S1, S2, S3, S2L, A1, A2, A3 order...
+            plot_config.legend_list(2:end)=plot_config.legend_list(order+1);
+            data_kx=[data_all_stable(order),data_all_stable_2(order),data_all_unstable(order),data_all_unstable_2(order)];
+            plot_config.user_color_style_marker_list={'-','-','-','-','-','-','-',...
+                                                    '-','-','-','-','-','-','-',...                                        
+                                                    ':',':',':',':',':',':',':',...
+                                                    ':',':',':',':',':',':',':'};
+            data_len=length(data_kx);
+            %data_R_rho_T2S{data_len+1}.x=Nu_salt_finger_yang.Ra_T_1e5_Nu_S(:,1);
+            %data_R_rho_T2S{data_len+1}.y=Nu_salt_finger_yang.Ra_T_1e5_Nu_S(:,2);
+            %plot_config.user_color_style_marker_list{data_len+1}='k*';
+            plot_config.Markerindex=3;
+            plot_config.label_list={1,'$k_x$','$Sh$'};
+           
+            plot_config.linewidth=5;
+            plot_config.RGB={1,[0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0]};
+            plot_config.name=['C:\Figure\DDC_LST\',group_name,'_Sh_kx.png'];
+            plot_config.loglog=[0,0];
+            plot_config.ylim_list=[1,1,25];
+            plot_config.ytick_list=[1,1,5,10,15,20,25];
+            plot_config.xlim_list=[0,0,60];
+%             plot_config.xtick_list=[0,1,10,60];
+            plot_line(data_kx,plot_config);
             
             
 %             for content_ind=1:size(dedalus_post_my,2)
@@ -1182,7 +1375,409 @@ if flag.post_plot
 %                 Nu_S(content_ind)=dedalus_post_my{1,content_ind}.Nu_S(1);
 %                 kx(content_ind)=dedalus_post_my{1,content_ind}.kx;
 %             end
+
+        case 'HB_benard_salt_finger_profile'
+            legend_list={'S2','A2','S2L','A3','S1','A1','S3'};
+            order=[5,1,7,3,6,2,4];%This will give S1, S2, S3, S2L, A1, A2, A3 order...
             
+            legend_list=legend_list(order);
+            RGB={[0,0,0],[1,0,0],[0,0,1],[0,1,1],...
+                            [1,0,1],[0.8500 0.3250 0.0980],[0,1,0]};
+            var_list={'S_0','S_hat','w_hat','u_tilde'};
+            xlabel_list={'$\bar{S}_0+z$','$\widehat{S}$','$\widehat{w}$','$\widetilde{u}$'};
+            for var_ind=1:length(var_list)
+                var_name=var_list{var_ind};
+                for slurm_ind=1:length(slurm_num)
+                    if strcmp(var_list{var_ind},'S_0')
+                        data{slurm_ind}.x=dedalus_post_my{slurm_ind,1}.(var_name)+dedalus_post_my{slurm_ind,1}.z_list; 
+                    else
+                        data{slurm_ind}.x=dedalus_post_my{slurm_ind,1}.(var_name); 
+                    end
+                    data{slurm_ind}.y=dedalus_post_my{slurm_ind,1}.z_list;
+                end
+                data=data(order);
+                data_sym=data(1:4);
+                data_asym=data(5:end);
+                plot_config.label_list={1,xlabel_list{var_ind},'$z$'};
+                plot_config.print_size=[1,600,1100];
+                plot_config.name=['C:\Figure\DDC_LST\',group_name,'_profile_sym_',var_name,'.png'];
+                plot_config.RGB={1,RGB{1:4}};
+                plot_config.legend_list={1,legend_list{1:4}};
+                plot_config.fontsize_legend=37;
+                plot_config.linewidth=5;
+                if var_ind>1 %%get rid of y label and the legend
+                    plot_config.legend_list={0}; plot_config.label_list{3}='';
+                end
+                plot_line(data_sym,plot_config);
+                
+                plot_config.RGB={1,RGB{5:end}};
+                plot_config.legend_list={1,legend_list{5:end}};
+                if var_ind>1 %get rid of the y label and legend for the following results.
+                    plot_config.legend_list={0}; plot_config.label_list{3}='';
+                end
+                plot_config.name=['C:\Figure\DDC_LST\',group_name,'_profile_asym_',var_name,'.png'];
+                plot_line(data_asym,plot_config);
+            end
+            
+        case 'HB_benard_salt_finger_profile_S1_yang'
+            z_list=dedalus_post_my{1,1}.z_list;
+            slurm_len=length(slurm_num);
+            for slurm_ind=1:length(slurm_num)
+                for content_ind=1:size(dedalus_post_my,2)
+                    if ~isempty(dedalus_post_my{slurm_ind,content_ind})
+                        R_rho_T2S(content_ind+(slurm_ind-1)*slurm_len)=dedalus_post_my{slurm_ind,content_ind}.Ra_T/dedalus_post_my{slurm_ind,content_ind}.Ra_S2T;
+                        S_0(:,content_ind+(slurm_ind-1)*slurm_len)=dedalus_post_my{slurm_ind,content_ind}.S_0+z_list;
+                        T_0(:,content_ind+(slurm_ind-1)*slurm_len)=dedalus_post_my{slurm_ind,content_ind}.T_0+z_list;
+                    end
+                end
+            end
+%             R_rho_T2S_list=[0.1,0.2,0.5,1,2,5,10];
+            R_rho_T2S_list=[10,5,2,1,0.5,0.2,0.1];
+            for R_rho_T2S_ind=1:length(R_rho_T2S_list)
+               ind=find(abs(R_rho_T2S-R_rho_T2S_list(R_rho_T2S_ind))<0.01)
+               data{R_rho_T2S_ind}.x=S_0(:,ind(1))+R_rho_T2S_ind-1;
+               data{R_rho_T2S_ind}.y=z_list;
+               data{R_rho_T2S_ind+length(R_rho_T2S_list)}.x=T_0(:,ind(1))+R_rho_T2S_ind-1;
+               data{R_rho_T2S_ind+length(R_rho_T2S_list)}.y=z_list;
+            end
+
+            plot_config.label_list={1,'','$z$'};
+            plot_config.Markerindex=3;
+            plot_config.user_color_style_marker_list={'k-','k-','k-','k-','k-','k-','k-','b--','b--','b--','b--','b--','b--','b--'};
+            plot_config.linewidth=3;
+            plot_config.name=['C:\Figure\DDC_LST\',group_name,'_Ra_1e5.png'];
+            plot_config.xlim_list=[1,-0.1,7.1];
+            plot_config.ylim_list=[1,-0.05,1.05];
+            plot_config.xtick_list=[1,0,1,2,3,4,5,6,7];
+            plot_config.ytick_list=[1,0,0.5,1];
+            plot_config.print_size=[1,1500,800];
+            plot_line(data,plot_config);
+
+        case 'HB_benard_salt_finger_R_rho_T2S'
+            for slurm_ind=1:size(dedalus_post_my,1)
+                for content_ind=1:size(dedalus_post_my,2)
+                    if ~isempty(dedalus_post_my{slurm_ind,content_ind})
+                        data{slurm_ind}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T/dedalus_post_my{slurm_ind,content_ind}.Ra_S2T;
+                        %R_rho_T2S_list_content(content_ind)=data{slurm_ind}.x(content_ind);
+                        data{slurm_ind}.y(content_ind)=abs(dedalus_post_my{slurm_ind,content_ind}.Nu_S(1));
+                        
+                        eig_inf_ind=find(real(dedalus_post_my{slurm_ind,content_ind}.eigenvalues)>10^6);
+                        dedalus_post_my{slurm_ind,content_ind}.eigenvalues(eig_inf_ind)=[];
+                        lambda_max{slurm_ind}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.eigenvalues(1);
+                   
+                    end
+                end
+                %[~,ind]=sort(data{slurm_ind}.x);
+                %dedalus_post_my(slurm_ind,:)=dedalus_post_my(slurm_ind,ind);
+            end
+            sol_num=7;
+            for sol_ind=1:sol_num
+                %%combine the data that increase R_rho_S2T and decrease
+                %%R_rho_S2T
+                data_all{sol_ind}.x=[data{sol_ind}.x,data{sol_ind+sol_num}.x,data{sol_ind+2*sol_num}.x];
+                R_rho_T2S_list_content=data_all{sol_ind}.x;
+                data_all{sol_ind}.y=[data{sol_ind}.y,data{sol_ind+sol_num}.y,data{sol_ind+2*sol_num}.y];
+                lambda_max_all{sol_ind}.y=[lambda_max{sol_ind}.y,lambda_max{sol_ind+sol_num}.y,lambda_max{sol_ind+2*sol_num}.y];
+                
+                %sort data
+                [~,ind]=sort(data_all{sol_ind}.x);
+%                 ind=ind(2:end);
+                data_all{sol_ind}.x=data_all{sol_ind}.x(ind);
+                data_all{sol_ind}.y=data_all{sol_ind}.y(ind);
+                lambda_max_all{sol_ind}.x=data_all{sol_ind}.x;
+                lambda_max_all{sol_ind}.y=lambda_max_all{sol_ind}.y(ind);
+                stable_ind=find(real(lambda_max_all{sol_ind}.y)<=0);
+                if isempty(stable_ind)
+                    data_all_stable{sol_ind}.x=NaN;
+                    data_all_stable{sol_ind}.y=NaN;
+                    data_all_stable_2{sol_ind}.x=NaN;
+                    data_all_stable_2{sol_ind}.y=NaN;
+                elseif isempty(find(diff(stable_ind)>1))
+                    data_all_stable{sol_ind}.x=data_all{sol_ind}.x(stable_ind);
+                    data_all_stable{sol_ind}.y=data_all{sol_ind}.y(stable_ind);
+                    data_all_stable_2{sol_ind}.x=NaN; data_all_stable_2{sol_ind}.y=NaN;
+                else
+                    stable_2_ind=find(diff(stable_ind)>1);
+                    stable_2_ind=stable_2_ind(1);
+                    data_all_stable{sol_ind}.x=data_all{sol_ind}.x(stable_ind(1:stable_2_ind));
+                    data_all_stable{sol_ind}.y=data_all{sol_ind}.y(stable_ind(1:stable_2_ind));
+                    data_all_stable_2{sol_ind}.x=data_all{sol_ind}.x(stable_ind(1+stable_2_ind:end));
+                    data_all_stable_2{sol_ind}.y=data_all{sol_ind}.y(stable_ind(1+stable_2_ind:end));
+                end
+                
+                unstable_ind=find(real(lambda_max_all{sol_ind}.y)>0);
+                if isempty(unstable_ind)
+                    data_all_unstable{sol_ind}.x=NaN;
+                    data_all_unstable{sol_ind}.y=NaN;
+                    data_all_unstable_2{sol_ind}.x=NaN; data_all_unstable_2{sol_ind}.y=NaN;
+                elseif isempty(find(diff(unstable_ind)>1))
+                    data_all_unstable{sol_ind}.x=data_all{sol_ind}.x(unstable_ind);
+                    data_all_unstable{sol_ind}.y=data_all{sol_ind}.y(unstable_ind);
+                    data_all_unstable_2{sol_ind}.x=NaN; data_all_unstable_2{sol_ind}.y=NaN;
+                else
+                    unstable_2_ind=find(diff(unstable_ind)>1);
+                    unstable_2_ind=unstable_2_ind(1);
+                    data_all_unstable{sol_ind}.x=data_all{sol_ind}.x(unstable_ind(1:unstable_2_ind));
+                    data_all_unstable{sol_ind}.y=data_all{sol_ind}.y(unstable_ind(1:unstable_2_ind));
+                    data_all_unstable_2{sol_ind}.x=data_all{sol_ind}.x(unstable_ind(1+unstable_2_ind:end));
+                    data_all_unstable_2{sol_ind}.y=data_all{sol_ind}.y(unstable_ind(1+unstable_2_ind:end));
+                end
+%                 if all(real(lambda_max{sol_ind}.y)>0)
+%                     %plot_config.user_color_style_marker_list{sol_ind}=[color_list{sol_ind},'--'];
+%                 elseif all(real(lambda_max{sol_ind}.y)<0)
+%                     %plot_config.user_color_style_marker_list{sol_ind}=[color_list{sol_ind},'-'];
+%                 else 
+%                     error('There is a transition of stability in parameter regime');
+%                 end
+            end
+            Nu_salt_finger_yang=dedalus_post_my{1,1}.get_Nu_salt_finger_yang();
+            plot_config.legend_list={1,'S2','A2','S2L','A3','S1','A1','S3'};
+            order=[5,1,7,3,6,2,4];%This will give S1, S2, S3, S2L, A1, A2, A3 order...
+            plot_config.legend_list(2:end)=plot_config.legend_list(order+1);
+            data_R_rho_T2S=[data_all_stable(order),data_all_stable_2(order),data_all_unstable(order),data_all_unstable_2(order)];
+            plot_config.user_color_style_marker_list={'-','-','-','-','-','-','-',...
+                                                    '-','-','-','-','-','-','-',...                                        
+                                                    ':',':',':',':',':',':',':',...
+                                                    ':',':',':',':',':',':',':'};
+            data_len=length(data_R_rho_T2S);
+            data_R_rho_T2S{data_len+1}.x=Nu_salt_finger_yang.Ra_T_1e5_Nu_S(:,1);
+            data_R_rho_T2S{data_len+1}.y=Nu_salt_finger_yang.Ra_T_1e5_Nu_S(:,2);
+            plot_config.user_color_style_marker_list{data_len+1}='k*';
+            plot_config.Markerindex=3;
+            plot_config.label_list={1,'$R_\rho$','$Sh$'};
+            plot_config.loglog=[1,1];
+            plot_config.ylim_list=[1,1,100];
+            plot_config.ytick_list=[1,1,2,5,10,20,50,100];
+            plot_config.xlim_list=[1,0.2,500];
+            plot_config.xtick_list=[1,0.1,1,10,100,500];
+            plot_config.linewidth=5;
+            plot_config.RGB={1,[0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0]};
+            plot_config.name=['C:\Figure\DDC_LST\',group_name,'_Sh_R_rho.png'];
+            plot_line(data_R_rho_T2S,plot_config);
+            
+            %plot the profile where the staircase solution gain stability
+            order=[5,1,7,3,6,2,4];%This will give S1, S2, S3, S2L, A1, A2, A3 order...
+%             R_rho_T2S_list=[30,40];
+%             for content_ind=1:size(dedalus_post_my,2)
+%                 R_rho_T2S_list_content=dedalus_post_my{1,content_ind}.;
+%             end
+            content_list=[16,17];%for R_rho_T2S=30 and 40
+            clear data;
+            plot_config.ylim_list=[1,0,1];
+            plot_config.xlim_list=0;
+            plot_config.xtick_list=0; plot_config.ytick_list=0
+            plot_config.loglog=[0,0];
+            plot_config.Markerindex=1;
+            for content_ind=content_list
+                %R_rho_T2S=R_rho_T2S_list(R_rho_T2S_ind);
+                %content_ind=find(abs(R_rho_T2S-R_rho_T2S_list_content)<0.01);
+                var_list={'S_0','S_hat','w_hat','u_tilde'};
+                xlabel_list={'$\bar{S}_0+z$','$\widehat{S}$','$\widehat{w}$','$\widetilde{u}$'};
+                R_rho_T2S=dedalus_post_my{14+1,content_ind}.Ra_T/dedalus_post_my{14+1,content_ind}.Ra_S2T;
+                plot_config.legend_list={1,'S1','S2','S3','S2L'};
+                for var_ind=1:length(var_list)
+                    var_name=var_list{var_ind};
+                    for slurm_ind=1:4
+                        if strcmp(var_list{var_ind},'S_0')
+                            data{slurm_ind}.x=dedalus_post_my{14+order(slurm_ind),content_ind}.(var_name)+dedalus_post_my{14+order(slurm_ind),1}.z_list; 
+                        else
+                            data{slurm_ind}.x=dedalus_post_my{14+order(slurm_ind),content_ind}.(var_name); 
+                        end
+                        data{slurm_ind}.y=dedalus_post_my{slurm_ind,1}.z_list;
+                    end
+%                     data=data(order);
+                    data_sym=data(1:4);
+%                     data_asym=data(5:end);
+                    plot_config.label_list={1,xlabel_list{var_ind},'$z$'};
+                    plot_config.print_size=[1,600,1100];
+                    plot_config.name=['C:\Figure\DDC_LST\',group_name,'_profile_sym_R_rho_S2T',num2str(R_rho_T2S),'_',var_name,'.png'];
+                    plot_config.fontsize_legend=37;
+                    plot_config.linewidth=5;
+                    if var_ind>1 %%get rid of y label and the legend
+                        plot_config.legend_list={0}; plot_config.label_list{3}='';
+                    end
+                    plot_line(data_sym,plot_config);
+
+                end
+            end
+            
+            
+        case 'HB_benard_salt_finger_tau'
+            for slurm_ind=1:size(dedalus_post_my,1)
+                for content_ind=1:size(dedalus_post_my,2)
+                    if ~isempty(dedalus_post_my{slurm_ind,content_ind})
+                        data{slurm_ind}.x(content_ind)=dedalus_post_my{slurm_ind,content_ind}.tau;
+                        data{slurm_ind}.y(content_ind)=abs(dedalus_post_my{slurm_ind,content_ind}.Nu_S(1));
+                        
+                        %Update 2022/03/02, remove all eigenvalues that are
+                        %particularly large. This is because we solve an
+                        %generalized eigenvalue problem, and some inf
+                        %eigenvalue may be not filtterd.... I should also
+                        %modify the eigenvectors...
+                        eig_inf_ind=find(real(dedalus_post_my{slurm_ind,content_ind}.eigenvalues)>10^6);
+                        dedalus_post_my{slurm_ind,content_ind}.eigenvalues(eig_inf_ind)=[];
+                        lambda_max{slurm_ind}.y(content_ind)=dedalus_post_my{slurm_ind,content_ind}.eigenvalues(1);
+                    end
+                end
+                %[~,ind]=sort(data{slurm_ind,:}.x);
+                %dedalus_post_my(slurm_ind,:)=dedalus_post_my(slurm_ind,ind);
+            end
+            sol_num=7;
+            for sol_ind=1:sol_num
+                %%combine the data that increase R_rho_S2T and decrease
+                %%R_rho_S2T
+                %data_all{sol_ind}.x=[data{sol_ind}.x,data{sol_ind+sol_num}.x,data{sol_ind+2*sol_num}.x];
+                %data_all{sol_ind}.y=[data{sol_ind}.y,data{sol_ind+sol_num}.y,data{sol_ind+2*sol_num}.y];
+                data_all{sol_ind}=data{sol_ind};
+                lambda_max_all{sol_ind}=lambda_max{sol_ind};
+                %lambda_max{sol_ind}.y=[lambda_max{sol_ind}.y,lambda_max{sol_ind+sol_num}.y,lambda_max{sol_ind+sol_num}.y,data{sol_ind+2*sol_num}.y];
+                
+                %sort data
+                [~,ind]=sort(data_all{sol_ind}.x);
+%                 ind=ind(2:end);
+                data_all{sol_ind}.x=data_all{sol_ind}.x(ind);
+                data_all{sol_ind}.y=data_all{sol_ind}.y(ind);
+                lambda_max_all{sol_ind}.x=data_all{sol_ind}.x;
+                lambda_max_all{sol_ind}.y=lambda_max_all{sol_ind}.y(ind);
+                unstable_ind=find(real(lambda_max_all{sol_ind}.y)>0);
+                if isempty(unstable_ind)
+                    data_all_unstable{sol_ind}.x=NaN;
+                    data_all_unstable{sol_ind}.y=NaN;
+                    data_all_unstable_2{sol_ind}.x=NaN;
+                    data_all_unstable_2{sol_ind}.y=NaN;
+                elseif isempty(find(diff(unstable_ind)>1))
+                    data_all_unstable{sol_ind}.x=data_all{sol_ind}.x(unstable_ind);
+                    data_all_unstable{sol_ind}.y=data_all{sol_ind}.y(unstable_ind);
+                    data_all_unstable_2{sol_ind}.x=NaN; data_all_unstable_2{sol_ind}.y=NaN;
+                else
+                    unstable_2_ind=find(diff(unstable_ind)>1);
+                    unstable_2_ind=unstable_2_ind(1);
+                    data_all_unstable{sol_ind}.x=data_all{sol_ind}.x(unstable_ind(1:unstable_2_ind));
+                    data_all_unstable{sol_ind}.y=data_all{sol_ind}.y(unstable_ind(1:unstable_2_ind));
+                    data_all_unstable_2{sol_ind}.x=data_all{sol_ind}.x(unstable_ind(1+unstable_2_ind:end));
+                    data_all_unstable_2{sol_ind}.y=data_all{sol_ind}.y(unstable_ind(1+unstable_2_ind:end));
+                end
+                
+                stable_ind=find(real(lambda_max_all{sol_ind}.y<=0));
+                if isempty(stable_ind)
+                    data_all_stable{sol_ind}.x=NaN;
+                    data_all_stable{sol_ind}.y=NaN;
+                    data_all_stable_2{sol_ind}.x=NaN;
+                    data_all_stable_2{sol_ind}.y=NaN;
+                elseif isempty(find(diff(stable_ind)>1))
+                    data_all_stable{sol_ind}.x=data_all{sol_ind}.x(stable_ind);
+                    data_all_stable{sol_ind}.y=data_all{sol_ind}.y(stable_ind);
+                    data_all_stable_2{sol_ind}.x=NaN; data_all_stable_2{sol_ind}.y=NaN;
+                else
+                    stable_2_ind=find(diff(stable_ind)>1);
+                    stable_2_ind=stable_2_ind(1);
+                    data_all_stable{sol_ind}.x=data_all{sol_ind}.x(stable_ind(1:stable_2_ind));
+                    data_all_stable{sol_ind}.y=data_all{sol_ind}.y(stable_ind(1:stable_2_ind));
+                    data_all_stable_2{sol_ind}.x=data_all{sol_ind}.x(stable_ind(1+stable_2_ind:end));
+                    data_all_stable_2{sol_ind}.y=data_all{sol_ind}.y(stable_ind(1+stable_2_ind:end));
+                end
+%                 if all(real(lambda_max{sol_ind}.y)>0)
+%                     %plot_config.user_color_style_marker_list{sol_ind}=[color_list{sol_ind},'--'];
+%                 elseif all(real(lambda_max{sol_ind}.y)<0)
+%                     %plot_config.user_color_style_marker_list{sol_ind}=[color_list{sol_ind},'-'];
+%                 else 
+%                     error('There is a transition of stability in parameter regime');
+%                 end
+            end
+            %Nu_salt_finger_yang=dedalus_post_my{1,1}.get_Nu_salt_finger_yang();
+            plot_config.legend_list={1,'S2','A2','S2L','A3','S1','A1','S3'};
+            order=[5,1,7,3,6,2,4];%This will give S1, S2, S3, S2L, A1, A2, A3 order...
+            plot_config.legend_list(2:end)=plot_config.legend_list(order+1);
+            data_tau=[data_all_stable(order),data_all_stable_2(order),data_all_unstable(order),data_all_unstable_2(order)];
+            plot_config.user_color_style_marker_list={'-','-','-','-','-','-','-',...
+                                                        '-','-','-','-','-','-','-',...                                          
+                                                        ':',':',':',':',':',':',':',...
+                                                      ':',':',':',':',':',':',':'};
+            %data_len=length(data_R_rho_T2S);
+            %data_R_rho_T2S{data_len+1}.x=Nu_salt_finger_yang.Ra_T_1e5_Nu_S(:,1);
+            %data_R_rho_T2S{data_len+1}.y=Nu_salt_finger_yang.Ra_T_1e5_Nu_S(:,2);
+            %plot_config.user_color_style_marker_list{data_len+1}='k*';
+            plot_config.Markerindex=3;
+            plot_config.label_list={1,'$\tau$','$Sh$'};
+            plot_config.loglog=[1,1];
+            plot_config.ylim_list=[1,1,100];
+            plot_config.ytick_list=[1,1,2,5,10,20,50,100];
+            plot_config.xlim_list=[1,0.01,1];
+            plot_config.xtick_list=[1,0.01,0.1,0.3,0.5,0.8,1];
+            plot_config.linewidth=5;
+            plot_config.RGB={1,[0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0],[1,0,0],[0,0,1],[0,1,1],[1,0,1],...
+                                [0.8500 0.3250 0.0980],[0,1,0],...
+                                [0,0,0]};
+            plot_config.name=['C:\Figure\DDC_LST\',group_name,'_Sh_tau.png'];
+            plot_line(data_tau,plot_config);
+            
+            
+            %----------
+            %plot the profile where the staircase solution gain stability
+%             R_rho_T2S_list=[30,40];
+%             for content_ind=1:size(dedalus_post_my,2)
+%                 R_rho_T2S_list_content=dedalus_post_my{1,content_ind}.;
+%             end
+%             content_list=[11];%for R_rho_T2S=30 and 40
+            
+            clear data;
+%             plot_config.legend_list=plot_config.legend_list(1:5);
+            plot_config.ylim_list=[1,0,1];
+            plot_config.xlim_list=0;
+            plot_config.xtick_list=0; plot_config.ytick_list=0
+            plot_config.loglog=[0,0];
+            plot_config.Markerindex=1;
+            
+            tau=0.18;
+            order=[5,1,7,3,6,2,4];%This will give S1, S2, S3, S2L, A1, A2, A3 order...
+            content_list=[11,11,10,11];%This make sure dedalus_post_my{order(slurm_ind),content_list(slurm_ind)} gives the right tau=0.18
+            %R_rho_T2S=R_rho_T2S_list(R_rho_T2S_ind);
+            %content_ind=find(abs(R_rho_T2S-R_rho_T2S_list_content)<0.01);
+            var_list={'S_0','S_hat','w_hat','u_tilde'};
+            xlabel_list={'$\bar{S}_0+z$','$\widehat{S}$','$\widehat{w}$','$\widetilde{u}$'};
+            %R_rho_T2S=dedalus_post_my{14+1,content_ind}.Ra_T/dedalus_post_my{14+1,content_ind}.Ra_S2T;
+            plot_config.legend_list={1,'S1','S2','S3','S2L'};
+            for var_ind=1:length(var_list)
+                var_name=var_list{var_ind};
+                for slurm_ind=1:4
+                    if strcmp(var_list{var_ind},'S_0')
+                        data{slurm_ind}.x=dedalus_post_my{order(slurm_ind),content_list(slurm_ind)}.(var_name)+dedalus_post_my{order(slurm_ind),1}.z_list; 
+                    else
+                        data{slurm_ind}.x=dedalus_post_my{order(slurm_ind),content_list(slurm_ind)}.(var_name); 
+                    end
+                    data{slurm_ind}.y=dedalus_post_my{slurm_ind,1}.z_list;
+                end
+%                     data=data(order);
+                data_sym=data(1:4);
+%                     data_asym=data(5:end);
+                plot_config.label_list={1,xlabel_list{var_ind},'$z$'};
+                plot_config.print_size=[1,600,1100];
+                plot_config.name=['C:\Figure\DDC_LST\',group_name,'_profile_sym_tau',num2str(tau),'_',var_name,'.png'];
+                plot_config.fontsize_legend=37;
+                plot_config.linewidth=5;
+                if var_ind>1 %%get rid of y label and the legend
+                    plot_config.legend_list={0}; plot_config.label_list{3}='';
+                end
+                plot_line(data_sym,plot_config);
+
+            end
+
+            
+                
             
         case 'trevisan_tau'
             for slurm_ind=1:size(dedalus_post_my,1)

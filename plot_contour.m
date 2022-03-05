@@ -95,9 +95,20 @@ switch plot_config.panel_num
             %daspect([1,1,1]); %%This is no necessary. Fix 2020/09/28, and
             %it will make some figure confusing and not consistent...
          elseif plot_config.streamline==1
-             lineobj=streamslice(data{2}.x, data{2}.y, data{2}.u, data{2}.v);
-             set(lineobj,'Linewidth',1);
-             set(lineobj,'MarkerSize',2);
+             lineobj=streamslice(data{2}.x, data{2}.y, data{2}.u, data{2}.v,'noarrow');
+             %lineobj=quiver(data{2}.x, data{2}.y, data{2}.u, data{2}.v);
+             for line_ind=1:length(lineobj)
+                if all(lineobj(line_ind).XData<pi)
+                    lineobj(line_ind).Color=[0,0,0];
+                    lineobj(line_ind).LineStyle='--';
+                else
+                    lineobj(line_ind).Color=[0,0,1];
+                    lineobj(line_ind).LineStyle='-';
+                end
+                set(lineobj,'Linewidth',3);
+%                 set(lineobj,'Color',[0,0,0]);
+%                 set(lineobj,'MarkerSize',2);
+             end
          end
      end
     if length(data)>plot_config.panel_num
