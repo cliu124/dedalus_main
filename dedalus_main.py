@@ -346,8 +346,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
     flag.Nx=Lx2d*16
     flag.Nz=Lz2d*16
     u_L=0
-    flag.initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
-
+    #flag.initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
+    flag.initial_dt=0.01
     if flag.flow_sub_double_diffusive_shear_2D == 'primitive_Radko2013':
         ##parameter for Radko (2013) type
         Pr=10

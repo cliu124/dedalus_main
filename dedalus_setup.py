@@ -297,6 +297,16 @@ class flag(object):
             #Update 2021/09/12, change the language to specify the background shear
             #test whether these amplitude of shear is zero....
             
+            
+            #get the index of the z_basis
+            if self.z_bc_u_v_left=='periodic' and self.z_bc_T_left=='periodic' and \
+                self.z_bc_S_left=='periodic' and self.z_bc_w_left=='periodic' and \
+                self.z_bc_u_v_right=='periodic' and self.z_bc_T_right=='periodic' and \
+                self.z_bc_S_right=='periodic' and self.z_bc_w_right=='periodic':
+                z_basis_mode='Fourier'
+            else:
+                z_basis_mode='Chebyshev'
+                
             ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
             #firstly set up the x-momentum equation. if Re=0, then no inertial term
             #Also it needs to distinguish whether we have shear driven by body force or not
@@ -337,8 +347,14 @@ class flag(object):
                 problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
 
             #divergence free and pressure gauge
-            problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
-            problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+            if z_basis_mode=='Fourier':
+                problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
+                problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+            elif z_basis_mode=='Chebyshev':
+                problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
+                problem.add_equation("p=0",condition="(nx==0)")
+            
+            
             if self.Pe_T == 0:
                 #no inertial term in the temperature
                 problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
