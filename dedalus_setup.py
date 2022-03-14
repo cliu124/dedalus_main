@@ -277,7 +277,7 @@ class flag(object):
         elif self.flow in ['double_diffusive_shear_2D']:
             #This is using the unified formulation, where the velocity and length scale are arbitrary or determined by shear
             
-            problem = de.IVP(domain,variables=['p','u','w','S','T'])
+            problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
             problem.parameters['Re']=self.Re
             problem.parameters['Pe_T']=self.Pe_T
             problem.parameters['Pe_S']=self.Pe_S
