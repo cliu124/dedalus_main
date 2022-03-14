@@ -133,7 +133,7 @@ slurm_num={'12073090',... %%IFSC, without shear, 32*32, A_elevator=1, A_noise=0
 %     '12089742',...
 %---Update simulation results for the bounded salt-finger to validate the
 %staircase solutions
-slurm_num={'13284451'};
+slurm_num={'13287271'};
 flag.print=1;
 flag.video=0;
 flag.visible=1;
@@ -150,21 +150,21 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('rho');
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_fluctuation_x_ave();
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_fluctuation_x_ave();
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');

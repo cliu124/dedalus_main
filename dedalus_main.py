@@ -491,7 +491,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pr=7
         flag.tau=0.03
         R_rho_T2S=20
-        flag.initial_dt=0.001
+        flag.initial_dt=0.01
         
         
         #map to the extended parameter in double_diffusive_shear_2D
@@ -509,8 +509,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_final
         flag.Lz=1
-        flag.Nx=128
-        flag.Nz=256
+        flag.Nx=64
+        flag.Nz=128
          
         flag.dy_T_mean=1
         flag.dy_S_mean=1
