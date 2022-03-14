@@ -21,18 +21,19 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
-flag.flow='HB_benard'
+#flag.flow='HB_benard'
 #flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
-#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
-flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
-flag.flow_sub_double_diffusive_shear_2D='IFSC'
-flag.flow_sub_double_diffusive_shear_2D='MRBC'
-flag.flow_sub_double_diffusive_shear_2D='Stokes'
-flag.flow_sub_double_diffusive_shear_2D='primitive_IFSC_unit_tuS'
-flag.flow_sub_double_diffusive_shear_2D='shear_Radko2016'
-flag.shear_Radko2016_reduced='primitive'
+flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
+#flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
+#flag.flow_sub_double_diffusive_shear_2D='IFSC'
+#flag.flow_sub_double_diffusive_shear_2D='MRBC'
+#flag.flow_sub_double_diffusive_shear_2D='Stokes'
+#flag.flow_sub_double_diffusive_shear_2D='primitive_IFSC_unit_tuS'
+#flag.flow_sub_double_diffusive_shear_2D='shear_Radko2016'
+#flag.shear_Radko2016_reduced='primitive'
 
 
 if flag.flow=='HB_porous':
@@ -485,6 +486,51 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_shear=1
         #flag.A_elevator=0.1
         #flag.k_elevator=0.5
+    elif flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
+        ##parameter for Radko (2013) type
+        Pr=7
+        tau=0.03
+        R_rho_T2S=20
+        flag.initial_dt=0.001
+        
+        
+        #map to the extended parameter in double_diffusive_shear_2D
+        flag.Re=1/Pr
+        flag.Pe_T=1
+        flag.Pe_S=1
+        flag.tau=tau #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=10**5
+        flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+        
+        #I need to overwrite these domain setup here
+        Ra_S=flag.Ra_S2T/flag.tau
+        kx_final=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+
+        Lx2d=1
+        flag.Lx=Lx2d*2*np.pi/kx_final
+        flag.Lz=1
+        flag.Nx=128
+        flag.Nz=256
+         
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
+        
+        flag.z_bc_u_v_left='dirichlet' #This can be periodic, dirichlet, or neumann
+        flag.z_bc_T_left='dirichlet'
+        flag.z_bc_S_left='dirichlet'
+        flag.z_bc_w_left='dirichlet'
+        flag.z_bc_u_v_right='dirichlet' #This can be periodic, dirichlet, or neumann
+        flag.z_bc_T_right='dirichlet'
+        flag.z_bc_S_right='dirichlet'
+        flag.z_bc_w_right='dirichlet'
+        
+        flag.A_elevator=1
+        flag.k_elevator=1
+        
+        flag.A_secondary_T=0.1
+        flag.k_secondary_T=0.5
+        
+        
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
 #--------------setup the background shear
@@ -510,13 +556,25 @@ if flag.flow in ['HB_benard_shear']:
 elif flag.flow in ['HB_benard']:
     flag.post_store_dt=10**3/flag.Ra_T
     flag.stop_sim_time=10**7/flag.Ra_T
+elif flag.flow == 'double_diffusive_shear_2D':
+    if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
+        flag.post_store_dt=0.01
+        flag.stop_sim_time=100
+        
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;
     flag.stop_sim_time=0.00001/flag.Ra_T;
 
-#------------ print these parameters in the screen
+domain=flag.build_domain()
+solver=flag.governing_equation(domain)
+flag.print_screen(logger)
+flag.initial_condition(domain,solver)
+flag.post_store(solver)
+flag.print_file() #move print file to here.
+flag.run(solver,domain,logger)
+flag.post_store_after_run(solver)
 
-      
+#------------ print these parameters in the screen
 #flag.ky=flag.kx                        
 #Ra_T_list=[10000,20000,40000]
 #np.linspace(0,20000,21)
@@ -543,8 +601,11 @@ else:
 #for R_rho_S2T in [0,0.1,0.2,0.3,0.4]:
     #flag.Ra_S2T=R_rho_S2T*flag.Ra_T
     
+  
+#--------Loop for solving the boundary value problem    
 #This is the loop for the Yang (2015) comparison of bounded salt finger    
 #for R_rho_T2S in [10,5,2,1,0.5,0.2,0.1]:    
+"""
 for R_rho_T2S in [2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10]:#[10,5,2,1,0.5,0.2,0.1]
 #for R_rho_T2S in [2,1.8,1.6,1.4,1.3,1,0.8,0.6,0.4,0.2,0.1]:
     flag.Ra_S2T=flag.Ra_T/R_rho_T2S #10^6, 2*10^6, 5*10^6, 10^7, 2*10^7, 5*10^7, 10^8
@@ -570,7 +631,7 @@ for R_rho_T2S in [2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10]:#[10,5,2,1
     flag.run(solver,domain,logger)
     flag.post_store_after_run(solver)
     flag.continuation=flag.continuation+1
-
+"""
 
 ##Old one try different B.C. and second harmonic
 #---------main loop to run the dedalus 

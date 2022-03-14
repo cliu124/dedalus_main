@@ -21,10 +21,10 @@ close all;
 % group_name='hewitt_2_layer_Omega';
 % group_name='HB_porous_kx';
 % group_name='HB_benard_salt_finger_R_rho_T2S';
-group_name='HB_benard_salt_finger_tau';
+% group_name='HB_benard_salt_finger_tau';
 % group_name='HB_benard_salt_finger_kx'
 % group_name='HB_benard_salt_finger_profile_S1_yang';
-% group_name = 'HB_benard_salt_finger_profile';
+group_name = 'HB_benard_salt_finger_profile';
 % group_name='HB_benard_diffusive_kx';
 %All of these are for porous media
 switch group_name
@@ -323,7 +323,7 @@ switch group_name
         
 end
 
-flag.print=1;
+flag.print=0;
 flag.visible=0;
 flag.video=0;
 flag.no_ylabel=0;

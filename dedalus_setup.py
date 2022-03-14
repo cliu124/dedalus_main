@@ -156,9 +156,10 @@ class flag(object):
                 self.z_bc_S_right=='periodic' and self.z_bc_w_right=='periodic':
                 #if all B.C. are periodic, then just use Fourier mode in vertical
                 z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
+                print('Fourier basis in the vertical z direction')
             else: 
                 z_basis = de.Chebyshev('z', self.Nz, interval=(0,self.Lz), dealias=2)
-
+                print('Chebyshev basis in the vertical z direction')
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         
         #For Harmonic balance method. Chebyshev in the vertical
@@ -352,9 +353,16 @@ class flag(object):
             if self.z_bc_w_left=='dirichlet':
                 problem.add_bc("left(w)=0")
                 print("Dirichlet for w left")
+            elif self.z_bc_w_left=='neumann':
+                problem.add_bc("left(d_w)=0")
+                print("Neumann for w left")
+                
             if self.z_bc_w_right=='dirichlet':
-                problem.add_bc("right(d_w)=0")
+                problem.add_bc("right(w)=0")
                 print("Dirichlet for w right")
+            elif self.z_bc_W_right=='neumann':
+                problem.add_bc("right(d_w)=0")
+                print("Neumann for w right")
             
             if self.z_bc_w_left=='periodic' and self.z_bc_w_right=='periodic':
                 print('Periodic for w')
