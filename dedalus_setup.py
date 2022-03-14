@@ -306,7 +306,7 @@ class flag(object):
                     problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="(nx!=0) or (nz!=0)")
                     problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                 else:
-                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u) ) + dx(p) = Re*( -u*dx(u)-w*d_u")
+                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)")
             else:
                 print('with shear')
                 ##specify the background shear... this is kolmogorov type shear... 
@@ -334,7 +334,7 @@ class flag(object):
                 #no inertial term in the momentum
                 problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
             else:
-                problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*( -u*dx(w)-w*d_w )")
+                problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
 
             #divergence free and pressure gauge
             problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
