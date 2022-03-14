@@ -102,7 +102,7 @@ class flag(object):
         self.z_bc_T_right='periodic'
         self.z_bc_S_right='periodic'
         self.z_bc_w_right='periodic'
-        
+        self.z_basis_mode='Fourier'
         
         #flag for the time stepper.. default value
         self.timesteppers='RK443'
@@ -155,9 +155,11 @@ class flag(object):
                 self.z_bc_u_v_right=='periodic' and self.z_bc_T_right=='periodic' and \
                 self.z_bc_S_right=='periodic' and self.z_bc_w_right=='periodic':
                 #if all B.C. are periodic, then just use Fourier mode in vertical
+                self.z_basis_mode='Fourier'
                 z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
                 print('Fourier basis in the vertical z direction')
             else: 
+                self.z_basis_mode='Chebyshev'
                 z_basis = de.Chebyshev('z', self.Nz, interval=(0,self.Lz), dealias=2)
                 print('Chebyshev basis in the vertical z direction')
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
@@ -299,13 +301,13 @@ class flag(object):
             
             
             #get the index of the z_basis
-            if self.z_bc_u_v_left=='periodic' and self.z_bc_T_left=='periodic' and \
-                self.z_bc_S_left=='periodic' and self.z_bc_w_left=='periodic' and \
-                self.z_bc_u_v_right=='periodic' and self.z_bc_T_right=='periodic' and \
-                self.z_bc_S_right=='periodic' and self.z_bc_w_right=='periodic':
-                z_basis_mode='Fourier'
-            else:
-                z_basis_mode='Chebyshev'
+            # if self.z_bc_u_v_left=='periodic' and self.z_bc_T_left=='periodic' and \
+            #     self.z_bc_S_left=='periodic' and self.z_bc_w_left=='periodic' and \
+            #     self.z_bc_u_v_right=='periodic' and self.z_bc_T_right=='periodic' and \
+            #     self.z_bc_S_right=='periodic' and self.z_bc_w_right=='periodic':
+            #     z_basis_mode='Fourier'
+            # else:
+            #     z_basis_mode='Chebyshev'
                 
             ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
             #firstly set up the x-momentum equation. if Re=0, then no inertial term
@@ -347,10 +349,10 @@ class flag(object):
                 problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
 
             #divergence free and pressure gauge
-            if z_basis_mode=='Fourier':
+            if self.z_basis_mode=='Fourier':
                 problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
                 problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-            elif z_basis_mode=='Chebyshev':
+            elif self.z_basis_mode=='Chebyshev':
                 problem.add_equation("dx(u)+d_w=0")
                 #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
                 #problem.add_equation("p=0",condition="(nx==0)")

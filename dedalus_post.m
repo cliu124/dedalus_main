@@ -129,6 +129,7 @@ classdef dedalus_post
         z_bc_T_right='dirichlet';
         z_bc_S_right='dirichlet';
         
+        z_basis_mode='Fourier';
         timesteppers='RK443';%
         analysis=0;%
         solver=0;
@@ -270,8 +271,9 @@ classdef dedalus_post
             
             obj.t_list=h5read_complex(h5_name,'/scales/sim_time');
             obj.kx_list=h5read_complex(h5_name,'/scales/kx');
-            obj.kz_list=h5read_complex(h5_name,'/scales/kz');
-            
+            if strcmp(obj.z_basis_mode,'Fourier')
+                obj.kz_list=h5read_complex(h5_name,'/scales/kz');
+            end
             %be careful about this in computing Lx and Lz
             obj.Lx=max(obj.x_list)-min(obj.x_list)+obj.x_list(2);
             obj.Lz=max(obj.z_list)-min(obj.z_list)+obj.z_list(2);

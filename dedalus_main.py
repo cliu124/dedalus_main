@@ -368,8 +368,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_elevator=1
         flag.k_elevator=1
         
-        flag.A_secondary_T=0.1
-        flag.k_secondary_T=0.5
+        #flag.
+        #flag.A_secondary_T=0.1
         
     elif flag.flow_sub_double_diffusive_shear_2D == 'primitive_IFSC_unit_tuS':
         ##parameter for primitive equations
@@ -488,17 +488,17 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.k_elevator=0.5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         ##parameter for Radko (2013) type
-        Pr=7
-        tau=0.03
+        flag.Pr=7
+        flag.tau=0.03
         R_rho_T2S=20
         flag.initial_dt=0.001
         
         
         #map to the extended parameter in double_diffusive_shear_2D
-        flag.Re=1/Pr
+        flag.Re=1/flag.Pr
         flag.Pe_T=1
         flag.Pe_S=1
-        flag.tau=tau #Set this as zero if remove salinity diffusivity
+        #flag.tau=tau #Set this as zero if remove salinity diffusivity
         flag.Ra_T=10**5
         flag.Ra_S2T=flag.Ra_T/R_rho_T2S
         
@@ -524,11 +524,12 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.z_bc_S_right='dirichlet'
         flag.z_bc_w_right='dirichlet'
         
-        flag.A_elevator=1
+        flag.A_elevator=0
         flag.k_elevator=1
         
-        flag.A_secondary_T=0.1
-        flag.k_secondary_T=0.5
+        flag.A_noise=0.001
+        flag.A_secondary_S=-0.5
+        flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
         
         
     else:
@@ -559,7 +560,7 @@ elif flag.flow in ['HB_benard']:
 elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         flag.post_store_dt=0.01
-        flag.stop_sim_time=100
+        flag.stop_sim_time=1
         
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;
