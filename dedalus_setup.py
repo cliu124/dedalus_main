@@ -351,8 +351,9 @@ class flag(object):
                 problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
                 problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
             elif z_basis_mode=='Chebyshev':
-                problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
-                problem.add_equation("p=0",condition="(nx==0)")
+                problem.add_equation("dx(u)+d_w=0")
+                #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
+                #problem.add_equation("p=0",condition="(nx==0)")
             
             
             if self.Pe_T == 0:
@@ -374,7 +375,11 @@ class flag(object):
                 print("Neumann for w left")
                 
             if self.z_bc_w_right=='dirichlet':
-                problem.add_bc("right(w)=0")
+                if self.z_bc_w_left=='dirichlet':
+                    problem.add_bc("right(w)=0",condition="(nx!=0)")
+                    problem.add_equation("right(p)=0",condition="(nx==0)")
+                else:
+                    problem.add_bc("right(w)=0")
                 print("Dirichlet for w right")
             elif self.z_bc_W_right=='neumann':
                 problem.add_bc("right(d_w)=0")
