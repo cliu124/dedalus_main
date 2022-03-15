@@ -489,8 +489,10 @@ elif flag.flow == 'double_diffusive_shear_2D':
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         ##parameter for Radko (2013) type
         flag.Pr=7
-        flag.tau=0.02944
-        R_rho_T2S=20
+        #flag.tau=0.02944
+        #R_rho_T2S=20
+        flag.tau=0.01
+        R_rho_T2S=40
         flag.initial_dt=0.01
         
         
@@ -527,7 +529,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_elevator=0
         flag.k_elevator=1
         
-        flag.A_noise=0.001
+        flag.A_noise=0
         flag.A_secondary_S=0.5
         flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
         

@@ -133,7 +133,7 @@ slurm_num={'12073090',... %%IFSC, without shear, 32*32, A_elevator=1, A_noise=0
 %     '12089742',...
 %---Update simulation results for the bounded salt-finger to validate the
 %staircase solutions
-slurm_num={'13292401'};
+slurm_num={'13294464'};
 flag.print=1;
 flag.video=0;
 flag.visible=1;
