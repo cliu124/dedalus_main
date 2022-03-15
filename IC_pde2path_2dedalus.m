@@ -101,8 +101,8 @@ for field_ind=1:length(field_list)
     obj_dedalus.(field)=h5read(h5_name,['/tasks/',field]);
 end
 
-plot(obj_dedalus.z_list,obj_dedalus.S_0,'r-'); hold on;
-plot(obj_pde2path.z_list,obj_pde2path.S_0,'b--');
+% plot(obj_dedalus.z_list,obj_dedalus.S_0,'r-'); hold on;
+% plot(obj_pde2path.z_list,obj_pde2path.S_0,'b--');
 
 
 
