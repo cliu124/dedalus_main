@@ -489,7 +489,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         ##parameter for Radko (2013) type
         flag.Pr=7
-        flag.tau=0.03
+        flag.tau=0.02944
         R_rho_T2S=20
         flag.initial_dt=0.01
         
@@ -507,7 +507,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         kx_final=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
 
         Lx2d=1
-        flag.Lx=Lx2d*2*np.pi/kx_final
+        flag.Lx=4*Lx2d*2*np.pi/(kx_final*np.sqrt(2))
         flag.Lz=1
         flag.Nx=64
         flag.Nz=128
@@ -528,7 +528,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.k_elevator=1
         
         flag.A_noise=0.001
-        flag.A_secondary_S=-0.5
+        flag.A_secondary_S=0.5
         flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
         
         
@@ -559,8 +559,8 @@ elif flag.flow in ['HB_benard']:
     flag.stop_sim_time=10**7/flag.Ra_T
 elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
-        flag.post_store_dt=0.01
-        flag.stop_sim_time=1
+        flag.post_store_dt=0.1
+        flag.stop_sim_time=10
         
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;

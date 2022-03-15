@@ -1,0 +1,48 @@
+clear all;
+close all;
+clc
+
+group_name='HB_benard_salt_finger_tau';
+%This is just plot the profile for specific Ra_S2T....
+branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
+switch group_name
+    case 'HB_benard_salt_finger_Ra_S2T'
+%         point_list=[1/40,0.1,0.2,0.5,1,2,5,10]*10^5;
+        Ra_T=10^5;
+        point_list=[1/40,0]*Ra_T;
+    
+%         folder_name='pde2path_13266198/salt_finger_Ra_S2T';
+        folder_name='salt_finger_Ra_S2T';
+        point_ind=4;
+        point_plot=[1,2];
+    case 'HB_benard_salt_finger_tau'
+%         point_list=1./[0.5,1/3,0.33:-0.02:0.01];
+        point_list=[3];
+%         folder_name='pde2path_13266199/salt_finger_tau';
+%         folder_name='salt_finger_tau';
+        folder_name='salt_finger_tau_low_Ra_S2T_Nu';
+        point_ind=5;
+        point_plot=1;
+end
+my.folder_name=['C:/Data/pde2path/HB_benard_cheb/',folder_name,'/'];
+for branch_ind=2
+    branch_name=branch_name_list{branch_ind};
+    node_name=get_node_name([my.folder_name,branch_name,'/']);
+    load([my.folder_name,branch_name,'/',node_name.pt_last]);
+    %data_branch{branch_ind}=p.branch;
+    for pt_ind=1:length(node_name.pt_list)
+        if any(abs(point_list-point)<0.01)
+
+            branch_name=branch_name_list{branch_ind};
+            p.my.folder_name=my.folder_name;
+            p.my.plot_config.visible=0;
+            p.my.plot_config.no_ylabel=1;
+            p.my.plot_config.branch_name=branch_name;
+            p.my.plot_config.point_name=node_name.pt_list{pt_ind}(1:end-4);
+            p=userplot(p);
+        end
+    end
+end
+
+h5_name='analysis_s1.h5';
+

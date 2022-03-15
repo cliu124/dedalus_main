@@ -133,7 +133,7 @@ slurm_num={'12073090',... %%IFSC, without shear, 32*32, A_elevator=1, A_noise=0
 %     '12089742',...
 %---Update simulation results for the bounded salt-finger to validate the
 %staircase solutions
-slurm_num={'13287271'};
+slurm_num={'13292401'};
 flag.print=1;
 flag.video=0;
 flag.visible=1;
@@ -155,6 +155,8 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('rho');
