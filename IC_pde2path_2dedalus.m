@@ -68,8 +68,11 @@ for branch_ind=[1,2,3]
                 field=field_list{field_ind};
                 obj_dedalus{ind}.(field)=chebint([0;obj_pde2path{ind}.(field);0],obj_dedalus{ind}.z_list_cheb);
             end
-            kx=obj_pde2path{ind}.kx*sqrt(2);
-            x=obj_dedalus{ind}.x_list';
+            kx_final=obj_pde2path{ind}.kx;
+            kx=kx_final*sqrt(2);
+            Lx_old=obj_dedalus{ind}.x_list(end)+obj_dedalus{ind}.x_list(2);
+            Lx_new=4*2*pi/(kx_final*sqrt(2));
+            x=obj_dedalus{ind}.x_list'/Lx_old*Lx_new;
 
             field_list={'u','d_u','w','d_w','p','T','S','d_T','d_S'};
             for field_ind=1:length(field_list)
