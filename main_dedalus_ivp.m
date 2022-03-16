@@ -158,6 +158,28 @@ slurm_num={'13294930',...
 %         '13299150','13299151','13299152',... %Ra_S2T=2500
 %         '13299153','13299154','13299155',...%Ra_S2T=2600
 %         };
+
+slurm_num={'13298996','13299000',...%Ra_S2T=1300,  %,'13299001'...
+        '13299003','13299004',... Ra_S2T=1400
+        '13299009','13299010',... %Ra_S2T=1500
+        '13299011','13299015',... %Ra_S2T=1600
+        '13299016','13299017',... %Ra_S2T=1700
+        '13299019','13299023',... %Ra_S2T=1800
+            };
+slurm_num={'13299009','13299010',... Ra_S2T=1500
+        '13299054','13299056','13299062'...Ra_S2T=2000
+        };
+%The correct wavenumber pair and domain size Lx2d=4, four finger pairs
+% slurm_num={'13299208','13299209'}
+slurm_num={'13299208','13299209',... Ra_S2T=1500
+        '13299210','13299211','13299212',...Ra_S2T=2000
+        '13299322','13299323','13299324',...Ra_S2T=2500
+        '13299325','13299326','13299327',...Ra_S2T=3000
+        };
+
+ %The correct wavenumber pair and domain size Lx2d=1, one finger pair
+slurm_num={};
+
 flag.print=1;
 flag.video=0;
 flag.visible=1;
@@ -178,8 +200,8 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
 

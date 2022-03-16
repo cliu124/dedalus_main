@@ -509,7 +509,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         kx_final=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
 
         Lx2d=1
-        flag.Lx=4*Lx2d*2*np.pi/(kx_final*np.sqrt(2))
+        flag.Lx=Lx2d*2*np.pi/(kx_final*np.sqrt(2))
         flag.Lz=1
         flag.Nx=64
         flag.Nz=128
@@ -561,8 +561,8 @@ elif flag.flow in ['HB_benard']:
     flag.stop_sim_time=10**7/flag.Ra_T
 elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
-        flag.post_store_dt=0.1
-        flag.stop_sim_time=40
+        flag.post_store_dt=1
+        flag.stop_sim_time=80
         
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;

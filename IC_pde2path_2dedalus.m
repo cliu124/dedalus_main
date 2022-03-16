@@ -71,7 +71,9 @@ for branch_ind=[1,2,3]
             kx_final=obj_pde2path{ind}.kx;
             kx=kx_final*sqrt(2);
             Lx_old=obj_dedalus{ind}.x_list(end)+obj_dedalus{ind}.x_list(2);
-            Lx_new=4*2*pi/(kx_final*sqrt(2));
+            
+            Lx2d=1;
+            Lx_new=Lx2d*2*pi/(kx_final*sqrt(2));
             x=obj_dedalus{ind}.x_list'/Lx_old*Lx_new;
 
             field_list={'u','d_u','w','d_w','p','T','S','d_T','d_S'};
@@ -90,14 +92,14 @@ for branch_ind=[1,2,3]
             obj_dedalus{ind}.d_T(:,:,end)=obj_dedalus{ind}.d_T_0*ones(size(x))+2*real(obj_dedalus{ind}.d_T_hat*exp(1i*kx*x));
             obj_dedalus{ind}.d_S(:,:,end)=obj_dedalus{ind}.d_S_0*ones(size(x))+2*real(obj_dedalus{ind}.d_S_hat*exp(1i*kx*x));
 
-            h5_name='analysis_s1_Nx64_Nz128.h5';
+            h5_name=['analysis_s1_Nx64_Nz128.h5'];
             % field_list={'u','d_u','w','d_w','p','T','S','d_T','d_S'};
             for field_ind=1:length(field_list)
                 field=field_list{field_ind};
                 h5write(h5_name,['/tasks/',field],obj_dedalus{ind}.(field));
             end
             h5_name_destination=['./IC/tau_0p01_Ra_S2T',num2str(point_list(ind)),'/'...
-                h5_name(1:end-3),strrep(branch_name,'/','_'),'.h5'];
+                h5_name(1:end-3),strrep(branch_name,'/','_'),'_Lx2d',num2str(Lx2d),'.h5'];
             copyfile(h5_name,h5_name_destination);
         end
     end
