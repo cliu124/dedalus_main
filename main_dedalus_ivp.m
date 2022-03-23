@@ -176,10 +176,16 @@ slurm_num={'13299208','13299209',... Ra_S2T=1500
         '13299322','13299323','13299324',...Ra_S2T=2500
         '13299325','13299326','13299327',...Ra_S2T=3000
         };
+    
+% 
+%  %The correct wavenumber pair and domain size Lx2d=1, one finger pair
+% slurm_num={'13299383','13299384',... Ra_S2T=1500
+%            '13299385','13299387','13299388',... Ra_S2T=2000
+%            '13299389','13299390','13299391',... Ra_S2T=2500
+%            '13299393','13299394','13299395',... Ra_S2T=3000
+%            };
 
- %The correct wavenumber pair and domain size Lx2d=1, one finger pair
-slurm_num={};
-
+slurm_num={'13299932'};
 flag.print=1;
 flag.video=0;
 flag.visible=1;
@@ -218,8 +224,9 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');
+     dedalus_post_my{slurm_ind}.video=1;
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot');
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_laminar();
 

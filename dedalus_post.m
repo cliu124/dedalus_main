@@ -83,6 +83,10 @@ classdef dedalus_post
         p;
         u_fluctuation; %%this minus the laminar base flow
         
+        S_tot;
+        T_tot;
+        
+        
         S_coeff; %%fourier coefficient of S
         w_coeff; %%fourier coefficient of u
         u_coeff; %%fourier coefficient of w
@@ -740,21 +744,45 @@ classdef dedalus_post
         
         function obj=snapshot(obj,variable_name)
             %%plot the snapshot of salinity and generate video if any
-            obj.S=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
-
-            variable_max=max(max(max(obj.(variable_name))));
-            variable_min=min(min(min(obj.(variable_name))));
+            z_mesh=obj.z_list*ones(1,length(obj.x_list));
+            if strcmp(variable_name,'S_tot')
+                obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/','S'])...
+                    +obj.dy_S_mean*z_mesh
+                if obj.dy_S_mean==-1
+                    obj.(variable_name)=obj.(variable_name)+1;
+                end
+                plot_config.colormap='jet';%bluewhitered
+                plot_config.zlim_list=[1,0,1];
+                plot_config.ztick_list=[1,0,0.2,0.4,0.6,0.8,1];
+            elseif strcmp(variable_name,'T_tot')
+                obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/','T'])...
+                    +obj.dy_T_mean*z_mesh;
+                if obj.dy_T_mean==-1
+                    obj.(variable_name)=obj.(variable_name)+1;
+                end
+                plot_config.colormap='jet';%bluewhitered
+                plot_config.zlim_list=[1,0,1];
+                plot_config.ztick_list=[1,0,0.2,0.4,0.6,0.8,1];
+            else
+                obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                background=0*z_mesh;
+                plot_config.colormap='bluewhitered';%bluewhitered
+                variable_max=max(max(max(obj.(variable_name))));
+                variable_min=min(min(min(obj.(variable_name))));
+                plot_config.zlim_list=[1,variable_min,variable_max];
+            end
+            
             if obj.video
                 for t_ind=1:length(obj.t_list)
                     data{1}.z=obj.(variable_name)(:,:,t_ind);
-
+                    
                     data{1}.x=obj.x_list;
                     data{1}.y=obj.z_list;
                     plot_config.label_list={1,'$x$','$z$'};
 
                     plot_config.fontsize=28;
-                    plot_config.zlim_list=[1,variable_min,variable_max];
-                    plot_config.colormap='bluewhitered';%bluewhitered
+                    plot_config.ylim_list=[1,0,1];
+                    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
                     plot_config.print_size=[1,1200,1200];
                     plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
                     plot_config.print=obj.print;

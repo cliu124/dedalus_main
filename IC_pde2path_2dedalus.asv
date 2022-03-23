@@ -18,8 +18,7 @@ switch group_name
         point_ind=4;
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
-        Lx2d=4;
-        
+
     case 'HB_benard_salt_finger_Ra_S2T_hopf'
         Ra_T=10^5;
         point_list=Ra_T;
@@ -27,7 +26,7 @@ switch group_name
         point_ind=4;
         IC_write_folder_name='./IC/tau_0p33_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt2/hpt1'};%,'tr/bpt4'
-        Lx2d=4;
+
 
     case 'HB_benard_salt_finger_tau'
 %         point_list=1./[0.5,1/3,0.33:-0.02:0.01];
@@ -37,7 +36,7 @@ switch group_name
         folder_name='salt_finger_tau_low_Ra_S2T_Nu';
         point_ind=5;
         point_plot=1;
-        Lx2d=1;
+        Lx2d
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
 end
@@ -50,7 +49,7 @@ for branch_ind=1:length(branch_name_list)
     for pt_ind=1:length(node_name.pt_list)
         load([my.folder_name,branch_name,'/',node_name.pt_list{pt_ind}]);
         point=p.u(p.nu+point_ind);
-        p.sol.ineg;
+        p.sol.ineg
         if any(abs(point_list-point)<0.01)
             ind=find(abs(point_list-point)<0.01);
             mkdir([IC_write_folder_name,num2str(point_list(ind))]);
@@ -85,13 +84,13 @@ for branch_ind=1:length(branch_name_list)
                 'd_S_0','d_T_0','d_S_hat','d_T_hat','p_hat'};
             for field_ind=1:length(field_list)
                 field=field_list{field_ind};
-                obj_dedalus{branch_ind,ind}.(field)=chebint([0;obj_pde2path{branch_ind,ind}.(field)(:,1);0],obj_dedalus{branch_ind,ind}.z_list_cheb);
+                obj_dedalus{branch_ind,ind}.(field)=chebint([0;obj_pde2path{branch_ind,ind}.(field);0],obj_dedalus{branch_ind,ind}.z_list_cheb);
             end
             kx_final=obj_pde2path{branch_ind,ind}.kx;
             kx=kx_final*sqrt(2);
             Lx_old=obj_dedalus{branch_ind,ind}.x_list(end)+obj_dedalus{branch_ind,ind}.x_list(2);
             
-%             Lx2d=1;
+            Lx2d=1;
             Lx_new=Lx2d*2*pi/(kx_final*sqrt(2));
             x=obj_dedalus{branch_ind,ind}.x_list'/Lx_old*Lx_new;
 
