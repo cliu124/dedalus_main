@@ -189,7 +189,7 @@ slurm_num={'13299932'};
 
 %check the stability of periodic solutions.
 % slurm_num={'13379372','13379373','13379374'};
-slurm_num={'13379264'}
+slurm_num={'13379265'}
 flag.print=1;
 flag.video=0;
 flag.visible=1;
