@@ -22,12 +22,12 @@ switch group_name
         
     case 'HB_benard_salt_finger_Ra_S2T_hopf'
         Ra_T=10^5;
-        point_list=Ra_T;
+        point_list=(0.4:0.1:1)*Ra_T;
         folder_name='salt_finger_Ra_S2T_hopf';
         point_ind=4;
         IC_write_folder_name='./IC/tau_0p33_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt2/hpt1'};%,'tr/bpt4'
-        Lx2d=4;
+        Lx2d=1;
 
     case 'HB_benard_salt_finger_tau'
 %         point_list=1./[0.5,1/3,0.33:-0.02:0.01];
