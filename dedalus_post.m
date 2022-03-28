@@ -1220,7 +1220,12 @@ classdef dedalus_post
                     variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                     data{1}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     data{2}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data,2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
-                    plot_config.legend_list={1,['$\bar{\mathcal{',variable_name,'}}_z z$'],['$\bar{\mathcal{',variable_name,'}}_z z+Pe_',variable_name,'\langle ',variable_name,'''\rangle_h$']};
+                    if obj.(['dy_',variable_name,'_mean'])==1
+                        plot_config.legend_list={1,['$z$'],['$ z+\langle ',variable_name,'''\rangle_{h,t}$']};
+                    else obj.(['dy_',variable_name,'_mean'])==-1
+                        data{2}.x=data{2}.x+1;
+                        plot_config.legend_list={1,['$1-z$'],['$1-z+\langle ',variable_name,'''\rangle_{h,t}$']};
+                    end
                 case {'rho'}
                     %error('not ready');
                     variable_data_T=h5read_complex(obj.h5_name,['/tasks/T']);
@@ -1254,7 +1259,7 @@ classdef dedalus_post
                 data{2}.y=obj.z_list;
                 plot_config.label_list={1,'','$z$'};
 %             end
-            plot_config.ylim_list=[1,min(data{1}.y),max(data{1}.y)];
+            plot_config.ylim_list=[1,0,1];
 %             plot_config.label_list={1,'','$z/l_{opt}$'};
             plot_config.print_size=[1,1200,1200];
             plot_config.print=obj.print;

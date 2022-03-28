@@ -97,6 +97,34 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         obj.T_0=u(3*p.np+1:4*p.np);
         obj.S_0=u(4*p.np+1:5*p.np);
         obj.u_tilde=obj.kx*p.mat.D1*obj.w_hat/(obj.kx^2+obj.ky^2);
+        
+        obj.w_hat_imag=u(5*p.np+1:6*p.np);
+        obj.T_hat_imag=u(6*p.np+1:7*p.np);
+        obj.S_hat_imag=u(7*p.np+1:8*p.np);
+        obj.u_tilde_imag=obj.kx*p.mat.D1*obj.w_hat_imag/(obj.kx^2+obj.ky^2);
+        
+        %phase angle, in 
+        obj.w_phase=atan(obj.w_hat_imag./obj.w_hat);
+        obj.T_phase=atan(obj.T_hat_imag./obj.T_hat);
+        obj.S_phase=atan(obj.S_hat_imag./obj.S_hat);
+        obj.u_phase=atan(obj.u_tilde_imag./obj.u_tilde);
+        if sum(abs(obj.w_phase-obj.T_phase))<0.001 & sum(abs(obj.w_phase-obj.S_phase))<0.001
+            %all of these phase are the same... just translate to the zero
+            %phase, and make w_hat, T_hat, and S_hat as the amplitude of
+            %these variable, but also keep the sign information.
+            obj.w_hat=obj.w_hat./cos(obj.w_phase);
+            obj.T_hat=obj.T_hat./cos(obj.T_phase);
+            obj.S_hat=obj.S_hat./cos(obj.S_phase);
+            obj.u_tilde=obj.u_tilde./cos(obj.u_phase);
+        else
+            %The phase at each y location are not the same.. just add them
+            %together.
+            obj.w_hat=obj.w_hat+1i*obj.w_hat_imag;
+            obj.T_hat=obj.T_hat+1i*obj.T_hat_imag;
+            obj.S_hat=obj.S_hat+1i*obj.S_hat_imag;
+            obj.u_tilde=obj.u_tilde+1i*obj.u_tilde_imag;
+        end
+        
     end
     
 %     R_rho_T2S=obj.Ra_T/obj.Ra_S2T;

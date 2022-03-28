@@ -3,22 +3,23 @@ close all;
 clc
 
 % group_name='HB_benard_salt_finger_Ra_S2T_IC';
-group_name='HB_benard_salt_finger_Ra_S2T_hopf';
+group_name='HB_benard_salt_finger_Ra_S2T';
 %This is just plot the profile for specific Ra_S2T....
 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
+root_folder_name='C:/Data/pde2path/HB_benard_cheb4c_complex/';
 switch group_name
     case {'HB_benard_salt_finger_Ra_S2T','HB_benard_salt_finger_Ra_S2T_IC'}
-%         point_list=[1/40,0.1,0.2,0.5,1,2,5,10]*10^5;
+        point_list=[1/40,0.1,0.2,0.5,1,2,5,10]*10^5;
         Ra_T=10^5;
 %         point_list=1300:100:4000;
 %         point_list=1500:500:3000;
-        point_list=3000;
+%         point_list=3000;
 %         folder_name='pde2path_13266198/salt_finger_Ra_S2T';
-        folder_name='salt_finger_Ra_S2T_IC';
+        folder_name='salt_finger_Ra_S2T';
         point_ind=4;
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
-        Lx2d=4;
+        Lx2d=1;
         
     case 'HB_benard_salt_finger_Ra_S2T_hopf'
         Ra_T=10^5;
@@ -41,7 +42,7 @@ switch group_name
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
 end
-my.folder_name=['C:/Data/pde2path/HB_benard_cheb/',folder_name,'/'];
+my.folder_name=[root_folder_name,folder_name,'/'];
 for branch_ind=1:length(branch_name_list)
     branch_name=branch_name_list{branch_ind};
     node_name=get_node_name([my.folder_name,branch_name,'/']);
