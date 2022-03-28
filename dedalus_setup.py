@@ -3239,11 +3239,11 @@ class flag(object):
             #analysis.add_task('w',layout='g',name='w')
             #analysis.add_task('p',layout='g',name='p')
             
-            #analysis.add_task("S",layout='c',name='S_coeff')
-            #analysis.add_task("T",layout='c',name='T_coeff')
-            #analysis.add_task("u",layout='c',name='u_coeff')
-            #analysis.add_task("w",layout='c',name='w_coeff')
-            #analysis.add_task("p",layout='c',name='p_coeff')
+            analysis.add_task("S",layout='c',name='S_coeff')
+            analysis.add_task("T",layout='c',name='T_coeff')
+            analysis.add_task("u",layout='c',name='u_coeff')
+            analysis.add_task("w",layout='c',name='w_coeff')
+            analysis.add_task("p",layout='c',name='p_coeff')
             
         elif self.flow in ['porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
@@ -3254,10 +3254,10 @@ class flag(object):
             #analysis.add_task('w',layout='g',name='w')
             #analysis.add_task('p',layout='g',name='p')
             
-            #analysis.add_task("T",layout='c',name='T_coeff')
-            #analysis.add_task("u",layout='c',name='u_coeff')
-            #analysis.add_task("w",layout='c',name='w_coeff')
-            #analysis.add_task("p",layout='c',name='p_coeff')
+            analysis.add_task("T",layout='c',name='T_coeff')
+            analysis.add_task("u",layout='c',name='u_coeff')
+            analysis.add_task("w",layout='c',name='w_coeff')
+            analysis.add_task("p",layout='c',name='p_coeff')
         elif self.flow in ['HB_porous','HB_porous_shear','HB_benard','test_periodic','HB_benard_shear','HB_porous_2_layer','HB_porous_3_layer']:
             #For IVP and BVP, they have some small difference. IVP can also set the dt for storage.
             if self.problem == 'IVP':
