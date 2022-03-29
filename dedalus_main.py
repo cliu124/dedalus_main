@@ -530,7 +530,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.k_elevator=1
         
         flag.A_noise=0
-        flag.A_secondary_S=0.5
+        flag.A_secondary_S=0
         flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
         
         

@@ -199,15 +199,17 @@ slurm_num={'13379734','13379735',...
 slurm_num={'13398772', '13398773','13398774',...Ra_S2T=2500
     '13398794','13398795','13404915' ...Ra_S2T=10000
     };
-
+slurm_num=slurm_num(1:5);
 
 %for the domain size Lx2d=4, check the nusselt number for 1-layer solution
-slurm_num={'13399059',... Ra_S2T=2500
-        '13399767', ... or '13399767'
-         '13399753' ...Ra_S2T=20000
-         '13399765'...Ra_S2T=50000
-         '13399766'...Ra_S2T=100000
-        }
+% slurm_num={'13399059',... Ra_S2T=2500
+%         '13399767', ... or '13399767'
+%          '13399753' ...Ra_S2T=20000
+%          '13399765'...Ra_S2T=50000
+%          '13399766'...Ra_S2T=100000
+%         }
+    
+    
 % slurm_num=slurm_num(3:end);
 %         ,...Ra_S2T=10000
 %         '13399072', or
@@ -246,7 +248,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_fluctuation_x_ave();
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
