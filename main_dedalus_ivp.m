@@ -190,16 +190,48 @@ slurm_num={'13299932'};
 %check the stability of periodic solutions.
 % slurm_num={'13379372','13379373','13379374'};
 slurm_num={'13379264','13379264'};
-slurm_num={'13379734','13379735',...
-    '13379740','13379741','13379750'};
+% slurm_num={'13379734','13379735',...
+%     '13379740','13379741','13379750'};
 % slurm_num={'13379742'};
 
 %for the domain size Lx2d=1, and then for each Ra, put S1, S2, S3 solution
 %profile as the initial conditions...
-slurm_num={'13398772', '13398773','13398774',...Ra_S2T=2500
-    '13398794','13398795','13404915' ...Ra_S2T=10000
+slurm_num={'13410044','13410045',...% '13410046', ...Ra_S2T=1/90*Ra_T
+    '13410047','13410049','13410050',...Ra_S2T=1/80*Ra_T
+    '13410052','13410053','13410054',...Ra_S2T=1/70*Ra_T
+    '13413728','13413730','13413731',......Ra_S2T=1/60*Ra_T
+    '13410299','13410300','13410303',...Ra_S2T=1/50*Ra_T
+    '13398772', '13398773','13398774',...Ra_S2T=2500, Ra_S2T=1/40*Ra_T
+    '13410250','13410251','13410256',...Ra_S2T=1/30*Ra_T,
+    '13410263','13410264','13410265',...Ra_S2T=1/20*Ra_T
+    '13398794','13398795','13404915'...Ra_S2T=10000
+    '13431231'...Ra_S2T=20000
+    %'13431232'...Ra_S2T=50000, need redo.. require small dt.
+    %'13431234'...Ra_S2T=100000, need redo.. require small dt.
     };
-slurm_num=slurm_num(1:5);
+
+slurm_num=slurm_num(end);%This show evidence of traveling wave...
+
+%tau=0.01, initialized by the S1 solution at R_rho_T2S=10...
+% slurm_num={'13435676',...R_rho_T2S=19
+%             '13435677',...R_rho_T2S=17
+%             '13435678',...R_rho_T2S=15
+%             '13435679',...R_rho_T2S=13
+%             '13435680'...R_rho_T2S=11
+%             };
+% slurm_num=slurm_num(4);
+%try to validate the nusselt nubmer against Yang's value
+% slurm_num={'13435681'} %initialized by random noise, Lx=2.5
+        
+% slurm_num=slurm_num(end);
+
+%tau=1/3, R_rho_T2S=1, initialized by the periodic solution from Hopf
+%bifurcation of branch 2, and it is unstable to become the traveling wave.
+% slurm_num={'13379264'}; %This is the simulation that show the periodic solution...
+% slurm_num={'13431061'}; %run longer time... for traveling wave...
+
+% slurm_num={'13415045'};%This is R_rho=10, tau=0.01, starting from S1 solution, Lx2d=1, with fine time sampling...
+% slurm_num={'13435394'};This is R_rho=10, tau=0.01, start from 1 layer
 
 %for the domain size Lx2d=4, check the nusselt number for 1-layer solution
 % slurm_num={'13399059',... Ra_S2T=2500
@@ -240,25 +272,27 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('rho');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_fluctuation_x_ave();
-
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('S',0.5,0.5,[20,30]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.rms_xt('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',0.5);
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
      dedalus_post_my{slurm_ind}.video=1;
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',5);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');

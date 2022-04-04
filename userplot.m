@@ -66,7 +66,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     obj.z_list=p.x+p.lx;
 
     %read the kx kz computed... 
-    [obj.kx,obj.ky]=my_kx(p);
+    [obj.kx,obj.ky]=my_kx(p,p.u);
     par(1)=obj.kx;
     par(2)=obj.ky;
     p.u(p.nu+1:end)=par;
@@ -102,7 +102,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         obj.T_hat_imag=u(6*p.np+1:7*p.np);
         obj.S_hat_imag=u(7*p.np+1:8*p.np);
         obj.u_tilde_imag=obj.kx*p.mat.D1*obj.w_hat_imag/(obj.kx^2+obj.ky^2);
-        
+        obj.U_0=u(8*p.np+1:9*p.np);
         %phase angle, in 
         obj.w_phase=atan(obj.w_hat_imag./obj.w_hat);
         obj.T_phase=atan(obj.T_hat_imag./obj.T_hat);
@@ -230,6 +230,15 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     %for computing the Nusselt number, use the full matrix. 
     p.my.Nu_S=p.mat.D1_full*[zero_bc;obj.S_0;zero_bc]+obj.dy_S_mean;
 
+    %%Update 2022/04/04, add the plotting of the large scale shear (zonal flow)
+    data{1}.x=obj.U_0(:,1);
+    data{1}.y=obj.z_list;
+%     plot_config.fontsize=20;
+    plot_config.label_list={1,['$\bar{U}_0$'], '$z$'};
+    plot_config.print_size=[1,500,900];
+    plot_config.name=[obj.h5_name(1:end-3),'_HB_','U_0.png'];
+    plot_line(data,plot_config);
+    
     clear data
 
     data{1}.x=obj.T_hat(:,1);
@@ -351,8 +360,8 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     y=obj.z_list(z_ind);
     [data{2}.x,data{2}.y]=meshgrid(x,y);
     %data{2}.y=obj.z_list;
-    data{2}.u=obj.u_tilde(z_ind,1)*real(1i*exp(1i*x));
-    data{2}.v=obj.w_hat(z_ind,1)*real(exp(1i*x));
+    data{2}.u=obj.U_0+2*real(obj.u_tilde(z_ind,1)*1i*exp(1i*x));
+    data{2}.v=2*real(obj.w_hat(z_ind,1)*exp(1i*x));
     [data{1}.x,data{1}.y]=meshgrid(x,y);
     data{1}.z=NaN*ones(size(data{1}.x));
 %     Du=p.mat.D1_full*[0;obj.u_tilde(z_ind,1);0];
@@ -398,7 +407,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     z_ind=1:length(obj.z_list);
     y=obj.z_list(z_ind);
     [data{1}.x,data{1}.y]=meshgrid(x,y);
-    data{1}.z=T_mean_var+obj.T_0(z_ind,1)+obj.T_hat(z_ind,1)*2*cos(x);
+    data{1}.z=T_mean_var+obj.T_0(z_ind,1)+2*real(obj.T_hat(z_ind,1)*exp(1i*x));
     %data{2}.y=obj.z_list;
     %             data{1}.u=obj.u_tilde(z_ind)*real(1i*exp(1i*x));
     %             data{1}.v=obj.w_hat(z_ind)*real(exp(1i*x));
@@ -437,7 +446,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     z_ind=1:length(obj.z_list);
     y=obj.z_list(z_ind);
     [data{1}.x,data{1}.y]=meshgrid(x,y);
-    data{1}.z=S_mean_var+obj.S_0(z_ind,1)+obj.S_hat(z_ind,1)*2*cos(x);
+    data{1}.z=S_mean_var+obj.S_0(z_ind,1)+2*real(obj.S_hat(z_ind,1)*exp(1i*x));
     plot_config.xlim_list=[1,0,2*pi];
     plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
     plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};

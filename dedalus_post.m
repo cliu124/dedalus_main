@@ -85,6 +85,16 @@ classdef dedalus_post
         d_S;
         d_T;
         
+        S_rms_xt;
+        T_rms_xt;
+        w_rms_xt;
+        u_rms_xt;
+        v_rms_xt;
+        p_rms_xt;
+        
+        freq;
+        freq_sort; %the frequency sorted based on the spectrum in descending way...
+        spec_t;
         
         S_tot;
         T_tot;
@@ -745,8 +755,11 @@ classdef dedalus_post
         end
         
         
-        function obj=snapshot(obj,variable_name)
+        function obj=snapshot(obj,variable_name,video_ind)
             %%plot the snapshot of salinity and generate video if any
+            if nargin<3 || isempty(video_ind)
+               video_ind=1; 
+            end
             z_mesh=obj.z_list*ones(1,length(obj.x_list));
             if strcmp(variable_name,'S_tot')
                 obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/','S'])...
@@ -776,7 +789,8 @@ classdef dedalus_post
             end
             
             if obj.video
-                for t_ind=1:length(obj.t_list)
+                snapshot_ind=1;
+                for t_ind=1:video_ind:length(obj.t_list)
                     data{1}.z=obj.(variable_name)(:,:,t_ind);
                     
                     data{1}.x=obj.x_list;
@@ -786,16 +800,103 @@ classdef dedalus_post
                     plot_config.fontsize=28;
                     plot_config.ylim_list=[1,0,1];
                     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+                    plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind),2))]};
                     plot_config.print_size=[1,1200,1200];
                     plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
                     plot_config.print=obj.print;
                     plot_config.visible=obj.visible;
-                    snapshot(t_ind)=plot_contour(data,plot_config);
+                    snapshot(snapshot_ind)=plot_contour(data,plot_config);
+                    snapshot_ind=snapshot_ind+1;
                 end
                plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_video.avi'];
                plot_video(snapshot,plot_config);
             end
         end
+        
+        
+        function obj=spectrum_t(obj,variable_name,z,x,t_range)
+            %z is the vertical position, x is the first horizontal... 
+            %direction
+            %right now assume it as the 2D results... 
+            
+            if nargin<2 || isempty(variable_name)
+               variable_name='S'; 
+            end
+            
+            if nargin<3 || isempty(z)
+                z=obj.Lz/2; %if not provided, just plot the middle plan x-t contour
+            end
+            if nargin<4 || isempty(x)
+               x=obj.Lx/2;
+            end
+            if nargin<5 || isempty(t_range)
+               t_range(1)=obj.t_list(1);
+               t_range(2)=obj.t_list(end); 
+            end
+            if strcmp(x,'ave')
+                x_ind_list=1:length(obj.x_list);
+            else
+                [val,x_ind_list]=min(abs(obj.x_list-x));
+            end
+            [val,z_ind]=min(abs(obj.z_list-z));
+            [val,t_ind_begin]=min(abs(obj.t_list-t_range(1)));
+            [val,t_ind_end]=min(abs(obj.t_list-t_range(2)));
+            t_list_dedalus=obj.t_list(t_ind_begin:t_ind_end);
+            dt=mean(diff(obj.t_list(t_ind_begin:t_ind_end)));
+            t_list_uniform=obj.t_list(t_ind_begin):dt:obj.t_list(t_ind_end);
+            Nt=length(t_list_uniform);
+            Fs=1/dt;
+            freq=Fs*(0:(Nt/2))/Nt;
+            %             [val,z_ind]=min(abs(z-obj.z_list));
+            
+%             data{1}.x=obj.t_list;
+%             if strcmp(obj.flow(1:7),'IFSC_2D')
+%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+%                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+%             else
+%                 data{1}.y=obj.x_list;
+%                 plot_config.label_list={1,'$t$','$x$'};
+%             end
+            spec_t=0;
+            for x_ind=x_ind_list
+                switch variable_name
+                    case {'u','v','w','S','T','p'}
+                        obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                        variable=squeeze(obj.(variable_name)(z_ind,x_ind,t_ind_begin:t_ind_end));
+                        %plot_config.colormap='bluewhitered';
+                    case {'S_tot','T_tot'}
+                        obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
+                        variable=squeeze(obj.(variable_name)(z_ind,x_ind,t_ind_begin:t_ind_end))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
+                        %plot_config.colormap='jet';
+                end
+                variable_uniform=interp1(t_list_dedalus,variable,t_list_uniform,'linear');
+                %variable_uniform=sin(2*pi*1/10*Fs*t_list_uniform); %This is to
+                %test fft results using sinusoidal functino
+                spec_tmp=abs(fft(variable_uniform)/Nt);
+                spec_tmp=spec_tmp(1:Nt/2+1);
+                spec_tmp(2:end-1)=2*spec_tmp(2:end-1);
+                spec_t=spec_t+spec_tmp;
+            end
+            spec_t=spec_t/length(x_ind_list);
+            data{1}.x=freq;
+            data{1}.y=spec_t;
+            plot_config.label_list={1,'$f $','PSD'};
+            
+            if strcmp(x,'ave')
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_spectrum_t_at_z=',num2str(round(z,2)),'_x=',x,'.png'];
+            else
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_spectrum_t_at_z=',num2str(round(z,2)),'_x=',num2str(round(x,2)),'.png'];
+            end
+            plot_config.xlim_list=[1,0,10];
+            plot_line(data,plot_config);
+            
+            obj.freq=freq;
+            obj.spec_t=spec_t;
+            [spec_t_sort,ind]=sort(spec_t,'descend');
+            obj.freq_sort=obj.freq(ind); %the corresponding frequency in descending way... 
+        end
+        
+        
         
         function obj=spectrum_snapshot(obj,variable_name)
             %%plot the spectrum of salnity as time varies, also generate
@@ -952,6 +1053,7 @@ classdef dedalus_post
             plot_config.visible=obj.visible;
             plot_line(data,plot_config);
         end
+        
         
         function obj=E_time(obj,variable_name,elevator_growth_rate)
             %%Plot the salinity potential energy as a function over time
@@ -1213,6 +1315,86 @@ classdef dedalus_post
             plot_contour(data,plot_config);
             
         end
+        
+        function obj=z_slice(obj,variable_name,z)
+            if nargin<2 || isempty(variable_name)
+               variable_name='S_tot'; 
+            end
+            if nargin<3 || isempty(z)
+                z=obj.Lz/2; %if not provided, just plot the middle plan x-t contour
+            end
+            
+            [val,z_ind]=min(abs(z-obj.z_list));
+            
+            data{1}.x=obj.t_list;
+%             if strcmp(obj.flow(1:7),'IFSC_2D')
+%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+%                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+%             else
+                data{1}.y=obj.x_list;
+                plot_config.label_list={1,'$t$','$x$'};
+%             end
+            switch variable_name
+                case {'u','v','w','S','T','p'}
+                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                    data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:));
+                    plot_config.colormap='bluewhitered';
+                case {'S_tot','T_tot'}
+                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
+                    data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
+                    plot_config.colormap='jet';
+            end
+%             data{1}.z=squeeze(mean(obj.(variable_name),2));
+%             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+            plot_config.print_size=[1,1200,1200];
+            plot_config.print=obj.print;
+            plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'.png'];
+            plot_contour(data,plot_config);
+            
+        end
+        
+        function obj=rms_xt(obj,variable_name)
+            switch variable_name
+                case {'u','v','w','S','T','p'}
+                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                    obj.([variable_name,'_rms_xt'])=sqrt(mean(mean(obj.(variable_name).^2,2),3));
+                    %plot_config.colormap='bluewhitered';
+                case {'S_tot','T_tot'}
+                    obj.(variable_name(1))=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
+                    obj.([variable_name,'rms'])=sqrt(mean(mean(obj.(variable_name).^2,2),3))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list;
+                    if obj.dy_T_mean==-1
+                        T_mean_var=1+obj.dy_T_mean*obj.z_list;
+                        T_mean_sign='+1-z';
+                        dy_T_mean_sign='-1';
+                    elseif obj.dy_T_mean==1
+                        T_mean_var=obj.dy_T_mean*obj.z_list;
+                        T_mean_sign='+z';
+                        dy_T_mean_sign='+1';
+                    end
+
+                    if obj.dy_S_mean==-1
+                        S_mean_var=1+obj.dy_S_mean*obj.z_list;
+                        S_mean_sign='+1-z';
+                        dy_S_mean_sign='-1';
+                    elseif obj.dy_S_mean==1
+                        S_mean_var=obj.dy_S_mean*obj.z_list;
+                        S_mean_sign='+z';
+                        dy_S_mean_sign='+1';
+                    end
+                    
+                    %data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
+                    %plot_config.colormap='jet';
+%                     plot_config.label_list={1,[variable_name(1),+],'$z$'};
+            end
+            data{1}.x=obj.([variable_name,'_rms_xt']);
+            data{1}.y=obj.z_list;
+            plot_config.print_size=[1,500,900];
+            plot_config.label_list={1,['$',variable_name,'$'],'$z$'};
+            plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_rms_xt.png'];
+            plot_line(data,plot_config);
+            
+        end
+        
         
         function obj=total_xt_ave(obj,variable_name)
 %             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
