@@ -25,11 +25,11 @@ switch group_name
     case 'HB_benard_salt_finger_Ra_S2T_hopf'
         Ra_T=10^5;
         point_list=(0.4:0.1:1)*Ra_T;
-        folder_name='salt_finger_Ra_S2T_hopf_2D';
+        folder_name='salt_finger_Ra_S2T_hopf';
         ilam=4;%:length(point_list);
-        IC_write_folder_name='./IC/2D_tau_0p33_Ra_S2T_';
-%         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt2/hpt1'};%,'tr/bpt4'
-        branch_name_list={'tr/bpt1','tr/bpt1/bpt3'};
+        IC_write_folder_name='./IC/3D_tau_0p33_Ra_S2T_';
+        branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt2/hpt1'};%,'tr/bpt4'
+%         branch_name_list={'tr/bpt1','tr/bpt1/bpt3'};
         Lx2d=1;
 
     case 'HB_benard_salt_finger_tau'
