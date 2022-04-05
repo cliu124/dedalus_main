@@ -249,7 +249,15 @@ slurm_num=slurm_num(end);%This show evidence of traveling wave...
 %         '13399100', or 
 %         ''};
 
-
+%2022/04/04, tau=0.3, test the initial condition as steady tilted convection roll
+slurm_num={'13447622',...R_rho_T2S=0.5
+            '13447623',...R_rho_T2S=0.6
+            '13447624',...R_rho_T2S=0.7
+            '13447812',...R_rho_T2S=0.8
+            '133447627',...R_rho_T2S=0.9
+            ...R_rho_T2S=1
+            }
+slurm_num=slurm_num(1:2);
 flag.print=1;
 flag.video=0;
 flag.visible=1;
@@ -281,7 +289,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.u_fluctuation_x_ave();
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('S',0.5,0.5,[20,30]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.rms_xt('u');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
+%     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
@@ -292,7 +300,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
      dedalus_post_my{slurm_ind}.video=1;
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',5);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',5);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');
