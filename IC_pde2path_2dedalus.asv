@@ -3,25 +3,67 @@ close all;
 clc
 
 % group_name='HB_benard_salt_finger_Ra_S2T_IC';
-group_name='HB_benard_salt_finger_Ra_S2T';
+group_name='HB_benard_salt_finger_Ra_S2T_hopf';
 %This is just plot the profile for specific Ra_S2T....
 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
 root_folder_name='C:/Data/pde2path/HB_benard_cheb4c_zonal/';
 switch group_name
     case {'HB_benard_salt_finger_Ra_S2T','HB_benard_salt_finger_Ra_S2T_IC'}
         %point_list=[1/90,1/80,1/70,1/60,1/50,1/40,1/30,1/20]*10^5;
-        point_list=[3258.1, 5542,8766.4,16289.89,33486.50,59281.41, 102272.9];
+        point_list=[3258.1, 5542];
+        point_list=[
+       2586.4
+       2586.4
+       2653.5
+       2703.9
+       2855.1
+       3258.1
+       4198.5
+         5542
+       8766.4
+        16290
+        33487
+        59281
+       2586.4
+   1.0227e+05
+   1.8826e+05
+   2.7424e+05
+   4.4621e+05
+   7.2135e+05
+        1e+06
+   1.0103e+06
+    9.002e+05
+        1e+06
+   1.0103e+06
+       2586.4
+       2586.4
+       2586.4
+       2586.4
+       2586.4
+       2586.4
+       2586.4
+       2586.4
+       2586.4
+       2586.4
+       2586.5
+       2586.6
+       2586.8
+       2587.3
+       2588.5
+       2591.6
+       2598.9
+       2615.7];
+        
         %point_list=[1/40,0.1,0.2,0.5,1,2,5,10]*10^5;
         Ra_T=10^5;
 %         point_list=1300:100:4000;
 %         point_list=1500:500:3000;
 %         point_list=3000;
 %         folder_name='pde2path_13266198/salt_finger_Ra_S2T';
-        folder_name='salt_finger_Ra_S2T_2D';
+        folder_name='salt_finger_Ra_S2T';
         ilam=4;
-        IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_';
-        branch_name_list={'tr/bpt1/bpt1'};
-        %branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
+        IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
+        branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
         Lx2d=1;
         
     case 'HB_benard_salt_finger_Ra_S2T_hopf'
@@ -63,7 +105,7 @@ for branch_ind=1:length(branch_name_list)
             p.my.folder_name=my.folder_name;
             p.my.plot_config.visible=0;
             p.my.plot_config.no_ylabel=1;
-            p.my.plot_config.print=1;
+            p.my.plot_config.print=0;
             p.my.plot_config.post=1;
             p.my.plot_config.branch_name=branch_name;
             p.my.plot_config.point_name=node_name.pt_list{pt_ind}(1:end-4);

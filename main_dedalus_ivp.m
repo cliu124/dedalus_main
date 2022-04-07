@@ -250,14 +250,16 @@ slurm_num=slurm_num(end);%This show evidence of traveling wave...
 %         ''};
 
 %2022/04/04, tau=0.3, test the initial condition as steady tilted convection roll
+%The first column corresponds to the initial condition as steady symmetric
+%roll. The second column is the steady tilted roll. 
 slurm_num={'13447622',...R_rho_T2S=0.5
-            '13447623',...R_rho_T2S=0.6
+            '13448773','13447623',...R_rho_T2S=0.6
             '13447624',...R_rho_T2S=0.7
             '13447812',...R_rho_T2S=0.8
             '13447621',...R_rho_T2S=0.9
             '13447817'...R_rho_T2S=1
             }
-slurm_num=slurm_num(1:2);
+slurm_num=slurm_num(6);
 flag.print=1;
 flag.video=0;
 flag.visible=1;
@@ -300,7 +302,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
      dedalus_post_my{slurm_ind}.video=1;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',5);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');
