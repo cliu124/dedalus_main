@@ -78,22 +78,6 @@ plot_config.label_list={1,'A','$\lambda$'};
 plot_config.Markerindex=3;
 plot_config.user_color_style_marker_list=...
     {'k-','b-','r-','k--','b--','r--','k-.','b-.','r-.'};
-plot_config.fontsize_legend=16;
+plot_config.fontsize_legend=18;
 plot_config.xlim_list=[0,0,0.07];
-plot_config.name='time_varying_lambda_A_all_legend.png';
-plot_line(data,plot_config);
-
-clear data plot_config
-plot_config.legend_list={1};
-for Amp_ind=1:length(Amp_list)
-   data{Amp_ind}.x=T_list;
-   data{Amp_ind}.y=alpha_list(Amp_ind,:);
-   plot_config.legend_list{Amp_ind+1}=['A=',num2str(Amp_list(Amp_ind))];
-end
-plot_config.label_list={1,'T','$\lambda$'};
-plot_config.Markerindex=3;
-plot_config.user_color_style_marker_list=...
-    {'k-','b-','r-','k--','b--','r--','k-.','b-.','r-.'};
-plot_config.fontsize_legend=16;
-plot_config.name='time_varying_lambda_T_all_legend.png';
 plot_line(data,plot_config);

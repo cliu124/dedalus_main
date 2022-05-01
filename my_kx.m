@@ -13,12 +13,21 @@ dy_S_mean=par(8);
 tau=1/Le;
 Ra_S=Ra_S2T/tau;
 R_rho_T2S=Ra_T/Ra_S2T;
-if kx<0
+if kx==-10^5
+    %The option to use the wavenumber scaling from Yang.
     kx=2*pi/(2*14.8211*Ra_S^(-0.2428)/R_rho_T2S^(0.25/2));
+elseif kx==-10^3
+    kx=sign(ky)*sqrt(p.my.kx_square-ky^2);
 end
 
-if ky<0
+if ky==-10^5
+    %The option to use the scaling from Yang
     ky=2*pi/(2*14.8211*Ra_S^(-0.2428)/R_rho_T2S^(0.25/2));
+elseif ky==-10^4
+    %The option to set the ky the same as kx
+    ky=kx;
+elseif ky==-10^3
+    ky=sign(kx)*sqrt(p.my.kx_square-kx^2);
 end
 
 end

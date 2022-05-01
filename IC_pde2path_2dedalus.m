@@ -3,9 +3,10 @@ close all;
 clc
 
 % group_name='HB_benard_salt_finger_Ra_S2T_IC';
-group_name='HB_benard_salt_finger_Ra_S2T';
+% group_name='HB_benard_salt_finger_Ra_S2T';
+group_name='HB_benard_salt_finger_kx';
 %This is just plot the profile for specific Ra_S2T....
-branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
+% branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
 root_folder_name='C:/Data/pde2path/HB_benard_cheb4c_zonal/';
 switch group_name
     case {'HB_benard_salt_finger_Ra_S2T','HB_benard_salt_finger_Ra_S2T_IC'}
@@ -45,6 +46,22 @@ switch group_name
         Lx2d=1;
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
+    case 'HB_benard_salt_finger_kx'
+        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_2D';
+        switch folder_name
+            case 'salt_finger_kx_low_Ra_S2T_2D'
+                branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
+                IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
+            case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D'
+                branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
+                IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
+        end
+        point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
+        ilam=1;
+        %point_plot=1;
+        Lx2d=1;
+        %point_list=[-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
+
 end
 my.folder_name=[root_folder_name,folder_name,'/'];
 for branch_ind=1:length(branch_name_list)
@@ -58,12 +75,13 @@ for branch_ind=1:length(branch_name_list)
         p.sol.ineg;
         if any(abs(point_list-point)<0.1)
             ind=find(abs(point_list-point)<0.1);
-            mkdir([IC_write_folder_name,num2str(round(point_list(ind)))]);
+            ind=ind(1);
+            mkdir([IC_write_folder_name,num2str(round(abs(point_list(ind))))]);
             branch_name=branch_name_list{branch_ind};
             p.my.folder_name=my.folder_name;
             p.my.plot_config.visible=0;
             p.my.plot_config.no_ylabel=1;
-            p.my.plot_config.print=1;
+            p.my.plot_config.print=0;
             p.my.plot_config.post=1;
             p.my.plot_config.branch_name=branch_name;
             p.my.plot_config.point_name=node_name.pt_list{pt_ind}(1:end-4);
@@ -95,7 +113,7 @@ for branch_ind=1:length(branch_name_list)
             end
             kx=obj_pde2path{branch_ind,ind}.kx;
             ky=obj_pde2path{branch_ind,ind}.ky;
-            kx_2D=sqrt(kx^2+ky^2);
+            kx_2D=sign(kx)*sqrt(kx^2+ky^2);
 %             if ky_final
 %                 kx=kx_final;
 %             else
@@ -129,7 +147,7 @@ for branch_ind=1:length(branch_name_list)
                 field=field_list{field_ind};
                 h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
             end
-            h5_name_destination=[IC_write_folder_name,num2str(round(point_list(ind))),'/'...
+            h5_name_destination=[IC_write_folder_name,num2str(round(abs(point_list(ind)))),'/'...
                 h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
             copyfile(h5_name,h5_name_destination);
         end

@@ -43,9 +43,9 @@ else
     figure(fig_num+3)
     plot(obj.S_hat,obj.z_list);
     figure(fig_num+4)
-    plot(obj.T_0+obj.dy_T_mean*obj.z_list,obj.z_list);
+    plot(obj.T_0+obj.dy_T_mean*obj.z_list,obj.z_list,'*');
     figure(fig_num+5)
-    plot(obj.S_0+obj.dy_S_mean*obj.z_list,obj.z_list);
+    plot(obj.S_0+obj.dy_S_mean*obj.z_list,obj.z_list,'*');
 end
 
 if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
@@ -96,33 +96,62 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         obj.S_hat=u(2*p.np+1:3*p.np);
         obj.T_0=u(3*p.np+1:4*p.np);
         obj.S_0=u(4*p.np+1:5*p.np);
-        obj.u_tilde=obj.kx*p.mat.D1*obj.w_hat/(obj.kx^2+obj.ky^2);
-        
-        obj.w_hat_imag=u(5*p.np+1:6*p.np);
-        obj.T_hat_imag=u(6*p.np+1:7*p.np);
-        obj.S_hat_imag=u(7*p.np+1:8*p.np);
-        obj.u_tilde_imag=obj.kx*p.mat.D1*obj.w_hat_imag/(obj.kx^2+obj.ky^2);
         obj.U_0=u(8*p.np+1:9*p.np);
+        obj.omega_z_hat=u(1+9*p.np:10*p.np);
+        
+        if obj.kx>=0
+            obj.w_hat_imag=u(5*p.np+1:6*p.np);
+            obj.T_hat_imag=u(6*p.np+1:7*p.np);
+            obj.S_hat_imag=u(7*p.np+1:8*p.np);
+            obj.omega_z_hat_imag=u(1+10*p.np:11*p.np);
+        else
+            %here I have take the complex conjugate... 
+            %for the negative wavenumber... 
+            obj.kx=-obj.kx;
+            obj.ky=-obj.ky;
+            obj.w_hat_imag=-u(5*p.np+1:6*p.np);
+            obj.T_hat_imag=-u(6*p.np+1:7*p.np);
+            obj.S_hat_imag=-u(7*p.np+1:8*p.np);
+            obj.omega_z_hat_imag=-u(1+10*p.np:11*p.np);
+        end
+        
+        dw_weight=1;
+        obj.u_tilde=dw_weight*obj.kx*p.mat.D1*obj.w_hat/(obj.kx^2+obj.ky^2)...
+                -obj.ky*obj.omega_z_hat/(obj.kx^2+obj.ky^2);
+        obj.u_tilde_imag=dw_weight*obj.kx*p.mat.D1*obj.w_hat_imag/(obj.kx^2+obj.ky^2)...
+                -obj.ky*obj.omega_z_hat_imag/(obj.kx^2+obj.ky^2);
+        
+        obj.v_tilde=dw_weight*obj.ky*p.mat.D1*obj.w_hat/(obj.kx^2+obj.ky^2)...
+                +obj.kx*obj.omega_z_hat/(obj.kx^2+obj.ky^2);
+        obj.v_tilde_imag=dw_weight*obj.ky*p.mat.D1*obj.w_hat_imag/(obj.kx^2+obj.ky^2)...
+                +obj.kx*obj.omega_z_hat_imag/(obj.kx^2+obj.ky^2);
         %phase angle, in 
         obj.w_phase=atan(obj.w_hat_imag./obj.w_hat);
         obj.T_phase=atan(obj.T_hat_imag./obj.T_hat);
         obj.S_phase=atan(obj.S_hat_imag./obj.S_hat);
         obj.u_phase=atan(obj.u_tilde_imag./obj.u_tilde);
+        obj.v_phase=atan(obj.v_tilde_imag./obj.v_tilde);
         if sum(abs(obj.w_phase-obj.T_phase))<0.001 & sum(abs(obj.w_phase-obj.S_phase))<0.001
             %all of these phase are the same... just translate to the zero
             %phase, and make w_hat, T_hat, and S_hat as the amplitude of
             %these variable, but also keep the sign information.
+            plot_complex=0;
             obj.w_hat=obj.w_hat./cos(obj.w_phase);
             obj.T_hat=obj.T_hat./cos(obj.T_phase);
             obj.S_hat=obj.S_hat./cos(obj.S_phase);
             obj.u_tilde=obj.u_tilde./cos(obj.u_phase);
+            obj.v_tilde=obj.v_tilde./cos(obj.v_phase);
         else
             %The phase at each y location are not the same.. just add them
             %together.
+            plot_complex=1;
             obj.w_hat=obj.w_hat+1i*obj.w_hat_imag;
             obj.T_hat=obj.T_hat+1i*obj.T_hat_imag;
             obj.S_hat=obj.S_hat+1i*obj.S_hat_imag;
             obj.u_tilde=obj.u_tilde+1i*obj.u_tilde_imag;
+            obj.v_tilde=obj.v_tilde+1i*obj.v_tilde_imag;
+            obj.omega_z_hat=obj.omega_z_hat+1i*obj.omega_z_hat_imag;
+            
         end
         
     end
@@ -241,11 +270,17 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     
     clear data
 
-    data{1}.x=obj.T_hat(:,1);
+    data{1}.x=real(obj.T_hat(:,1));
     data{1}.y=obj.z_list;
     plot_config.label_list={1,'$\widehat{T}$', '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_hat.png'];
+    if plot_complex
+        data{2}.x=imag(obj.T_hat(:,1));
+        data{2}.y=obj.z_list;
+        plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
+        plot_config.fontsize_legend=24;
+    end
     plot_line(data,plot_config);
     if p.sw.para>2
         % plot the time average quantity
@@ -269,11 +304,17 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     clear data
 
 
-    data{1}.x=obj.S_hat(:,1);
+    data{1}.x=real(obj.S_hat(:,1));
     data{1}.y=obj.z_list;
     plot_config.label_list={1,'$\widehat{S}$', '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_hat.png'];
+    if plot_complex
+        data{2}.x=imag(obj.S_hat(:,1));
+        data{2}.y=obj.z_list;
+        plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
+        plot_config.fontsize_legend=24;
+    end
     plot_line(data,plot_config);
     if p.sw.para>2
         % plot the time average quantity
@@ -297,11 +338,17 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     clear data
 
 
-    data{1}.x=obj.w_hat(:,1);
+    data{1}.x=real(obj.w_hat(:,1));
     data{1}.y=obj.z_list;
     plot_config.label_list={1,'$\widehat{w}$', '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','w_hat.png'];
+    if plot_complex
+        data{2}.x=imag(obj.w_hat(:,1));
+        data{2}.y=obj.z_list;
+        plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
+        plot_config.fontsize_legend=24;
+    end
     plot_line(data,plot_config);
     if p.sw.para>2
         % plot the time average quantity
@@ -324,11 +371,17 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     end
     clear data
 
-    data{1}.x=obj.u_tilde(:,1);
+    data{1}.x=real(obj.u_tilde(:,1));
     data{1}.y=obj.z_list;
     plot_config.label_list={1,'$\widetilde{u}$', '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','u_tilde.png'];
+    if plot_complex
+        data{2}.x=imag(obj.u_tilde(:,1));
+        data{2}.y=obj.z_list;
+        plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
+        plot_config.fontsize_legend=24;
+    end
     plot_line(data,plot_config);
     if p.sw.para>2
         % plot the time average quantity
@@ -351,6 +404,22 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     end
     clear data
 
+    %Update 2022/04/11, add the plotting of vertical vorticity
+    data{1}.x=obj.omega_z_hat(:,1);
+    data{1}.y=obj.z_list;
+    plot_config.label_list={1,'$\widehat{\omega}_z$', '$z$'};
+    plot_config.print_size=[1,500,900];
+    plot_config.name=[obj.h5_name(1:end-3),'_HB_','omega_z_hat.png'];
+    if plot_complex
+        data{2}.x=imag(obj.omega_z_hat(:,1));
+        data{2}.y=obj.z_list;
+        plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
+        plot_config.fontsize_legend=24;
+    end
+    plot_line(data,plot_config);
+    
+    
+    
     %Update 2021/12/06, add streamline...
     
     x=linspace(0,2*pi,1000);
@@ -393,6 +462,78 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline_hopf_t_ave.png'];
         plot_contour(data,plot_config);
         plot_config.title_list={0};
+    end
+    
+    clear data;
+    if obj.kx~=0 && obj.ky~=0
+        try obj.z_slices_list=plot_config.z_slices_list;
+        catch
+            obj.z_slices_list=[0.25,0.5,0.75];
+        end
+        %plot the velocity vector in the horizontal direction 
+        %with vertical vorticity as  the contour... This will be done in a
+        %selected wall-normal location.
+        for z_slices_ind=1:length(obj.z_slices_list)
+            z_slices=obj.z_slices_list(z_slices_ind);
+
+            x=linspace(0,2*pi,20);
+            [~,z_ind]=min(abs(z_slices-obj.z_list));
+            y=linspace(0,2*pi,18);
+            [data{2}.x,data{2}.y]=meshgrid(x,y);
+            %get the superposition of the cos(kx x+ky y)+cos(kx x-ky y).
+            %This will give a squared planform instead of the inclined roll.
+            %note that for v and omega_z, we also need to change the
+            %sign...
+            data{2}.u=obj.U_0(z_ind,1)...
+                +real(obj.u_tilde(z_ind,1)*1i*exp(1i*y')*exp(1i*x))...
+                +real(obj.u_tilde(z_ind,1)*1i*exp(-1i*y')*exp(1i*x));
+            data{2}.v=real(obj.v_tilde(z_ind,1)*1i*exp(1i*y')*exp(1i*x))...
+                -real(obj.v_tilde(z_ind,1)*1i*exp(-1i*y')*exp(1i*x));
+            [data{1}.x,data{1}.y]=meshgrid(x,y);
+            if max(abs(obj.omega_z_hat(z_ind,1)))<0.01
+                data{1}.z=0*exp(1i*y')*exp(1i*x);
+                plot_config.zlim_list=[1,-0.01,0.01];
+            else
+                data{1}.z=real(obj.omega_z_hat(z_ind,1)*exp(1i*y')*exp(1i*x))...
+                    -real(obj.omega_z_hat(z_ind,1)*exp(-1i*y')*exp(1i*x));
+                plot_config.zlim_list=0;
+            end
+            %obj.d_w_hat=p.mat.D1*obj.w_hat;
+            %data{1}.z=real(obj.d_w_hat(z_ind,1)*exp(1i*y')*exp(1i*x))...
+            %    +real(obj.d_w_hat(z_ind,1)*exp(-1i*y')*exp(1i*x));
+
+            plot_config.xlim_list=[1,0,2*pi];
+            plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
+            plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
+            plot_config.ytick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
+            plot_config.yticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
+            plot_config.ylim_list=[1,0,2*pi];
+            plot_config.label_list={1,'$x k_x$','$y k_y$'};
+            plot_config.streamline=0;
+            plot_config.user_color_style_marker_list={'k-','b--'};
+            plot_config.panel_num=2;
+            plot_config.arrow_ratio=0.8;
+            plot_config.linewidth=3;
+            plot_config.colorbar=1;
+            plot_config.colormap='bluewhitered';
+            plot_config.print_size=[1,1100,900];
+            plot_config.name=[obj.h5_name(1:end-3),'_HB_','z_slices=',num2str(z_slices),'.png'];
+            plot_contour(data,plot_config);
+            if obj.no_ylabel
+                plot_config.label_list{3}='';
+                plot_config.name=[obj.h5_name(1:end-3),'_HB_','z_slices',num2str(z_slices),'_no_ylabel.png'];
+                plot_contour(data,plot_config);
+            end
+            if p.sw.para>2
+                error('z slices for hopf bifurcation needs to be finished');
+    %             %hopf bifurcation... 
+    %             data{2}.u=mean(obj.u_tilde(z_ind,:),2)*real(1i*exp(1i*x));
+    %             data{2}.v=mean(obj.w_hat(z_ind,:),2)*real(exp(1i*x));
+    %             plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline_hopf_t_ave.png'];
+    %             plot_contour(data,plot_config);
+    %             plot_config.title_list={0};
+            end
+        end
     end
     
     clear data;
@@ -479,7 +620,8 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     
     p_old.my.folder_name=[p_old.my.folder_name,'/',plot_config.branch_name,'/graph_',...
         plot_config.point_name,'/'];
-    disp_par(p_old);
+    p.my.folder_name=p_old.my.folder_name;
+    disp_par(p);
     
 end
 
