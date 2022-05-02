@@ -275,25 +275,17 @@ slurm_num={'13463098',...Ra_S2T=3258
 slurm_num={'13562813', ...%Pr=7
         '13562812'... Pr=0.03
         };
-slurm_num=slurm_num(2);
-
+    
 %%2022/05/01, wavenumber continuation
-slurm_num={'13619823',... kx=19
-            '13619824',... kx=18
-            '13619825',... kx=16
-            '13619826',... kx=15
-            '13619827',... %kx=13
-            '13619852', ...%kx=11
-            '13619853',...%kx=9
-            '13619854',...%kx=7
-            '13619855',...%kx=5
-            '13619856',...%kx=3
-            '13619857',...%kx=1
-            };
-% slurm_num=slurm_num(end-1:end);
-flag.print=0;
+slurm_num={'13619823',... kx=1
+            '13619824',...
+            '13619825',...
+            '13619826',...
+            '13619827'};
+slurm_num=slurm_num(2);
+flag.print=1;
 flag.video=0;
-flag.visible=0;
+flag.visible=1;
 flag.no_ylabel=0;
 for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'12247549'))]%slurm_ind=length(slurm_num)-2:length(slurm_num)-1
     %find(strcmp(slurm_num,'12136034'))
@@ -329,11 +321,11 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',0.1);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',0.5);
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=0;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
+     dedalus_post_my{slurm_ind}.video=1;
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',10);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');

@@ -491,7 +491,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pr=7
         #flag.tau=0.02944
         #R_rho_T2S=20
-        flag.tau=1/3
+        flag.tau=0.01
         #R_rho_T2S=40
         flag.initial_dt=0.01
         
@@ -502,11 +502,11 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         flag.Ra_T=10**5
-        flag.Ra_S2T=flag.Ra_T#flag.Ra_T/R_rho_T2S
+        flag.Ra_S2T=2500#flag.Ra_T#flag.Ra_T/R_rho_T2S
         R_rho_T2S=flag.Ra_T/flag.Ra_S2T
         #I need to overwrite these domain setup here
         Ra_S=flag.Ra_S2T/flag.tau
-        kx=2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+        kx=1#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
         ky=0
         kx_2D=np.sqrt(kx*kx+ky*ky)
         Lx2d=1
@@ -562,8 +562,8 @@ elif flag.flow in ['HB_benard']:
     flag.stop_sim_time=10**7/flag.Ra_T
 elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
-        flag.post_store_dt=0.1
-        flag.stop_sim_time=30
+        flag.post_store_dt=1
+        flag.stop_sim_time=200
         
 else:
     flag.post_store_dt=0.000001/flag.Ra_T;
