@@ -291,7 +291,53 @@ slurm_num={'13619823',... kx=19
             '13619857',...%kx=1
             };
 % slurm_num=slurm_num(end-1:end);
-flag.print=0;
+%2022/05/02 results for even wavenumber
+%Pr=7, tau=0.01, Ra_T=10^5, R_rho=2, bounded salt finger
+slurm_num={'13623956',...: kx=1
+            '13623957',...: kx=2
+            '13623959',...: kx=4
+            '13623960',...: kx=6
+            '13623961',...: kx=8
+            '13623962',...: kx=10
+            '13623963',...: kx=12
+            '13623964',...: kx=14
+            '13623965',...: kx=16
+            '13623966'...: kx=18
+            };
+% 
+% %even wavenumber, Pr=0.05, initial condition as S1
+slurm_num={'13623969',...: kx=1
+            '13623970',...: kx=2
+            '13623971',...: kx=4
+            '13623972',...: kx=6
+            '13623973',...: kx=8
+            '13623974',...: kx=10
+            '13623975',...: kx=12
+            '13623976',...: kx=14
+            '13623977',...: kx=16
+            '13623978'...: kx=18
+            };
+%Pr=0.05, initial condition as Tilted finger 1.
+slurm_num={'13625602',...: kx=2
+        '13625603',...: kx=4
+        '13625604',...: kx=6
+        '13625606',...: kx=8
+        '13625607',...: kx=10
+        '13625643',...: kx=12
+        '13626014',...: kx=14
+        '13626015'...: kx=16
+        };
+    
+%Pr=0.05, initial condition as the traveling wave
+% slurm_num={'13626016',...: kx=3
+%             '13626034',...: kx=6
+%             '13626035',...: kx=9
+%             '13626037',...: kx=12
+%             '13626131'...: kx=15
+%             };
+slurm_num={'13627393',...
+            '13627394'};
+flag.print=1;
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;
@@ -308,7 +354,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('S');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('S',170);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
@@ -332,7 +378,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',0.1);
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=0;
+     dedalus_post_my{slurm_ind}.video=1;
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 

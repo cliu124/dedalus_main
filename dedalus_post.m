@@ -1470,10 +1470,23 @@ classdef dedalus_post
             
         end
 
-        function obj=get_Nu(obj,variable_name)
+        function obj=get_Nu(obj,variable_name,t_ind)
             d_variable_data=h5read_complex(obj.h5_name,['/tasks/d_',variable_name]);
             time_len=size(d_variable_data,3);
-            d_variable_data_total_xt_ave=obj.(['Pe_',variable_name])*squeeze(mean(mean(d_variable_data(:,:,time_len/2:end),2),3))+obj.(['dy_',variable_name,'_mean']);
+            if nargin<3 || isempty(t_ind)
+                %The default option, just average over the second half of
+                %data...
+                t_ind_begin=time_len/2;
+                t_ind_end=time_len;
+            else
+                t_ind_begin=t_ind(1);
+                if length(t_ind)==1
+                    t_ind_end=time_len;
+                else
+                    t_ind_end=t_ind(2);
+                end
+            end
+            d_variable_data_total_xt_ave=obj.(['Pe_',variable_name])*squeeze(mean(mean(d_variable_data(:,:,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean']);
             obj.(['d_',variable_name])=d_variable_data;
             switch variable_name
                 case 'T'
