@@ -608,8 +608,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
 #-----------------setup storing for post-processing
 if flag.flow in ['HB_benard_shear']:
-    flag.post_store_dt=0.01/flag.Ra_T
-    flag.stop_sim_time=10/flag.Ra_T
+    print('1')
+    #flag.post_store_dt=0.01/flag.Ra_T
+    #flag.stop_sim_time=10/flag.Ra_T
 elif flag.flow in ['HB_benard']:
     flag.post_store_dt=10**3/flag.Ra_T
     flag.stop_sim_time=10**7/flag.Ra_T

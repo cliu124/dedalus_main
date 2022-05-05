@@ -323,11 +323,18 @@ switch group_name
         
 end
 
+%Update 2022/05/04, single mode DNS
+slurm_num={'13631229',...
+            '13631083',...
+            '13631099'};
+slurm_num={'13631245'};
+
+% group_name=[];
 flag.print=0;
 flag.visible=0;
 flag.video=0;
 flag.no_ylabel=0;
-flag.post_plot=1;
+flag.post_plot=0;
 for slurm_ind=1:length(slurm_num)
     content=dir(['C:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind}]);
@@ -340,7 +347,7 @@ for slurm_ind=1:length(slurm_num)
                 '\',content(content_ind).name,'\analysis_s1.h5'];
 
             dedalus_post_my{slurm_ind,content_ind}=dedalus_post(h5_name,flag);
-            dedalus_post_my{slurm_ind,content_ind}.uvw_hewitt=1;
+            dedalus_post_my{slurm_ind,content_ind}.uvw_hewitt=0;
             %data_Nu{1}.x(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.kx;
             %data_Nu{1}.y(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Ra_T;
             %data_Nu{1}.z(slurm_ind,content_ind)=dedalus_post_my{slurm_ind,content_ind}.Nu(1);

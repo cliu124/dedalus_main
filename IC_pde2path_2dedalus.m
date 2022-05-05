@@ -47,7 +47,7 @@ switch group_name
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
     case 'HB_benard_salt_finger_kx'
-        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_3D';
+        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_2D';
         switch folder_name
             case 'salt_finger_kx_low_Ra_S2T_2D'
                 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
@@ -59,7 +59,8 @@ switch group_name
                 branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 IC_write_folder_name='./IC/3D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
         end
-        point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
+        %point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
+        point_list=[-12];
         ilam=1;
         %point_plot=1;
         Lx2d=1;
