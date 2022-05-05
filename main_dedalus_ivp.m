@@ -339,7 +339,7 @@ slurm_num={'13627393',...
             '13627394'};
 slurm_num={'13629367'};
 slurm_num={'13625643'};
-flag.print=0;
+flag.print=1;
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;

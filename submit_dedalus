@@ -19,7 +19,7 @@ WORKDIR=/rc_scratch/chli3324/dedalus_$SLURM_JOB_ID
 mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp -r dedalus.cfg "$WORKDIR" && cp submit_dedalus "$WORKDIR" && cd "$WORKDIR" || exit -1
 
 ###uncomment this line and change the folder number to select which simulation to restart
-ln -s /projects/chli3324/dedalus_main/IC/2D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_12/HB_benard_shear_analysis_s1_Nx64_Nz128_tr_bpt1_Lx2d_1.h5 restart.h5
+ln -s /projects/chli3324/dedalus_main/IC/2D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_12/HB_benard_shear_analysis_s1_Nz128_tr_bpt1_Lx2d_1.h5 restart.h5
 #ln -s /projects/chli3324/dedalus_main/IC/2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_1/analysis_s1_Nx64_Nz128_tr_bpt1_Lx2d_1.h5 restart.h5
 #ln -s /projects/chli3324/dedalus_main/IC/tau_0p01_Ra_S2T1500/analysis_s1_Nx64_Nz128tr_bpt1.h5 restart.h5
 #ln -s /projects/chli3324/dedalus_main/analysis_s1.h5 restart.h5

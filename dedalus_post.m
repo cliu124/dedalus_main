@@ -349,7 +349,10 @@ classdef dedalus_post
             obj.d_T_0=h5read_complex(h5_name,'/tasks/d_T_0');
             obj.S_0=h5read_complex(h5_name,'/tasks/S_0');
             obj.d_S_0=h5read_complex(h5_name,'/tasks/d_S_0');
-
+            try 
+                obj.U_0=h5read_complex(h5_name,'/tasks/U_0');
+            end
+            
             switch obj.flow
                 case 'HB_porous'
                     obj.u_tilde=-obj.kx*obj.p_hat;
