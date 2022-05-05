@@ -247,7 +247,7 @@ elif flag.flow in ['HB_benard_shear']:
         flag.post_store_dt=1
         flag.stop_sim_time=200
         
-"""    
+    """
     flag.Nz=1024
     flag.Lz=1
     flag.tau=0.01
@@ -296,7 +296,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.A_elevator_imag=0#flag.A_elevator
     if flag.problem =='IVP':
         flag.initial_dt=0.000001/flag.Ra_T
-"""
+    """
 
 elif flag.flow=='test_periodic':
     flag.F_sin=1
@@ -617,8 +617,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         flag.post_store_dt=1
         flag.stop_sim_time=200
-        
+    
 else:
+    print('1')
     #flag.post_store_dt=0.000001/flag.Ra_T;
     #flag.stop_sim_time=0.00001/flag.Ra_T;
 
