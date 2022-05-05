@@ -2081,7 +2081,7 @@ class flag(object):
 
                 #large scale shear U_0
                 problem.add_equation('dz(U_0)-d_U_0=0')
-                problem.add_equation('-1/Pr*dt(U_0)+dz(d_U_0)=1/Pr(2*kx*u_tilde_real*(-u_tilde_imag)+2*kx*u_tilde_imag*u_tilde_real+2*ky*v_tilde_real*(-u_tilde_imag)+2*ky*v_tilde_imag*u_tilde_real+2*w_hat_real*(-d_u_tilde_imag)+2*w_hat_imag*d_u_tilde_real)')
+                problem.add_equation('-1/Pr*dt(U_0)+dz(d_U_0)=1/Pr*(2*kx*u_tilde_real*(-u_tilde_imag)+2*kx*u_tilde_imag*u_tilde_real+2*ky*v_tilde_real*(-u_tilde_imag)+2*ky*v_tilde_imag*u_tilde_real+2*w_hat_real*(-d_u_tilde_imag)+2*w_hat_imag*d_u_tilde_real)')
                 """
                 #coupling between real and imag due to shear
                 if self.F_sin=='z':

@@ -47,7 +47,7 @@ switch group_name
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
     case 'HB_benard_salt_finger_kx'
-        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_2D';
+        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_3D';
         switch folder_name
             case 'salt_finger_kx_low_Ra_S2T_2D'
                 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
@@ -55,6 +55,9 @@ switch group_name
             case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D'
                 branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
+            case 'salt_finger_kx_low_Ra_S2T_low_Pr_3D'
+                branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
+                IC_write_folder_name='./IC/3D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
         end
         point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
         ilam=1;
@@ -94,7 +97,7 @@ for branch_ind=1:length(branch_name_list)
             obj_dedalus{branch_ind,ind}.z_list=h5read_complex(h5_name,'/scales/z/1.0');
             obj_dedalus{branch_ind,ind}.z_list_cheb=obj_dedalus{branch_ind,ind}.z_list*2-1;
 
-            field_list={'u_tilde','w_hat',...
+            field_list={'u_tilde','v_tilde','w_hat',...
                 'S_0','T_0','S_hat','T_hat','U_0'};
             for field_ind=1:length(field_list)
                 field=field_list{field_ind};
@@ -102,9 +105,9 @@ for branch_ind=1:length(branch_name_list)
             end
             obj_pde2path{branch_ind,ind}.p_hat=inv(mat_pde2path.D2-obj_pde2path{branch_ind,ind}.kx^2-obj_pde2path{branch_ind,ind}.ky^2)...
                 *(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.T_hat-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.S_hat);
-            field_list={'u_tilde','w_hat',...
+            field_list={'u_tilde','v_tilde','w_hat',...
                 'S_0','T_0','S_hat','T_hat',...
-                'd_u_tilde','d_w_hat',...
+                'd_u_tilde','d_v_tilde','d_w_hat',...
                 'd_S_0','d_T_0','d_S_hat','d_T_hat','p_hat',...
                 'U_0','d_U_0'};
             for field_ind=1:length(field_list)
@@ -150,6 +153,37 @@ for branch_ind=1:length(branch_name_list)
             h5_name_destination=[IC_write_folder_name,num2str(round(abs(point_list(ind)))),'/'...
                 h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
             copyfile(h5_name,h5_name_destination);
+            
+            %write initial condition to the dedalus simulation of single
+            %mode DNS 2022/05/04
+            h5_name=['HB_benard_shear_analysis_s1_Nz128.h5'];
+            field_list={'u_tilde','v_tilde','w_hat',...
+                'S_hat','T_hat',...
+                'd_u_tilde','d_v_tilde',...
+                'd_S_hat','d_T_hat','p_hat',...
+                };
+            for field_ind=1:length(field_list)
+                field=field_list{field_ind};
+                %obj_dedalus{branch_ind,ind}.(field)=chebint([0;obj_pde2path{branch_ind,ind}.(field)(:,1);0],obj_dedalus{branch_ind,ind}.z_list_cheb);
+                h5write(h5_name,['/tasks/',field,'_real'],real(obj_dedalus{branch_ind,ind}.(field)));
+                h5write(h5_name,['/tasks/',field,'_imag'],imag(obj_dedalus{branch_ind,ind}.(field)));
+            end
+
+            field_list={'S_0','T_0',...
+                'd_S_0','d_T_0',...
+                'U_0','d_U_0'};
+            for field_ind=1:length(field_list)
+                field=field_list{field_ind};
+                %obj_dedalus{branch_ind,ind}.(field)=chebint([0;obj_pde2path{branch_ind,ind}.(field)(:,1);0],obj_dedalus{branch_ind,ind}.z_list_cheb);
+                h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
+            end
+            
+            h5_name_destination=[IC_write_folder_name,num2str(round(abs(point_list(ind)))),'/'...
+                h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
+            copyfile(h5_name,h5_name_destination);
+            
+            
+            
         end
     end
     
