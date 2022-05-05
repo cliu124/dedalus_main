@@ -22,9 +22,11 @@ flag=dedalus_setup.flag()
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
 #flag.flow='HB_benard'
-#flag.flow='HB_benard_shear'
+flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
-flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+
+#This is runing 2D DNS general formulation
+#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -196,6 +198,56 @@ elif flag.flow=='HB_benard':
         flag.initial_dt=10**3/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
 
 elif flag.flow in ['HB_benard_shear']:
+    flag.Nz=128
+    flag.Lz=1
+    flag.tau=0.01
+    
+    # #Radko (2016) parameter
+    #Pr=10
+    #R_rho_T2S=0.5
+    #Pe=100
+    #Ri=10
+    #flag.Ra_T=4*np.pi**2*Ri/(1/R_rho_T2S-1)*Pe*Pe/Pr
+    #flag.Ra_S2T=0
+    
+    #flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    #flag.kx=2*np.pi/64
+    #flag.F_sin=1
+    # flag.ks=2*np.pi
+    # flag.HB_porous_shear_phi=0
+
+    flag.Pr=0.05
+    R_rho_T2S=40
+    Pe=1
+    flag.Ra_T=100000
+    flag.Ra_S2T=flag.Ra_T/R_rho_T2S
+    flag.F_sin=0
+    
+    flag.Pe_T=Pe
+    flag.Pe_S=Pe
+    flag.dy_T_mean=1
+    flag.dy_S_mean=1
+    flag.bvp_tolerance=1e-5
+    #flag.kx=0.48*flag.Ra_T**0.4
+    flag.kx=12
+    flag.ky=0
+    flag.problem='IVP'
+    flag.z_bc_T_left='dirichlet'
+    flag.z_bc_T_right='dirichlet'
+    flag.z_bc_S_left='dirichlet'
+    flag.z_bc_S_right='dirichlet'
+    flag.z_bc_w_left='dirichlet'
+    flag.z_bc_w_right='dirichlet'
+    flag.z_bc_u_v_left='dirichlet'
+    flag.z_bc_u_v_right='dirichlet'
+    #flag.A_elevator=1/10000*flag.Ra_T
+    #flag.A_elevator_imag=0#flag.A_elevator
+    if flag.problem =='IVP':
+        flag.initial_dt=0.01
+        flag.post_store_dt=1
+        flag.stop_sim_time=200
+        
+"""    
     flag.Nz=1024
     flag.Lz=1
     flag.tau=0.01
@@ -244,6 +296,7 @@ elif flag.flow in ['HB_benard_shear']:
     flag.A_elevator_imag=0#flag.A_elevator
     if flag.problem =='IVP':
         flag.initial_dt=0.000001/flag.Ra_T
+"""
 
 elif flag.flow=='test_periodic':
     flag.F_sin=1
@@ -566,8 +619,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.stop_sim_time=200
         
 else:
-    flag.post_store_dt=0.000001/flag.Ra_T;
-    flag.stop_sim_time=0.00001/flag.Ra_T;
+    #flag.post_store_dt=0.000001/flag.Ra_T;
+    #flag.stop_sim_time=0.00001/flag.Ra_T;
 
 domain=flag.build_domain()
 solver=flag.governing_equation(domain)

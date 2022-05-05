@@ -337,7 +337,9 @@ slurm_num={'13625602',...: kx=2
 %             };
 slurm_num={'13627393',...
             '13627394'};
-flag.print=1;
+slurm_num={'13629367'};
+slurm_num={'13625643'};
+flag.print=0;
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;
@@ -375,10 +377,10 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',0.1);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',0.5);
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=1;
+     dedalus_post_my{slurm_ind}.video=0;
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 
