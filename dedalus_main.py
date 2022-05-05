@@ -246,7 +246,8 @@ elif flag.flow in ['HB_benard_shear']:
         flag.initial_dt=0.01
         flag.post_store_dt=1
         flag.stop_sim_time=200
-        
+    
+    flag.A_noise=0.001  
     """
     flag.Nz=1024
     flag.Lz=1

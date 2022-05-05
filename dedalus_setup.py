@@ -3093,7 +3093,7 @@ class flag(object):
             print('restart')
             #self.EVP_trivial=0
             write, last_dt = solver.load_state('restart.h5', -1)
-            if self.A_noise !=0 and self.flow =='HB_benard':
+            if self.A_noise !=0 and self.flow in ['HB_benard','HB_benard_shear']:
                 gshape = domain.dist.grid_layout.global_shape(scales=2)
                 slices = domain.dist.grid_layout.slices(scales=2)
                 rand = np.random.RandomState(seed=23)
