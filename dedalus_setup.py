@@ -3093,7 +3093,7 @@ class flag(object):
             print('restart')
             #self.EVP_trivial=0
             write, last_dt = solver.load_state('restart.h5', -1)
-            if self.A_noise !=0 and self.flow in ['HB_benard','HB_benard_shear']:
+            if self.A_noise !=0 and self.flow in ['HB_benard']:
                 gshape = domain.dist.grid_layout.global_shape(scales=2)
                 slices = domain.dist.grid_layout.slices(scales=2)
                 rand = np.random.RandomState(seed=23)
@@ -3135,7 +3135,56 @@ class flag(object):
                 #d_T_0['g'] = d_T_0['g']+self.A_noise*noise
                 S_0['g'] = S_0['g']+self.A_noise*noise
                 #d_S_0['g'] = d_S_0['g']+self.A_noise*noise
-              
+            elif self.A_noise!=0 and self.flow in ['HB_benard_shear']:
+                gshape = domain.dist.grid_layout.global_shape(scales=2)
+                slices = domain.dist.grid_layout.slices(scales=2)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
+                
+                #print(gshape)
+                #print(slices)
+                z = domain.grid(0)
+
+                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                u_tilde_real = solver.state['u_tilde_real']
+                u_tilde_imag = solver.state['u_tilde_imag']
+                #d_u_tilde = solver.state['d_u_tilde']
+                v_tilde_real = solver.state['v_tilde_real']
+                v_tilde_imag = solver.state['v_tilde_imag']
+                #d_v_tilde = solver.state['d_v_tilde']
+                w_hat_real = solver.state['w_hat_real']
+                w_hat_imag = solver.state['w_hat_imag']
+                p_hat_real = solver.state['p_hat_real']
+                p_hat_imag = solver.state['p_hat_imag']
+                T_hat_real = solver.state['T_hat_real']
+                T_hat_imag = solver.state['T_hat_imag']
+                #d_T_hat = solver.state['d_T_hat']
+                S_hat_real = solver.state['S_hat_real']
+                S_hat_imag = solver.state['S_hat_imag']
+                #d_S_hat = solver.state['d_S_hat']
+                T_0 = solver.state['T_0']
+                #d_T_0 = solver.state['d_T_0']
+                S_0 = solver.state['S_0']
+                #d_S_0 = solver.state['d_S_0']
+                U_0 = solver.state['U_0']
+                
+                u_tilde_real['g'] = u_tilde_real['g']+self.A_noise*noise
+                u_tilde_imag['g'] = u_tilde_imag['g']+self.A_noise*noise
+                v_tilde_real['g'] = v_tilde_real['g']+self.A_noise*noise
+                v_tilde_imag['g'] = v_tilde_imag['g']+self.A_noise*noise
+                w_hat_real['g'] = w_hat_real['g']+self.A_noise*noise
+                w_hat_imag['g'] = w_hat_imag['g']+self.A_noise*noise
+                p_hat_real['g'] = p_hat_real['g']+self.A_noise*noise
+                p_hat_imag['g'] = p_hat_imag['g']+self.A_noise*noise
+                T_hat_real['g'] = T_hat_real['g']+self.A_noise*noise
+                T_hat_imag['g'] = T_hat_imag['g']+self.A_noise*noise
+                S_hat_real['g'] = S_hat_real['g']+self.A_noise*noise
+                S_hat_imag['g'] = S_hat_imag['g']+self.A_noise*noise
+
+                T_0['g'] = T_0['g']+self.A_noise*noise
+                S_0['g'] = S_0['g']+self.A_noise*noise
+                U_0['g'] = U_0['g']+self.A_noise*noise
+                
         
             if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
                 z = domain.grid(0)
