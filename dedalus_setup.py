@@ -160,7 +160,7 @@ class flag(object):
                 print('Fourier basis in the vertical z direction')
             else: 
                 self.z_basis_mode='Chebyshev'
-                z_basis = de.Chebyshev('z', self.Nz, interval=(0,self.Lz), dealias=2)
+                z_basis = de.Chebyshev('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
                 print('Chebyshev basis in the vertical z direction')
             domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
         
@@ -183,7 +183,7 @@ class flag(object):
                 z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=1)
                 domain = de.Domain([z_basis],grid_dtype=np.complex128) 
             else:
-                z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=2)
+                z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=3/2)
                 domain = de.Domain([z_basis],grid_dtype=np.float64) 
 
         return domain
@@ -2512,6 +2512,8 @@ class flag(object):
                 
                 gshape = domain.dist.grid_layout.global_shape(scales=1)
                 slices = domain.dist.grid_layout.slices(scales=1)
+                #print(gshape)
+                
                 rand = np.random.RandomState(seed=23)
                 noise = rand.standard_normal(gshape)[slices]
                 
@@ -3094,8 +3096,8 @@ class flag(object):
             #self.EVP_trivial=0
             write, last_dt = solver.load_state('restart.h5', -1)
             if self.A_noise !=0 and self.flow in ['HB_benard']:
-                gshape = domain.dist.grid_layout.global_shape(scales=2)
-                slices = domain.dist.grid_layout.slices(scales=2)
+                gshape = domain.dist.grid_layout.global_shape(scales=1.5)
+                slices = domain.dist.grid_layout.slices(scales=1.5)
                 rand = np.random.RandomState(seed=23)
                 noise = rand.standard_normal(gshape)[slices]
                 
@@ -3136,8 +3138,8 @@ class flag(object):
                 S_0['g'] = S_0['g']+self.A_noise*noise
                 #d_S_0['g'] = d_S_0['g']+self.A_noise*noise
             elif self.A_noise!=0 and self.flow in ['HB_benard_shear']:
-                gshape = domain.dist.grid_layout.global_shape(scales=2)
-                slices = domain.dist.grid_layout.slices(scales=2)
+                gshape = domain.dist.grid_layout.global_shape(scales=1.5)
+                slices = domain.dist.grid_layout.slices(scales=1.5)
                 rand = np.random.RandomState(seed=23)
                 noise = rand.standard_normal(gshape)[slices]
                 
@@ -3205,12 +3207,7 @@ class flag(object):
                 S['g']=S['g']+self.A_noise*noise
                 T['g']=S['g']+self.A_noise*noise
                 p['g']=p['g']+self.A_noise*noise
-                #Add the background shear
-                u0 = u0+ self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
-                    + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
-                    + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
-                    + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
-                   
+                  
               
             if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
                 z = domain.grid(0)
