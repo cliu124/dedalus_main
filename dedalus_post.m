@@ -172,6 +172,9 @@ classdef dedalus_post
         S_0;
         d_S_0;
         
+        U_0;
+        d_U_0;
+        
         %These two are useful for the Benard convection. 
         u_hat; %%THese are just converted from the p_hat
         u_hat_2; 

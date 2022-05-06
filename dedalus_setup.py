@@ -3184,8 +3184,34 @@ class flag(object):
                 T_0['g'] = T_0['g']+self.A_noise*noise
                 S_0['g'] = S_0['g']+self.A_noise*noise
                 U_0['g'] = U_0['g']+self.A_noise*noise
+              
+            if self.A_noise !=0 and self.flow in ['double_diffusive_shear_2D']:
+                x = domain.grid(0)
+                z = domain.grid(1)
+                u = solver.state['u']
+                w = solver.state['w']
+                S = solver.state['S']
+                p = solver.state['p']
+                T = solver.state['T']
                 
-        
+                gshape = domain.dist.grid_layout.global_shape(scales=1)
+                slices = domain.dist.grid_layout.slices(scales=1)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
+                
+                ##Add the random noise
+                u['g']=u['g']+self.A_noise*noise
+                w['g']=w['g']+self.A_noise*noise
+                S['g']=S['g']+self.A_noise*noise
+                T['g']=S['g']+self.A_noise*noise
+                p['g']=p['g']+self.A_noise*noise
+                #Add the background shear
+                u0 = u0+ self.A_shear*self.F_sin/self.ks**2*np.sin(self.ks*z)\
+                    + self.A_shear*self.F_sin_2ks/(2*self.ks)**2*np.sin(2*self.ks*z+self.phase_2ks) \
+                    + self.A_shear*self.F_sin_3ks/(3*self.ks)**2*np.sin(3*self.ks*z+self.phase_3ks) \
+                    + self.A_shear*self.F_sin_4ks/(4*self.ks)**2*np.sin(4*self.ks*z+self.phase_4ks)
+                   
+              
             if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
                 z = domain.grid(0)
 
