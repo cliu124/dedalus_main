@@ -3196,8 +3196,9 @@ class flag(object):
                 p = solver.state['p']
                 T = solver.state['T']
                 
-                gshape = domain.dist.grid_layout.global_shape(scales=1)
-                slices = domain.dist.grid_layout.slices(scales=1)
+                #Update 2022/05/05, we should use the same dealizing scales for all direction. the scales here should also be the same, thus 1.5
+                gshape = domain.dist.grid_layout.global_shape(scales=1.5)
+                slices = domain.dist.grid_layout.slices(scales=1.5)
                 rand = np.random.RandomState(seed=23)
                 noise = rand.standard_normal(gshape)[slices]
                 

@@ -348,22 +348,13 @@ slurm_num={'13623961'};
 slurm_num={'13635931',... kx=2
         '13635933',... kx=4
         '13635934',... kx=6
-        '13635936',... kx=8:
-        '13635937',... kx=10:
-        '13635939',... kx=12:
-        '13635940',... kx=14:
-        '13635941',... kx=16:
+        '13635936',. kx=8:
+        13635937, kx=10:
+        13635939, kx=12:
+        13635940, kx=14:
+        13635941, kx=16:
         };
-slurm_num={'13635936'};
 
-%IC: S3
-slurm_num={'13635943',... kx=4:
-            '13635944',... kx=6:
-            '13635946',... kx=8:
-            '13635947',... kx=10:
-            '13635949',... kx=12:
-            '13635950',... kx=14 
-            };
 
 flag.print=1;
 flag.video=0;
@@ -406,7 +397,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',[0.1,0.3,0.5]);
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=0;
+     dedalus_post_my{slurm_ind}.video=1;
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 

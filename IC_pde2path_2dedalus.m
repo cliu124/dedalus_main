@@ -47,10 +47,11 @@ switch group_name
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
     case 'HB_benard_salt_finger_kx'
-        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_2D';
+        folder_name='salt_finger_kx_low_Ra_S2T_2D';
         switch folder_name
             case 'salt_finger_kx_low_Ra_S2T_2D'
                 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
+                branch_name_list={'tr/bpt1/bpt1'};
                 IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
             case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D'
                 branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};

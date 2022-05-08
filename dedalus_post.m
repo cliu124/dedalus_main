@@ -1322,40 +1322,57 @@ classdef dedalus_post
             
         end
         
-        function obj=z_slice(obj,variable_name,z)
+        function obj=z_slice(obj,variable_name,z_list)
             if nargin<2 || isempty(variable_name)
                variable_name='S_tot'; 
             end
-            if nargin<3 || isempty(z)
-                z=obj.Lz/2; %if not provided, just plot the middle plan x-t contour
+            if nargin<3 || isempty(z_list)
+                z_list=obj.Lz/2; %if not provided, just plot the middle plan x-t contour
             end
-            
-            [val,z_ind]=min(abs(z-obj.z_list));
-            
-            data{1}.x=obj.t_list;
-%             if strcmp(obj.flow(1:7),'IFSC_2D')
-%                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
-%                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
-%             else
-                data{1}.y=obj.x_list;
-                plot_config.label_list={1,'$t$','$x$'};
-%             end
-            switch variable_name
-                case {'u','v','w','S','T','p'}
-                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
-                    data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:));
-                    plot_config.colormap='bluewhitered';
-                case {'S_tot','T_tot'}
-                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
-                    data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
-                    plot_config.colormap='jet';
+            z_list_string=[];
+            for z_plot_ind=1:length(z_list)
+                z=z_list(z_plot_ind);
+                [val,z_ind]=min(abs(z-obj.z_list));
+
+                data{1}.x=obj.t_list;
+    %             if strcmp(obj.flow(1:7),'IFSC_2D')
+    %                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
+    %                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+    %             else
+                    data{1}.y=obj.x_list;
+                    plot_config.label_list={1,'$t$','$x$'};
+    %             end
+                switch variable_name
+                    case {'u','v','w','S','T','p'}
+                        obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                        data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:));
+                        plot_config.colormap='bluewhitered';
+                        label=['$',variable_name,'$'];
+                    case {'S_tot','T_tot'}
+                        obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
+                        data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
+                        plot_config.colormap='jet';
+                        label=['$',variable_name(1),'+z$'];
+                end
+    %             data{1}.z=squeeze(mean(obj.(variable_name),2));
+    %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+                plot_config.print_size=[1,1200,1200];
+                plot_config.print=obj.print;
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'.png'];
+                plot_contour(data,plot_config);
+                
+                %add the data for the line plotting
+                data_line{z_plot_ind}.y=data{1}.z(:,end);
+                data_line{z_plot_ind}.x=obj.x_list;
+                plot_config_line.legend_list{z_plot_ind+1}=['$z=',num2str(z),'$'];
+                z_list_string=[z_list_string,num2str(z),'_'];
             end
-%             data{1}.z=squeeze(mean(obj.(variable_name),2));
-%             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
-            plot_config.print_size=[1,1200,1200];
-            plot_config.print=obj.print;
-            plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'.png'];
-            plot_contour(data,plot_config);
+            plot_config_line.legend_list{1}=1;
+            plot_config_line.label_list={1,'$x$',label};
+            plot_config_line.linewidth=5; 
+            plot_config_line.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_variation_at_z=',z_list_string(1:end-1),'.png'];
+            plot_config_line.fontsize_legend=28;
+            plot_line(data_line,plot_config_line);
             
         end
         
@@ -1402,10 +1419,42 @@ classdef dedalus_post
         end
         
         
-        function obj=total_xt_ave(obj,variable_name)
+        function obj=total_xt_ave(obj,variable_name,x_ind,t_ind)
 %             data{1}.y=obj.z_list/(2*pi/obj.k_opt);
 %             dz=diff(obj.z_list); dz=dz(1);
 %             z_list_full=[obj.z_list;obj.z_list(end)+dz];
+            x_len=length(obj.x_list);
+            time_len=length(obj.t_list);
+            
+            if nargin<4 || isempty(x_ind)
+                %The default option, just average over the second half of
+                %data...
+                x_ind_begin=x_len/2;
+                x_ind_end=x_len;
+            else
+                x_ind_begin=x_ind(1);
+                if length(x_ind)==1
+                    x_ind_end=x_len;
+                else
+                    x_ind_end=x_ind(2);
+                end
+            end
+            
+            
+            if nargin<4 || isempty(t_ind)
+                %The default option, just average over the second half of
+                %data...
+                t_ind_begin=time_len/2;
+                t_ind_end=time_len;
+            else
+                t_ind_begin=t_ind(1);
+                if length(t_ind)==1
+                    t_ind_end=time_len;
+                else
+                    t_ind_end=t_ind(2);
+                end
+            end
+
             switch variable_name
                 case {'T','S'}
                     variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
@@ -1455,6 +1504,7 @@ classdef dedalus_post
             plot_config.print_size=[1,1200,1200];
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave.png'];
+            plot_config.linewidth=5;
             plot_line(data,plot_config);
             
             plot_config.print=0;
