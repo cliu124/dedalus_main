@@ -383,7 +383,7 @@ class flag(object):
                 else:
                     problem.add_bc("right(w)=0")
                 print("Dirichlet for w right")
-            elif self.z_bc_W_right=='neumann':
+            elif self.z_bc_w_right=='neumann':
                 problem.add_bc("right(d_w)=0")
                 print("Neumann for w right")
             

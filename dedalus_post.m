@@ -803,16 +803,19 @@ classdef dedalus_post
                     data{1}.y=obj.z_list;
                     plot_config.label_list={1,'$x$','$z$'};
 
-                    plot_config.fontsize=28;
+                    plot_config.fontsize=40;
                     plot_config.ylim_list=[1,0,1];
                     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
-                    plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind),2))]};
+                    plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
                     plot_config.print_size=[1,1200,1200];
-                    plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind),2)),'.png'];
+                    plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind))),'.png'];
                     plot_config.print=obj.print;
                     plot_config.visible=obj.visible;
                     snapshot(snapshot_ind)=plot_contour(data,plot_config);
                     snapshot_ind=snapshot_ind+1;
+                    %plot_config.label_list={1,'$x$',''};
+                    %plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind))),'_no_ylabel.png'];
+                    %plot_contour(data,plot_config);
                 end
                plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_video.avi'];
                plot_video(snapshot,plot_config);
@@ -1312,12 +1315,16 @@ classdef dedalus_post
                     var_2_data=h5read_complex(obj.h5_name,['/tasks/',var_2]);
                     obj.(variable_name)=var_1_data.*var_2_data;
             end
+            
             data{1}.z=squeeze(mean(obj.(variable_name),2));
 %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
             plot_config.colormap='bluewhitered';
-            plot_config.print_size=[1,1200,1200];
+            plot_config.print_size=[1,1600,1600];
+%             plot_config.ztick_list=[1,-0.001,0.001];
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave.png'];
+            plot_config.ylim_list=[1,0,1];
+            plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1];
             plot_contour(data,plot_config);
             
         end
@@ -1458,13 +1465,13 @@ classdef dedalus_post
             switch variable_name
                 case {'T','S'}
                     variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
-                    data{1}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
-                    data{2}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data,2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
+                    data{2}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
+                    data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data,2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     if obj.(['dy_',variable_name,'_mean'])==1
-                        plot_config.legend_list={1,['$z$'],['$ z+\langle ',variable_name,'''\rangle_{h,t}$']};
+                        plot_config.legend_list={1,['$ z+\langle ',variable_name,'\rangle_{h,t}$'],['$z$']};
                     else obj.(['dy_',variable_name,'_mean'])==-1
                         data{2}.x=data{2}.x+1;
-                        plot_config.legend_list={1,['$1-z$'],['$1-z+\langle ',variable_name,'''\rangle_{h,t}$']};
+                        plot_config.legend_list={1,['$1-z+\langle ',variable_name,'\rangle_{h,t}$'],['$1-z$']};
                     end
                 case {'rho'}
                     %error('not ready');
@@ -1475,7 +1482,7 @@ classdef dedalus_post
                     data{1}.x=-obj.dy_T_mean*obj.z_list+1/R_rho_T2S*obj.dy_S_mean*obj.z_list;
                     data{2}.x=-(obj.Pe_T*squeeze(mean(mean(variable_data_T,2),3))+obj.dy_T_mean*obj.z_list)...
                         +1/R_rho_T2S*(obj.Pe_S*squeeze(mean(mean(variable_data_S,2),3))+obj.dy_S_mean*obj.z_list);
-                    plot_config.legend_list={1,['$-\bar{\mathcal{T}}_z z+R_\rho^{-1}\bar{\mathcal{S}}_z z$'],['$-(\bar{\mathcal{T}}_z z+Pe_T \langle ','T','''\rangle_h)+R_\rho^{-1}(\bar{\mathcal{S}}_z z+Pe_S \langle ','S','''\rangle_h)$']};
+                    plot_config.legend_list={1,['$-(\bar{\mathcal{T}}_z z+Pe_T \langle ','T','\rangle_h)+R_\rho^{-1}(\bar{\mathcal{S}}_z z+Pe_S \langle ','S','\rangle_h)$'],['$-\bar{\mathcal{T}}_z z+R_\rho^{-1}\bar{\mathcal{S}}_z z$']};
                     plot_config.fontsize_legend=24;
                 case 'u'
                     u=h5read_complex(obj.h5_name,'/tasks/u');
@@ -1497,14 +1504,24 @@ classdef dedalus_post
 %             else
                 data{1}.y=obj.z_list;
                 data{2}.y=obj.z_list;
-                plot_config.label_list={1,'','$z$'};
 %             end
+            plot_config.label_list={1,'','$z$'};
             plot_config.ylim_list=[1,0,1];
 %             plot_config.label_list={1,'','$z/l_{opt}$'};
             plot_config.print_size=[1,1200,1200];
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave.png'];
-            plot_config.linewidth=5;
+            plot_config.linewidth=3;
+            plot_line(data,plot_config);
+            
+            %data{1}.x=NaN; data{1}.y=NaN;
+            %plot_config.label_list={1,plot_config.legend_list{3},'$z$'};
+            %plot_config.legend_list={0};
+            plot_config.print_size=[1,500,900];
+            plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_profile_only.png'];
+            plot_config.fontsize_legend=24;
+            plot_config.linewidth=3;
+            plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
             plot_line(data,plot_config);
             
             plot_config.print=0;

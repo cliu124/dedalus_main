@@ -365,6 +365,24 @@ slurm_num={'13635943',... kx=4:
             '13635950',... kx=14 
             };
 
+%Pr=0.05, TW1
+slurm_num={'13635953',... kx=4:
+            '13635954',... kx=6:
+            '13635956',... kx=8:
+            '13635957',... kx=10:
+            '13635958',... kx=12:
+            '13635959',... kx=14:
+            '13635960'... kx=16:
+            };
+% slurm_num=slurm_num(3);
+% slurm_num={'13635936'};
+%IC from TF1, Pr=7, R_rho_T2S=40
+% slurm_num={'13639120',... kx=4
+%             '13639121'... kx=6
+%             };
+% slurm_num={'13639230'};
+slurm_num={'13640186'};
+
 flag.print=1;
 flag.video=0;
 flag.visible=0;
@@ -382,7 +400,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('S',170);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('S',[50]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
@@ -398,7 +416,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.rms_xt('u');
 %     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S',[],[150]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S',[],[80,180]);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 
@@ -406,7 +424,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',[0.1,0.3,0.5]);
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=0;
+     dedalus_post_my{slurm_ind}.video=1;
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 
@@ -416,7 +434,51 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 
 end
 
+switch slurm_num{1}
+    case '13640186'
+        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,80:180),2),3)+dedalus_post_my{1}.z_list;
+        data{1}.y=dedalus_post_my{1}.z_list;
+        data{2}.x=mean(mean(dedalus_post_my{1}.S(:,:,300:400),2),3)+dedalus_post_my{1}.z_list;
+        data{2}.y=dedalus_post_my{1}.z_list;
+        data{3}.x=dedalus_post_my{1}.z_list;
+        data{3}.y=dedalus_post_my{1}.z_list;
+        plot_config.label_list={1,'$\langle S \rangle_{h,t}+z$','$z$'};
+        plot_config.print_size=[1,500,900];
+        plot_config.Markerindex=3;
+        plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
+%         plot_config.name=[my.folder_name,'profile_together_TF1_TW1','_par=',num2str(point_list(point_ind)),'_profile_',var_name,'.png'];
+        plot_config.legend_list={1,'$t\in [80,180]$','$t\in [300,400]$','$z$'};
+        plot_config.fontsize_legend=18;
+        plot_config.xlim_list=0; plot_config.xtick_list=0;
+        plot_config.linewidth=3;
+        plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_OTF1_TW1.png'];
+        plot_config.print_size=[1,500,900];
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+        plot_line(data,plot_config);
 
+        %data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,80:180),2),3)+dedalus_post_my{1}.z_list;
+        %data{1}.y=dedalus_post_my{1}.z_list;
+        clear data;
+        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,300:400),2),3)+dedalus_post_my{1}.z_list;
+        data{1}.y=dedalus_post_my{1}.z_list;
+        data{2}.x=dedalus_post_my{1}.z_list;
+        data{2}.y=dedalus_post_my{1}.z_list;
+        plot_config.user_color_style_marker_list={'k-','r--'};%cl_list(A2_before_ind+1:A2_before_ind+2);
+        plot_config.legend_list={1,'$t\in [300,400]$','$z$'};
+        plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_OTF1.png'];
+        plot_line(data,plot_config);
+        
+        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,80:180),2),3)+dedalus_post_my{1}.z_list;
+        data{1}.y=dedalus_post_my{1}.z_list;
+        %data{2}.x=NaN;%mean(mean(dedalus_post_my{1}.S(:,:,300:400),2),3)+dedalus_post_my{1}.z_list;
+        %data{2}.y=NaN;%dedalus_post_my{1}.z_list;
+        data{2}.x=dedalus_post_my{1}.z_list;
+        data{2}.y=dedalus_post_my{1}.z_list;
+        plot_config.user_color_style_marker_list={'k-','r--'};%cl_list(A2_before_ind+1:A2_before_ind+2);
+        plot_config.legend_list={1,'$t\in [80,180]$','$z$'};        
+        plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_TW1.png'];
+        plot_line(data,plot_config);
+end
 
 error('1')
 % 
