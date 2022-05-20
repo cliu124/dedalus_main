@@ -44,7 +44,7 @@ for Amp_ind=1:length(Amp_list)
     end
 end
 
-
+save('alpha_list.mat','alpha_list');
 data{1}.x=Amp_list;
 data{1}.y=alpha_list(:,1);
 plot_config.label_list={1,'A','$\lambda$'};

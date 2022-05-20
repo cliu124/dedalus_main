@@ -15,10 +15,12 @@ for file_ind=1:length(file)
             node_name.([file_name_1,'pt_list']){str2num(ind{1})}=file(file_ind).name;
         case 'p'
             ind=regexp(file(file_ind).name,'\d*','Match');
-            node_name.(['pt_list']){pt_ind}=file(file_ind).name;
-            pt_ind=pt_ind+1;
-            if str2num(ind{1})>pt_num
-                pt_num=str2num(ind{1});
+            if strcmp(file(file_ind).name(end-3:end),'.mat')
+                node_name.(['pt_list']){pt_ind}=file(file_ind).name;
+                pt_ind=pt_ind+1;
+                if str2num(ind{1})>pt_num
+                    pt_num=str2num(ind{1});
+                end
             end
     end
     node_name.pt_last=['pt',num2str(pt_num)];
