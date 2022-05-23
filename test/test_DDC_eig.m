@@ -4,7 +4,9 @@ clc;
 
 %%%This is to test the eigenvalue computation and the subcritical regime in
 %%%this flow configuration... Triple periodic...
-R_rho_list=2;%logspace(-1,2,30); %%This is subcritical regime.
+% R_rho_list=8.63;%logspace(-1,2,30); %%This is subcritical regime.
+R_rho_list=1:0.1:3;
+
 Pr_list=7;
 tau_list=0.01;
 kx_list=linspace(0.01,3,30);%logspace(-6,0,30); 
@@ -36,3 +38,12 @@ for R_rho_ind=1:length(R_rho_list)
     end
 end
 
+for R_rho_ind=1:length(R_rho_list)
+    lambda_max(R_rho_ind)=max(result_DDC{R_rho_ind}.growth_rate)
+end
+data{1}.x=R_rho_list;
+data{1}.y=lambda_max;
+plot_config.label_list={1,'$R_\rho$','$\lambda$'};
+plot_config.loglog=[0,0];
+plot_config.name='Radko_2013_figure_2_2.png';
+plot_line(data,plot_config);

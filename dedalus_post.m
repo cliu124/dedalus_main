@@ -247,6 +247,8 @@ classdef dedalus_post
         eigenvectors=0;
         eigenvector_lead=struct;
         no_ylabel=0;
+        
+        title_time=1;
     end
     
     methods
@@ -806,7 +808,13 @@ classdef dedalus_post
                     plot_config.fontsize=40;
                     plot_config.ylim_list=[1,0,1];
                     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
-                    plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
+                    
+                    if obj.title_time
+                        plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
+                    else
+                        plot_config.title_list={0};
+                    end
+                    
                     plot_config.print_size=[1,1200,1200];
                     plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind))),'.png'];
                     plot_config.print=obj.print;

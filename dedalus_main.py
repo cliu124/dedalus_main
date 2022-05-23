@@ -22,11 +22,11 @@ flag=dedalus_setup.flag()
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
 #flag.flow='HB_benard'
-flag.flow='HB_benard_shear'
+#flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
 
 #This is runing 2D DNS general formulation
-#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -542,7 +542,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.k_elevator=0.5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         ##parameter for Radko (2013) type
-        flag.Pr=7
+        flag.Pr=0.05
         #flag.tau=0.02944
         #R_rho_T2S=20
         flag.tau=0.01
@@ -566,7 +566,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_2D
         flag.Lz=1
-        flag.Nx=64
+        flag.Nx=128
         flag.Nz=128
          
         flag.dy_T_mean=1
@@ -587,7 +587,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_noise=0
         flag.A_secondary_S=0
         flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
-        
+        flag.store_variable='S_u_w'#only store S and u variable
         
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
@@ -618,7 +618,7 @@ elif flag.flow in ['HB_benard']:
 elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         flag.post_store_dt=1
-        flag.stop_sim_time=200
+        flag.stop_sim_time=4000
     
 else:
     print('1')
