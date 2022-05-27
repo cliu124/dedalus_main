@@ -382,7 +382,7 @@ slurm_num={'13635953',... kx=4:
 %             };
 % slurm_num={'13639230'};
 slurm_num={'13640186'};
-slurm_num={'13743576'};
+slurm_num={'13750695'};
 flag.print=1;   
 flag.video=0;
 flag.visible=0;
@@ -400,12 +400,15 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('S',[50]);
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('S',[100]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S',[100,500])
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('u',[100,500])
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('w',[100,500])
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
 
@@ -423,10 +426,10 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',[0.1,0.3,0.5]);
 
-     dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=1;
-     dedalus_post_my{slurm_ind}.title_time=0;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',70);
+     dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
+     dedalus_post_my{slurm_ind}.video=0;
+     dedalus_post_my{slurm_ind}.title_time=1;
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T');
@@ -436,10 +439,43 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 end
 
 switch slurm_num{1}
-    case '13640186'
-        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,80:180),2),3)+dedalus_post_my{1}.z_list;
+    case {'13640186','13639526','13639527'}
+        clear data;
+        switch slurm_num{1}
+            case {'13640186'}
+                %kx=10
+                p_TF1=load(['C:\Data\pde2path\HB_benard_full_zonal\',...
+                    'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip\tr\bpt1\bpt1\pt177.mat']);
+                p_TW1=load(['C:\Data\pde2path\HB_benard_full_zonal\',...
+                    'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip\tr\bpt1\bpt2\pt161.mat']);
+                TW1_DNS_range=[81:181];
+                TF1_DNS_range=[281:381];
+                TF1_LSS_snapshot=[333,334,335];
+            case '13639526'
+                %kx=14;
+                p_TF1=load(['C:\Data\pde2path\HB_benard_full_zonal\',...
+                    'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip\tr\bpt1\bpt1\pt123.mat']);
+                p_TW1=load(['C:\Data\pde2path\HB_benard_full_zonal\',...
+                    'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip\tr\bpt1\bpt2\pt94.mat']);
+                
+                TW1_DNS_range=[101:301];
+                TF1_DNS_range=[600:1000];
+                TF1_LSS_snapshot=[600,601,602];
+            case '13639527'
+                %kx=16
+                p_TF1=load(['C:\Data\pde2path\HB_benard_full_zonal\',...
+                    'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip\tr\bpt1\bpt1\pt58.mat']);
+                p_TW1=load(['C:\Data\pde2path\HB_benard_full_zonal\',...
+                    'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip\tr\bpt1\bpt2\pt7.mat']);
+                
+                TW1_DNS_range=[80:180];
+                TF1_DNS_range=[300:400];
+                TF1_LSS_snapshot=[333,334,335];
+        end
+        
+        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,TW1_DNS_range),2),3)+dedalus_post_my{1}.z_list;
         data{1}.y=dedalus_post_my{1}.z_list;
-        data{2}.x=mean(mean(dedalus_post_my{1}.S(:,:,300:400),2),3)+dedalus_post_my{1}.z_list;
+        data{2}.x=mean(mean(dedalus_post_my{1}.S(:,:,TF1_DNS_range),2),3)+dedalus_post_my{1}.z_list;
         data{2}.y=dedalus_post_my{1}.z_list;
         data{3}.x=dedalus_post_my{1}.z_list;
         data{3}.y=dedalus_post_my{1}.z_list;
@@ -448,8 +484,10 @@ switch slurm_num{1}
         plot_config.Markerindex=3;
         plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
 %         plot_config.name=[my.folder_name,'profile_together_TF1_TW1','_par=',num2str(point_list(point_ind)),'_profile_',var_name,'.png'];
-        plot_config.legend_list={1,'$t\in [80,180]$','$t\in [300,400]$','$z$'};
-        plot_config.fontsize_legend=18;
+        plot_config.legend_list={1,['$t\in [',num2str(min(TW1_DNS_range)-1),',',num2str(max(TW1_DNS_range)-1),']$'],...
+            ['$t\in [',num2str(min(TF1_DNS_range)-1),',',num2str(max(TF1_DNS_range)-1),']$'],'$z$'};
+        plot_config.fontsize_legend=16;
+        plot_config.fontsize=34;
         plot_config.xlim_list=0; plot_config.xtick_list=0;
         plot_config.linewidth=3;
         plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_OTF1_TW1.png'];
@@ -459,26 +497,66 @@ switch slurm_num{1}
 
         %data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,80:180),2),3)+dedalus_post_my{1}.z_list;
         %data{1}.y=dedalus_post_my{1}.z_list;
+        %add the comparison with single mode solution 2022/05/23
+        
         clear data;
-        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,300:400),2),3)+dedalus_post_my{1}.z_list;
+        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,TF1_DNS_range),2),3)+dedalus_post_my{1}.z_list;
         data{1}.y=dedalus_post_my{1}.z_list;
-        data{2}.x=dedalus_post_my{1}.z_list;
-        data{2}.y=dedalus_post_my{1}.z_list;
-        plot_config.user_color_style_marker_list={'k-','r--'};%cl_list(A2_before_ind+1:A2_before_ind+2);
-        plot_config.legend_list={1,'$t\in [300,400]$','$z$'};
+        data{2}.x=p_TF1.p.u(1+4*p_TF1.p.np:5*p_TF1.p.np)+p_TF1.p.x;
+        data{2}.y=p_TF1.p.x;
+        data{3}.x=dedalus_post_my{1}.z_list;
+        data{3}.y=dedalus_post_my{1}.z_list;
+        plot_config.label_list={1,'$ \langle S \rangle_{h,t}+z$','$z$'};
+        plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
+        plot_config.legend_list={1,['$t\in [',num2str(min(TF1_DNS_range)-1),',',num2str(max(TF1_DNS_range)-1),']$'],'$\bar{S}_0+z$ in SME', '$z$'};
         plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_OTF1.png'];
         plot_line(data,plot_config);
         
-        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,80:180),2),3)+dedalus_post_my{1}.z_list;
+       clear data
+        data{1}.x=mean(dedalus_post_my{1}.u(:,:,TF1_LSS_snapshot(1)),2);
         data{1}.y=dedalus_post_my{1}.z_list;
-        %data{2}.x=NaN;%mean(mean(dedalus_post_my{1}.S(:,:,300:400),2),3)+dedalus_post_my{1}.z_list;
-        %data{2}.y=NaN;%dedalus_post_my{1}.z_list;
-        data{2}.x=dedalus_post_my{1}.z_list;
+        data{2}.x=mean(dedalus_post_my{1}.u(:,:,TF1_LSS_snapshot(2)),2);
         data{2}.y=dedalus_post_my{1}.z_list;
-        plot_config.user_color_style_marker_list={'k-','r--'};%cl_list(A2_before_ind+1:A2_before_ind+2);
-        plot_config.legend_list={1,'$t\in [80,180]$','$z$'};        
+        data{3}.x=mean(dedalus_post_my{1}.u(:,:,TF1_LSS_snapshot(3)),2);
+        data{3}.y=dedalus_post_my{1}.z_list;
+        data{4}.x=p_TF1.p.u(1+8*p_TF1.p.np:9*p_TF1.p.np);
+        data{4}.y=p_TF1.p.x;
+        plot_config.label_list={1,'$ \langle u \rangle_h$','$z$'};
+        plot_config.user_color_style_marker_list={'k-','r--','m:','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
+        plot_config.legend_list={1,['$t=',num2str(TF1_LSS_snapshot(1)-1),'$'],...
+            ['$t=',num2str(TF1_LSS_snapshot(2)-1),'$'],...
+            ['$t=',num2str(TF1_LSS_snapshot(3)-1),'$'],...
+            '$\bar{U}_0$ in SME'};        
+        plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','U_0','_total_xt_ave_TF1.png'];
+        plot_config.xlim_list=[0,-0.15,0.15];
+        plot_line(data,plot_config);
+        
+        clear data;
+        data{1}.x=mean(mean(dedalus_post_my{1}.S(:,:,TW1_DNS_range),2),3)+dedalus_post_my{1}.z_list;
+        data{1}.y=dedalus_post_my{1}.z_list;
+        data{2}.x=p_TW1.p.u(1+4*p_TW1.p.np:5*p_TW1.p.np)+p_TW1.p.x;
+        data{2}.y=p_TW1.p.x;
+        data{3}.x=dedalus_post_my{1}.z_list;
+        data{3}.y=dedalus_post_my{1}.z_list;
+        plot_config.label_list={1,'$ \langle S \rangle_{h,t}+z$','$z$'};
+        plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
+        plot_config.legend_list={1,['$t\in [',num2str(min(TW1_DNS_range)-1),',',num2str(max(TW1_DNS_range)-1),']$'],...
+            '$\bar{S}_0+z$ in SME','$z$'};        
         plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_TW1.png'];
         plot_line(data,plot_config);
+        
+        
+        clear data
+        data{1}.x=mean(mean(dedalus_post_my{1}.u(:,:,TW1_DNS_range),2),3);
+        data{1}.y=dedalus_post_my{1}.z_list;
+        data{2}.x=p_TW1.p.u(1+8*p_TW1.p.np:9*p_TW1.p.np);
+        data{2}.y=p_TW1.p.x;
+        plot_config.label_list={1,'$\langle u \rangle_{h,t}$','$z$'};
+        plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
+        plot_config.legend_list={1,['$t\in [',num2str(min(TW1_DNS_range)-1),',',num2str(max(TW1_DNS_range)-1),']$'],'$\bar{U}_0$ in SME'};        
+        plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','U_0','_total_xt_ave_TW1.png'];
+        plot_line(data,plot_config);
+        
 end
 
 error('1')

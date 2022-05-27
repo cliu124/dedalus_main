@@ -13,7 +13,10 @@ if p.sw.para>2
     obj.S_hat=u(2*p.np+1:3*p.np,:);
     obj.T_0=u(3*p.np+1:4*p.np,:);
     obj.S_0=u(4*p.np+1:5*p.np,:);
-    obj.z_list=p.x+p.lx;
+    obj.U_0=u(8*p.np+1:9*p.np);
+    obj.omega_z_hat=u(1+9*p.np:10*p.np);
+        
+    obj.z_list=p.x;%+p.lx;
     obj.t_list=p.hopf.t;
     fig_num=10;
     figure(fig_num+1)
@@ -34,7 +37,7 @@ else
     obj.S_hat=u(2*p.np+1:3*p.np);
     obj.T_0=u(3*p.np+1:4*p.np);
     obj.S_0=u(4*p.np+1:5*p.np);
-    obj.z_list=p.x+p.lx;
+    obj.z_list=p.x;%;+p.lx;
     fig_num=10;
     figure(fig_num+1)
     plot(obj.w_hat,obj.z_list);
@@ -63,7 +66,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     obj.dy_T_mean=par(7);
     obj.dy_S_mean=par(8);
     obj.tau=1/obj.Le;
-    obj.z_list=p.x+p.lx;
+    obj.z_list=p.x;%+p.lx;
 
     %read the kx kz computed... 
     [obj.kx,obj.ky]=my_kx(p,p.u);
@@ -72,12 +75,32 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     p.u(p.nu+1:end)=par;
 
     %read chebyshev differentiation matrix. 
-    [xt, DM] = chebdif(p.np+2, 2);
-    D1=DM(2:end-1,2:end-1,1);
-    p.mat.D1=D1/p.lx;
-    p.mat.D1_full=DM(:,:,1)/p.lx;
-    p.mat.D2=DM(2:end-1,2:end-1,2)/p.lx^2;
-
+    %Update 2022/05/12, modify the differential matrix, keep that for the
+    %boundary values.. Need to be
+   % error('Update this differential matrix');
+    if size(p.my.grid,1)==1
+            p.x=[];
+            p.mat.D1=[]; p.mat.D2=[]; p.mat.D3=[]; p.mat.D4=[];
+            grid_ind=1;
+%             [xt, DM] = chebdif(p.my.grid(grid_ind,3), 4);%get the chebdif up to fourth order            
+            [xt, DM] = chebdif(p.np, 4);%get the chebdif up to fourth order                        
+            lx_original=max(xt)-min(xt); %the domain of chebyshev grid, should be 2
+            scaling=lx_original/(p.my.grid(grid_ind,2)-p.my.grid(grid_ind,1)); %get scaling factor, 2/(zeta_2-zeta_1)
+            for derivative_ind=1:4
+                D_rescale=DM(:,:,derivative_ind)*scaling^derivative_ind;%rescale the differential matrix using the scaling factor
+                %p.mat.(['sub',num2str(grid_ind),'_D',num2str(derivative_ind)])=D_rescale;%set up the differential matrix of each sub-domain, will be used to setup the continuity between each domain
+                p.mat.(['D',num2str(derivative_ind)])=blkdiag(D_rescale,p.mat.(['D',num2str(derivative_ind)]));%set up the whole differential matrix, taking the block diag
+            end
+            xt_scale=(p.my.grid(grid_ind,2)-p.my.grid(grid_ind,1))*xt/2+(p.my.grid(grid_ind,2)+p.my.grid(grid_ind,1))/2;
+            p.x=[xt_scale;p.x];
+            %[~,Iw]=clencurt(p.my.grid(grid_ind,3)-1);
+            %p.mat.Iw=[Iw'/scaling;p.mat.Iw];%setup the integration weight
+        else
+            error('Not supported!!!');
+           
+    end
+        
+    
     if p.sw.para>2
         %Hopf bifurcation
         u=p.hopf.y(1:p.nu,:);
@@ -86,8 +109,10 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         obj.S_hat=u(2*p.np+1:3*p.np,:);
         obj.T_0=u(3*p.np+1:4*p.np,:);
         obj.S_0=u(4*p.np+1:5*p.np,:);
+        obj.U_0=u(8*p.np+1:9*p.np,:);
+        obj.omega_z_hat=u(1+9*p.np:10*p.np,:);
         obj.u_tilde=obj.kx*p.mat.D1*obj.w_hat/(obj.kx^2+obj.ky^2);
-
+        plot_complex=0;
     else
         %steady bifurcation
         u=p.u(1:p.nu);  
@@ -105,8 +130,6 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
             obj.S_hat_imag=u(7*p.np+1:8*p.np);
             obj.omega_z_hat_imag=u(1+10*p.np:11*p.np);
         else
-            %here I have take the complex conjugate... 
-            %for the negative wavenumber... 
             obj.kx=-obj.kx;
             obj.ky=-obj.ky;
             obj.w_hat_imag=-u(5*p.np+1:6*p.np);
@@ -131,7 +154,9 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         obj.S_phase=atan(obj.S_hat_imag./obj.S_hat);
         obj.u_phase=atan(obj.u_tilde_imag./obj.u_tilde);
         obj.v_phase=atan(obj.v_tilde_imag./obj.v_tilde);
-        if sum(abs(obj.w_phase-obj.T_phase))<0.001 & sum(abs(obj.w_phase-obj.S_phase))<0.001
+        
+        %Update 2022/05/12, only concern about the phase in between
+        if sum(abs(obj.w_phase(2:end-1)-obj.T_phase(2:end-1)))<0.001 & sum(abs(obj.w_phase(2:end-1)-obj.S_phase(2:end-1)))<0.001
             %all of these phase are the same... just translate to the zero
             %phase, and make w_hat, T_hat, and S_hat as the amplitude of
             %these variable, but also keep the sign information.
@@ -141,6 +166,15 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
             obj.S_hat=obj.S_hat./cos(obj.S_phase);
             obj.u_tilde=obj.u_tilde./cos(obj.u_phase);
             obj.v_tilde=obj.v_tilde./cos(obj.v_phase);
+        
+            %replace any NaN as zero. That is due to the division by zero
+            %error leading to NaN
+            %Update 2022/05/12
+            obj.w_hat(isnan(obj.w_hat))=0;
+            obj.T_hat(isnan(obj.T_hat))=0;
+            obj.S_hat(isnan(obj.S_hat))=0;
+            obj.u_tilde(isnan(obj.u_tilde))=0;
+            obj.v_tilde(isnan(obj.v_tilde))=0;
         else
             %The phase at each y location are not the same.. just add them
             %together.
@@ -204,6 +238,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_0.png'];
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
     
     if p.sw.para>2
@@ -221,13 +256,14 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.colormap='jet';
         plot_config.zlim_list=[1,0,1];
         plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_0_hopf.png'];
         plot_contour(data,plot_config);
         plot_config.title_list={0};
     end
     %for computing the Nusselt number, use the full matrix. 
     zero_bc=zeros(1,size(obj.T_0,2));
-    p.my.Nu=p.mat.D1_full*[zero_bc;obj.T_0;zero_bc]+obj.dy_T_mean;
+    p.my.Nu=p.mat.D1*[obj.T_0]+obj.dy_T_mean;
     clear data
 
 
@@ -236,6 +272,8 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.label_list={1,['$\bar{S}_0',S_mean_sign,'$'], '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0.png'];
+    plot_config.linewidth=3;
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
     if p.sw.para>2
         %plot the time average quantity
@@ -252,12 +290,13 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.colormap='jet';
         plot_config.zlim_list=[1,0,1];
         plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0_hopf.png'];
         plot_contour(data,plot_config);
         plot_config.title_list={0};
     end
     %for computing the Nusselt number, use the full matrix. 
-    p.my.Nu_S=p.mat.D1_full*[zero_bc;obj.S_0;zero_bc]+obj.dy_S_mean;
+    p.my.Nu_S=p.mat.D1*[obj.S_0]+obj.dy_S_mean;
 
     %%Update 2022/04/04, add the plotting of the large scale shear (zonal flow)
     data{1}.x=obj.U_0(:,1);
@@ -266,7 +305,24 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.label_list={1,['$\bar{U}_0$'], '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','U_0.png'];
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
+    if p.sw.para>2
+        
+        %lift as the contour
+        data{1}.z=obj.U_0;
+        data{1}.x=obj.t_list;
+        plot_config.title_list={1,plot_config.label_list{2}};
+        plot_config.label_list{2}='$t/T$';
+        plot_config.print_size=[1,1000,900];
+        plot_config.colormap='bluewhitered';
+        plot_config.zlim_list=0;
+        plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
+        plot_config.name=[obj.h5_name(1:end-3),'_HB_','U_0_hopf.png'];
+        plot_contour(data,plot_config);
+        plot_config.title_list={0};
+    end
     
     clear data
 
@@ -281,6 +337,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
         plot_config.fontsize_legend=24;
     end
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
     if p.sw.para>2
         % plot the time average quantity
@@ -297,6 +354,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.colormap='bluewhitered';
         plot_config.zlim_list=0;
         plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_hat_hopf.png'];
         plot_contour(data,plot_config);
         plot_config.title_list={0};
@@ -315,7 +373,17 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
         plot_config.fontsize_legend=24;
     end
+    x_max=max([abs(real(obj.S_hat(:,1)));abs(imag(obj.S_hat(:,1)))]);
+    plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
+    if obj.no_ylabel
+        plot_config.label_list{3}='';
+        plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_hat_no_ylabel.png'];
+        plot_line(data,plot_config);
+    end
+
+    
     if p.sw.para>2
         % plot the time average quantity
         data{1}.x=mean(obj.S_hat,2);
@@ -331,6 +399,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.colormap='bluewhitered';
         plot_config.zlim_list=0;
         plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_hat_hopf.png'];
         plot_contour(data,plot_config);
         plot_config.title_list={0};
@@ -349,7 +418,16 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
         plot_config.fontsize_legend=24;
     end
+    x_max=max([abs(real(obj.w_hat(:,1)));abs(imag(obj.w_hat(:,1)))]);
+    plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
+    if obj.no_ylabel %plot the version without y label for paper writing
+        plot_config.label_list{3}='';
+        plot_config.name=[obj.h5_name(1:end-3),'_HB_','w_hat_no_ylabel.png'];
+        plot_line(data,plot_config);
+    end
+    
     if p.sw.para>2
         % plot the time average quantity
         data{1}.x=mean(obj.w_hat,2);
@@ -365,6 +443,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.colormap='bluewhitered';
         plot_config.zlim_list=0;
         plot_config.ylim_list=[1,0,1];
+        plot_config.xlim_list=[1,0,1];
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','w_hat_hopf.png'];
         plot_contour(data,plot_config);
         plot_config.title_list={0};
@@ -382,7 +461,16 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
         plot_config.fontsize_legend=24;
     end
+    x_max=max([abs(real(obj.u_tilde(:,1)));abs(imag(obj.u_tilde(:,1)))]);
+    plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
+    if obj.no_ylabel %plot the version without y label for paper writing
+        plot_config.label_list{3}='';
+        plot_config.name=[obj.h5_name(1:end-3),'_HB_','u_tilde_no_ylabel.png'];
+        plot_line(data,plot_config);
+    end
+    
     if p.sw.para>2
         % plot the time average quantity
         data{1}.x=mean(obj.u_tilde,2);
@@ -407,7 +495,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     %Update 2022/04/11, add the plotting of vertical vorticity
     data{1}.x=obj.omega_z_hat(:,1);
     data{1}.y=obj.z_list;
-    plot_config.label_list={1,'$\widehat{\omega}_z$', '$z$'};
+    plot_config.label_list={1,'$\widehat{\zeta}_z$', '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','omega_z_hat.png'];
     if plot_complex
@@ -416,6 +504,11 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
         plot_config.fontsize_legend=24;
     end
+    %x_max=max([real(obj.omega_z_hat(:,1));imag(obj.omega_z_hat(:,1))]);
+    %plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
+    plot_config.xlim_list=0; plot_config.xtick_list=0;
+    plot_config.xtick_list=[1,-0.02,0.02];
+    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
     plot_line(data,plot_config);
     
     
@@ -443,7 +536,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.ylim_list=[1,0,1];
     plot_config.label_list={1,'$x k_x$','$z$'};
     plot_config.streamline=1;
-    plot_config.user_color_style_marker_list={'k-','b--'};
+    plot_config.user_color_style_marker_list={'k-','r--'};
     plot_config.panel_num=2;
     plot_config.arrow_ratio=0.8;
     plot_config.linewidth=3;
@@ -510,7 +603,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
             plot_config.ylim_list=[1,0,2*pi];
             plot_config.label_list={1,'$x k_x$','$y k_y$'};
             plot_config.streamline=0;
-            plot_config.user_color_style_marker_list={'k-','b--'};
+            plot_config.user_color_style_marker_list={'k-','r--'};
             plot_config.panel_num=2;
             plot_config.arrow_ratio=0.8;
             plot_config.linewidth=3;
@@ -557,6 +650,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
     plot_config.ylim_list=[1,0,1];
     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    plot_config.yticklabels_list={0};
     plot_config.label_list={1,'$x k_x$','$z$'};
     plot_config.contour_line=0;
     plot_config.colorbar=1;
@@ -593,6 +687,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
     plot_config.ylim_list=[1,0,1];
     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    plot_config.yticklabels_list={0};
     plot_config.label_list={1,'$x k_x$','$z$'};
     plot_config.contour_line=0;
     plot_config.colorbar=1;

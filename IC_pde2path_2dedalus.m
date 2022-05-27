@@ -4,10 +4,10 @@ clc
 
 % group_name='HB_benard_salt_finger_Ra_S2T_IC';
 group_name='HB_benard_salt_finger_Ra_S2T';
-% group_name='HB_benard_salt_finger_kx';
+group_name='HB_benard_salt_finger_kx';
 %This is just plot the profile for specific Ra_S2T....
 % branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
-root_folder_name='C:/Data/pde2path/HB_benard_cheb4c_zonal/';
+root_folder_name='C:/Data/pde2path/HB_benard_full_zonal/';
 switch group_name
     case {'HB_benard_salt_finger_Ra_S2T','HB_benard_salt_finger_Ra_S2T_IC'}
         point_list=[1/90,1/80,1/70,1/60,1/50,1/40,1/30,1/20]*10^5;
@@ -47,27 +47,29 @@ switch group_name
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
     case 'HB_benard_salt_finger_kx'
-        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_2D';
+        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip';
         switch folder_name
-            case 'salt_finger_kx_low_Ra_S2T_2D'
+            case 'salt_finger_kx_low_Ra_S2T_2D_no_slip'
                 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt1/bpt1'};%,'tr/bpt4'
                 %branch_name_list={'tr/bpt1/bpt1'};
                 IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
-            case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D'
+            case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip'
                 %branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 branch_name_list={'tr/bpt1/bpt2'};
                 IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
-            case 'salt_finger_kx_low_Ra_S2T_low_Pr_3D'
+            case 'salt_finger_kx_low_Ra_S2T_low_Pr_3D_no_slip'
                 branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 IC_write_folder_name='./IC/3D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
         end
         %point_list=[-12];
-        point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
+        %point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
+        point_list=[-0.5];
         %point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
         %point_list=[-12];
         ilam=1;
         %point_plot=1;
         Lx2d=1;
+        branch_name_list={'tr/bpt1'};
         %point_list=[-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
 
 end
@@ -84,7 +86,11 @@ for branch_ind=1:length(branch_name_list)
         if any(abs(point_list-point)<0.1)
             ind=find(abs(point_list-point)<0.1);
             ind=ind(1);
-            mkdir([IC_write_folder_name,num2str(round(abs(point_list(ind))))]);
+            if point_list(ind)==-0.5
+               mkdir([IC_write_folder_name,'0p5']);
+            else
+                mkdir([IC_write_folder_name,num2str(round(abs(point_list(ind))))]);
+            end
             branch_name=branch_name_list{branch_ind};
             p.my.folder_name=my.folder_name;
             p.my.plot_config.visible=0;
@@ -98,7 +104,7 @@ for branch_ind=1:length(branch_name_list)
             mat_pde2path=p.mat;
             
             %h5_name='analysis_s1_Nx64_Nz128.h5';
-            h5_name='analysis_s1_Nx256_Nz256.h5';
+            h5_name='analysis_s1_Nx128_Nz128.h5';
             obj_dedalus{branch_ind,ind}.x_list=h5read_complex(h5_name,'/scales/x/1.0');
             obj_dedalus{branch_ind,ind}.z_list=h5read_complex(h5_name,'/scales/z/1.0');
             obj_dedalus{branch_ind,ind}.z_list_cheb=obj_dedalus{branch_ind,ind}.z_list*2-1;
@@ -156,8 +162,14 @@ for branch_ind=1:length(branch_name_list)
                 field=field_list{field_ind};
                 h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
             end
-            h5_name_destination=[IC_write_folder_name,num2str(round(abs(point_list(ind)))),'/'...
-                h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
+            
+            if point_list(ind)==-0.5
+                 h5_name_destination=[IC_write_folder_name,'0p5','/'...
+                    h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];            
+            else
+                h5_name_destination=[IC_write_folder_name,num2str(round(abs(point_list(ind)))),'/'...
+                    h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
+            end
             copyfile(h5_name,h5_name_destination);
             
             %{

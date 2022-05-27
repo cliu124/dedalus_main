@@ -249,6 +249,12 @@ classdef dedalus_post
         no_ylabel=0;
         
         title_time=1;
+        
+        store_variable='all';
+        
+        spec_kx_z_S=0;
+        spec_kx_z_u=0;
+        spec_kx_z_w=0;
     end
     
     methods
@@ -967,52 +973,112 @@ classdef dedalus_post
            end
         end
         
-        function obj=spectrum_average(obj,variable_name)
+        function obj=spectrum_average(obj,variable_name,t_range)
             %%This function plot the 
             %%plot the overall spectrum averaged over time
-            obj.([variable_name,'_coeff'])=h5read_complex(obj.h5_name,['/tasks/',variable_name,'_coeff']);
+            if nargin<3 || isempty(t_range)
+               t_range(1)=obj.t_list(1);
+               t_range(2)=obj.t_list(end); 
+            end
+           
+            [val,t_ind_begin]=min(abs(obj.t_list-t_range(1)));
+            [val,t_ind_end]=min(abs(obj.t_list-t_range(2)));
+            
             %coeff.r+1i*coeff.i;
             
-            data{1}.x=obj.kx_list;
-            data{1}.y=obj.kz_list(1:obj.Nz/2);
-            plot_config.label_list={1,'$k_x$','$k_z$'};
-
 %             obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
 %             for t_ind=1:length(obj.t_list)
 %                 obj.(['E_',variable_name])(t_ind)=sum(sum(obj.(variable_name)(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
 %             end
 %             [val,max_ind]=max(obj.(['E_',variable_name]));
-%             
-            spectrum_average=mean(abs(obj.([variable_name,'_coeff'])(1:obj.Nz/2,:,1:end)).^2,3);
-            data{1}.z=log10(spectrum_average);
-            plot_config.loglog=[0,0];
-            plot_config.print_size=[1,1100,900];
-            plot_config.colormap='white_zero';
-            plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_2D_time_average.png'];
-            plot_config.print=obj.print;
-            plot_config.ytick_list=[0,10^(-8),10^(-7),10^(-6),10^(-5),10^(-4),...
-                0.001,0.01,0.1,1,10,100,1000];
-            plot_config.xtick_list=[0,10^(-8),10^(-7),10^(-6),10^(-5),10^(-4),...
-                0.001,0.01,0.1,1,10,100,1000];
-            plot_config.visible=obj.visible;
-            plot_contour(data,plot_config);
-            
-            dx=diff(obj.kx_list); dx=dx(1);
-            dz=diff(obj.kz_list); dz=dz(1);
+%            
+            if strcmp(obj.z_basis_mode,'Chebyshev')
+                %modify for the vertical as the bounded domain.. Chebyshev
+                %basis instead of the Fourier.. so we do not have spectrum
+                %int he vertical
+                obj.([variable_name])=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
 
-            data{1}.x=obj.kx_list;
-            data{1}.y=2*dz*sum(spectrum_average,1);
-            data{2}.x=obj.kz_list(1:obj.Nz/2);
-            data{2}.y=2*dx*sum(spectrum_average,2);
-            
-            plot_config.loglog=[1,1];
-            
-            plot_config.label_list={1,'$k_x$ or $k_z$',''};
-            plot_config.legend_list={1,['$\int E_',variable_name,'(k_x,k_z)dk_z$'],['$\int E_',variable_name,'(k_x,k_z)d k_x$']};
-            plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_1D_time_average.png'];
-            plot_config.print=obj.print;
-            plot_config.visible=obj.visible;
-            plot_line(data,plot_config);
+                x_list=obj.x_list;
+                dx=mean(diff(obj.x_list));
+                Nx=length(x_list);
+                Fs=1/dx;
+                obj.kx_list=2*pi*Fs*(0:(Nx/2-1))/Nx; %Note that this wavenumber corresponding to circular frequency
+                t_ave_num=0;
+                spec_kx_z=zeros(length(obj.kx_list),length(obj.z_list));
+                for t_ind=t_ind_begin:t_ind_end
+                    for z_ind=1:length(obj.z_list)
+                        spec_tmp=abs(fft(obj.([variable_name])(z_ind,:,t_ind))/Nx);
+                        spec_tmp=spec_tmp(1:Nx/2);
+                        %spec_tmp(2:end)=2*spec_tmp(2:end);
+                        
+                        spec_kx_z(:,z_ind)=spec_kx_z(:,z_ind)+(spec_tmp)';
+                    end
+                    t_ave_num=t_ave_num+1;
+                end
+                
+                spec_kx_z=spec_kx_z/t_ave_num;
+%                 spec_kx_z=abs(spec_kx_z);
+                obj.(['spec_kx_z_',variable_name])=spec_kx_z;
+                data{1}.x=obj.kx_list;
+                data{1}.y=obj.z_list;
+                data{1}.z=(spec_kx_z)';
+                plot_config.label_list={1,'$k_x$','$z$'};
+
+                %spectrum_average=mean(abs(obj.([variable_name,'_coeff'])(:,:,t_ind_begin:t_ind_end)).^2,3);
+                %data{1}.z=log10(spectrum_average);
+                plot_config.loglog=[0,0];
+                plot_config.print_size=[1,800,900];
+                plot_config.colormap='white_zero';
+                plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_2D_time_average.png'];
+                plot_config.print=obj.print;
+                plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+                plot_config.xtick_list=[1,0,10,20,30];
+                plot_config.xlim_list=[1,0,20];
+                plot_config.ylim_list=[1,0,1];
+                plot_config.zlim_list=[1,0,0.16];
+                plot_config.ztick_list=[1,0,0.04,0.08,0.12,0.16]
+                plot_config.visible=1;%obj.visible;
+                plot_config.fontsize=32;
+                plot_contour(data,plot_config);
+
+            elseif strcmp(obj.z_basis_mode,'Fourier')
+                obj.([variable_name,'_coeff'])=h5read_complex(obj.h5_name,['/tasks/',variable_name,'_coeff']);
+
+                data{1}.x=obj.kx_list;
+                data{1}.y=obj.kz_list(1:obj.Nz/2);
+                plot_config.label_list={1,'$k_x$','$k_z$'};
+
+                spectrum_average=mean(abs(obj.([variable_name,'_coeff'])(1:obj.Nz/2,:,1:end)).^2,3);
+                data{1}.z=log10(spectrum_average);
+                plot_config.loglog=[0,0];
+                plot_config.print_size=[1,1100,900];
+                plot_config.colormap='white_zero';
+                plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_2D_time_average.png'];
+                plot_config.print=obj.print;
+                plot_config.ytick_list=[0,10^(-8),10^(-7),10^(-6),10^(-5),10^(-4),...
+                    0.001,0.01,0.1,1,10,100,1000];
+                plot_config.xtick_list=[0,10^(-8),10^(-7),10^(-6),10^(-5),10^(-4),...
+                    0.001,0.01,0.1,1,10,100,1000];
+                plot_config.visible=obj.visible;
+                plot_contour(data,plot_config);
+
+                dx=diff(obj.kx_list); dx=dx(1);
+                dz=diff(obj.kz_list); dz=dz(1);
+
+                data{1}.x=obj.kx_list;
+                data{1}.y=2*dz*sum(spectrum_average,1);
+                data{2}.x=obj.kz_list(1:obj.Nz/2);
+                data{2}.y=2*dx*sum(spectrum_average,2);
+
+                plot_config.loglog=[1,1];
+
+                plot_config.label_list={1,'$k_x$ or $k_z$',''};
+                plot_config.legend_list={1,['$\int E_',variable_name,'(k_x,k_z)dk_z$'],['$\int E_',variable_name,'(k_x,k_z)d k_x$']};
+                plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_1D_time_average.png'];
+                plot_config.print=obj.print;
+                plot_config.visible=obj.visible;
+                plot_line(data,plot_config);
+            end
         end
         
         
