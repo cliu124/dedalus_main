@@ -1401,6 +1401,7 @@ classdef dedalus_post
             plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1];
             plot_contour(data,plot_config);
             
+            
         end
         
         function obj=z_slice(obj,variable_name,z_list)
@@ -1598,14 +1599,27 @@ classdef dedalus_post
             plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
             plot_line(data,plot_config);
             
-            plot_config.print=0;
+            plot_config.print=obj.print;
             plot_config.visible=0;
+            plot_config.print_size=[1,500,900];
+
             switch variable_name
                 case {'T','S'}
                 if obj.video
 
                     for t_ind=1:length(obj.t_list)
-                        data{2}.x=squeeze(mean(variable_data(:,:,t_ind),2))+obj.z_list;
+                        data{1}.x=squeeze(mean(variable_data(:,:,t_ind),2))+obj.z_list;
+                        data{2}.x=obj.z_list;
+                        plot_config.legend_list={1,['$ z+\langle ',variable_name,'\rangle_{h}$'],['$z$']};
+                        if obj.title_time
+                            plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
+                        else
+                            plot_config.title_list={0};
+                        end
+                        if obj.no_ylabel
+                           plot_config.label_list={1,'',''}; 
+                        end
+                        plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_x_ave_',num2str(round(obj.t_list(t_ind))),'.png'];
                         snapshot(t_ind)=plot_line(data,plot_config);
                     end
                    plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_video.avi'];
