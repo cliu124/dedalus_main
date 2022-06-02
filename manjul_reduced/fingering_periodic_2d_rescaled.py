@@ -14,7 +14,7 @@ import time
 from dedalus import public as de
 from dedalus.extras import flow_tools
 
-from filter_field import filter_field
+#from filter_field import filter_field
 
 import logging
 logger = logging.getLogger(__name__)
@@ -64,9 +64,10 @@ problem.add_equation("dt(up) + Pr_tau*(dx(p - h_mean(p)) - dx(dx(up)) + tau**2*d
 problem.add_equation("dt(wp) + Pr_tau*(tau**2*dx(p - h_mean(p)) - dx(dx(wp)) + tau**2*dz(dz(wp))) - Ra_SH*(R_rho*Tm - Sm) = -(u_full*dx(wp) + w_full*dz(wp)) + dz(h_mean(ww))")
 problem.add_equation("dt(um) - tau*Pr*dz(dz(um)) = - dz(h_mean(uw))")
 problem.add_equation("Pr_tau*(dz(h_mean(p)) - Ra_SH*(R_rho*Tm - Sm)) = - dz(h_mean(ww))")
-problem.add_equation("dx(u_full) + dz(w_full) = 0", condition="(nx != 0) and (nz != 0)")
-problem.add_equation("dx(um) + dz(wm) = 0", condition="(nx != 0) and (nz != 0)")
-problem.add_equation("p = 0", condition="(nx == 0) or (nz == 0)")
+#problem.add_equation("dx(up) + dz(wp) = 0", condition="(nx != 0) or (nz != 0)")
+#problem.add_equation("dx(um) + dz(wm) = 0", condition="(nx != 0) or (nz != 0)")
+problem.add_equation("dx(u_full) + dz(w_full) = 0", condition="(nx != 0) or (nz != 0)")
+problem.add_equation("p = 0", condition="(nx == 0) and (nz == 0)")
 problem.add_equation("dt(Tp) - tau_inv*(dx(dx(Tp)) + tau**2*dz(dz(Tp)) + wp*(1 + dTz)) = -(u_full*dx(Tp) + w_full*dz(Tp)) + dz(h_mean(wT))")
 problem.add_equation("dt(Sp) - dx(dx(Sp)) + tau**2*dz(dz(Sp)) + wp*(1 + dSz) = -(u_full*dx(Sp) + w_full*dz(Sp)) + dz(h_mean(wS))")
 problem.add_equation("dt(Tm) - tau*dz(dz(Tm)) = - tau*dz(h_mean(wT))")
