@@ -68,7 +68,7 @@ switch group_name
                 IC_write_folder_name='./IC/periodic_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
                 h5_name='periodic_analysis_s1_Nx128_Nz128.h5';
         end
-        point_list=[-12];
+        point_list=[-18,-16,-14];
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=[-0.5];
         %point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
