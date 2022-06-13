@@ -47,29 +47,36 @@ switch group_name
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
     case 'HB_benard_salt_finger_kx'
-        folder_name='salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip';
+        folder_name='salt_finger_kx_low_Ra_S2T_2D_periodic_test';
         switch folder_name
             case 'salt_finger_kx_low_Ra_S2T_2D_no_slip'
                 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt1/bpt1'};%,'tr/bpt4'
                 %branch_name_list={'tr/bpt1/bpt1'};
                 IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
+                h5_name='analysis_s1_Nx128_Nz128.h5';
             case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip'
                 %branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 branch_name_list={'tr/bpt1/bpt2'};
                 IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
+                h5_name='analysis_s1_Nx128_Nz128.h5';
             case 'salt_finger_kx_low_Ra_S2T_low_Pr_3D_no_slip'
                 branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 IC_write_folder_name='./IC/3D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_';
+                h5_name='analysis_s1_Nx128_Nz128.h5';
+            case 'salt_finger_kx_low_Ra_S2T_2D_periodic_test'
+                branch_name_list={'tr/bpt1/last_pt/last_pt_p_ds'};
+                IC_write_folder_name='./IC/periodic_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
+                h5_name='periodic_analysis_s1_Nx128_Nz128.h5';
         end
-        %point_list=[-12];
-        %point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
-        point_list=[-0.5];
+        point_list=[-12];
+%         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
+%         point_list=[-0.5];
         %point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
         %point_list=[-12];
         ilam=1;
         %point_plot=1;
         Lx2d=1;
-        branch_name_list={'tr/bpt1'};
+%         branch_name_list={'tr/bpt1'};
         %point_list=[-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
 
 end
@@ -83,7 +90,7 @@ for branch_ind=1:length(branch_name_list)
         load([my.folder_name,branch_name,'/',node_name.pt_list{pt_ind}]);
         point=p.u(p.nu+ilam);
         p.sol.ineg;
-        if any(abs(point_list-point)<0.1)
+        if any(abs(point_list-point)<0.01)
             ind=find(abs(point_list-point)<0.1);
             ind=ind(1);
             if point_list(ind)==-0.5
@@ -104,10 +111,10 @@ for branch_ind=1:length(branch_name_list)
             mat_pde2path=p.mat;
             
             %h5_name='analysis_s1_Nx64_Nz128.h5';
-            h5_name='analysis_s1_Nx128_Nz128.h5';
             obj_dedalus{branch_ind,ind}.x_list=h5read_complex(h5_name,'/scales/x/1.0');
             obj_dedalus{branch_ind,ind}.z_list=h5read_complex(h5_name,'/scales/z/1.0');
             obj_dedalus{branch_ind,ind}.z_list_cheb=obj_dedalus{branch_ind,ind}.z_list*2-1;
+            obj_dedalus{branch_ind,ind}.z_list_fourier=obj_dedalus{branch_ind,ind}.z_list*2*pi;
 
             field_list={'u_tilde','v_tilde','w_hat',...
                 'S_0','T_0','S_hat','T_hat','U_0'};
@@ -122,9 +129,19 @@ for branch_ind=1:length(branch_name_list)
                 'd_u_tilde','d_v_tilde','d_w_hat',...
                 'd_S_0','d_T_0','d_S_hat','d_T_hat','p_hat',...
                 'U_0','d_U_0'};
-            for field_ind=1:length(field_list)
-                field=field_list{field_ind};
-                obj_dedalus{branch_ind,ind}.(field)=chebint([0;obj_pde2path{branch_ind,ind}.(field)(:,1);0],obj_dedalus{branch_ind,ind}.z_list_cheb);
+            switch p.my.z_basis_mode
+                case 'Chebyshev'
+                    for field_ind=1:length(field_list)
+                        field=field_list{field_ind};
+                        obj_dedalus{branch_ind,ind}.(field)=chebint([obj_pde2path{branch_ind,ind}.(field)(:,1)],obj_dedalus{branch_ind,ind}.z_list_cheb);
+                    end
+                case 'Fourier'
+                    for field_ind=1:length(field_list)
+                        field=field_list{field_ind};
+                        obj_dedalus{branch_ind,ind}.(field)=fourint([obj_pde2path{branch_ind,ind}.(field)(:,1)],obj_dedalus{branch_ind,ind}.z_list_fourier);
+                    end
+                otherwise
+                    error('Wrong p.my.z_basis_mode');
             end
             kx=obj_pde2path{branch_ind,ind}.kx;
             ky=obj_pde2path{branch_ind,ind}.ky;

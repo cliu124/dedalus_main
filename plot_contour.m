@@ -46,7 +46,7 @@ function frame=plot_contour(data,plot_config)
 field_all={'label_list','title_list','xlim_list','ylim_list','colormap',...
   'xtick_list','ytick_list','ztick_list','name','zlim_list','loglog','print_size','print','resolution','panel_num','marker_face_index','contour_line',...
   'axis_2','label_list_2','xlim_list_2','ylim_list_2','xtick_list_2','ytick_list_2','loglog_2','x_reverse','y_reverse','fontsize','markersize','linewidth','format','xticklabels_list','yticklabels_list','axis_equal',...
-  'xtick_visible','ytick_visible','colormap_discrete','visible','streamline','colorbar' }; %%Update 2021/02/25, add the option that I can remove the tick...
+  'xtick_visible','ytick_visible','colormap_discrete','visible','streamline','colorbar','fig_num','arrow_ratio' }; %%Update 2021/02/25, add the option that I can remove the tick...
 %%Add the default field for the plotting with double axis. Update: 2019/08/20
 %%add the property to setup the fontsize, the default value is 40.
 %%add 
@@ -54,7 +54,7 @@ field_all={'label_list','title_list','xlim_list','ylim_list','colormap',...
 field_default={{0},{0},0,0,'jet',...
     0,0,0,'test',0,[0,0],0,1,300,1,zeros(length(data)),0,...
     0,{0},0,0,0,0,[0,0],0,0,40,9,1.5,'png',{0},{0},0,...
-    1,1,0,1,0,1};%%Add the default field for the plotting with double axis. Update: 2019/08/20
+    1,1,0,1,0,1,1,1};%%Add the default field for the plotting with double axis. Update: 2019/08/20
 field_no_list=find(~isfield(plot_config,field_all)); %%fine whether there is already the field in the plot_config
 for i=field_no_list
   plot_config.(field_all{i})=field_default{i};
@@ -62,7 +62,7 @@ end
 
 close all;
 if plot_config.visible
-    h=figure;%%Plot these lines trying to reproduce figure 4 in Ahmadi et al. (2018)
+    h=figure(plot_config.fig_num);%%Plot these lines trying to reproduce figure 4 in Ahmadi et al. (2018)
 else
     h=figure('Visible','Off');
 end
@@ -75,6 +75,7 @@ switch plot_config.panel_num
     try
         if plot_config.panel_num==1
             pcolor(data{1}.x,data{1}.y,data{1}.z); hold on;
+%         elseif plot_config.panel_num==2 && 
         elseif plot_config.panel_num==4
             contour(data{1}.x,data{1}.y,data{1}.z); hold on;
         end
@@ -91,25 +92,112 @@ switch plot_config.panel_num
 %%quiver case.... 
      if plot_config.panel_num==2
          if plot_config.streamline==0   
+            pcolor(data{1}.x,data{1}.y,data{1}.z); hold on;
             quiver(data{2}.x, data{2}.y, data{2}.u, data{2}.v,'k','Linewidth',plot_config.linewidth,'AutoScaleFactor',1.4); hold on;
             %daspect([1,1,1]); %%This is no necessary. Fix 2020/09/28, and
             %it will make some figure confusing and not consistent...
          elseif plot_config.streamline==1
-             lineobj=streamslice(data{2}.x, data{2}.y, data{2}.u, data{2}.v,'noarrow');
+             [lineobj]=streamslice(data{2}.x, data{2}.y, data{2}.u, data{2}.v,'arrow','cubic');
              %lineobj=quiver(data{2}.x, data{2}.y, data{2}.u, data{2}.v);
+%              for line_ind=1:length(lineobj)
+%                  lineobj(line_ind).LineWidth=3;
+%              end
+%              
              for line_ind=1:length(lineobj)
-                if all(lineobj(line_ind).XData<pi)
-                    lineobj(line_ind).Color=[0,0,0];
-                    lineobj(line_ind).LineStyle='--';
+%                 if all(lineobj(line_ind).XData<pi)
+%                     lineobj(line_ind).Color=[0,0,0];
+%                     lineobj(line_ind).LineStyle='--';
+%                 else
+%                     lineobj(line_ind).Color=[0,0,1];
+%                     lineobj(line_ind).LineStyle='-';
+%                 end
+                if length(lineobj(line_ind).XData)==3
+                     %put the arrow as the 1/3 of the original length...
+                    arrow_ratio=plot_config.arrow_ratio;
+                    lineobj(line_ind).XData(1)=lineobj(line_ind).XData(2)+arrow_ratio*(lineobj(line_ind).XData(1)-lineobj(line_ind).XData(2));
+                    lineobj(line_ind).XData(3)=lineobj(line_ind).XData(2)+arrow_ratio*(lineobj(line_ind).XData(3)-lineobj(line_ind).XData(2));
+                    lineobj(line_ind).YData(1)=lineobj(line_ind).YData(2)+arrow_ratio*(lineobj(line_ind).YData(1)-lineobj(line_ind).YData(2));
+                    lineobj(line_ind).YData(3)=lineobj(line_ind).YData(2)+arrow_ratio*(lineobj(line_ind).YData(3)-lineobj(line_ind).YData(2));
+
+                    %delete the arrow that is in the horizontal direction
+                    x1_2=lineobj(line_ind).XData(1)-lineobj(line_ind).XData(2);
+                    x2_3=lineobj(line_ind).XData(2)-lineobj(line_ind).XData(3);
+                    y1_2=lineobj(line_ind).YData(1)-lineobj(line_ind).YData(2);
+                    y2_3=lineobj(line_ind).YData(2)-lineobj(line_ind).YData(3);
+                    
+                    if x1_2*x2_3<0 %|| sqrt(abs(x1_2^2+y1_2^2-x2_3^2-y2_3^2))>0.01
+                        lineobj(line_ind).XData=NaN;
+                        lineobj(line_ind).YData=NaN;
+                    end
+                    %delete the arrow that does not have the same length in
+                    %the left and right 
                 else
-                    lineobj(line_ind).Color=[0,0,1];
-                    lineobj(line_ind).LineStyle='-';
+%                     lineobj(line_ind).Linewidth=3;
                 end
-                set(lineobj,'Linewidth',3);
 %                 set(lineobj,'Color',[0,0,0]);
 %                 set(lineobj,'MarkerSize',2);
              end
+             set(lineobj,'Linewidth',plot_config.linewidth);
+         elseif plot_config.streamline==2
+            max_z=min(abs([max(max(data{2}.z)),min(min(data{2}.z))]));
+            z_list=[-0.9*max_z, -0.7*max_z,-0.5*max_z,-0.3*max_z,-0.1*max_z,...
+                0.1*max_z, 0.3*max_z, 0.5*max_z,0.7*max_z, 0.9*max_z];
+            for z_ind=1:length(z_list)
+                z_val=z_list(z_ind);
+                line=contourc(data{2}.x,data{2}.y,data{2}.z,[z_val,z_val]); hold on;
+                ind_bad=unique([find(line(1,:)>max(data{2}.x)),find(line(1,:)<min(data{2}.x)),find(line(2,:)>max(data{2}.y)), find(line(2,:)<min(data{2}.y))]);
+                %ind15=unique([find(cline15(1,:)<30), find(cline15(2,:)<30),find(cline15(1,:)<5500 & cline15(2,:)>7700)]);
+                line(:,ind_bad)=[];
+                
+                clear line_list;
+                line_list_ind=1;
+                line_list_sub_ind=1;
+                for line_ind=1:length(line)-1
+                    line_list{line_list_ind}(:,line_list_sub_ind)=line(:,line_ind);
+                    if norm(line(:,line_ind+1)-line(:,line_ind))>0.1
+                        line_list_ind=line_list_ind+1;
+                        line_list_sub_ind=1;
+                    else
+                       line_list_sub_ind=line_list_sub_ind+1;
+                    end
+                end
+                line_ind=line_ind+1;
+                line_list{line_list_ind}(:,line_list_sub_ind)=line(:,line_ind);
+                
+                if z_val==0
+                   %plot(line(1,:),line(2,:),'r-.'); 
+                elseif z_val>0
+                    for line_list_ind=1:length(line_list)
+                       plot(line_list{line_list_ind}(1,:),line_list{line_list_ind}(2,:),'k-','Linewidth',plot_config.linewidth); 
+                    end
+%                     ind1=find(line(1,:)<pi);
+%                     line1=line(:,ind1);
+%                     ind2=find(line(1,:)>pi);
+%                     line2=line(:,ind2);
+%                     plot(line1(1,:),line1(2,:),'k-','Linewidth',plot_config.linewidth);
+%                     plot(line2(1,:),line2(2,:),'k-','Linewidth',plot_config.linewidth);
+
+                elseif z_val<0
+                    for line_list_ind=1:length(line_list)
+                       plot(line_list{line_list_ind}(1,:),line_list{line_list_ind}(2,:),'b--','Linewidth',plot_config.linewidth); 
+                    end
+%                     ind1=find(line(1,:)<pi);
+%                     line1=line(:,ind1);
+%                     ind2=find(line(1,:)>pi);
+%                     line2=line(:,ind2);
+%                     plot(line1(1,:),line1(2,:),'b--','Linewidth',plot_config.linewidth);
+%                     plot(line2(1,:),line2(2,:),'b--','Linewidth',plot_config.linewidth);
+
+                end
+            end
+            grid on; %set(gca,'gridlinestyle','Linewidth',1.5);
+            grid minor;  %%set up the minor grid.
+            ax=gca;
+            ax.GridAlpha=0.55;
+            ax.MinorGridAlpha=0.35;
          end
+         
+         
      end
     if length(data)>plot_config.panel_num
        for lin_ind=(plot_config.panel_num+1):length(data)

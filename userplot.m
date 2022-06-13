@@ -78,9 +78,11 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     %Update 2022/05/12, modify the differential matrix, keep that for the
     %boundary values.. Need to be
    % error('Update this differential matrix');
-    if size(p.my.grid,1)==1
+    if  strcmp(p.my.z_basis_mode,'Chebyshev')
+        if size(p.my.grid,1)==1 
             p.x=[];
             p.mat.D1=[]; p.mat.D2=[]; p.mat.D3=[]; p.mat.D4=[];
+            p.mat.Iw=[];
             grid_ind=1;
 %             [xt, DM] = chebdif(p.my.grid(grid_ind,3), 4);%get the chebdif up to fourth order            
             [xt, DM] = chebdif(p.np, 4);%get the chebdif up to fourth order                        
@@ -93,11 +95,50 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
             end
             xt_scale=(p.my.grid(grid_ind,2)-p.my.grid(grid_ind,1))*xt/2+(p.my.grid(grid_ind,2)+p.my.grid(grid_ind,1))/2;
             p.x=[xt_scale;p.x];
+%             Iw=[];
+            [~,Iw]=clencurt(p.my.grid(grid_ind,3));
+            p.mat.Iw=[Iw'/scaling];%setup the integration weight
+        else
+            error('Not supported!!!');
+        end
+    elseif strcmp(p.my.z_basis_mode,'Fourier')
+         if size(p.my.grid,1)==1
+            p.x=[];
+            p.mat.D1=[]; p.mat.D2=[]; p.mat.D3=[]; p.mat.D4=[];
+            grid_ind=1;
+%             [xt, DM] = chebdif(p.my.grid(grid_ind,3), 4);%get the chebdif up to fourth order            
+            [xt, DM(:,:,1)] = fourdif(p.np, 1);%get the chebdif up to fourth order                        
+            [~, DM(:,:,2)] = fourdif(p.np, 2);%get the chebdif up to fourth order                        
+            [~, DM(:,:,3)] = fourdif(p.np, 3);%get the chebdif up to fourth order                        
+            [~, DM(:,:,4)] = fourdif(p.np, 4);%get the chebdif up to fourth order                        
+
+            lx_original=2*pi;%max(xt)-min(xt); %the domain of chebyshev grid, should be 2
+            scaling=lx_original/(p.my.grid(grid_ind,2)-p.my.grid(grid_ind,1)); %get scaling factor, 2/(zeta_2-zeta_1)
+            for derivative_ind=1:4
+                D_rescale=DM(:,:,derivative_ind)*scaling^derivative_ind;%rescale the differential matrix using the scaling factor
+                %p.mat.(['sub',num2str(grid_ind),'_D',num2str(derivative_ind)])=D_rescale;%set up the differential matrix of each sub-domain, will be used to setup the continuity between each domain
+                p.mat.(['D',num2str(derivative_ind)])=blkdiag(D_rescale,p.mat.(['D',num2str(derivative_ind)]));%set up the whole differential matrix, taking the block diag
+            end
+            %rescale to thave the same spacing 
+            xt_scale=(p.my.grid(grid_ind,2)-p.my.grid(grid_ind,1))*xt/(lx_original);%+(p.my.grid(grid_ind,2)+p.my.grid(grid_ind,1))/2;
+            
+            %shift the minimal point in xt_scale to zero and then shift to
+            %p.my.grid(grid_ind,1)
+            xt_scale=xt_scale-min(xt_scale)+p.my.grid(grid_ind,1);
+%             xt_scale=
+            p.x=[xt_scale;p.x];
+            
+            dx=diff(p.x); dx=dx(1);
+%             [~,Iw]=clencurt(p.my.grid(grid_ind,3)-1);
+            p.mat.Iw=[dx*ones(size(p.x))];%setup the integration weight
+        
             %[~,Iw]=clencurt(p.my.grid(grid_ind,3)-1);
             %p.mat.Iw=[Iw'/scaling;p.mat.Iw];%setup the integration weight
         else
             error('Not supported!!!');
            
+        end
+       
     end
         
     
@@ -149,11 +190,27 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         obj.v_tilde_imag=dw_weight*obj.ky*p.mat.D1*obj.w_hat_imag/(obj.kx^2+obj.ky^2)...
                 +obj.kx*obj.omega_z_hat_imag/(obj.kx^2+obj.ky^2);
         %phase angle, in 
-        obj.w_phase=atan(obj.w_hat_imag./obj.w_hat);
-        obj.T_phase=atan(obj.T_hat_imag./obj.T_hat);
-        obj.S_phase=atan(obj.S_hat_imag./obj.S_hat);
-        obj.u_phase=atan(obj.u_tilde_imag./obj.u_tilde);
-        obj.v_phase=atan(obj.v_tilde_imag./obj.v_tilde);
+        
+        
+        %Update 2022/06/01
+        %new method to compute phase of harmonics. This will firstly remove
+        %any solution that is close to zero... in machine precision as then
+        %the phase will be arbitrary and not accurate.
+        phase_list={'w_phase','T_phase','S_phase',...
+            'u_phase','v_phase'};
+        var_list={'w_hat','T_hat','S_hat','u_tilde','v_tilde'}
+        for phase_ind=1:length(phase_list)
+           ind_non_zero=find(abs(obj.(var_list{phase_ind}))>1e-8);
+           obj.(phase_list{phase_ind})=zeros(length(obj.z_list),1);
+           obj.(phase_list{phase_ind})(ind_non_zero)=...
+               atan(obj.([var_list{phase_ind},'_imag'])(ind_non_zero)./...
+               obj.(var_list{phase_ind})(ind_non_zero));
+        end
+%         obj.w_phase=atan(obj.w_hat_imag./obj.w_hat);
+%         obj.T_phase=atan(obj.T_hat_imag./obj.T_hat);
+%         obj.S_phase=atan(obj.S_hat_imag./obj.S_hat);
+%         obj.u_phase=atan(obj.u_tilde_imag./obj.u_tilde);
+%         obj.v_phase=atan(obj.v_tilde_imag./obj.v_tilde);
         
         %Update 2022/05/12, only concern about the phase in between
         if sum(abs(obj.w_phase(2:end-1)-obj.T_phase(2:end-1)))<0.001 & sum(abs(obj.w_phase(2:end-1)-obj.S_phase(2:end-1)))<0.001
@@ -189,6 +246,17 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         end
         
     end
+    
+%     if strcmp(p.my.z_basis_mode,'Fourier')
+%        %also modify 
+%        obj.z_list=[obj.z_list;obj.z_list(end)+obj.z_list(2)];
+%        var_name_list={'w_hat','T_hat','S_hat','T_0','S_0','U_0','omega_z_hat','u_tilde','v_tilde'};
+%        for var_name_ind=1:length(var_name_list)
+%            var_name=var_name_list{var_name_ind};
+%            obj.(var_name)=[obj.(var_name);obj.(var_name)(1)];
+%        end
+%     end
+    
     
 %     R_rho_T2S=obj.Ra_T/obj.Ra_S2T;
 %     Ra_S=obj.Ra_S2T/obj.tau;
@@ -238,7 +306,11 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.label_list={1,['$\bar{T}_0',T_mean_sign,'$'], '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','T_0.png'];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
     plot_line(data,plot_config);
     
     if p.sw.para>2
@@ -273,7 +345,11 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_0.png'];
     plot_config.linewidth=3;
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
     plot_line(data,plot_config);
     if p.sw.para>2
         %plot the time average quantity
@@ -305,8 +381,12 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.label_list={1,['$\bar{U}_0$'], '$z$'};
     plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','U_0.png'];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
-    plot_line(data,plot_config);
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+   plot_line(data,plot_config);
     if p.sw.para>2
         
         %lift as the contour
@@ -335,10 +415,14 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         data{2}.x=imag(obj.T_hat(:,1));
         data{2}.y=obj.z_list;
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
-        plot_config.fontsize_legend=24;
+        plot_config.fontsize_legend=18;
     end
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
-    plot_line(data,plot_config);
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+   plot_line(data,plot_config);
     if p.sw.para>2
         % plot the time average quantity
         data{1}.x=mean(obj.T_hat,2);
@@ -371,12 +455,16 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         data{2}.x=imag(obj.S_hat(:,1));
         data{2}.y=obj.z_list;
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
-        plot_config.fontsize_legend=24;
+        plot_config.fontsize_legend=18;
     end
     x_max=max([abs(real(obj.S_hat(:,1)));abs(imag(obj.S_hat(:,1)))]);
     plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
-    plot_line(data,plot_config);
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+   plot_line(data,plot_config);
     if obj.no_ylabel
         plot_config.label_list{3}='';
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','S_hat_no_ylabel.png'];
@@ -416,11 +504,17 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         data{2}.x=imag(obj.w_hat(:,1));
         data{2}.y=obj.z_list;
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
-        plot_config.fontsize_legend=24;
+        plot_config.fontsize_legend=18;
     end
     x_max=max([abs(real(obj.w_hat(:,1)));abs(imag(obj.w_hat(:,1)))]);
     plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    %plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+    
     plot_line(data,plot_config);
     if obj.no_ylabel %plot the version without y label for paper writing
         plot_config.label_list{3}='';
@@ -459,11 +553,18 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         data{2}.x=imag(obj.u_tilde(:,1));
         data{2}.y=obj.z_list;
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
-        plot_config.fontsize_legend=24;
+        plot_config.fontsize_legend=18;
     end
     x_max=max([abs(real(obj.u_tilde(:,1)));abs(imag(obj.u_tilde(:,1)))]);
     plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    %plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+    
+    
     plot_line(data,plot_config);
     if obj.no_ylabel %plot the version without y label for paper writing
         plot_config.label_list{3}='';
@@ -502,13 +603,19 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         data{2}.x=imag(obj.omega_z_hat(:,1));
         data{2}.y=obj.z_list;
         plot_config.legend_list={1,'$\mathcal{R}e[\cdot]$','$\mathcal{I}m[\cdot]$'};
-        plot_config.fontsize_legend=24;
+        plot_config.fontsize_legend=18;
     end
     %x_max=max([real(obj.omega_z_hat(:,1));imag(obj.omega_z_hat(:,1))]);
     %plot_config.xlim_list=[1,-1.1*x_max,1.1*x_max];
     plot_config.xlim_list=0; plot_config.xtick_list=0;
     plot_config.xtick_list=[1,-0.02,0.02];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    %plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+    
     plot_line(data,plot_config);
     
     
@@ -520,10 +627,25 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     %z_ind=round(linspace(1,length(obj.z_list),z_ind_N));
     z_ind=1:length(obj.z_list);
     y=obj.z_list(z_ind);
-    [data{2}.x,data{2}.y]=meshgrid(x,y);
+    
+    
+    psi_0=zeros(size(obj.U_0));
+    for psi_ind=1:length(psi_0)
+       psi_0(psi_ind,1)=sum(obj.U_0(psi_ind:end).*p.mat.Iw(psi_ind:end)); 
+    end
+    %[data{2}.x,data{2}.y]=meshgrid(x,y);
+    data{2}.x=x; data{2}.y=y;
     %data{2}.y=obj.z_list;
-    data{2}.u=obj.U_0+2*real(obj.u_tilde(z_ind,1)*1i*exp(1i*x));
-    data{2}.v=2*real(obj.w_hat(z_ind,1)*exp(1i*x));
+    
+    %Update 2022/06/02, add the streamfunction corresponding to large-scale
+    %shear
+    data{2}.z=-psi_0*ones(1,length(x))+2*real(obj.w_hat(z_ind,1)/(1i*obj.kx)*exp(1i*x));
+    
+    %old version
+%     data{2}.z=2*real(obj.w_hat(z_ind,1)/(1i*obj.kx)*exp(1i*x));
+
+    %data{2}.u=2*real(obj.u_tilde(z_ind,1)*1i*exp(1i*x));%obj.U_0+
+    %data{2}.v=2*real(obj.w_hat(z_ind,1)*exp(1i*x));
     [data{1}.x,data{1}.y]=meshgrid(x,y);
     data{1}.z=NaN*ones(size(data{1}.x));
 %     Du=p.mat.D1_full*[0;obj.u_tilde(z_ind,1);0];
@@ -535,12 +657,15 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
     plot_config.ylim_list=[1,0,1];
     plot_config.label_list={1,'$x k_x$','$z$'};
-    plot_config.streamline=1;
+    plot_config.streamline=2;
     plot_config.user_color_style_marker_list={'k-','r--'};
     plot_config.panel_num=2;
     plot_config.arrow_ratio=0.8;
     plot_config.linewidth=3;
     plot_config.colorbar=0;
+    plot_config.visible=1;
+    plot_config.fontsize=28;
+    plot_config.print_size=[1,500,900];
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline.png'];
     plot_contour(data,plot_config);
     if obj.no_ylabel
@@ -556,6 +681,7 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
         plot_contour(data,plot_config);
         plot_config.title_list={0};
     end
+    plot_config.fontsize=40;
     
     clear data;
     if obj.kx~=0 && obj.ky~=0
@@ -649,7 +775,13 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
     plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
     plot_config.ylim_list=[1,0,1];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    %plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+    
     plot_config.yticklabels_list={0};
     plot_config.label_list={1,'$x k_x$','$z$'};
     plot_config.contour_line=0;
@@ -686,14 +818,25 @@ if plot_config.visible==1 || plot_config.print==1 || plot_config.post==1
     plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
     plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
     plot_config.ylim_list=[1,0,1];
-    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    %plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if (max(obj.z_list)-min(obj.z_list))>1
+        plot_config.ytick_list=0;
+    else
+        plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
+    
     plot_config.yticklabels_list={0};
     plot_config.label_list={1,'$x k_x$','$z$'};
     plot_config.contour_line=0;
     plot_config.colorbar=1;
     %             plot_config.colormap='bluewhitered';
-    plot_config.zlim_list=[1,0,1];
-    plot_config.ztick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    if strcmp(p.my.z_basis_mode,'Fourier')
+        plot_config.zlim_list=0;
+        plot_config.ztick_list=0;
+    else
+        plot_config.zlim_list=[1,0,1];
+        plot_config.ztick_list=[1,0,0.2,0.4,0.6,0.8,1];
+    end
     %plot_config.user_color_style_marker_list={'k-','b--'};
     plot_config.name=[obj.h5_name(1:end-3),'_HB_','isocontour_S.png'];
     plot_config.print_size=[1,1000,900];
