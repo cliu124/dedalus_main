@@ -598,7 +598,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #R_rho_T2S=20
         flag.tau=0.01
         #R_rho_T2S=40
-        flag.initial_dt=0.01
+        flag.initial_dt=0.001
         
         
         #map to the extended parameter in double_diffusive_shear_2D
@@ -671,7 +671,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.stop_sim_time=4000
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_salt_finger':
         flag.post_store_dt=1
-        flag.stop_sim_time=200
+        flag.stop_sim_time=5
 else:
     print('1')
     #flag.post_store_dt=0.000001/flag.Ra_T;
