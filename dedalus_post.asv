@@ -803,8 +803,7 @@ classdef dedalus_post
             end
             
             if strcmp(obj.z_basis_mode,'Fourier')
-                plot_config.zlim_list=[1,min(min(min(obj.(variable_name)))),max(max(max(obj.(variable_name))))];
-                plot_config.ztick_list=0;
+                plot_conf
             end
             
             

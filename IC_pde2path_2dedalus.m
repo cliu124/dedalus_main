@@ -68,7 +68,8 @@ switch group_name
                 IC_write_folder_name='./IC/periodic_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
                 h5_name='periodic_analysis_s1_Nx128_Nz128.h5';
         end
-        point_list=[-18,-16,-14];
+        point_list=[-18,-16,-14,-12];
+%         point_list=-16;
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=[-0.5];
         %point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
@@ -122,12 +123,28 @@ for branch_ind=1:length(branch_name_list)
                 field=field_list{field_ind};
                 obj_pde2path{branch_ind,ind}.(['d_',field])=mat_pde2path.D1*obj_pde2path{branch_ind,ind}.(field);
             end
-            obj_pde2path{branch_ind,ind}.p_hat=inv(mat_pde2path.D2-obj_pde2path{branch_ind,ind}.kx^2-obj_pde2path{branch_ind,ind}.ky^2)...
-                *(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.T_hat-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.S_hat);
+            I=eye(size(mat_pde2path.D2));
+            obj_pde2path{branch_ind,ind}.p_hat=inv(mat_pde2path.D2-obj_pde2path{branch_ind,ind}.kx^2*I-obj_pde2path{branch_ind,ind}.ky^2*I)...
+                *(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.d_T_hat-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.d_S_hat...
+                -2*1i*obj_pde2path{branch_ind,ind}.kx/obj_pde2path{branch_ind,ind}.Pr*obj_pde2path{branch_ind,ind}.w_hat.*obj_pde2path{branch_ind,ind}.d_U_0);
+            
+            %Update 2022/06/15, add the hydrostatic pressure
+%             dz=diff(obj_pde2path{branch_ind,ind}.z_list);
+%             dz=dz(1);
+            for z_ind=1:length(obj_pde2path{branch_ind,ind}.z_list)
+                obj_pde2path{branch_ind,ind}.p_0(z_ind,1)=sum(mat_pde2path.Iw(1:z_ind).*(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.T_0(1:z_ind,1)-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.S_0(1:z_ind,1)));
+            end
+            p_0_int=sum(mat_pde2path.Iw.*obj_pde2path{branch_ind,ind}.p_0);
+            obj_pde2path{branch_ind,ind}.p_0=obj_pde2path{branch_ind,ind}.p_0-p_0_int;
+            %Update 2022/06/13, rescale the pressure to be the same unit in
+            %dedalus
+            
+            
+            
             field_list={'u_tilde','v_tilde','w_hat',...
                 'S_0','T_0','S_hat','T_hat',...
                 'd_u_tilde','d_v_tilde','d_w_hat',...
-                'd_S_0','d_T_0','d_S_hat','d_T_hat','p_hat',...
+                'd_S_0','d_T_0','d_S_hat','d_T_hat','p_hat','p_0'...
                 'U_0','d_U_0'};
             switch p.my.z_basis_mode
                 case 'Chebyshev'
@@ -167,7 +184,7 @@ for branch_ind=1:length(branch_name_list)
             obj_dedalus{branch_ind,ind}.d_u(:,:,end)=obj_dedalus{branch_ind,ind}.d_U_0*ones(size(x))+2*real(1i*obj_dedalus{branch_ind,ind}.d_u_tilde*exp(1i*kx_2D*x));
             obj_dedalus{branch_ind,ind}.w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.w_hat*exp(1i*kx_2D*x));
             obj_dedalus{branch_ind,ind}.d_w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.d_w_hat*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.p(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.p_hat*exp(1i*kx_2D*x));
+            obj_dedalus{branch_ind,ind}.p(:,:,end)=obj_dedalus{branch_ind,ind}.p_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.p_hat*exp(1i*kx_2D*x));
             obj_dedalus{branch_ind,ind}.T(:,:,end)=obj_dedalus{branch_ind,ind}.T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.T_hat*exp(1i*kx_2D*x));
             obj_dedalus{branch_ind,ind}.S(:,:,end)=obj_dedalus{branch_ind,ind}.S_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.S_hat*exp(1i*kx_2D*x));
             obj_dedalus{branch_ind,ind}.d_T(:,:,end)=obj_dedalus{branch_ind,ind}.d_T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.d_T_hat*exp(1i*kx_2D*x));
