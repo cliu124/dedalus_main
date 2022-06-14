@@ -68,7 +68,7 @@ switch group_name
                 IC_write_folder_name='./IC/periodic_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
                 h5_name='periodic_analysis_s1_Nx128_Nz128.h5';
         end
-        point_list=[-18,-16,-14,-12];
+        point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=[-0.5];
@@ -103,7 +103,7 @@ for branch_ind=1:length(branch_name_list)
             p.my.folder_name=my.folder_name;
             p.my.plot_config.visible=0;
             p.my.plot_config.no_ylabel=1;
-            p.my.plot_config.print=0;
+            p.my.plot_config.print=1;
             p.my.plot_config.post=1;
             p.my.plot_config.branch_name=branch_name;
             p.my.plot_config.point_name=node_name.pt_list{pt_ind}(1:end-4);

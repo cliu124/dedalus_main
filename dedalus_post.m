@@ -1041,8 +1041,15 @@ classdef dedalus_post
                 plot_config.xtick_list=[1,0,10,20,30];
                 plot_config.xlim_list=[1,0,20];
                 plot_config.ylim_list=[1,0,1];
+                
+                %This range is for the plotting of the bounded salt-finger
                 plot_config.zlim_list=[1,0,0.16];
                 plot_config.ztick_list=[1,0,0.04,0.08,0.12,0.16]
+                
+                plot_config.zlim_list=0;
+                plot_config.ztick_list=0;
+                plot_config.xlim_list=[1,0,50];
+                
                 plot_config.visible=1;%obj.visible;
                 plot_config.fontsize=32;
                 plot_contour(data,plot_config);

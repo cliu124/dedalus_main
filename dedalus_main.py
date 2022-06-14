@@ -394,16 +394,16 @@ elif flag.flow == 'porous_media_2D':
 
 elif flag.flow == 'double_diffusive_shear_2D':
     ##These are setup for testing the layering based on Radko (2016)
-    Lx2d = 16
-    Lz2d = 16
-    flag.ks=0.5
-    flag.Lx=Lx2d*2*np.pi/flag.ks
-    flag.Lz=Lz2d*2*np.pi/flag.ks
-    flag.Nx=Lx2d*16
-    flag.Nz=Lz2d*16
-    u_L=0
+    #Lx2d = 16
+    #Lz2d = 16
+    #flag.ks=0.5
+    #flag.Lx=Lx2d*2*np.pi/flag.ks
+    #flag.Lz=Lz2d*2*np.pi/flag.ks
+    #flag.Nx=Lx2d*16
+    #flag.Nz=Lz2d*16
+    #u_L=0
     #flag.initial_dt=np.min([np.divide(flag.Lx/flag.Nx,u_L),flag.Lx/flag.Nx])
-    flag.initial_dt=0.01
+    #flag.initial_dt=0.01
     if flag.flow_sub_double_diffusive_shear_2D == 'primitive_Radko2013':
         ##parameter for Radko (2013) type
         Pr=10
@@ -635,7 +635,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_elevator=0
         
         flag.A_noise=0
-        flag.store_variable='S_u_w'#only store S and u variable
+        #flag.store_variable='S_u_w'#only store S and u variable
         
         
         

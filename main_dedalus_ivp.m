@@ -384,7 +384,7 @@ slurm_num={'13635953',... kx=4:
 slurm_num={'13640186'};
 slurm_num={'13908442','13908443','13908445','13908449'};
 slurm_num={'13908443'};
-slurm_num={'13910031'};
+% slurm_num={'13910236'};
 flag.print=1; 
 flag.video=0;
 flag.visible=0;
@@ -406,15 +406,17 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('S',0);
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('p');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('p');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S',[100,500])
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('u',[100,500])
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('w',[100,500])
+     
+     dedalus_post_my{slurm_ind}.z_basis_mode='Chebyshev';
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('w');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
 
@@ -426,6 +428,8 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 %     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S',[],[80,180]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[80,180]);
+
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 

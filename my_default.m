@@ -20,6 +20,28 @@ classdef my_default
         
         z_basis_mode='Chebyshev';
         
+        %Update 2022/05/29
+        z_basis_stretch={'no'}; 
+        %this will stretch the grid for 2-layer and 3-layer structures
+        %note that all stretching is in the original chebyshev grid domain [-1,1] and finally rescale to [0,1] 
+        %z_basis_stretch={'tanh',[1/2,-1/2],[5,5]};
+        %will give grid eta=tanh(5*(x-1/2))+tanh(5*(x+1/2)) that is
+        %suitable for the two-layer structures (with sharp interface in middle), grid points clustered at
+        %z=-1,0,1, 
+        %or we can set up z_basis_stretch={'tanh',[2/3,0,-2/3],[5,5,5]}
+        %that will give eta=tanh(5*(x-2/3))+tanh(5*(x))+tanh(5*(x+2/3))
+        %suitable for the three-layer structures (with sharp interface at
+        %z=1/3, z=-1/3), and grid points are clustered at z=-1,-1/3,1/3,
+        %and 1.
+        %Note that the variable in the second means the position that you
+        %want to expel the grid points, and the variable in the thirs
+        %corresponds to how strongly you want to expel the grid points from
+        %there.
+        
+        
+        
+        
+        
         %background large scale shear flow and their derivative
         U_bg=0;
         d_U_bg=0;
@@ -44,9 +66,12 @@ classdef my_default
         ilam_phase_T_r=15;
         ilam_phase_S_r=16;
         ilam_phase_z=17;
-        
-        phase_tr=0;
-        
+        ilam_phase_F_elevator=19;
+        ilam_Amp_elevator=18;
+        phase_condition_fourier='no';
+        phase_condition_chebyshev='no';
+%         elevator=0;
+%         elevator_list=0;
         point_list=0; %The point list that you want specific point (lam)
         dsmax=1;
         dsmin=10^(-10);
@@ -105,6 +130,13 @@ classdef my_default
         parameters;
         
         intol=0;
+        
+        bifloc=1; %0 for tangent (useful for elevator mode), 1 (default in pde2path) for secant, 2 for quadratic in bif.localization
+        para=1; %in default as para=1, setting para=0 will be fixed lam corrector for newton loop in bisection of bifdetect
+    
+        point_list_old=0;
+        lam_shear_off=0; %the lam value then turn off the shear
+        cont_shear_off=0; %this step is turning shear off
     end
     
     
@@ -145,7 +177,7 @@ classdef my_default
             obj.ilam_phase_S_r=16;
             obj.ilam_phase_z=17;
 
-            obj.phase_tr=0;
+            obj.phase_condition_fourier='tr';
             
             obj.point_list=0; %The point list that you want specific point (lam)
             obj.dsmax=1;
@@ -191,6 +223,10 @@ classdef my_default
                 T_r=0; %refernce temperature
                 S_r=0; %reference salinity
                 c_phase_z=0;%phase velocity for vertical translation invariance (periodic B.C. in vertical)
+                
+                Amp_elevator=0.1;%amplitude of elevator mode
+                F_elevator=0;%forcing need to be added to the elevator mode..
+                
                 obj.mass_matrix_Laplacian=0;
                 Lx=1;
                 switch folder_name
@@ -506,19 +542,42 @@ classdef my_default
                     case 'salt_finger_kx_low_Ra_S2T_2D_periodic'
                         kx=-20; ky=0; %ky corresponding to 3D setup
                         Pr=7; tau=0.01; 
-                        Ra_T=10^5; Lx=1; 
+                        Ra_T=10^5; 
                         Ra_S2T=Ra_T/40; nx=128; Ta_sqrt_z=0; Ta_sqrt_y=0;
                         obj.ilam=1; obj.lammax=-0.01; obj.dsmax=3;
                         obj.ds=0.01; obj.intol=0;
                         obj.dsmax=0.3; obj.dsmin=1e-10;
+%                         obj.point_list=[-2.5,-2,-1.5,-1,-0.5,-0.01];
                         obj.point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.5,-0.01];
                         obj.z_basis_mode='Fourier';
                         obj.z_bc_u_v_left='periodic'; obj.z_bc_u_v_right='periodic';
                         obj.z_bc_w_left='periodic'; obj.z_bc_w_right='periodic';
                         obj.z_bc_T_left='periodic'; obj.z_bc_T_right='periodic';
                         obj.z_bc_S_left='periodic'; obj.z_bc_S_right='periodic';
+                        Lx=1; 
                         obj.ks=2*pi/Lx; obj.F_sin=1;
-                        A_U_bg=0;
+                        A_U_bg=-0.001;
+                        
+                    case 'salt_finger_kx_low_Ra_S2T_2D_periodic_test'
+                        kx=-20; ky=0; %ky corresponding to 3D setup
+                        Pr=7; tau=0.01; 
+                        Ra_T=10^5; 
+                        Ra_S2T=Ra_T/40; nx=128; Ta_sqrt_z=0; Ta_sqrt_y=0;
+                        obj.ilam=1; obj.lammax=-0.01; obj.dsmax=3;
+                        obj.ds=0.01; obj.intol=0;
+                        obj.dsmax=0.3; obj.dsmin=1e-10;
+%                         obj.point_list=[-2.5,-2,-1.5,-1,-0.5,-0.01];
+                        obj.point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.5,-0.01];
+                        obj.point_list_old=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.5,-0.01];
+                        obj.z_basis_mode='Fourier';
+                        obj.z_bc_u_v_left='periodic'; obj.z_bc_u_v_right='periodic';
+                        obj.z_bc_w_left='periodic'; obj.z_bc_w_right='periodic';
+                        obj.z_bc_T_left='periodic'; obj.z_bc_T_right='periodic';
+                        obj.z_bc_S_left='periodic'; obj.z_bc_S_right='periodic';
+                        Lx=1; 
+                        obj.ks=2*pi/Lx; obj.F_sin=1;
+                        A_U_bg=-0.001;
+                        obj.lam_shear_off=-18.5;
                     case 'salt_finger_kx_low_Ra_S2T_3D_periodic'
                         kx=-15; ky=-10^4; %ky corresponding to 3D setup
                         Pr=7; tau=0.01; 
@@ -533,10 +592,46 @@ classdef my_default
                         obj.z_bc_w_left='periodic'; obj.z_bc_w_right='periodic';
                         obj.z_bc_T_left='periodic'; obj.z_bc_T_right='periodic';
                         obj.z_bc_S_left='periodic'; obj.z_bc_S_right='periodic';
-                        obj.ks=2*pi; obj.F_sin=1;
-                        A_U_bg=0.0001;
+                        Lx=1; 
+                        obj.ks=2*pi/Lx; obj.F_sin=1;
+                        A_U_bg=0;
+                        
+                    case 'salt_finger_kx_mid_Ra_S2T_2D_periodic'
+                        kx=-50; ky=0; %ky corresponding to 3D setup
+                        Pr=7; tau=0.01; 
+                        Ra_T=10^5; 
+                        Ra_S2T=Ra_T/2; nx=512; Ta_sqrt_z=0; Ta_sqrt_y=0;
+                        obj.ilam=1; obj.lammax=-0.01; obj.dsmax=1;
+                        obj.ds=0.01; obj.dsmax=1; obj.dsmin=1e-10;
+                        obj.point_list=[-45,-42.5,-40,-37.5,-35,-32.5,-30,-27.5,-25,-22.5,-20,-17.5,-15,-12.5,-9.7815,-5,-3,-0.01];
+                        obj.z_basis_mode='Fourier';
+                        obj.z_bc_u_v_left='periodic'; obj.z_bc_u_v_right='periodic';
+                        obj.z_bc_w_left='periodic'; obj.z_bc_w_right='periodic';
+                        obj.z_bc_T_left='periodic'; obj.z_bc_T_right='periodic';
+                        obj.z_bc_S_left='periodic'; obj.z_bc_S_right='periodic';
+                        Lx=1;
+                        obj.ks=2*pi/Lx; obj.F_sin=1;
+                        A_U_bg=-0.001;
+                        
+                    case 'salt_finger_kx_mid_Ra_S2T_3D_periodic'
+                        kx=-35; ky=-10^4; %ky corresponding to 3D setup
+                        Pr=7; tau=0.01; 
+                        Ra_T=10^5; 
+                        Ra_S2T=Ra_T/2; nx=512; Ta_sqrt_z=0; Ta_sqrt_y=0;
+                        obj.ilam=1; obj.lammax=-0.01; obj.dsmax=1;
+                        obj.ds=0.01; obj.dsmax=1; obj.dsmin=1e-10;
+                        obj.point_list=[32.5,-30,-27.5,-25,-22.5,-20,-17.5,-15,-12.5,-9.7815,-5,-3,-0.01];
+                        obj.z_basis_mode='Fourier';
+                        obj.z_bc_u_v_left='periodic'; obj.z_bc_u_v_right='periodic';
+                        obj.z_bc_w_left='periodic'; obj.z_bc_w_right='periodic';
+                        obj.z_bc_T_left='periodic'; obj.z_bc_T_right='periodic';
+                        obj.z_bc_S_left='periodic'; obj.z_bc_S_right='periodic';
+                        Lx=1;
+                        obj.ks=2*pi/Lx; obj.F_sin=1;
+                        A_U_bg=-0.001;
+                        
                     case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D_periodic'
-                        kx=-25; ky=0; %ky corresponding to 3D setup
+                        kx=-20; ky=0; %ky corresponding to 3D setup
                         Pr=0.05; tau=0.01; 
                         Ra_T=10^5; Ta_sqrt_z=0; Ta_sqrt_y=0;
                         Ra_S2T=Ra_T/40; nx=128; 
@@ -548,8 +643,9 @@ classdef my_default
                         obj.z_bc_w_left='periodic'; obj.z_bc_w_right='periodic';
                         obj.z_bc_T_left='periodic'; obj.z_bc_T_right='periodic';
                         obj.z_bc_S_left='periodic'; obj.z_bc_S_right='periodic';
-                        obj.ks=2*pi; obj.F_sin=1;
-                        A_U_bg=0.0001;
+                        Lx=1;
+                        obj.ks=2*pi/Lx; obj.F_sin=1;
+                        A_U_bg=-0.001;
                     case 'salt_finger_kx_low_Ra_S2T_low_Pr_3D_periodic'
                         kx=-15; ky=-10^4; %ky corresponding to 3D setup
                         Pr=0.05; tau=0.01; 
@@ -563,8 +659,9 @@ classdef my_default
                         obj.z_bc_w_left='periodic'; obj.z_bc_w_right='periodic';
                         obj.z_bc_T_left='periodic'; obj.z_bc_T_right='periodic';
                         obj.z_bc_S_left='periodic'; obj.z_bc_S_right='periodic';
-                        obj.ks=2*pi; obj.F_sin=1;
-                        A_U_bg=0.0001;
+                        Lx=1;
+                        obj.ks=2*pi/Lx; obj.F_sin=1;
+                        A_U_bg=-0.001;
                     case 'salt_finger_kx_mid_Ra_S2T_3D_rotation'
                         kx=-35; ky=-10^4; %ky corresponding to 3D setup
                         Pr=7; tau=0.01;
@@ -592,7 +689,7 @@ classdef my_default
                 obj.parameters=[kx ky Ra_T Ra_S2T 1/tau Pr ...
                     dy_T_mean dy_S_mean C c_phase_kx ...
                     Ta_sqrt_z Ta_sqrt_y A_U_bg ...
-                    U_r T_r S_r c_phase_z];
+                    U_r T_r S_r c_phase_z Amp_elevator F_elevator];
 
         end
         
@@ -620,8 +717,8 @@ classdef my_default
                     obj.bpt_list={'bpt1','bpt2','bpt3'};
                     obj.bpt_root_list={'tr'};                    
                     obj.bifcheck_list=[2,0,0];
-                    obj.spcalc_list=[1,0,0];
-                    obj.tol_list=[1e-8,1e-3,1e-3];
+                    obj.spcalc_list=[1,1,1];
+                    obj.tol_list=[1e-8,1e-6,1e-6];
                     obj.bif_type='steady';
                     %p.my.bifcheck=2;
                 case {'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip',...
@@ -645,16 +742,34 @@ classdef my_default
                 case {'salt_finger_kx_low_Ra_S2T_2D_periodic',...
                         'salt_finger_kx_low_Ra_S2T_3D_periodic',...
                         'salt_finger_kx_low_Ra_S2T_low_Pr_2D_periodic',...
-                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_periodic'}
+                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_periodic',...
+                        'salt_finger_kx_mid_Ra_S2T_2D_periodic',...
+                        'salt_finger_kx_mid_Ra_S2T_3D_periodic'}
                     %Add the case for the periodic boundary conditions. not
                     %merge to other one just for debug..
-                    obj.bpt_list={'bpt1','bpt2','bpt3'};
+                    obj.bpt_list={'bpt1','bpt2'};
                     obj.bpt_root_list={'tr'};
                     obj.bifcheck_list=[2,2,2];
                     obj.spcalc_list=[1,1,1];
-                    obj.tol_list=[1e-8,1e-8,1e-8];
-                    obj.no_phase_step=10;
+                    obj.tol_list=[1e-6,1e-6,1e-6];
+                    obj.no_phase_step=2;
                     obj.bif_type='steady';
+%                     obj.bifloc=0;
+%                     obj.para=0;
+                case {'salt_finger_kx_low_Ra_S2T_2D_periodic_test'}
+                    obj.bpt_list={'bpt1'};
+                    obj.bpt_root_list={'tr'};
+                    obj.bifcheck_list=[2];
+                    obj.spcalc_list=[1];
+                    obj.tol_list=[1e-6,1e-6,1e-6];
+                    obj.no_phase_step=2;
+                    obj.bif_type='steady';
+%                     obj.point_list_old=obj.point_list;
+                    obj.point_list=obj.lam_shear_off; %just continue up to this lam value and then turn off shear
+                   
+%                     obj.ilam=18;
+%                     obj.point_list=10;
+%                     obj.ds=0.001;
                 otherwise
                     error('Wrong folder name');
             end
@@ -666,8 +781,6 @@ classdef my_default
                 case {'salt_finger_kx_low_Ra_S2T_2D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_3D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_3D_rotation_no_slip',...
-                        'salt_finger_kx_low_Ra_S2T_2D_stress_free',...
-                        'salt_finger_kx_low_Ra_S2T_3D_stress_free',...
                         'salt_finger_kx_low_Ra_S2T_high_Pr_2D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_high_Pr_3D_no_slip'
                         }
@@ -682,7 +795,18 @@ classdef my_default
                     obj.spcalc_list=[1;1;1];
                     obj.bif_type='steady';
                     obj.tol_list=[1e-8; 1e-8; 1e-8];
-
+                case {'salt_finger_kx_low_Ra_S2T_2D_stress_free',...
+                        'salt_finger_kx_low_Ra_S2T_3D_stress_free'}
+                    obj.bpt_root_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt3'};
+                    obj.bpt_list={'bpt1';
+                               'bpt1';
+                               'bpt1';
+                               'bpt2'};
+                    obj.bifcheck_list=[0;0;0;0];
+                    obj.spcalc_list=[1;1;1;0];
+                    obj.bif_type='steady';
+                    obj.tol_list=[1e-8; 1e-8; 1e-8;1e-8];
+                                
                 case {'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_low_Pr_3D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_zero_Pr_3D_no_slip',...
@@ -733,15 +857,27 @@ classdef my_default
                 case {'salt_finger_kx_low_Ra_S2T_2D_periodic',...
                         'salt_finger_kx_low_Ra_S2T_3D_periodic',...
                         'salt_finger_kx_low_Ra_S2T_low_Pr_2D_periodic',...
-                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_periodic'}
-                    obj.bpt_root_list={'tr/bpt1','tr/bpt2','tr/bpt3'};
+                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_periodic',...
+                        'salt_finger_kx_mid_Ra_S2T_2D_periodic',...
+                        'salt_finger_kx_mid_Ra_S2T_3D_periodic'}
+                    obj.bpt_root_list={'tr/bpt1','tr/bpt2'};%,'tr/bpt3'
                     obj.bpt_list={'bpt1';
                                'bpt1';
                                'bpt1'};
                     obj.bifcheck_list=[0;0;0];
                     obj.spcalc_list=[1;1;1];
                     obj.bif_type='steady';
-                    obj.tol_list=[1e-8; 1e-8; 1e-8];
+                    obj.tol_list=[1e-6; 1e-6; 1e-6];
+                case {'salt_finger_kx_low_Ra_S2T_2D_periodic_test'}
+                    obj.bpt_root_list={'tr/bpt1'};%,'tr/bpt3'
+                    obj.bpt_list={'last_pt'};
+                    obj.bifcheck_list=[2];
+                    obj.spcalc_list=[1];
+                    obj.bif_type='load';
+                    obj.tol_list=[1e-6; 1e-6; 1e-6];
+                    obj.ilam=13;
+                    obj.ds=0.0001;
+                    obj.point_list=0;
                 case 'salt_finger_kx_mid_Ra_S2T_3D_rotation'
                     %I can stop here... 
                     error('1')
@@ -773,6 +909,21 @@ classdef my_default
                     obj.spcalc_list=[0];
                     obj.tol_list=1e-6;
                     obj.bif_type='hopf';
+                case 'salt_finger_kx_low_Ra_S2T_2D_periodic_test'
+                    obj.bpt_root_list={'tr/bpt1/last_pt'};%,'tr/bpt3'
+                    obj.bpt_list={'last_pt'};
+                    
+                    %two different folder, corresponding to positive ds and
+                    %negative ds respectively
+                    obj.store_folder_name_suffix={'_p_ds','_n_ds'};
+                    obj.bifcheck_list=[2];
+                    obj.spcalc_list=[1];
+                    obj.bif_type='load';
+                    obj.tol_list=[1e-6; 1e-6];
+                    obj.ilam=1;
+                    obj.ds=[0.02,-0.02];
+                    obj.point_list=obj.point_list_old;
+                    
                 otherwise 
                     error('Wrong folder name');
             end
@@ -784,9 +935,14 @@ classdef my_default
                for bpt_ind=1:length(obj.bpt_list(bpt_root_ind,:))
                    p.my.root_folder_name=[obj.folder_name,obj.bpt_root_list{bpt_root_ind}];
                    p.my.bpt_name=obj.bpt_list{bpt_root_ind,bpt_ind};
-                   p.my.store_folder_name_suffix='';
+                   if length(obj.store_folder_name_suffix)
+                       p.my.store_folder_name_suffix=obj.store_folder_name_suffix{bpt_root_ind,bpt_ind};
+                   else
+                       p.my.store_folder_name_suffix='';
+                   end
                    p.my.bif_type=obj.bif_type;
-                   %p.my.root_foblder_name=[p.my.folder_name,'tr/bpt',num2str(bpt_root_ind)];
+                   p.my.ilam=obj.ilam;
+                   %p.my.root_folder_name=[p.my.folder_name,'tr/bpt',num2str(bpt_root_ind)];
                    %p.my.bpt_name=['bpt',num2str(bpt_ind)];
                    if strcmp(obj.bpt_root_list{1},'tr')
                        %from trivial branch, the first step need to enforce
@@ -802,12 +958,19 @@ classdef my_default
                    p.my.bifcheck=obj.bifcheck_list(bpt_root_ind,bpt_ind); 
                    p.my.spcalc=obj.spcalc_list(bpt_root_ind,bpt_ind);
                    p.my.point_list=obj.point_list;
+                   if length(obj.ds)>1
+                       p.my.ds=obj.ds(bpt_root_ind,bpt_ind);
+                   else
+                       p.my.ds=obj.ds;
+                   end
     %                p.my.dsmin=1e-10;
     %                p.my.dsmax=1;
     %                p.my.dsmin=1e-10;
                    p.my.foldcheck=0;
-                   p.my.ds=obj.ds;
                    p.my.dsmin=obj.dsmin;
+                   p.my.dsmax=obj.dsmax;
+                   p.my.bifloc=obj.bifloc;
+                   p.my.para=obj.para;
                    p.my.tol=obj.tol_list(bpt_root_ind,bpt_ind);
 %                    p.my.tol_first=obj.tol_first;
     %                p.my.par_num=4;
@@ -823,6 +986,10 @@ classdef my_default
             p.pm.resfac=p.my.resfac;
             p.nc.ilam=p.my.ilam; %continuation parameter, the fourth one corresponding to Ra_S2T
             p.nc.lammax=p.my.lammax;
+            
+            %Update 2022/06/12, also set up the lammin, minimal of
+            %point_list minus 100
+            p.nc.lammin=min(p.my.point_list)-100;
             p.nc.ds=p.my.ds;
             p.nc.neig=p.my.neig;
             p.nc.dsmax=p.my.dsmax;
@@ -833,12 +1000,6 @@ classdef my_default
                 case {'salt_finger_kx_low_Ra_S2T_2D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_3D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_3D_rotation_no_slip',...
-                        'salt_finger_kx_low_Ra_S2T_2D_stress_free',...
-                        'salt_finger_kx_low_Ra_S2T_3D_stress_free',...
-                        'salt_finger_kx_low_Ra_S2T_zero_Pr_3D_stress_free',...
-                        'salt_finger_kx_low_Ra_S2T_3D_vorticity_stress_free',...
-                        'salt_finger_kx_low_Ra_S2T_low_Pr_2D_stress_free',...
-                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_stress_free',...
                         'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_low_Pr_3D_no_slip',...
                         'salt_finger_kx_low_Ra_S2T_high_Pr_2D_no_slip',...
@@ -852,36 +1013,75 @@ classdef my_default
                     p.nc.dsmax=0.3;
                     p.nc.lammax=-0.01;
                     p=pmcont(p);
-                case {'salt_finger_kx_low_Ra_S2T_2D_periodic',...
-                        'salt_finger_kx_low_Ra_S2T_3D_periodic',...
-                        'salt_finger_kx_low_Ra_S2T_low_Pr_2D_periodic',...
-                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_periodic'}
-%                     p.nc.ilam=[p.my.ilam,...
-%                         p.my.ilam_phase_U_r,...
-%                         p.my.ilam_phase_T_r,...
-%                         p.my.ilam_phase_S_r];
-%                     p.nc.nq=3;
-%                     p.my.phase_tr=1;
-                    %p.fuha.qf=@qf; p.fuha.qfder=@qfder;
-                    
+                case {'salt_finger_kx_low_Ra_S2T_2D_stress_free',...
+                        'salt_finger_kx_low_Ra_S2T_3D_stress_free',...
+                        'salt_finger_kx_low_Ra_S2T_zero_Pr_3D_stress_free',...
+                        'salt_finger_kx_low_Ra_S2T_3D_vorticity_stress_free',...
+                        'salt_finger_kx_low_Ra_S2T_low_Pr_2D_stress_free',...
+                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_stress_free'}
+                    p.nc.ilam=[p.my.ilam,...
+                        p.my.ilam_phase_U_r];
+                    p.nc.nq=1;
+                    p.my.phase_condition_chebyshev='tr_stress_free';
+                    p.fuha.qf=@qf; p.fuha.qfder=@qfder;
                     p.nc.lammax=-1;
                     p=pmcont(p);
+                
                     p.sol.ds=0.02;
                     p.nc.dsmax=0.3;
                     p.nc.lammax=-0.01;
                     p=pmcont(p);
-
-                case {'salt_finger_kx_mid_Ra_S2T_2D_no_slip',...
-                      'salt_finger_kx_mid_Ra_S2T_2D_stress_free'}
+                case {'salt_finger_kx_low_Ra_S2T_2D_periodic',...
+                        'salt_finger_kx_low_Ra_S2T_3D_periodic',...
+                        'salt_finger_kx_low_Ra_S2T_low_Pr_2D_periodic',...
+                        'salt_finger_kx_low_Ra_S2T_low_Pr_3D_periodic',...
+                        'salt_finger_kx_mid_Ra_S2T_2D_periodic',...
+                        'salt_finger_kx_mid_Ra_S2T_3D_periodic',...
+                        'salt_finger_kx_low_Ra_S2T_2D_periodic_test'}
+                    p.nc.ilam=[p.my.ilam,...
+                        p.my.ilam_phase_U_r,...
+                        p.my.ilam_phase_T_r,...
+                        p.my.ilam_phase_S_r];
+%                     p.nc.ilam=p.my.ilam;
+                    p.nc.nq=3;
+                    p.my.phase_condition_fourier='tr';
+                    p.fuha.qf=@qf; p.fuha.qfder=@qfder;
+                    switch folder_name
+                        case {'salt_finger_kx_mid_Ra_S2T_2D_periodic'}
+                            p.nc.dsmax=0.3;
+                            p.nc.lammax=-40;
+                            p=pmcont(p);
+                        case {'salt_finger_kx_mid_Ra_S2T_3D_periodic'}
+                            p.nc.dsmax=0.3;
+                            %p.nc.ntot=60;
+                            p.nc.lammax=-30;
+                            p=pmcont(p);
+                        case {'salt_finger_kx_low_Ra_S2T_2D_periodic_test'}
+                            p.nc.dsmax=0.3;
+                            p.nc.lammax=-18;
+                            p=pmcont(p);
+                        otherwise
+                            p.nc.lammax=-1;
+                            p=pmcont(p);
+                            p.sol.ds=0.02;
+                            p.nc.dsmax=0.3;
+                            p.nc.lammax=-0.01;
+                            p=pmcont(p);
+                    end
+                case {'salt_finger_kx_mid_Ra_S2T_2D_no_slip'}
                     p.nc.dsmax=0.3;
                     p.nc.lammax=-40;
                     p=pmcont(p);
-                case {'salt_finger_kx_mid_Ra_S2T_3D_no_slip',...
-                        'salt_finger_kx_mid_Ra_S2T_3D_stress_free'}
+                case {'salt_finger_kx_mid_Ra_S2T_2D_stress_free'}
+                    p.nc.dsmax=0.3;
+                    p.nc.lammax=-40;
+                    p=pmcont(p);
+                case {'salt_finger_kx_mid_Ra_S2T_3D_no_slip'}
                     p.nc.dsmax=0.3;
                     %p.nc.ntot=60;
                     p.nc.lammax=-30;
                     p=pmcont(p);
+                case {'salt_finger_kx_mid_Ra_S2T_3D_stress_free'}
                 case {'salt_finger_Ra_S2T_3D_no_slip',...
                         'salt_finger_Ra_S2T_3D_stress_free'}
                     p.nc.lammax=1100;
