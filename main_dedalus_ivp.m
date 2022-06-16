@@ -397,6 +397,7 @@ slurm_num={'13910922',...kx=10
 slurm_num={'13912345'};
         %,...: kx=10'};
 % slurm_num={'13910236'};
+slurm_num={'13929887'};
 flag.print=1; 
 flag.video=0;
 flag.visible=0;
@@ -439,8 +440,8 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.rms_xt('u');
 %     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S',[],[80,100]);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[80,100]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S',[],[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[]);
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');

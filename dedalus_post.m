@@ -256,7 +256,7 @@ classdef dedalus_post
         spec_kx_z_u=0;
         spec_kx_z_w=0;
         
-        single_mode=0;
+        nx_trunc_num=0;
     end
     
     methods

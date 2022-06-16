@@ -131,7 +131,7 @@ class flag(object):
         self.EVP_secondary=0
         
         self.store_variable='all'
-        self.single_mode=0
+        self.nx_trunc_num=0
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -312,19 +312,21 @@ class flag(object):
             # else:
             #     z_basis_mode='Chebyshev'
             
-            if self.single_mode:
+            if self.nx_trunc_num>0:
                 #Update 2022/06/16, this version make the single mode truncation.
                 ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
                 #firstly set up the x-momentum equation. if Re=0, then no inertial term
                 #Also it needs to distinguish whether we have shear driven by body force or not
+                
+                nx_trunc_str=str(self.nx_trunc_num)
                 if self.F_sin == 0:
                     print('without shear')
                     if self.Re == 0:
                         problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="(nx!=0) or (nz!=0)")
                         problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
-                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)",condition="(nx<=1)")
-                        problem.add_equation("u=0",condition="(nx>=2)")
+                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)",condition="(nx<=" + nx_trunc_str + ")")
+                        problem.add_equation("u=0",condition="(nx>" + nx_trunc_str + ")")
                 else:
                     print('with shear')
                     ##specify the background shear... this is kolmogorov type shear... 
@@ -352,15 +354,15 @@ class flag(object):
                     #no inertial term in the momentum
                     problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
                 else:
-                    problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=1)")
-                    problem.add_equation("w=0",condition="(nx>=2)")
+                    problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
+                    problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
 
     
                 #divergence free and pressure gauge
                 if self.z_basis_mode=='Fourier':
-                    problem.add_equation("dx(u)+d_w=0",condition="((nx!=0) or (nz!=0) and (nx<=1))")
+                    problem.add_equation("dx(u)+d_w=0",condition="(((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str + "))")
                     problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-                    problem.add_equation("p=0",condition="(nx>=2)")
+                    problem.add_equation("p=0",condition="(nx>" + nx_trunc_str + ")")
                 elif self.z_basis_mode=='Chebyshev':
                     problem.add_equation("dx(u)+d_w=0")
                     #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
@@ -371,13 +373,13 @@ class flag(object):
                     #no inertial term in the temperature
                     problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
                 else:
-                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )",condition="(nx<=1)")
-                    problem.add_equation(" T=0",condition="(nx>=2)")
+                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )",condition="(nx<=" + nx_trunc_str + ")")
+                    problem.add_equation(" T=0",condition="(nx>" + nx_trunc_str + ")")
 
     
                 #Add salinity equation
-                problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=1)")
-                problem.add_equation("S=0",condition="(nx>=2)")
+                problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=" + nx_trunc_str + ")")
+                problem.add_equation("S=0",condition="(nx>" + nx_trunc_str + ")")
 
             else:
                 #This is the branch that has the full equation
