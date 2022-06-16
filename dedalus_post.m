@@ -255,6 +255,8 @@ classdef dedalus_post
         spec_kx_z_S=0;
         spec_kx_z_u=0;
         spec_kx_z_w=0;
+        
+        single_mode=0;
     end
     
     methods
@@ -1524,7 +1526,7 @@ classdef dedalus_post
             if nargin<4 || isempty(x_ind)
                 %The default option, just average over the second half of
                 %data...
-                x_ind_begin=x_len/2;
+                x_ind_begin=1;
                 x_ind_end=x_len;
             else
                 x_ind_begin=x_ind(1);
@@ -1554,7 +1556,7 @@ classdef dedalus_post
                 case {'T','S'}
                     variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                     data{2}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
-                    data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data,2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
+                    data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     if obj.(['dy_',variable_name,'_mean'])==1
                         plot_config.legend_list={1,['$ z+\langle ',variable_name,'\rangle_{h,t}$'],['$z$']};
                     else obj.(['dy_',variable_name,'_mean'])==-1

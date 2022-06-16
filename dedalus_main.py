@@ -623,6 +623,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.dy_T_mean=1
         flag.dy_S_mean=1
         
+        flag.single_mode=1
+        
         flag.z_bc_u_v_left='periodic' #This can be periodic, dirichlet, or neumann
         flag.z_bc_T_left='periodic'
         flag.z_bc_S_left='periodic'

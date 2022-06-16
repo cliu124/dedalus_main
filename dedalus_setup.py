@@ -131,6 +131,7 @@ class flag(object):
         self.EVP_secondary=0
         
         self.store_variable='all'
+        self.single_mode=0
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -310,64 +311,133 @@ class flag(object):
             #     z_basis_mode='Fourier'
             # else:
             #     z_basis_mode='Chebyshev'
-                
-            ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
-            #firstly set up the x-momentum equation. if Re=0, then no inertial term
-            #Also it needs to distinguish whether we have shear driven by body force or not
-            if self.F_sin == 0:
-                print('without shear')
-                if self.Re == 0:
-                    problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="(nx!=0) or (nz!=0)")
-                    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
-                else:
-                    problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)")
-            else:
-                print('with shear')
-                ##specify the background shear... this is kolmogorov type shear... 
-                ##This is the amplitude and wavenumber of the fundamental frequency forcing
-                problem.parameters['ks']=self.ks
-                problem.parameters['F_sin']=self.F_sin
-                
-                ##Amplitude of the other frequency
-                problem.parameters['F_sin_2ks']=self.F_sin_2ks
-                problem.parameters['F_sin_3ks']=self.F_sin_3ks
-                problem.parameters['F_sin_4ks']=self.F_sin_4ks
-                
-                ##phase of other frequency
-                problem.parameters['phase_2ks']=self.phase_2ks
-                problem.parameters['phase_3ks']=self.phase_3ks
-                problem.parameters['phase_4ks']=self.phase_4ks
-                
-                if self.Re == 0:
-                    problem.add_equation("- (dx(dx(u))+dz(d_u) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
-                    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
-                else:
-                    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
-
-            if self.Re ==0:
-                #no inertial term in the momentum
-                problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
-            else:
-                problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
-
-            #divergence free and pressure gauge
-            if self.z_basis_mode=='Fourier':
-                problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
-                problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-            elif self.z_basis_mode=='Chebyshev':
-                problem.add_equation("dx(u)+d_w=0")
-                #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
-                #problem.add_equation("p=0",condition="(nx==0)")
             
-            
-            if self.Pe_T == 0:
-                #no inertial term in the temperature
-                problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
-            else:
-                problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )")
+            if self.single_mode:
+                #Update 2022/06/16, this version make the single mode truncation.
+                ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
+                #firstly set up the x-momentum equation. if Re=0, then no inertial term
+                #Also it needs to distinguish whether we have shear driven by body force or not
+                if self.F_sin == 0:
+                    print('without shear')
+                    if self.Re == 0:
+                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                    else:
+                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)",condition="(nx<=1)")
+                        problem.add_equation("u=0",condition="(nx>=2)")
+                else:
+                    print('with shear')
+                    ##specify the background shear... this is kolmogorov type shear... 
+                    ##This is the amplitude and wavenumber of the fundamental frequency forcing
+                    problem.parameters['ks']=self.ks
+                    problem.parameters['F_sin']=self.F_sin
+                    
+                    ##Amplitude of the other frequency
+                    problem.parameters['F_sin_2ks']=self.F_sin_2ks
+                    problem.parameters['F_sin_3ks']=self.F_sin_3ks
+                    problem.parameters['F_sin_4ks']=self.F_sin_4ks
+                    
+                    ##phase of other frequency
+                    problem.parameters['phase_2ks']=self.phase_2ks
+                    problem.parameters['phase_3ks']=self.phase_3ks
+                    problem.parameters['phase_4ks']=self.phase_4ks
+                    
+                    if self.Re == 0:
+                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                    else:
+                        problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+    
+                if self.Re ==0:
+                    #no inertial term in the momentum
+                    problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                else:
+                    problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=1)")
+                    problem.add_equation("w=0",condition="(nx>=2)")
 
-            #Add salinity equation
-            problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ")
+    
+                #divergence free and pressure gauge
+                if self.z_basis_mode=='Fourier':
+                    problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+                elif self.z_basis_mode=='Chebyshev':
+                    problem.add_equation("dx(u)+d_w=0")
+                    #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
+                    #problem.add_equation("p=0",condition="(nx==0)")
+                
+                
+                if self.Pe_T == 0:
+                    #no inertial term in the temperature
+                    problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
+                else:
+                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )",condition="(nx<=1)")
+                    problem.add_equation(" T=0",condition="(nx>=2)")
+
+    
+                #Add salinity equation
+                problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=1)")
+                problem.add_equation("S=0",condition="(nx>=2)")
+
+            else:
+                #This is the branch that has the full equation
+                
+                ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
+                #firstly set up the x-momentum equation. if Re=0, then no inertial term
+                #Also it needs to distinguish whether we have shear driven by body force or not
+                if self.F_sin == 0:
+                    print('without shear')
+                    if self.Re == 0:
+                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                    else:
+                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)")
+                else:
+                    print('with shear')
+                    ##specify the background shear... this is kolmogorov type shear... 
+                    ##This is the amplitude and wavenumber of the fundamental frequency forcing
+                    problem.parameters['ks']=self.ks
+                    problem.parameters['F_sin']=self.F_sin
+                    
+                    ##Amplitude of the other frequency
+                    problem.parameters['F_sin_2ks']=self.F_sin_2ks
+                    problem.parameters['F_sin_3ks']=self.F_sin_3ks
+                    problem.parameters['F_sin_4ks']=self.F_sin_4ks
+                    
+                    ##phase of other frequency
+                    problem.parameters['phase_2ks']=self.phase_2ks
+                    problem.parameters['phase_3ks']=self.phase_3ks
+                    problem.parameters['phase_4ks']=self.phase_4ks
+                    
+                    if self.Re == 0:
+                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                    else:
+                        problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+    
+                if self.Re ==0:
+                    #no inertial term in the momentum
+                    problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                else:
+                    problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
+    
+                #divergence free and pressure gauge
+                if self.z_basis_mode=='Fourier':
+                    problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+                elif self.z_basis_mode=='Chebyshev':
+                    problem.add_equation("dx(u)+d_w=0")
+                    #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
+                    #problem.add_equation("p=0",condition="(nx==0)")
+                
+                
+                if self.Pe_T == 0:
+                    #no inertial term in the temperature
+                    problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
+                else:
+                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )")
+    
+                #Add salinity equation
+                problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ")
 
             #Add B.C. conditions for non-periodic vertical domain
             
@@ -3406,7 +3476,12 @@ class flag(object):
                 analysis.add_task('S',layout='g',name='S')
                 analysis.add_task('u',layout='g',name='u')
                 analysis.add_task('w',layout='g',name='w')
-
+            elif self.store_variable =='S_T_u_w':
+                analysis.add_task('S',layout='g',name='S')
+                analysis.add_task('T',layout='g',name='T')
+                analysis.add_task('u',layout='g',name='u')
+                analysis.add_task('w',layout='g',name='w')
+            
         elif self.flow in ['porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_system(solver.state)

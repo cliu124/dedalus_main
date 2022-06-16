@@ -68,7 +68,8 @@ switch group_name
                 IC_write_folder_name='./IC/periodic_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
                 h5_name='periodic_analysis_s1_Nx128_Nz128.h5';
         end
-        point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
+        point_list=-0.5;
+%         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=[-0.5];
@@ -91,7 +92,7 @@ for branch_ind=1:length(branch_name_list)
         load([my.folder_name,branch_name,'/',node_name.pt_list{pt_ind}]);
         point=p.u(p.nu+ilam);
         p.sol.ineg;
-        if any(abs(point_list-point)<0.01)
+        if any(abs(point_list-point)<0.000001)
             ind=find(abs(point_list-point)<0.1);
             ind=ind(1);
             if point_list(ind)==-0.5
