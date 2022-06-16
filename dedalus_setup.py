@@ -358,8 +358,9 @@ class flag(object):
     
                 #divergence free and pressure gauge
                 if self.z_basis_mode=='Fourier':
-                    problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("dx(u)+d_w=0",condition="((nx!=0) or (nz!=0) and (nx<=1))")
                     problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
+                    problem.add_equation("p=0",condition="(nx>=2)")
                 elif self.z_basis_mode=='Chebyshev':
                     problem.add_equation("dx(u)+d_w=0")
                     #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
