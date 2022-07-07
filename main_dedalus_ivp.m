@@ -397,8 +397,8 @@ slurm_num={'13910922',...kx=10
 slurm_num={'13912345'};
         %,...: kx=10'};
 % slurm_num={'13910236'};
-slurm_num={'13929887'};
-flag.print=1; 
+slurm_num={'13640186'};
+flag.print=0; 
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;
@@ -450,7 +450,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('S_tot',[0.1,0.3,0.5]);
 
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=1;
+     dedalus_post_my{slurm_ind}.video=0;
      dedalus_post_my{slurm_ind}.title_time=1;
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
      
@@ -510,7 +510,7 @@ switch slurm_num{1}
         data{2}.y=dedalus_post_my{1}.z_list;
         data{3}.x=dedalus_post_my{1}.z_list;
         data{3}.y=dedalus_post_my{1}.z_list;
-        plot_config.label_list={1,'$\langle S \rangle_{h,t}+z$','$z$'};
+        plot_config.label_list={1,'$z+\langle S \rangle_{h,t}$','$z$'};
         plot_config.print_size=[1,500,900];
         plot_config.Markerindex=3;
         plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
@@ -537,9 +537,9 @@ switch slurm_num{1}
         data{2}.y=p_TF1.p.x;
         data{3}.x=dedalus_post_my{1}.z_list;
         data{3}.y=dedalus_post_my{1}.z_list;
-        plot_config.label_list={1,'$ \langle S \rangle_{h,t}+z$','$z$'};
+        plot_config.label_list={1,'$z+\langle S \rangle_{h,t}$','$z$'};
         plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
-        plot_config.legend_list={1,['$t\in [',num2str(min(TF1_DNS_range)-1),',',num2str(max(TF1_DNS_range)-1),']$'],'$\bar{S}_0+z$ in SME', '$z$'};
+        plot_config.legend_list={1,['$t\in [',num2str(min(TF1_DNS_range)-1),',',num2str(max(TF1_DNS_range)-1),']$'],'$z+\bar{S}_0$ in SME', '$z$'};
         plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_OTF1.png'];
         plot_line(data,plot_config);
         
@@ -569,10 +569,10 @@ switch slurm_num{1}
         data{2}.y=p_TW1.p.x;
         data{3}.x=dedalus_post_my{1}.z_list;
         data{3}.y=dedalus_post_my{1}.z_list;
-        plot_config.label_list={1,'$ \langle S \rangle_{h,t}+z$','$z$'};
+        plot_config.label_list={1,'$ z+\langle S \rangle_{h,t}$','$z$'};
         plot_config.user_color_style_marker_list={'k-','r--','b-.'};%cl_list(A2_before_ind+1:A2_before_ind+2);
         plot_config.legend_list={1,['$t\in [',num2str(min(TW1_DNS_range)-1),',',num2str(max(TW1_DNS_range)-1),']$'],...
-            '$\bar{S}_0+z$ in SME','$z$'};        
+            '$z+\bar{S}_0$ in SME','$z$'};        
         plot_config.name=[dedalus_post_my{1}.h5_name(1:end-3),'_','S_0','_total_xt_ave_TW1.png'];
         plot_line(data,plot_config);
         
