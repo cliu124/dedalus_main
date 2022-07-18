@@ -2,14 +2,8 @@ clear all;
 close all;
 clc;
 
-%%%This is to test the eigenvalue computation and the subcritical regime in
-%%%this flow configuration... Triple periodic...
-% R_rho_list=8.63;%logspace(-1,2,30); %%This is subcritical regime.
-R_rho_list=[1.6736,3.47,8.36,33.47, 83.6, 167.36, 333.47, 1673.6]; %set up based on experiments
+R_rho_list=[1.67,3.47,8.36,16.74,33.47, 83.6, 167.36, 334.7]; %set up based on experiments
 kx_list=linspace(0.01,100,300);%no need to change
-%1. kx_list, set the second number to be large enough to include the peak
-%when plot(kx_list,result_DDC{1}.growth_rate)
-%2. 
 
 ky_list=0;%no need to change
 kz_list=[0];%logspace(-6,-1,10);%logspace(-6,0,30);
@@ -28,7 +22,6 @@ for R_rho_ind=1:length(R_rho_list)
                          R_rho=R_rho_list(R_rho_ind);
                          tau=tau_list(tau_ind);
                          kx=kx_list(kx_ind);
-                         %ky=ky_list(ky_ind);
                          ky=kx;
                          kz=kz_list(kz_ind);
                         A_D=[-(kx^2+ky^2+kz^2)*Pr, 0,inv(-(kx^2+ky^2+kz^2))*(-(kx^2+ky^2))*[Pr, -Pr/R_rho]*Ra_T;
@@ -45,7 +38,8 @@ end
 
 plot_config_kx.legend_list={1};
 for R_rho_ind=1:length(R_rho_list)
-    lambda_max(R_rho_ind)=max(result_DDC{R_rho_ind}.growth_rate)
+    [lambda_max(R_rho_ind),ind]=max(result_DDC{R_rho_ind}.growth_rate)
+    k_max(R_rho_ind)=kx_list(ind);
     data_kx{R_rho_ind}.x=kx_list;
     data_kx{R_rho_ind}.y=result_DDC{R_rho_ind}.growth_rate;
     plot_config_kx.legend_list{1+R_rho_ind}=...

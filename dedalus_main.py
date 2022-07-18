@@ -29,7 +29,9 @@ flag=dedalus_setup.flag()
 flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
-flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
+#flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
+flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
+
 
 #flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
 #flag.flow_sub_double_diffusive_shear_2D='IFSC'
@@ -622,9 +624,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
          
         flag.dy_T_mean=1
         flag.dy_S_mean=1
-        
-        flag.nx_trunc_num=1
-        
+                
         flag.z_bc_u_v_left='periodic' #This can be periodic, dirichlet, or neumann
         flag.z_bc_T_left='periodic'
         flag.z_bc_S_left='periodic'
@@ -639,6 +639,46 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_noise=0
         #flag.store_variable='S_u_w'#only store S and u variable
         
+    elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
+        ##parameter for Radko (2013) type
+        flag.Pr=1
+        flag.tau=1
+        #R_rho_T2S=40
+        flag.initial_dt=0.001
+        flag.flux_T=1
+        
+        #map to the extended parameter in double_diffusive_shear_2D
+        flag.Re=1/flag.Pr
+        flag.Pe_T=1
+        flag.Pe_S=1
+        #flag.tau=tau #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=1.6*10**3
+        flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
+        Ra_S=flag.Ra_S2T/flag.tau
+        flag.kx=2*np.np#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+        flag.ky=0
+        kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
+        Lx2d=1
+        flag.Lx=Lx2d*2*np.pi/kx_2D
+        flag.Lz=1
+        flag.Nx=128
+        flag.Nz=128
+         
+        flag.dy_T_mean=-1
+        flag.dy_S_mean=0
+                
+        flag.z_bc_u_v_left='periodic' #This can be periodic, dirichlet, or neumann
+        flag.z_bc_T_left='periodic'
+        flag.z_bc_S_left='periodic'
+        flag.z_bc_w_left='periodic'
+        flag.z_bc_u_v_right='periodic' #This can be periodic, dirichlet, or neumann
+        flag.z_bc_T_right='periodic'
+        flag.z_bc_S_right='periodic'
+        flag.z_bc_w_right='periodic'
+        
+        flag.A_elevator=0
+        flag.A_noise=0
+        flag.store_variable='T_u_w'#only store S and u variable
         
         
     else:

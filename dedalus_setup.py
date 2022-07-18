@@ -132,6 +132,9 @@ class flag(object):
         
         self.store_variable='all'
         self.nx_trunc_num=0
+        
+        self.flux_T=0
+        self.flux_S=0
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -281,8 +284,12 @@ class flag(object):
        
         elif self.flow in ['double_diffusive_shear_2D']:
             #This is using the unified formulation, where the velocity and length scale are arbitrary or determined by shear
+            if self.flux_T:
+                problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T','dy_T_mean_q'])
+
+            else:
+                problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
             
-            problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
             problem.parameters['Re']=self.Re
             problem.parameters['Pe_T']=self.Pe_T
             problem.parameters['Pe_S']=self.Pe_S
@@ -292,6 +299,9 @@ class flag(object):
             
             problem.parameters['dy_T_mean']=self.dy_T_mean
             problem.parameters['dy_S_mean']=self.dy_S_mean
+            
+            problem.parameters['Lx']=self.Lx
+            problem.parameters['Lz']=self.Lz
             
             #Update 2022/02/25, use the first order formulation. This gives the flexibility of doing Periodic/Dirichlet/Neumann B.C. in the vertical direction by just changing the vertical basis.
             problem.add_equation('dz(u)-d_u=0')
@@ -431,13 +441,19 @@ class flag(object):
                     problem.add_equation("dx(u)+d_w=0")
                     #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
                     #problem.add_equation("p=0",condition="(nx==0)")
-                
-                
-                if self.Pe_T == 0:
-                    #no inertial term in the temperature
-                    problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
-                else:
-                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )")
+                #add flux feedback 
+                if self.flux_T:
+                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )")
+                    problem.add_equation("dy_T_mean_q=0",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("-dy_T_mean_q=1-integ(w*T)/Lx/Lz",condition="(nx==0) and (nz==0)")
+                else: 
+                    if self.Pe_T == 0:
+                        #no inertial term in the temperature
+                        problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
+                    else:
+                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )")
+        
+        
     
                 #Add salinity equation
                 problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ")
@@ -2577,6 +2593,10 @@ class flag(object):
             #This initial condition also need to be modified
             if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
         
+                if self.flux_T:
+                    dy_T_mean_q=solver.state['dy_T_mean_q']
+                    dy_T_mean_q=self.dy_T_mean
+        
                 x = domain.grid(0)
                 z = domain.grid(1)
                 u = solver.state['u']
@@ -3458,6 +3478,7 @@ class flag(object):
         #This post-processing variable need to be modified for different flow configuration
         if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
+            #max_write=400... 
             #Update 2022/02/26, add the system 
             
             if self.store_variable =='all':
@@ -3484,7 +3505,14 @@ class flag(object):
                 analysis.add_task('T',layout='g',name='T')
                 analysis.add_task('u',layout='g',name='u')
                 analysis.add_task('w',layout='g',name='w')
-            
+            elif self.store_variable =='T_u_w':
+                analysis.add_task('T',layout='g',name='T')
+                analysis.add_task('u',layout='g',name='u')
+                analysis.add_task('w',layout='g',name='w')
+              
+            if self.flux_T:
+                analysis.add_task('dy_T_mean_q',layout='g',name='dy_mean_T_q')
+                
         elif self.flow in ['porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_system(solver.state)
