@@ -714,6 +714,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_salt_finger':
         flag.post_store_dt=1
         flag.stop_sim_time=5
+    elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
+        flag.post_store_dt=1
+        flag.stop_sim_time=5
 else:
     print('1')
     #flag.post_store_dt=0.000001/flag.Ra_T;
