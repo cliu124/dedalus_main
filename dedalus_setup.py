@@ -3511,7 +3511,7 @@ class flag(object):
                 analysis.add_task('w',layout='g',name='w')
               
             if self.flux_T:
-                analysis.add_task('dy_T_mean_q',layout='g',name='dy_mean_T_q')
+                analysis.add_task('dy_T_mean_q',layout='g',name='dy_T_mean_q')
                 
         elif self.flow in ['porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)

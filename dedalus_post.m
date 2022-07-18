@@ -257,6 +257,12 @@ classdef dedalus_post
         spec_kx_z_w=0;
         
         nx_trunc_num=0;
+        
+        flux_T=0;
+        flux_S=0;
+        
+        dy_T_mean_q=0;
+        dy_S_mean_q=0;
     end
     
     methods
