@@ -2595,7 +2595,7 @@ class flag(object):
         
                 if self.flux_T:
                     dy_T_mean_q=solver.state['dy_T_mean_q']
-                    dy_T_mean_q=self.dy_T_mean
+                    dy_T_mean_q['g']=self.dy_T_mean
         
                 x = domain.grid(0)
                 z = domain.grid(1)
