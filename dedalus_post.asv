@@ -1396,7 +1396,7 @@ classdef dedalus_post
                 plot_config.label_list={1,'$t$','$z$'};
 %             end
             switch variable_name
-                case {'u','v','w','S','T','p','dy_T_mean_q'}
+                case {'u','v','w','S','T','p','dy_T_mean_q','dy_S_mean_q'}
                     obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                 case {'uS','wS','uT','wT','uw'}%%
                     var_1=variable_name(1);
@@ -1481,7 +1481,7 @@ classdef dedalus_post
         
         function obj=rms_xt(obj,variable_name)
             switch variable_name
-                case {'u','v','w','S','T','p'}
+                case {'u','v','w','S','T','p','dy_T_mean_q','dy_S_mean_q'}
                     obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                     obj.([variable_name,'_rms_xt'])=sqrt(mean(mean(obj.(variable_name).^2,2),3));
                     %plot_config.colormap='bluewhitered';

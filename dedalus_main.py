@@ -644,7 +644,6 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pr=1
         flag.tau=1
         #R_rho_T2S=40
-        flag.initial_dt=0.001
         flag.flux_T=1
         
         #map to the extended parameter in double_diffusive_shear_2D
@@ -652,7 +651,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_T=1
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
-        flag.Ra_T=2*10**3
+        flag.Ra_T=1*10**5
+        flag.initial_dt=100/flag.Ra_T
+
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
         Ra_S=flag.Ra_S2T/flag.tau
         flag.kx=2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
@@ -717,8 +718,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.post_store_dt=1
         flag.stop_sim_time=5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
-        flag.post_store_dt=0.1
-        flag.stop_sim_time=2
+        flag.post_store_dt=10**3/flag.Ra_T
+        flag.stop_sim_time=10**4/flag.Ra_T
 else:
     print('1')
     #flag.post_store_dt=0.000001/flag.Ra_T;

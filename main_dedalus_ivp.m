@@ -397,7 +397,7 @@ slurm_num={'13910922',...kx=10
 slurm_num={'13912345'};
         %,...: kx=10'};
 % slurm_num={'13910236'};
-slurm_num={'14081172'};
+slurm_num={'14081584'};
 flag.print=0; 
 flag.video=0;
 flag.visible=0;
@@ -453,7 +453,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
      dedalus_post_my{slurm_ind}.video=0;
      dedalus_post_my{slurm_ind}.title_time=1;
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('S_tot',1);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('w',1);
      
      dedalus_post_my{slurm_ind}.video=0;
      dedalus_post_my{slurm_ind}.print=0;
