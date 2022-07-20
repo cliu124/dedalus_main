@@ -397,8 +397,8 @@ slurm_num={'13910922',...kx=10
 slurm_num={'13912345'};
         %,...: kx=10'};
 % slurm_num={'13910236'};
-slurm_num={'14067967'};
-flag.print=0; 
+slurm_num={'14069202'};
+flag.print=1; 
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;
@@ -424,7 +424,7 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');
      
 %      dedalus_post_my{slurm_ind}.z_basis_mode='Chebyshev';
