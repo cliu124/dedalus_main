@@ -652,7 +652,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_T=1
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
-        flag.Ra_T=4.5*10**3
+        flag.Ra_T=2*10**3
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
         Ra_S=flag.Ra_S2T/flag.tau
         flag.kx=2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
@@ -664,7 +664,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Nx=128
         flag.Nz=128
          
-        flag.dy_T_mean=-1
+        flag.dy_T_mean=-flag.kx**4/flag.Ra_T
         flag.dy_S_mean=0
                 
         flag.z_bc_u_v_left='periodic' #This can be periodic, dirichlet, or neumann
