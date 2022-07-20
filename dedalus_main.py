@@ -676,8 +676,10 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.z_bc_S_right='periodic'
         flag.z_bc_w_right='periodic'
         
-        flag.A_elevator=0
-        flag.A_noise=0.1
+        w_hat=(1-flag.kx**4/flag.Ra_T)/(2*flag.kx**2/flag.Ra_T)
+        flag.A_elevator=2*w_hat
+        flag.k_elevator=flag.kx
+        flag.A_noise=0
         flag.store_variable='T_u_w'#only store S and u variable
         
         

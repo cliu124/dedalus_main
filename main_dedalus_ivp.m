@@ -397,8 +397,8 @@ slurm_num={'13910922',...kx=10
 slurm_num={'13912345'};
         %,...: kx=10'};
 % slurm_num={'13910236'};
-slurm_num={'14069202'};
-flag.print=1; 
+slurm_num={'14078178'};
+flag.print=0; 
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;
