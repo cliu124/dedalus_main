@@ -2679,6 +2679,13 @@ class flag(object):
                     w0 =w0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[0]) #set the results weighted by the corresponding eigenvector 
                     T0 =T0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[1])
                     S0 =S0 + self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))*np.real(eig_vec_max[2])
+                    
+                    #Update the elevator mode analytically
+                    if self.flux_T:
+                        w0=self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))
+                        T0=self.k_elevator**2/self.Ra_T*self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))
+                        
+                    
                     #print(w0)
                     ##This is sample code to setup the initial condition as whatever I want...
                     #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
