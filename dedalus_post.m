@@ -51,6 +51,8 @@ classdef dedalus_post
         
         A_secondary_T=0;
         A_secondary_S=0;
+        A_secondary_w=0;
+        A_secondary_U0=0;
         k_secondary=0;
         
         

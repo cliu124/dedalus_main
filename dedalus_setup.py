@@ -74,6 +74,8 @@ class flag(object):
         
         self.A_secondary_T=0
         self.A_secondary_S=0
+        self.A_secondary_w=0
+        self.A_secondary_U0=0
         self.k_secondary=0
         
         self.flow_sub_double_diffusive_shear_2D='double_diffusive_2D'
@@ -2696,6 +2698,8 @@ class flag(object):
                 
                 #u0 =u0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z))
                 #w0 =w0 + self.A_secondary*np.real(np.exp(1j*self.k_secondary*z)) #set the results weighted by the corresponding eigenvector 
+                u0=u0+self.A_secondary_U0*np.real(np.exp(1j*self.k_secondary*z))
+                w0 = w0+self.A_secondary_w*np.real(np.exp(1j*self.k_secondary*z))
                 T0 =T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
                 #S0 =S0 + self.A_secondary_S*np.real(np.exp(1j*self.k_secondary*z))
                 S0 = S0 + self.A_secondary_S*np.sin(self.k_secondary*z)    
