@@ -688,7 +688,7 @@ switch p.my.variable_version
         plot_config.arrow_ratio=0.8;
         plot_config.linewidth=3;
         plot_config.colorbar=0;
-        plot_config.visible=1;
+%         plot_config.visible=1;
         plot_config.fontsize=28;
         plot_config.print_size=[1,500,900];
         plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline.png'];
@@ -1215,7 +1215,7 @@ switch p.my.variable_version
             plot_config.arrow_ratio=0.8;
             plot_config.linewidth=3;
             plot_config.colorbar=0;
-            plot_config.visible=1;
+%             plot_config.visible=1;
             plot_config.fontsize=28;
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_HB_','streamline.png'];

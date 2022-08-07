@@ -74,12 +74,12 @@ switch group_name
                 h5_name='./IC/periodic_analysis_s1_Nx128_Nz128.h5';
             case 'RBC_Ra_low_Ra_S2T_2D_periodic'
                 branch_name_list={'tr/bpt1/bpt1'};
-                IC_write_folder_name='./IC/periodic_flux_RBC_kx_2pi_Ra_T_';
-                h5_name='./IC/flux_periodic_analysis_s1_Nx128_Nz128.h5';
+                IC_write_folder_name='./IC/flux_T_periodic_RBC_kx_2pi_Ra_T_';
+                h5_name='./IC/flux_T_periodic_analysis_s1_Nx128_Nz128.h5';
             case 'RBC_kx_low_Ra_S2T_2D_periodic'
                 branch_name_list={'tr/bpt1/bpt1'};
-                IC_write_folder_name='./IC/periodic_flux_RBC_Ra_T_20000_kx_';
-                h5_name='./IC/flux_periodic_analysis_s1_Nx128_Nz128.h5';
+                IC_write_folder_name='./IC/flux_T_periodic_RBC_Ra_T_20000_kx_';
+                h5_name='./IC/flux_T_periodic_analysis_s1_Nx128_Nz128.h5';
         end
 %         point_list=-0.5;
         point_list=[2500,5000,7500,10000,12500,15000,17500,20000,22500,25000,27500];
@@ -213,27 +213,27 @@ for branch_ind=1:length(branch_name_list)
             end
             
             %if fixed flux on T, also writeto the dy_T_mean
-            if p.my.flux_T
-                field='dy_T_mean';
+            if p.my.flux_T==1
+                field='dy_T_mean_q';
                 obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
-                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_T_mean;
+                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_T_mean*ones(size(obj_dedalus{branch_ind,ind}.(field)));
                 h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
             end
             
             %if fixed flux on S, also write the dy_S_mean
-            if p.my.flux_S
-                field='dy_S_mean';
+            if p.my.flux_S==1
+                field='dy_S_mean_q';
                 obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
-                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_S_mean;
+                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_S_mean*ones(size(obj_dedalus{branch_ind,ind}.(field)));
                 h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
             end
             
             if point_list(ind)==-0.5
                  h5_name_destination=[IC_write_folder_name,'0p5','/'...
-                    h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];            
+                    h5_name(6:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];            
             else
                 h5_name_destination=[IC_write_folder_name,num2str(round(abs(point_list(ind)))),'/'...
-                    h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
+                    h5_name(6:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
             end
             copyfile(h5_name,h5_name_destination);
             
