@@ -3522,7 +3522,7 @@ class flag(object):
                 analysis.add_task('u',layout='g',name='u')
                 analysis.add_task('w',layout='g',name='w')
               
-            if self.flux_T:
+            if (self.flux_T) and (self.store_variable !='all'):
                 analysis.add_task('dy_T_mean_q',layout='g',name='dy_T_mean_q')
                 
         elif self.flow in ['porous_media_2D']:
