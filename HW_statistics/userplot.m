@@ -911,13 +911,13 @@ switch p.my.variable_version
             grid_ind=1;
 %             [xt, DM] = chebdif(p.my.grid(grid_ind,3), 4);%get the chebdif up to fourth order            
             [xt, DM(:,:,1)] = fourdif(p.nz, 1);%get the chebdif up to fourth order                        
-            [~, DM(:,:,2)] = fourdif(p.nz, 2);%get the chebdif up to fourth order                        
+            %[~, DM(:,:,2)] = fourdif(p.nz, 2);%get the chebdif up to fourth order                        
             %[~, DM(:,:,3)] = fourdif(p.nz, 3);%get the chebdif up to fourth order                        
             %[~, DM(:,:,4)] = fourdif(p.nz, 4);%get the chebdif up to fourth order                        
 
             lx_original=2*pi;%max(xt)-min(xt); %the domain of chebyshev grid, should be 2
             scaling=lx_original/(p.my.grid(grid_ind,2)-p.my.grid(grid_ind,1)); %get scaling factor, 2/(zeta_2-zeta_1)
-            for derivative_ind=1:2
+            for derivative_ind=1
                 D_rescale=DM(:,:,derivative_ind)*scaling^derivative_ind;%rescale the differential matrix using the scaling factor
                 %p.mat.(['sub',num2str(grid_ind),'_D',num2str(derivative_ind)])=D_rescale;%set up the differential matrix of each sub-domain, will be used to setup the continuity between each domain
                 p.mat.(['D',num2str(derivative_ind)])=blkdiag(D_rescale,p.mat.(['D',num2str(derivative_ind)]));%set up the whole differential matrix, taking the block diag
@@ -933,12 +933,12 @@ switch p.my.variable_version
 
 %             %add the integration weighting matrix. just the uniform scaled
 %             %by dx for fourier basis
-            dz=diff(p.z);
-            dz=dz(1);
-            p.mat.Iw_z=dz*eye(p.nz,p.nz);
+%             dz=diff(p.z);
+%             dz=dz(1);
+%             p.mat.Iw_z=dz*eye(p.nz,p.nz);
 
             %for 2D, product with kroneck of identify
-            for derivative_ind=1:2
+            for derivative_ind=1
                 p.mat.(['D',num2str(derivative_ind),'_z_2D'])=...
                   kron(eye(p.nx,p.nx),p.mat.(['D',num2str(derivative_ind)]));
             end
@@ -946,18 +946,17 @@ switch p.my.variable_version
             %add the horizontal differential matrix, but in [0,2pi]
             %domain
             [p.x, p.mat.D1_2pi] = fourdif(p.nx, 1);%get the chebdif up to fourth order                        
-            [~, p.mat.D2_2pi] = fourdif(p.nx, 2);%get the chebdif up to fourth order                        
+%             [~, p.mat.D2_2pi] = fourdif(p.nx, 2);%get the chebdif up to fourth order                        
 %             [~, p.mat.D3_2pi] = fourdif(p.nx, 3);%get the chebdif up to fourth order                        
 %             [~, p.mat.D4_2pi] = fourdif(p.nx, 4);%get the chebdif up to fourth order                        
 %             dx=diff(p.x);
 %             dx=dx(1);
 %             p.mat.Iw_x=dx*eye(p.nx,p.nx);
-              for derivative_ind=1:2
+              for derivative_ind=1
                   p.mat.(['D',num2str(derivative_ind),'_2pi_2D'])=...
                     kron(p.mat.(['D',num2str(derivative_ind),'_2pi']),eye(p.nz,p.nz));
               end
             
-              
               %make the matrix that construct the horizontal mean or
               %project the horizontal mean into 2D results
               
@@ -1003,11 +1002,6 @@ switch p.my.variable_version
             obj.T_0=mean(obj.T_2D,2);
             obj.S_0=mean(obj.S_2D,2);
             
-            D2z=p.mat.D2_z_2D;
-            %some short hand of the horizontal derivative
-            D2x=p.mat.D2_2pi_2D*abs(obj.kx)^2;
-            p.mat.Laplacian=D2x+D2z;
-            
             if  strcmp(p.my.variable_version,'2D_psi_T_S_decomposed')
                
                 Iz=eye(p.nz,p.nz);
@@ -1046,27 +1040,15 @@ switch p.my.variable_version
 
             %Set up the sign for the background temperature and salintiy
             if obj.dy_T_mean==-1
-                T_mean_var=1+obj.dy_T_mean*obj.z_list;
+                T_mean_var=1+dy_T_mean*obj.z_list;
                 T_mean_sign='1-z+';
                 dy_T_mean_sign='-1';
             elseif obj.dy_T_mean==1
                 T_mean_var=obj.dy_T_mean*obj.z_list;
                 T_mean_sign='z+';
                 dy_T_mean_sign='+1';
-            elseif obj.dy_T_mean==0
-                T_mean_var=0;
-                T_mean_sign='';
-                dy_T_mean_sign='';
             end
 
-            if p.my.flux_T
-                dy_T_mean_q=p.u(p.nu);
-                obj.dy_T_mean=dy_T_mean_q;
-%                 dy_T_mean=obj.dy_T_mean;
-                T_mean_var=1+dy_T_mean_q*obj.z_list;
-                T_mean_sign='1+\bar{\mathcal{T}}_{z,q}z+';
-            end
-            
             if obj.dy_S_mean==-1
                 S_mean_var=1+obj.dy_S_mean*obj.z_list;
                 S_mean_sign='1-z+';
@@ -1075,10 +1057,6 @@ switch p.my.variable_version
                 S_mean_var=obj.dy_S_mean*obj.z_list;
                 S_mean_sign='z+';
                 dy_S_mean_sign='+1';
-            elseif obj.dy_S_mean==0
-                S_mean_var=0;
-                S_mean_sign='';
-                dy_S_mean_sign='';
             end
 
             data{1}.x=obj.T_0(:,1)+T_mean_var;

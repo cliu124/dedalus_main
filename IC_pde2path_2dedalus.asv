@@ -47,7 +47,7 @@ switch group_name
         IC_write_folder_name='./IC/tau_0p01_Ra_S2T_';
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
     case 'HB_benard_salt_finger_kx'
-        folder_name='RBC_Ra_low_Ra_S2T_2D_periodic';
+        folder_name='RBC_Ra_low_Ra_S2T_MM_periodic';
         switch folder_name
             case 'salt_finger_kx_low_Ra_S2T_2D_no_slip'
                 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt1/bpt1'};%,'tr/bpt4'
@@ -74,15 +74,20 @@ switch group_name
                 h5_name='./IC/periodic_analysis_s1_Nx128_Nz128.h5';
             case 'RBC_Ra_low_Ra_S2T_2D_periodic'
                 branch_name_list={'tr/bpt1/bpt1'};
-                IC_write_folder_name='./IC/periodic_flux_RBC_kx_2pi_Ra_T_';
-                h5_name='./IC/flux_periodic_analysis_s1_Nx128_Nz128.h5';
+                IC_write_folder_name='./IC/flux_T_periodic_RBC_kx_2pi_Ra_T_';
+                h5_name='./IC/flux_T_periodic_analysis_s1_Nx128_Nz128.h5';
             case 'RBC_kx_low_Ra_S2T_2D_periodic'
                 branch_name_list={'tr/bpt1/bpt1'};
-                IC_write_folder_name='./IC/periodic_flux_RBC_Ra_T_20000_kx_';
-                h5_name='./IC/flux_periodic_analysis_s1_Nx128_Nz128.h5';
+                IC_write_folder_name='./IC/flux_T_periodic_RBC_Ra_T_20000_kx_';
+                h5_name='./IC/flux_T_periodic_analysis_s1_Nx128_Nz128.h5';
+            case 'RBC_Ra_low_Ra_S2T_MM_periodic'
+                branch_name_list={'tr/bpt1/bpt1'};
+                IC_write_folder_name='./IC/flux_T_periodic_RBC_kx_10_Ra_T_';
+                h5_name='./IC/flux_T_periodic_analysis_s1_Nx128_Nz128.h5';
         end
 %         point_list=-0.5;
-        point_list=[2500,5000,7500,10000,12500,15000,17500,20000,22500,25000,27500];
+        point_list=2*10^4;
+%         point_list=[2500,5000,7500,10000,12500,15000,17500,20000,22500,25000,27500];
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
@@ -132,92 +137,176 @@ for branch_ind=1:length(branch_name_list)
             obj_dedalus{branch_ind,ind}.z_list_cheb=obj_dedalus{branch_ind,ind}.z_list*2-1;
             obj_dedalus{branch_ind,ind}.z_list_fourier=obj_dedalus{branch_ind,ind}.z_list*2*pi;
 
-            field_list={'u_tilde','v_tilde','w_hat',...
+            switch p.my.variable_version
+                 case {'real_minimal',... only have five  variable, w_hat, T_hat, S_hat, T_0, S_0
+                'complex_minimal',... only have 8 variable, add imag of the hat, w_hat, T_hat, S_hat, T_0, S_0, w_hat_imag, T_hat_imag, S_hat_imag
+                'complex_zonal',... add one variable for the zonal flow, that should be the 9th variable
+                'complex_zonal_with_omega_z'... add two more variable, that should be 11 variable, (most comprehensive one), w_hat, T_hat, S_hat, T_0, S_0, w_hat_imag, T_hat_imag, S_hat_imag, U_0, omega_z_hat, omega_z_hat_imag
+                'real_with_omega_z',...A short version to test the hexagon planform, %This should be size variable, w_hat, T_hat, S_hat, T_0, S_0, omega_z_hat
+                'complex_with_omega_z'...A short version to test the hexagon planform, but  with the complex one. This should have 10 variable, w_hat, T_hat, S_hat, T_0, S_0, w_hat_imag, T_hat_
+                }
+
+                field_list={'u_tilde','v_tilde','w_hat',...
                 'S_0','T_0','S_hat','T_hat','U_0'};
-            for field_ind=1:length(field_list)
-                field=field_list{field_ind};
-                obj_pde2path{branch_ind,ind}.(['d_',field])=mat_pde2path.D1*obj_pde2path{branch_ind,ind}.(field);
-            end
-            I=eye(size(mat_pde2path.D2));
-            obj_pde2path{branch_ind,ind}.p_hat=inv(mat_pde2path.D2-obj_pde2path{branch_ind,ind}.kx^2*I-obj_pde2path{branch_ind,ind}.ky^2*I)...
-                *(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.d_T_hat-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.d_S_hat...
-                -2*1i*obj_pde2path{branch_ind,ind}.kx/obj_pde2path{branch_ind,ind}.Pr*obj_pde2path{branch_ind,ind}.w_hat.*obj_pde2path{branch_ind,ind}.d_U_0);
-            
-            %Update 2022/06/15, add the hydrostatic pressure
-%             dz=diff(obj_pde2path{branch_ind,ind}.z_list);
-%             dz=dz(1);
-            for z_ind=1:length(obj_pde2path{branch_ind,ind}.z_list)
-                obj_pde2path{branch_ind,ind}.p_0(z_ind,1)=sum(mat_pde2path.Iw(1:z_ind).*(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.T_0(1:z_ind,1)-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.S_0(1:z_ind,1)));
-            end
-            p_0_int=sum(mat_pde2path.Iw.*obj_pde2path{branch_ind,ind}.p_0);
-            obj_pde2path{branch_ind,ind}.p_0=obj_pde2path{branch_ind,ind}.p_0-p_0_int;
-            %Update 2022/06/13, rescale the pressure to be the same unit in
-            %dedalus
-            
-            
-            
-            field_list={'u_tilde','v_tilde','w_hat',...
-                'S_0','T_0','S_hat','T_hat',...
-                'd_u_tilde','d_v_tilde','d_w_hat',...
-                'd_S_0','d_T_0','d_S_hat','d_T_hat','p_hat','p_0'...
-                'U_0','d_U_0'};
-            switch p.my.z_basis_mode
-                case 'Chebyshev'
-                    for field_ind=1:length(field_list)
-                        field=field_list{field_ind};
-                        obj_dedalus{branch_ind,ind}.(field)=chebint([obj_pde2path{branch_ind,ind}.(field)(:,1)],obj_dedalus{branch_ind,ind}.z_list_cheb);
-                    end
-                case 'Fourier'
-                    for field_ind=1:length(field_list)
-                        field=field_list{field_ind};
-                        obj_dedalus{branch_ind,ind}.(field)=fourint([obj_pde2path{branch_ind,ind}.(field)(:,1)],obj_dedalus{branch_ind,ind}.z_list_fourier);
-                    end
+                for field_ind=1:length(field_list)
+                    field=field_list{field_ind};
+                    obj_pde2path{branch_ind,ind}.(['d_',field])=mat_pde2path.D1*obj_pde2path{branch_ind,ind}.(field);
+                end
+                I=eye(size(mat_pde2path.D2));
+                obj_pde2path{branch_ind,ind}.p_hat=inv(mat_pde2path.D2-obj_pde2path{branch_ind,ind}.kx^2*I-obj_pde2path{branch_ind,ind}.ky^2*I)...
+                    *(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.d_T_hat-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.d_S_hat...
+                    -2*1i*obj_pde2path{branch_ind,ind}.kx/obj_pde2path{branch_ind,ind}.Pr*obj_pde2path{branch_ind,ind}.w_hat.*obj_pde2path{branch_ind,ind}.d_U_0);
+
+                %Update 2022/06/15, add the hydrostatic pressure
+    %             dz=diff(obj_pde2path{branch_ind,ind}.z_list);
+    %             dz=dz(1);
+                for z_ind=1:length(obj_pde2path{branch_ind,ind}.z_list)
+                    obj_pde2path{branch_ind,ind}.p_0(z_ind,1)=sum(mat_pde2path.Iw(1:z_ind).*(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.T_0(1:z_ind,1)-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.S_0(1:z_ind,1)));
+                end
+                p_0_int=sum(mat_pde2path.Iw.*obj_pde2path{branch_ind,ind}.p_0);
+                obj_pde2path{branch_ind,ind}.p_0=obj_pde2path{branch_ind,ind}.p_0-p_0_int;
+                %Update 2022/06/13, rescale the pressure to be the same unit in
+                %dedalus
+
+                field_list={'u_tilde','v_tilde','w_hat',...
+                    'S_0','T_0','S_hat','T_hat',...
+                    'd_u_tilde','d_v_tilde','d_w_hat',...
+                    'd_S_0','d_T_0','d_S_hat','d_T_hat','p_hat','p_0'...
+                    'U_0','d_U_0'};
+                switch p.my.z_basis_mode
+                    case 'Chebyshev'
+                        for field_ind=1:length(field_list)
+                            field=field_list{field_ind};
+                            obj_dedalus{branch_ind,ind}.(field)=chebint([obj_pde2path{branch_ind,ind}.(field)(:,1)],obj_dedalus{branch_ind,ind}.z_list_cheb);
+                        end
+                    case 'Fourier'
+                        for field_ind=1:length(field_list)
+                            field=field_list{field_ind};
+                            obj_dedalus{branch_ind,ind}.(field)=fourint([obj_pde2path{branch_ind,ind}.(field)(:,1)],obj_dedalus{branch_ind,ind}.z_list_fourier);
+                        end
+                    otherwise
+                        error('Wrong p.my.z_basis_mode');
+                end
+                kx=obj_pde2path{branch_ind,ind}.kx;
+                ky=obj_pde2path{branch_ind,ind}.ky;
+                kx_2D=sign(kx)*sqrt(kx^2+ky^2);
+    %             if ky_final
+    %                 kx=kx_final;
+    %             else
+    %                 kx=kx_final^2+;
+    %             end
+                Lx_old=obj_dedalus{branch_ind,ind}.x_list(end)+obj_dedalus{branch_ind,ind}.x_list(2);
+
+    %             Lx2d=1;
+                Lx_new=Lx2d*2*pi/(kx_2D);
+                x=obj_dedalus{branch_ind,ind}.x_list'/Lx_old*Lx_new;
+
+                field_list={'u','d_u','w','d_w','p','T','S','d_T','d_S'};
+                for field_ind=1:length(field_list)
+                    field=field_list{field_ind};
+                    obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
+                end
+
+                obj_dedalus{branch_ind,ind}.u(:,:,end)=obj_dedalus{branch_ind,ind}.U_0*ones(size(x))+2*real(1i*obj_dedalus{branch_ind,ind}.u_tilde*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_u(:,:,end)=obj_dedalus{branch_ind,ind}.d_U_0*ones(size(x))+2*real(1i*obj_dedalus{branch_ind,ind}.d_u_tilde*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.w_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.d_w_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.p(:,:,end)=obj_dedalus{branch_ind,ind}.p_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.p_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.T(:,:,end)=obj_dedalus{branch_ind,ind}.T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.T_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.S(:,:,end)=obj_dedalus{branch_ind,ind}.S_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.S_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_T(:,:,end)=obj_dedalus{branch_ind,ind}.d_T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.d_T_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_S(:,:,end)=obj_dedalus{branch_ind,ind}.d_S_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.d_S_hat*exp(1i*kx_2D*x));
+
+             case {'2D_psi_T_S'}
+                field_list={'u_2D','w_2D','T_2D','S_2D'};
+                for field_ind=1:length(field_list)
+                    field=field_list{field_ind};
+                    obj_pde2path{branch_ind,ind}.(['d_',field])=mat_pde2path.D1*obj_pde2path{branch_ind,ind}.(field);
+                end
+                I=eye(size(mat_pde2path.D2));
+                D1x=mat_pde2path.D1_2pi_2D*abs(p.u(1+p.nu));
+                D1z=mat_pde2path.D1_z_2D;
+                u_vel=obj_pde2path{branch_ind,ind}.u_vel;
+                w_vel=obj_pde2path{branch_ind,ind}.w_vel;
+                
+                %source term of the pressure Poisson equation
+                %This should be \partial_x u\partial_x w+\partial_x
+                %w\partial_z u+\partial_z u \partial_x w+\partial_z
+                %w\partial_z w
+                PPE_source=diag(D1x*u_vel)*D1x*u_vel...
+                    +diag(D1x*w_vel)*D1z*u_vel...
+                    +diag(D1z*u_vel)*D1x*w_vel+...
+                    +diag(D1z*w_vel)*D1z*w_vel;
+                Pr=p.u(6+p.nu);
+                obj_pde2path{branch_ind,ind}.p=pinv(mat_pde2path.Laplacian)...
+                    *(obj_pde2path{branch_ind,ind}.Ra_T*D1z*obj_pde2path{branch_ind,ind}.T-obj_pde2path{branch_ind,ind}.Ra_S2T*D1z*obj_pde2path{branch_ind,ind}.S...
+                    -1/Pr*PPE_source);
+
+                %Update 2022/06/15, add the hydrostatic pressure
+    %             dz=diff(obj_pde2path{branch_ind,ind}.z_list);
+    %             dz=dz(1);
+                for z_ind=1:length(obj_pde2path{branch_ind,ind}.z_list)
+                    obj_pde2path{branch_ind,ind}.p_0(z_ind,1)=sum(mat_pde2path.Iw(1:z_ind).*(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.T_0(1:z_ind,1)-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.S_0(1:z_ind,1)));
+                end
+                p_0_int=sum(mat_pde2path.Iw.*obj_pde2path{branch_ind,ind}.p_0);
+                obj_pde2path{branch_ind,ind}.p_0=obj_pde2path{branch_ind,ind}.p_0-p_0_int;
+                %Update 2022/06/13, rescale the pressure to be the same unit in
+                %dedalus
+
+                field_list={'u_2D','w_2D','T_2D','S_2D',...
+                    'd_u_2D','d_w_2D','d_T_2D','d_S_2D',...
+                    'p','p_0'};
+                switch p.my.z_basis_mode
+                    case 'Chebyshev'
+                        for field_ind=1:length(field_list)
+                            field=field_list{field_ind};
+                            obj_dedalus{branch_ind,ind}.(field)(:,)=chebint([obj_pde2path{branch_ind,ind}.(field)(:,x_ind)],obj_dedalus{branch_ind,ind}.z_list_cheb);
+                        end
+                    case 'Fourier'
+                        for field_ind=1:length(field_list)
+                            for x_ind=1:p.nx
+                                field=field_list{field_ind};
+                                obj_dedalus{branch_ind,ind}.(field)(:,x_ind)=fourint([obj_pde2path{branch_ind,ind}.(field)(:,x_ind)],obj_dedalus{branch_ind,ind}.z_list_fourier);
+                            end
+                        end
+                    otherwise
+                        error('Wrong p.my.z_basis_mode');
+                end
+                kx=obj_pde2path{branch_ind,ind}.kx;
+                ky=obj_pde2path{branch_ind,ind}.ky;
+                kx_2D=sign(kx)*sqrt(kx^2+ky^2);
+    %             if ky_final
+    %                 kx=kx_final;
+    %             else
+    %                 kx=kx_final^2+;
+    %             end
+                Lx_old=obj_dedalus{branch_ind,ind}.x_list(end)+obj_dedalus{branch_ind,ind}.x_list(2);
+
+    %             Lx2d=1;
+                Lx_new=Lx2d*2*pi/(kx_2D);
+                x=obj_dedalus{branch_ind,ind}.x_list'/Lx_old*Lx_new;
+
+                field_list={'u','d_u','w','d_w','p','T','S','d_T','d_S'};
+                for field_ind=1:length(field_list)
+                    field=field_list{field_ind};
+                    obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
+                end
+
+                obj_dedalus{branch_ind,ind}.u(:,:,end)=obj_dedalus{branch_ind,ind}.U_0*ones(size(x))+2*real(1i*obj_dedalus{branch_ind,ind}.u_tilde*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_u(:,:,end)=obj_dedalus{branch_ind,ind}.d_U_0*ones(size(x))+2*real(1i*obj_dedalus{branch_ind,ind}.d_u_tilde*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.w_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.d_w_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.p(:,:,end)=obj_dedalus{branch_ind,ind}.p_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.p_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.T(:,:,end)=obj_dedalus{branch_ind,ind}.T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.T_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.S(:,:,end)=obj_dedalus{branch_ind,ind}.S_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.S_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_T(:,:,end)=obj_dedalus{branch_ind,ind}.d_T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.d_T_hat*exp(1i*kx_2D*x));
+                obj_dedalus{branch_ind,ind}.d_S(:,:,end)=obj_dedalus{branch_ind,ind}.d_S_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.d_S_hat*exp(1i*kx_2D*x));
+
+                 
                 otherwise
-                    error('Wrong p.my.z_basis_mode');
-            end
-            kx=obj_pde2path{branch_ind,ind}.kx;
-            ky=obj_pde2path{branch_ind,ind}.ky;
-            kx_2D=sign(kx)*sqrt(kx^2+ky^2);
-%             if ky_final
-%                 kx=kx_final;
-%             else
-%                 kx=kx_final^2+;
-%             end
-            Lx_old=obj_dedalus{branch_ind,ind}.x_list(end)+obj_dedalus{branch_ind,ind}.x_list(2);
+                    error('Wrong p.my.variable_name');
+         end
             
-%             Lx2d=1;
-            Lx_new=Lx2d*2*pi/(kx_2D);
-            x=obj_dedalus{branch_ind,ind}.x_list'/Lx_old*Lx_new;
-
-            field_list={'u','d_u','w','d_w','p','T','S','d_T','d_S'};
-            for field_ind=1:length(field_list)
-                field=field_list{field_ind};
-                obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
-            end
-
-            obj_dedalus{branch_ind,ind}.u(:,:,end)=obj_dedalus{branch_ind,ind}.U_0*ones(size(x))+2*real(1i*obj_dedalus{branch_ind,ind}.u_tilde*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.d_u(:,:,end)=obj_dedalus{branch_ind,ind}.d_U_0*ones(size(x))+2*real(1i*obj_dedalus{branch_ind,ind}.d_u_tilde*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.w_hat*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.d_w(:,:,end)=2*real(obj_dedalus{branch_ind,ind}.d_w_hat*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.p(:,:,end)=obj_dedalus{branch_ind,ind}.p_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.p_hat*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.T(:,:,end)=obj_dedalus{branch_ind,ind}.T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.T_hat*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.S(:,:,end)=obj_dedalus{branch_ind,ind}.S_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.S_hat*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.d_T(:,:,end)=obj_dedalus{branch_ind,ind}.d_T_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.d_T_hat*exp(1i*kx_2D*x));
-            obj_dedalus{branch_ind,ind}.d_S(:,:,end)=obj_dedalus{branch_ind,ind}.d_S_0*ones(size(x))+2*real(obj_dedalus{branch_ind,ind}.d_S_hat*exp(1i*kx_2D*x));
-
-            if p.my.flux_T
-                field='dy_T_mean';
-                obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
-                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_T_mean;
-                h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
-            end
-            
-            if p.my.flux_S
-                field='dy_S_mean';
-                obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
-                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_S_mean;
-            
-            end
 %             h5_name=['analysis_s1_Nx64_Nz128.h5'];
             % field_list={'u','d_u','w','d_w','p','T','S','d_T','d_S'};
             for field_ind=1:length(field_list)
@@ -225,12 +314,28 @@ for branch_ind=1:length(branch_name_list)
                 h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
             end
             
+            %if fixed flux on T, also writeto the dy_T_mean
+            if p.my.flux_T==1
+                field='dy_T_mean_q';
+                obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
+                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_T_mean*ones(size(obj_dedalus{branch_ind,ind}.(field)));
+                h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
+            end
+            
+            %if fixed flux on S, also write the dy_S_mean
+            if p.my.flux_S==1
+                field='dy_S_mean_q';
+                obj_dedalus{branch_ind,ind}.(field)=h5read(h5_name,['/tasks/',field]);
+                obj_dedalus{branch_ind,ind}.(field)=p.my.obj.dy_S_mean*ones(size(obj_dedalus{branch_ind,ind}.(field)));
+                h5write(h5_name,['/tasks/',field],obj_dedalus{branch_ind,ind}.(field));
+            end
+            
             if point_list(ind)==-0.5
                  h5_name_destination=[IC_write_folder_name,'0p5','/'...
-                    h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];            
+                    h5_name(6:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];            
             else
                 h5_name_destination=[IC_write_folder_name,num2str(round(abs(point_list(ind)))),'/'...
-                    h5_name(1:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
+                    h5_name(6:end-3),'_',strrep(branch_name,'/','_'),'_Lx2d_',num2str(Lx2d),'.h5'];
             end
             copyfile(h5_name,h5_name_destination);
             
