@@ -86,7 +86,7 @@ switch group_name
                 h5_name='./IC/flux_T_periodic_analysis_s1_Nx128_Nz128.h5';
         end
 %         point_list=-0.5;
-        point_list=2*10^4;
+        point_list=[3,4]*10^4;
 %         point_list=[2500,5000,7500,10000,12500,15000,17500,20000,22500,25000,27500];
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
