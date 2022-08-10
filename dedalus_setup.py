@@ -445,9 +445,9 @@ class flag(object):
                     #problem.add_equation("p=0",condition="(nx==0)")
                 #add flux feedback 
                 if self.flux_T:
-                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )")
-                    #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )",condition="(nx!=0) or (nz!=0)")
-                    #problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+                    #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )")
+                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )",condition="(nx!=0) or (nz!=0)")
+                    problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
                     problem.add_equation("dy_T_mean_q=0",condition="(nx!=0) or (nz!=0)")
                     problem.add_equation("-dy_T_mean_q=1-integ(w*T)/Lx/Lz",condition="(nx==0) and (nz==0)")
                 else: 
