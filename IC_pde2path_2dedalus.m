@@ -7,7 +7,7 @@ group_name='HB_benard_salt_finger_Ra_S2T';
 group_name='HB_benard_salt_finger_kx';
 %This is just plot the profile for specific Ra_S2T....
 % branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
-root_folder_name='C:/Data/pde2path/HB_benard_full_zonal/';
+root_folder_name='C:/Data/pde2path/HB_benard_full_zonal/pde2path_14170485/';
 switch group_name
     case {'HB_benard_salt_finger_Ra_S2T','HB_benard_salt_finger_Ra_S2T_IC'}
         point_list=[1/90,1/80,1/70,1/60,1/50,1/40,1/30,1/20]*10^5;
@@ -86,7 +86,8 @@ switch group_name
                 h5_name='./IC/flux_T_periodic_analysis_s1_Nx128_Nz128.h5';
         end
 %         point_list=-0.5;
-        point_list=[2,3,4,5,6,7,8,9,10]*10^4;
+        
+        point_list=[(2:1:9)*10^4,(1:1:9)*10^5,(1:1:9)*10^6];
 %         point_list=[2500,5000,7500,10000,12500,15000,17500,20000,22500,25000,27500];
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
