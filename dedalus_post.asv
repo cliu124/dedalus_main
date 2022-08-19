@@ -265,6 +265,8 @@ classdef dedalus_post
         
         dy_T_mean_q=0;
         dy_S_mean_q=0;
+        
+        E_T_upper_bound=0;
     end
     
     methods
@@ -787,7 +789,16 @@ classdef dedalus_post
             z_mesh=obj.z_list*ones(1,length(obj.x_list));
             if strcmp(variable_name,'S_tot')
                 obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/','S'])...
-                    +obj.dy_S_mean*z_mesh
+                    +obj.dy_S_mean*z_mesh;
+                
+                %This is for fixed flux on S. 
+                if obj.flux_S
+                    for t_ind=1:length(obj.t_list)
+                        obj.S=h5read_complex(obj.h5_name,['/tasks/','S']);
+                        obj.(variable_name)(:,:,t_ind)=obj.S(:,:,t_ind)...
+                            +mean(mean(obj.dy_S_mean_q(:,:,t_ind)))*z_mesh;
+                    end
+                end
                 if obj.dy_S_mean==-1
                     obj.(variable_name)=obj.(variable_name)+1;
                 end
@@ -797,7 +808,16 @@ classdef dedalus_post
             elseif strcmp(variable_name,'T_tot')
                 obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/','T'])...
                     +obj.dy_T_mean*z_mesh;
-                if obj.dy_T_mean==-1
+                
+                if obj.flux_T
+                    for t_ind=1:length(obj.t_list)
+                        obj.T=h5read_complex(obj.h5_name,['/tasks/','T']);
+                        obj.(variable_name)(:,:,t_ind)=obj.T(:,:,t_ind)...
+                            +mean(mean(obj.dy_T_mean_q(:,:,t_ind)))*z_mesh;
+                    end
+                end
+                
+                if obj.dy_T_mean<0
                     obj.(variable_name)=obj.(variable_name)+1;
                 end
                 plot_config.colormap='jet';%bluewhitered
@@ -1175,10 +1195,11 @@ classdef dedalus_post
             obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
             
             for t_ind=1:length(obj.t_list)
-                if strcmp(z_basis_mode,'Fourier')
+                if strcmp(obj.z_basis_mode,'Fourier')
                     obj.(['E_',variable_name])(t_ind)=sum(sum(obj.(variable_name)(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
                 else
-                    warning('Note that energy is not ');
+                    obj.(['E_',variable_name])(t_ind)=sum(sum(obj.(variable_name)(:,:,t_ind).^2))/obj.Nx/obj.Nz/2;
+                    warning('Note that energy is assuming uniform grid!!!');
                 end
             end
             data{1}.x=obj.t_list;
@@ -1255,10 +1276,14 @@ classdef dedalus_post
             plot_config.print=obj.print;
             plot_config.visible=obj.visible;
             if obj.flux_T
+               derivative_factor=min(2*pi./[obj.Lx,obj.Lz]);
                data{2}.x=obj.t_list;
-               data{2}.y=upper_bound;
+               obj.E_T_upper_bound=1/8/derivative_factor^2;
+               data{2}.y=obj.E_T_upper_bound*ones(size(obj.t_list));
+               plot_config.legend_list={1,'DNS','Upper bound'};
+               plot_config.user_color_style_marker_list={'k-','b--'};
+
             end
-            
             plot_line(data,plot_config);
             
             plot_config.name=[obj.h5_name(1:end-3),'_E_',variable_name,'_loglog.png'];
@@ -1465,8 +1490,22 @@ classdef dedalus_post
                     case {'S_tot','T_tot'}
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
                         data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
+                        if obj.flux_T
+                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(z_ind,:,:))*obj.z_list(z_ind);
+                        end
+                        if obj.(['dy_',variable_name(1),'_mean'])<0
+                           data{1}.z=data{1}.z+1; 
+                        end
                         plot_config.colormap='jet';
-                        label=['$',variable_name(1),'+z$'];
+                        if obj.(['dy_',variable_name(1),'_mean'])==1
+                            label=['$z+',variable_name(1),'$'];
+                        elseif obj.(['dy_',variable_name(1),'_mean'])==-1
+                            label=['$1-z+',variable_name(1),'$'];
+                        end
+                        
+                        if obj.flux_T
+                           label=['$1+\bar{\mathcal{T}}_{z,q}z+',variable_name(1),'$'];
+                        end
                 end
     %             data{1}.z=squeeze(mean(obj.(variable_name),2));
     %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
@@ -1507,6 +1546,17 @@ classdef dedalus_post
                         T_mean_var=obj.dy_T_mean*obj.z_list;
                         T_mean_sign='+z';
                         dy_T_mean_sign='+1';
+                    elseif obj.dy_T_mean==0
+                        T_mean_var=0*obj.z_list;
+                        T_mean_sign='';
+                        dy_T_mean_sign='';
+                    end
+                    
+                    %Add fixed flux. 
+                    if obj.flux_T
+                        T_mean_var=mean(mean(obj.dy_T_mean_q))*obj.z_list;
+                        T_mean_sign='+$\bar{\mathcal{T}}_{z,q}z$';
+                        dy_T_mean_sign='+$\bar{\mathcal{T}}_{z,q}$';
                     end
 
                     if obj.dy_S_mean==-1
@@ -1517,6 +1567,17 @@ classdef dedalus_post
                         S_mean_var=obj.dy_S_mean*obj.z_list;
                         S_mean_sign='+z';
                         dy_S_mean_sign='+1';
+                    elseif obj.dy_S_mean==0
+                        S_mean_var=0*obj.z_list;
+                        S_mean_sign='';
+                        dy_S_mean_sign='';
+                    end
+                    
+                    %Add fixed flux. 
+                    if obj.flux_S
+                        S_mean_var=mean(mean(obj.dy_T_mean_q))*obj.z_list;
+                        S_mean_sign='+$\bar{\mathcal{S}}_{z,q}z$';
+                        dy_S_mean_sign='+$\bar{\mathcal{S}}_{z,q}$';
                     end
                     
                     %data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
@@ -1574,11 +1635,21 @@ classdef dedalus_post
                     variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                     data{2}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
-                    if obj.(['dy_',variable_name,'_mean'])==1
+                    if obj.(['flux_',variable_name])
+                        data{2}.x=obj.(['dy_',variable_name,'_mean_'])*obj.z_list;
+                        data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
+                    end
+                    
+                    if obj.(['dy_',variable_name,'_mean'])>0
                         plot_config.legend_list={1,['$ z+\langle ',variable_name,'\rangle_{h,t}$'],['$z$']};
-                    else obj.(['dy_',variable_name,'_mean'])==-1
+                    else obj.(['dy_',variable_name,'_mean'])<0
                         data{2}.x=data{2}.x+1;
+                        data{1}.x=data{1}.x+1;
                         plot_config.legend_list={1,['$1-z+\langle ',variable_name,'\rangle_{h,t}$'],['$1-z$']};
+                        if obj.flux_T
+                            
+                        end
+                    
                     end
                 case {'rho'}
                     %error('not ready');

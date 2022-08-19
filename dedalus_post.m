@@ -1490,8 +1490,22 @@ classdef dedalus_post
                     case {'S_tot','T_tot'}
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
                         data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
+                        if obj.flux_T
+                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(z_ind,:,:))*obj.z_list(z_ind);
+                        end
+                        if obj.(['dy_',variable_name(1),'_mean'])<0
+                           data{1}.z=data{1}.z+1; 
+                        end
                         plot_config.colormap='jet';
-                        label=['$',variable_name(1),'+z$'];
+                        if obj.(['dy_',variable_name(1),'_mean'])==1
+                            label=['$z+',variable_name(1),'$'];
+                        elseif obj.(['dy_',variable_name(1),'_mean'])==-1
+                            label=['$1-z+',variable_name(1),'$'];
+                        end
+                        
+                        if obj.flux_T
+                           label=['$1+\bar{\mathcal{T}}_{z,q}z+',variable_name(1),'$'];
+                        end
                 end
     %             data{1}.z=squeeze(mean(obj.(variable_name),2));
     %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
@@ -1621,11 +1635,20 @@ classdef dedalus_post
                     variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                     data{2}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
-                    if obj.(['dy_',variable_name,'_mean'])==1
+                    if obj.(['flux_',variable_name])
+                        data{2}.x=mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3)*obj.z_list;
+                        data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3)*obj.z_list;
+                    end
+                    
+                    if obj.(['dy_',variable_name,'_mean'])>0
                         plot_config.legend_list={1,['$ z+\langle ',variable_name,'\rangle_{h,t}$'],['$z$']};
-                    else obj.(['dy_',variable_name,'_mean'])==-1
+                    else obj.(['dy_',variable_name,'_mean'])<0
                         data{2}.x=data{2}.x+1;
+                        data{1}.x=data{1}.x+1;
                         plot_config.legend_list={1,['$1-z+\langle ',variable_name,'\rangle_{h,t}$'],['$1-z$']};
+                        if obj.(['flux_',variable_name])
+                            plot_config.legend_list={1,['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z+\langle ',variable_name,'\rangle_{h,t}$'],['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z$']};
+                        end
                     end
                 case {'rho'}
                     %error('not ready');
@@ -1673,7 +1696,7 @@ classdef dedalus_post
             %plot_config.legend_list={0};
             plot_config.print_size=[1,500,900];
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_profile_only.png'];
-            plot_config.fontsize_legend=24;
+            plot_config.fontsize_legend=16;
             plot_config.linewidth=3;
             plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
             plot_line(data,plot_config);

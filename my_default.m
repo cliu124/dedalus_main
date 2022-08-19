@@ -156,8 +156,8 @@ classdef my_default
         no_inertial_T_t=0;%get rid of the inertial term in temperature that is time derivative
         no_inertial_T_adv=0;%get rid of the inertial termin the temperature that is (u\cdot \grad T)
     
-        flux_T=NaN;
-        flux_S=NaN;
+        flux_T=0;
+        flux_S=0;
         
         R_z_res=1e-8;
     end

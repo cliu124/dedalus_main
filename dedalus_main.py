@@ -593,6 +593,57 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
         flag.store_variable='S_u_w'#only store S and u variable
         
+        
+    elif flag.flow_sub_double_diffusive_shear_2D=='primitive_stress_free_salt_finger':
+        ##parameter for Radko (2013) type
+        flag.Pr=7
+        #flag.tau=0.02944
+        #R_rho_T2S=20
+        flag.tau=0.01
+        #R_rho_T2S=40
+        flag.initial_dt=0.01
+        
+        
+        #map to the extended parameter in double_diffusive_shear_2D
+        flag.Re=1/flag.Pr
+        flag.Pe_T=1
+        flag.Pe_S=1
+        #flag.tau=tau #Set this as zero if remove salinity diffusivity
+        flag.Ra_T=10**5
+        flag.Ra_S2T=2500#flag.Ra_T#flag.Ra_T/R_rho_T2S
+        R_rho_T2S=flag.Ra_T/flag.Ra_S2T
+        #I need to overwrite these domain setup here
+        Ra_S=flag.Ra_S2T/flag.tau
+        flag.kx=18#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+        flag.ky=0
+        kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
+        Lx2d=1
+        flag.Lx=Lx2d*2*np.pi/kx_2D
+        flag.Lz=1
+        flag.Nx=128
+        flag.Nz=128
+         
+        flag.dy_T_mean=1
+        flag.dy_S_mean=1
+        
+        flag.z_bc_u_v_left='neumann' #This can be periodic, dirichlet, or neumann
+        flag.z_bc_T_left='dirichlet'
+        flag.z_bc_S_left='dirichlet'
+        flag.z_bc_w_left='dirichlet'
+        flag.z_bc_u_v_right='neumann' #This can be periodic, dirichlet, or neumann
+        flag.z_bc_T_right='dirichlet'
+        flag.z_bc_S_right='dirichlet'
+        flag.z_bc_w_right='dirichlet'
+        
+        flag.A_elevator=0
+        flag.k_elevator=1
+        
+        flag.A_noise=0
+        flag.A_secondary_S=0
+        flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
+        flag.store_variable='S_u_w'#only store S and u variable
+        
+        
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_salt_finger':
         ##parameter for Radko (2013) type
         flag.Pr=7
@@ -718,6 +769,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         flag.post_store_dt=1
         flag.stop_sim_time=4000
+    elif flag.flow_sub_double_diffusive_shear_2D=='primitive_stress_free_salt_finger':
+        flag.post_store_dt=50
+        flag.stop_sim_time=3000
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_salt_finger':
         flag.post_store_dt=1
         flag.stop_sim_time=5

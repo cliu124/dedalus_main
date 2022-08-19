@@ -55,11 +55,6 @@ switch group_name
                 %branch_name_list={'tr/bpt1/bpt1'};
                 IC_write_folder_name='./IC/2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
                 h5_name='./IC/analysis_s1_Nx128_Nz128.h5';
-            case 'salt_finger_kx_low_Ra_S2T_2D_stress_free'
-                branch_name_list={'tr/bpt1'};%,'tr/bpt4'
-                %branch_name_list={'tr/bpt1/bpt1'};
-                IC_write_folder_name='./IC/stress_free_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
-                h5_name='./IC/analysis_s1_Nx128_Nz128.h5';
             case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip'
                 %branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 branch_name_list={'tr/bpt1/bpt2'};
