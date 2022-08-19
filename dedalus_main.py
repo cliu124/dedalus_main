@@ -29,6 +29,7 @@ flag=dedalus_setup.flag()
 flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
+#flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
 flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
 
