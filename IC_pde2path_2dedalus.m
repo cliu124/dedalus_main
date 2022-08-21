@@ -59,7 +59,7 @@ switch group_name
                 branch_name_list={'tr/bpt1'};%,'tr/bpt4'
                 %branch_name_list={'tr/bpt1/bpt1'};
                 IC_write_folder_name='./IC/stress_free_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
-                h5_name='./IC/analysis_s1_Nx128_Nz128.h5';
+                h5_name='./IC/analysis_s1_Nx256_Nz256.h5';
             case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip'
                 %branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 branch_name_list={'tr/bpt1/bpt2'};
@@ -94,7 +94,7 @@ switch group_name
         end
 %         point_list=-0.5;
         
-        point_list=[(2:1:9)*10^4,(1:1:9)*10^5,(1:1:9)*10^6];
+        %point_list=[(2:1:9)*10^4,(1:1:9)*10^5,(1:1:9)*10^6];
 %         point_list=[2500,5000,7500,10000,12500,15000,17500,20000,22500,25000,27500];
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
