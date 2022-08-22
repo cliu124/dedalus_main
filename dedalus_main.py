@@ -29,9 +29,9 @@ flag=dedalus_setup.flag()
 flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
-#flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
+flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
-flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
+#flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
 
 
 #flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -602,7 +602,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #R_rho_T2S=20
         flag.tau=0.01
         #R_rho_T2S=40
-        flag.initial_dt=0.01
+        flag.initial_dt=0.001
         
         
         #map to the extended parameter in double_diffusive_shear_2D
@@ -615,14 +615,14 @@ elif flag.flow == 'double_diffusive_shear_2D':
         R_rho_T2S=flag.Ra_T/flag.Ra_S2T
         #I need to overwrite these domain setup here
         Ra_S=flag.Ra_S2T/flag.tau
-        flag.kx=18#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+        flag.kx=14#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
         flag.ky=0
         kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_2D
         flag.Lz=1
-        flag.Nx=128
-        flag.Nz=128
+        flag.Nx=256
+        flag.Nz=256
          
         flag.dy_T_mean=1
         flag.dy_S_mean=1
@@ -642,7 +642,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_noise=0
         flag.A_secondary_S=0
         flag.k_secondary=2*np.pi #4*np.pi, or 6*np.pi, will give 2 or 3 staircase
-        flag.store_variable='S_u_w'#only store S and u variable
+        flag.store_variable='all'#only store S and u variable
         
         
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_salt_finger':
@@ -771,8 +771,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.post_store_dt=1
         flag.stop_sim_time=4000
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_stress_free_salt_finger':
-        flag.post_store_dt=50
-        flag.stop_sim_time=3000
+        flag.post_store_dt=0.001
+        flag.stop_sim_time=0.01
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_salt_finger':
         flag.post_store_dt=1
         flag.stop_sim_time=5

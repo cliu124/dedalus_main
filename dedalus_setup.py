@@ -2578,6 +2578,22 @@ class flag(object):
         if self.problem =='IVP':
             if self.timesteppers == 'RK443':
                 ts = de.timesteppers.RK443
+            elif self.timesteppers == 'RK222':
+                ts = de.timesteppers.RK222
+            elif self.timesteppers == 'RK111':
+                ts = de.timesteppers.RK111
+            elif self.timesteppers == 'RKSMR':
+                ts = de.timestepers.RKSMR
+            elif self.timesteppers == 'SBDF1':
+                ts = de.timesteppers.SBDF1
+            elif self.timesteppers == 'SBDF2':
+                ts = de.timesteppers.SBDF2
+            elif self.timestepper == 'SBDF3':
+                ts = de.timesteppers.SBDF3
+            elif self.timesteppers == 'SBDF4':
+                ts = de.timesteppers.SBDF4
+                
+            
             else:
                 raise TypeError('flag.timesteppers is not defined yet') 
             solver =  problem.build_solver(ts)
