@@ -427,7 +427,12 @@ class flag(object):
                         problem.add_equation("- (dx(dx(u))+dz(d_u) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
                         problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
-                        problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+                        if self.z_bc_u_v_left=='neumann' and self.z_bc_u_v_left=='neumann':
+                            #modify the large-scale shear 
+                            problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
+                            problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        else:
+                            problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
     
                 if self.Re ==0:
                     #no inertial term in the momentum
@@ -2582,13 +2587,15 @@ class flag(object):
                 ts = de.timesteppers.RK222
             elif self.timesteppers == 'RK111':
                 ts = de.timesteppers.RK111
+            elif self.timesteppers == 'RKGFY':
+                ts = de.timesteppers.RKGFY
             elif self.timesteppers == 'RKSMR':
                 ts = de.timestepers.RKSMR
             elif self.timesteppers == 'SBDF1':
                 ts = de.timesteppers.SBDF1
             elif self.timesteppers == 'SBDF2':
                 ts = de.timesteppers.SBDF2
-            elif self.timestepper == 'SBDF3':
+            elif self.timesteppers == 'SBDF3':
                 ts = de.timesteppers.SBDF3
             elif self.timesteppers == 'SBDF4':
                 ts = de.timesteppers.SBDF4
