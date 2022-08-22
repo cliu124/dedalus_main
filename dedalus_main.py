@@ -621,8 +621,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_2D
         flag.Lz=1
-        flag.Nx=256
-        flag.Nz=256
+        flag.Nx=128
+        flag.Nz=128
          
         flag.dy_T_mean=1
         flag.dy_S_mean=1

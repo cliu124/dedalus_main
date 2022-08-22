@@ -427,12 +427,16 @@ class flag(object):
                         problem.add_equation("- (dx(dx(u))+dz(d_u) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
                         problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
-                        if self.z_bc_u_v_left=='neumann' and self.z_bc_u_v_left=='neumann':
-                            #modify the large-scale shear 
-                            problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
-                            problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
-                        else:
-                            problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+                        #
+                        problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+                        
+                        #Below is to enforce that large-scale shear has a zero mean value, but for simulation seems not necessary
+                        #if self.z_bc_u_v_left=='neumann' and self.z_bc_u_v_left=='neumann':
+                        #    #modify the large-scale shear 
+                        #    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
+                        #    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        #else:
+                        #    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
     
                 if self.Re ==0:
                     #no inertial term in the momentum

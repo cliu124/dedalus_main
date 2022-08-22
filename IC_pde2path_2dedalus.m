@@ -59,7 +59,7 @@ switch group_name
                 branch_name_list={'tr/bpt1'};%,'tr/bpt4'
                 %branch_name_list={'tr/bpt1/bpt1'};
                 IC_write_folder_name='./IC/stress_free_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_';
-                h5_name='./IC/analysis_s1_Nx256_Nz256.h5';
+                h5_name='./IC/analysis_s1_Nx128_Nz128.h5';
             case 'salt_finger_kx_low_Ra_S2T_low_Pr_2D_no_slip'
                 %branch_name_list={'tr/bpt1','tr/bpt1/bpt1','tr/bpt1/bpt2'};
                 branch_name_list={'tr/bpt1/bpt2'};
@@ -99,6 +99,7 @@ switch group_name
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
+        %point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=[-0.5];
         %point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];
         %point_list=[-12];
@@ -161,7 +162,10 @@ for branch_ind=1:length(branch_name_list)
                     obj_pde2path{branch_ind,ind}.(['d_',field])=mat_pde2path.D1*obj_pde2path{branch_ind,ind}.(field);
                 end
                 I=eye(size(mat_pde2path.D2));
-                obj_pde2path{branch_ind,ind}.p_hat=inv(mat_pde2path.D2-obj_pde2path{branch_ind,ind}.kx^2*I-obj_pde2path{branch_ind,ind}.ky^2*I)...
+                Laplacian=mat_pde2path.D2-obj_pde2path{branch_ind,ind}.kx^2*I-obj_pde2path{branch_ind,ind}.ky^2*I;
+                Laplacian_bc=Laplacian; 
+                Laplacian_bc([1,p.np],:)=0;
+                obj_pde2path{branch_ind,ind}.p_hat=pinv(Laplacian_bc)...
                     *(obj_pde2path{branch_ind,ind}.Ra_T*obj_pde2path{branch_ind,ind}.d_T_hat-obj_pde2path{branch_ind,ind}.Ra_S2T*obj_pde2path{branch_ind,ind}.d_S_hat...
                     -2*1i*obj_pde2path{branch_ind,ind}.kx/obj_pde2path{branch_ind,ind}.Pr*obj_pde2path{branch_ind,ind}.w_hat.*obj_pde2path{branch_ind,ind}.d_U_0);
 
