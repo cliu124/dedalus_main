@@ -267,6 +267,9 @@ classdef dedalus_post
         dy_S_mean_q=0;
         
         E_T_upper_bound=0;
+        
+        Ra_T_no_q=0;
+        Ra_S2T_no_q=0;
     end
     
     methods
@@ -1734,24 +1737,8 @@ classdef dedalus_post
         end
 
         function obj=get_Nu(obj,variable_name,t_ind)
-            if strcmp(obj.store_variable,'all')
-                d_variable_data=h5read_complex(obj.h5_name,['/tasks/d_',variable_name]);
-            else
-                error('Not ready, this interpolation is wrong!!');
-                z_list_cheb=obj.z_list*2-1;
-                variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
-                [x,DM]=chebdif(length(z_list_cheb),1);
-                D1=DM(:,:,1);
-                for x_ind=1:size(variable_data,2)
-                    for t_ind=1:size(variable_data,3)
-                        variable_data_y=squeeze(variable_data(:,x_ind,t_ind));
-                        variable_data_y_int=chebint(variable_data_y,z_list_cheb);
-                        d_variable_data(:,x_ind,t_ind)=D1*variable_data_y_int;
-                    end
-                end
-            end
-                
-            time_len=size(d_variable_data,3);
+            obj.t_list=h5read_complex(obj.h5_name,'/scales/sim_time');
+            time_len=length(obj.t_list);
             if nargin<3 || isempty(t_ind)
                 %The default option, just average over the second half of
                 %data...
@@ -1765,13 +1752,47 @@ classdef dedalus_post
                     t_ind_end=t_ind(2);
                 end
             end
-            d_variable_data_total_xt_ave=obj.(['Pe_',variable_name])*squeeze(mean(mean(d_variable_data(:,:,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean']);
-            obj.(['d_',variable_name])=d_variable_data;
-            switch variable_name
-                case 'T'
-                    obj.Nu=d_variable_data_total_xt_ave;
-                case 'S'
-                    obj.Nu_S=d_variable_data_total_xt_ave;
+            
+            if obj.flux_T~=0 && obj.flux_S~=0
+                if strcmp(obj.store_variable,'all')
+                    d_variable_data=h5read_complex(obj.h5_name,['/tasks/d_',variable_name]);
+                else
+                    error('Not ready, this interpolation is wrong!!');
+                    z_list_cheb=obj.z_list*2-1;
+                    variable_data=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                    [x,DM]=chebdif(length(z_list_cheb),1);
+                    D1=DM(:,:,1);
+                    for x_ind=1:size(variable_data,2)
+                        for t_ind=1:size(variable_data,3)
+                            variable_data_y=squeeze(variable_data(:,x_ind,t_ind));
+                            variable_data_y_int=chebint(variable_data_y,z_list_cheb);
+                            d_variable_data(:,x_ind,t_ind)=D1*variable_data_y_int;
+                        end
+                    end
+                end
+
+                d_variable_data_total_xt_ave=obj.(['Pe_',variable_name])*squeeze(mean(mean(d_variable_data(:,:,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean']);
+                obj.(['d_',variable_name])=d_variable_data;
+                switch variable_name
+                    case 'T'
+                        obj.Nu=d_variable_data_total_xt_ave;
+                    case 'S'
+                        obj.Nu_S=d_variable_data_total_xt_ave;
+                end
+            
+            else
+                 d_variable_data_total_xt_ave=1./abs(squeeze(mean(mean(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end),2),3)));
+               
+                 switch variable_name
+                    case 'T'
+                        obj.Nu=d_variable_data_total_xt_ave;
+                        Ra_T_q=obj.Ra_T;
+                        obj.Ra_T_no_q=Ra_T_q/mean(obj.Nu);
+                    case 'S'
+                        obj.Nu_S=d_variable_data_total_xt_ave;
+                        Ra_S2T_q=obj.Ra_S2T;
+                        obj.Ra_S2T_no_q=Ra_S2T_q/mean(obj.Nu_S);
+                 end
             end
         end
         

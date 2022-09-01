@@ -414,8 +414,8 @@ slurm_num={'14170492',...
 %             '14174697'};
 % slurm_num={'14175141'};
 slurm_num={'14175555'};
-slurm_num={'14209457'};
-flag.print=0; 
+slurm_num={'14175141'};
+flag.print=1; 
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;
@@ -432,10 +432,9 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('S',[100]);
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T');
 
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('p');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
@@ -443,14 +442,15 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');
-     
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[150]);
+
 %      dedalus_post_my{slurm_ind}.z_basis_mode='Chebyshev';
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('u');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('w');
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('S');
 
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('rho');
 
