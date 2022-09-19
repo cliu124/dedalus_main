@@ -127,6 +127,7 @@ classdef dedalus_post
         uT;
         wT;
         uw;
+        ww;
         
         %new flag added 2021/11/15
         kx=1
@@ -784,11 +785,12 @@ classdef dedalus_post
         end
         
         
-        function obj=snapshot(obj,variable_name,video_ind)
+        function obj=snapshot(obj,variable_name,video_ind,zlim_list)
             %%plot the snapshot of salinity and generate video if any
             if nargin<3 || isempty(video_ind)
                video_ind=1; 
             end
+            
             z_mesh=obj.z_list*ones(1,length(obj.x_list));
             if strcmp(variable_name,'S_tot')
                 obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/','S'])...
@@ -840,6 +842,13 @@ classdef dedalus_post
                 plot_config.ztick_list=0;
             end
             
+            %Update 2022/09/14, update the zlim_list option so I could turn
+            %off this. 
+            if nargin<4 || isempty(zlim_list)
+                %do nothing
+            else
+               plot_config.zlim_list=zlim_list; 
+            end
             
             if obj.video
                 snapshot_ind=1;
@@ -1437,7 +1446,7 @@ classdef dedalus_post
             switch variable_name
                 case {'u','v','w','S','T','p','dy_T_mean_q','dy_S_mean_q'}
                     obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
-                case {'uS','wS','uT','wT','uw'}%%
+                case {'uS','wS','uT','wT','uw','ww'}%%
                     var_1=variable_name(1);
                     var_2=variable_name(2);
                     if strcmp(var_1,'u') %%this require in default, the u is always in the first variable....
@@ -1458,6 +1467,7 @@ classdef dedalus_post
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave.png'];
             plot_config.ylim_list=[1,0,1];
+            plot_config.fontsize=28;
             plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1];
             plot_contour(data,plot_config);
             
@@ -1782,7 +1792,7 @@ classdef dedalus_post
             
             else
                  d_variable_data_total_xt_ave=1./abs(squeeze(mean(mean(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end),2),3)));
-               
+
                  switch variable_name
                     case 'T'
                         obj.Nu=d_variable_data_total_xt_ave;
@@ -1793,6 +1803,9 @@ classdef dedalus_post
                         Ra_S2T_q=obj.Ra_S2T;
                         obj.Ra_S2T_no_q=Ra_S2T_q/mean(obj.Nu_S);
                  end
+                 
+                 obj.Nu_T_t=1./abs(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end)));
+
             end
         end
         
