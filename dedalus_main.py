@@ -21,12 +21,12 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
-flag.flow='HB_porous'
+#flag.flow='HB_porous'
 #flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
 
 #This is runing 2D DNS general formulation
-#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
@@ -705,19 +705,19 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_T=1
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
-        flag.Ra_T=2*10**4
+        flag.Ra_T=10**8
         flag.initial_dt=100/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
         Ra_S=flag.Ra_S2T/flag.tau
-        flag.kx=10#2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+        flag.kx=5#2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
         flag.ky=0
         kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_2D
         flag.Lz=1
-        flag.Nx=128
-        flag.Nz=128
+        flag.Nx=512
+        flag.Nz=256
          
         flag.dy_T_mean=-flag.kx**4/flag.Ra_T
         flag.dy_S_mean=0
@@ -732,8 +732,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.z_bc_w_right='periodic'
         
         w_hat=np.sqrt((1-flag.kx**4/flag.Ra_T)/(2*flag.kx**2/flag.Ra_T))
-        flag.A_elevator=0#2*w_hat
-        flag.k_elevator=0#flag.kx
+        flag.A_elevator=2*w_hat
+        flag.k_elevator=flag.kx
         flag.A_secondary_w=0#10
         flag.A_secondary_U0=0#10
         flag.A_secondary_T=0#1
@@ -782,8 +782,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.post_store_dt=1
         flag.stop_sim_time=5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
-        flag.post_store_dt=10**3/flag.Ra_T
-        flag.stop_sim_time=10**4/flag.Ra_T
+        flag.post_store_dt=10**4/flag.Ra_T
 else:
     print('1')
     #flag.post_store_dt=0.000001/flag.Ra_T;

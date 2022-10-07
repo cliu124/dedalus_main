@@ -373,10 +373,11 @@ slurm_num={'13633162',...: kx=3
 slurm_num={'13633381',...
             '13633382'};
 slurm_num={'13633224'};
+slurm_num={'14446324'};
 % group_name=[];
-flag.print=0;
+flag.print=1;
 flag.visible=0;
-flag.video=0;
+flag.video=1;
 flag.no_ylabel=0;
 flag.post_plot=0;
 for slurm_ind=1:length(slurm_num)

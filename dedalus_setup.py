@@ -287,8 +287,9 @@ class flag(object):
         elif self.flow in ['double_diffusive_shear_2D']:
             #This is using the unified formulation, where the velocity and length scale are arbitrary or determined by shear
             if self.flux_T:
-                problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T','dy_T_mean_q'])
-
+                #problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T','dy_T_mean_q'])
+                #Update 2022/10/07, get rid of dy_T_mean_q as a variable, just a post-processing variable
+                problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
             else:
                 problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
             
@@ -458,10 +459,16 @@ class flag(object):
                     #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )",condition="(nx!=0) or (nz!=0)")
                     
                     #Update 2022/10/05, try this version to have the time-varying effect of dy_T_mean_q on the right hand size
-                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                    #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                    #problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+                    #problem.add_equation("dy_T_mean_q=0",condition="(nx!=0) or (nz!=0)")
+                    #problem.add_equation("-dy_T_mean_q=1-integ(w*T)/Lx/Lz",condition="(nx==0) and (nz==0)")
+                
+                    #Update 2022/10/07, substitute dy_T_mean_q into the T equation
+                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =(1-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
                     problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
-                    problem.add_equation("dy_T_mean_q=0",condition="(nx!=0) or (nz!=0)")
-                    problem.add_equation("-dy_T_mean_q=1-integ(w*T)/Lx/Lz",condition="(nx==0) and (nz==0)")
+                    
+                
                 else: 
                     if self.Pe_T == 0:
                         #no inertial term in the temperature
@@ -3417,7 +3424,11 @@ class flag(object):
                     solver.step(dt)
                     if solver.iteration % 100 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
-            
+                        if self.flux_T:
+                            dy_T_mean_q=-(1-integ(solver.state['w']['g']*solver.state['T']['g'])/self.Lx/self.Lz)
+                            logger.info('dy_T_mean: {}'.format(dy_T_mean_q))
+                            logger.info('Nu: {}'.format(-1/dy_T_mean_q))
+
             elif self.flow in ['HB_porous','HB_benard','HB_porous_shear','HB_benard_shear']:
                 #This harmonic balance is 1D simulation and thus no CFL condition is required.... 
                 while solver.ok:
@@ -3425,7 +3436,8 @@ class flag(object):
                     if solver.iteration % 100 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
                         logger.info('Nu: {}'.format(-(solver.state['d_T_0']['g'][0]+self.dy_S_mean)))
-                        logger.info('Nu_S: {}'.format(-(solver.state['d_S_0']['g'][0]+self.dy_T_mean)))
+                        logger.info('Nu_S: {}'.format(-(solver.state['d_S_0']['g'][0]+self.
+                                                        )))
                 
             
             end_time = time.time()
@@ -3556,8 +3568,8 @@ class flag(object):
                 analysis.add_task('u',layout='g',name='u')
                 analysis.add_task('w',layout='g',name='w')
               
-            if (self.flux_T) and (self.store_variable !='all'):
-                analysis.add_task('dy_T_mean_q',layout='g',name='dy_T_mean_q')
+            if (self.flux_T):
+                analysis.add_task('-(1-integ(w*T)/Lx/Lz)',layout='g',name='dy_T_mean_q')
                 
         elif self.flow in ['porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
