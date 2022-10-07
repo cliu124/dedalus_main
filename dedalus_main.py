@@ -92,7 +92,7 @@ if flag.flow=='HB_porous':
     flag.problem='IVP'
     flag.EVP_secondary=1
     if flag.problem =='IVP':
-        flag.initial_dt=0.00001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
+        flag.initial_dt=0.01 #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
 
 elif flag.flow == 'HB_porous_2_layer':
     flag.Nz=512
@@ -769,8 +769,8 @@ elif flag.flow in ['HB_benard']:
     flag.post_store_dt=10**3/flag.Ra_T
     flag.stop_sim_time=10**7/flag.Ra_T
 elif flag.flow in ['HB_porous']:
-    flag.post_store_dt=10**3/flag.Ra_T
-    flag.stop_sim_time=10**7/flag.Ra_T
+    flag.post_store_dt=0.01
+    flag.stop_sim_time=40
 elif flag.flow == 'double_diffusive_shear_2D':
     if flag.flow_sub_double_diffusive_shear_2D=='primitive_dirichlet_salt_finger':
         flag.post_store_dt=1
