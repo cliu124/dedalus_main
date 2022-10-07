@@ -3427,6 +3427,8 @@ class flag(object):
                         if self.flux_T:
                             dy_T_mean_q=-(1-np.sum(np.sum(solver.state['w']['g']*solver.state['T']['g']))/self.Nx/self.Nz)
                             logger.info('dy_T_mean: {}'.format(dy_T_mean_q))
+                            logger.info('max|w|: {}'.format(np.max(np.max(np.abs(solver.state['w']['g'])))))
+                            logger.info('max|T|: {}'.format(np.max(np.max(np.abs(solver.state['T']['g'])))))
                             logger.info('Nu: {}'.format(-1/dy_T_mean_q))
 
             elif self.flow in ['HB_porous','HB_benard','HB_porous_shear','HB_benard_shear']:
