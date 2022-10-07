@@ -3425,7 +3425,7 @@ class flag(object):
                     if solver.iteration % 100 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
                         if self.flux_T:
-                            dy_T_mean_q=-(1-integ(solver.state['w']['g']*solver.state['T']['g'])/self.Lx/self.Lz)
+                            dy_T_mean_q=-(1-np.sum(np.sum(solver.state['w']['g']*solver.state['T']['g']))/self.Lx/self.Lz)
                             logger.info('dy_T_mean: {}'.format(dy_T_mean_q))
                             logger.info('Nu: {}'.format(-1/dy_T_mean_q))
 
@@ -3435,9 +3435,8 @@ class flag(object):
                     solver.step(dt)
                     if solver.iteration % 100 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
-                        logger.info('Nu: {}'.format(-(solver.state['d_T_0']['g'][0]+self.dy_S_mean)))
-                        logger.info('Nu_S: {}'.format(-(solver.state['d_S_0']['g'][0]+self.
-                                                        )))
+                        logger.info('Nu: {}'.format(-(solver.state['d_T_0']['g'][0]+self.dy_T_mean)))
+                        logger.info('Nu_S: {}'.format(-(solver.state['d_S_0']['g'][0]+self.dy_S_mean)))
                 
             
             end_time = time.time()
