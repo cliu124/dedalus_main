@@ -3605,7 +3605,7 @@ class flag(object):
             #    self.analysis.add_system(solver.state)
 
         #add checkpoint handler after run for restart
-        self.checkpoint=solver.add_file_handler('checkpoint')
+        self.checkpoint=solver.evaluator.add_file_handler('checkpoint')
         self.checkpoint.add_system(solver.state)
         
     def post_store_after_run(self,solver):
