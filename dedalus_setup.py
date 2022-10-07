@@ -3425,7 +3425,7 @@ class flag(object):
                     if solver.iteration % 100 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
                         if self.flux_T:
-                            dy_T_mean_q=-(1-np.sum(np.sum(solver.state['w']['g']*solver.state['T']['g']))/self.Lx/self.Lz)
+                            dy_T_mean_q=-(1-np.sum(np.sum(solver.state['w']['g']*solver.state['T']['g']))/self.Nx/self.Nz)
                             logger.info('dy_T_mean: {}'.format(dy_T_mean_q))
                             logger.info('Nu: {}'.format(-1/dy_T_mean_q))
 
