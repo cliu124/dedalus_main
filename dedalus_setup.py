@@ -2634,9 +2634,9 @@ class flag(object):
             #This initial condition also need to be modified
             if self.flow in ['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D']:
         
-                if self.flux_T:
-                    dy_T_mean_q=solver.state['dy_T_mean_q']
-                    dy_T_mean_q['g']=self.dy_T_mean
+                #if self.flux_T:
+                #    dy_T_mean_q=solver.state['dy_T_mean_q']
+                #    dy_T_mean_q['g']=self.dy_T_mean
         
                 x = domain.grid(0)
                 z = domain.grid(1)
