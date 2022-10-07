@@ -3424,6 +3424,9 @@ class flag(object):
                     solver.step(dt)
                     if solver.iteration % 100 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
+                        logger.info('Nu: {}'.format(-(solver.state['d_T_0']['g'][0]+self.dy_S_mean)))
+                        logger.info('Nu_S: {}'.format(-(solver.state['d_S_0']['g'][0]+self.dy_T_mean)))
+                
             
             end_time = time.time()
             # Print statistics
