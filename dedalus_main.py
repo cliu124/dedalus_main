@@ -21,12 +21,12 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
-#flag.flow='HB_benard'
+flag.flow='HB_benard'
 #flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
 
 #This is runing 2D DNS general formulation
-flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
@@ -46,10 +46,11 @@ flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
 if flag.flow=='HB_porous':
     flag.Nz=128
     flag.Lz=1
-    flag.tau=0.01
+    flag.tau=1/5
     flag.dy_T_mean=-1
     flag.dy_S_mean=-1
-    #flag.Ra_T=4000
+    flag.Ra_T=55
+    flag.Ra_S2T=5.5
     #Ra_T_list=[10000,20000,40000]
     
     #wavenumber-Ra scaling from Hewitt
@@ -63,11 +64,11 @@ if flag.flow=='HB_porous':
     #flag.Ra_S2T=0
 
     #wavenumber-Ra scaling from Rosenberg & Spera (1991), salinity is also active
-    flag.Ra_T=600 #[100,150,300,600]
-    flag.kx=np.pi*1
-    R_rho_S2T=0.5
-    flag.Ra_S2T=R_rho_S2T*flag.Ra_T
-    flag.tau=1/20
+    #flag.Ra_T=600 #[100,150,300,600]
+    #flag.kx=np.pi*1
+    #R_rho_S2T=0.5
+    #flag.Ra_S2T=R_rho_S2T*flag.Ra_T
+    #flag.tau=1/20
     
     #wavenumber-Ra for the case of Mamou
     #flag.Ra_T=55
@@ -87,7 +88,7 @@ if flag.flow=='HB_porous':
     flag.bvp_tolerance=1e-10
     
     flag.A_elevator=1/10*flag.Ra_T
-    flag.problem='BVP'
+    flag.problem='IVP'
     flag.EVP_secondary=1
     if flag.problem =='IVP':
         flag.initial_dt=0.00001/flag.Ra_T #This is the time step for double-diffusive convection in porous medium, Rosenberg case 
@@ -764,6 +765,9 @@ if flag.flow in ['HB_benard_shear']:
     #flag.post_store_dt=0.01/flag.Ra_T
     #flag.stop_sim_time=10/flag.Ra_T
 elif flag.flow in ['HB_benard']:
+    flag.post_store_dt=10**3/flag.Ra_T
+    flag.stop_sim_time=10**7/flag.Ra_T
+elif flag.flow in ['HB_porous']:
     flag.post_store_dt=10**3/flag.Ra_T
     flag.stop_sim_time=10**7/flag.Ra_T
 elif flag.flow == 'double_diffusive_shear_2D':
