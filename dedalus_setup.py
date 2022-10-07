@@ -3574,7 +3574,7 @@ class flag(object):
             if (self.flux_T):
                 analysis.add_task('-(1-integ(w*T)/Lx/Lz)',layout='g',name='dy_T_mean_q')
                 flow_out = flow_tools.GlobalFlowProperty(solver, cadence=1)
-                flow_out.add_property('wT',name='wT')
+                flow_out.add_property('w*T',name='wT')
                 flow_out.add_property('w',name='w')
                 flow_out.add_property('T',name='T')
                 self.flow_out=flow_out
