@@ -3614,7 +3614,8 @@ class flag(object):
         end_world_time = solver.get_world_time()
         end_wall_time = end_world_time - solver.start_time
         solver.evaluator.evaluate_handlers([self.checkpoint], timestep = self.initial_dt, sim_time = solver.sim_time, world_time=end_world_time, wall_time=end_wall_time, iteration=solver.iteration)
-        
+        post.merge_process_files('checkpoint',cleanup=True)
+
         #merge step for the IVP and BVP...
         if self.problem == 'IVP':
             post.merge_process_files('analysis',cleanup=True)
