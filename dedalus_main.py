@@ -21,7 +21,7 @@ flag=dedalus_setup.flag()
 
 #------------select the flow configuration and special parameters for each
 #flag.flow='HB_porous_3_layer'
-flag.flow='HB_benard'
+flag.flow='HB_porous'
 #flag.flow='HB_benard_shear'
 #flag.flow='test_periodic'
 
@@ -51,6 +51,7 @@ if flag.flow=='HB_porous':
     flag.dy_S_mean=-1
     flag.Ra_T=55
     flag.Ra_S2T=5.5
+    flag.kx=np.pi
     #Ra_T_list=[10000,20000,40000]
     
     #wavenumber-Ra scaling from Hewitt
@@ -87,7 +88,7 @@ if flag.flow=='HB_porous':
     flag.z_bc_S_right='dirichlet'
     flag.bvp_tolerance=1e-10
     
-    flag.A_elevator=1/10*flag.Ra_T
+    flag.A_elevator=0.1
     flag.problem='IVP'
     flag.EVP_secondary=1
     if flag.problem =='IVP':
