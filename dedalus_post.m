@@ -1683,7 +1683,7 @@ classdef dedalus_post
                     data{2}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     if obj.(['flux_',variable_name])
-                        data{2}.x=mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3)*obj.z_list;
+                        data{2}.x=mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end),2),3)*obj.z_list;
                         data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3)*obj.z_list;
                     end
                     

@@ -706,7 +706,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         flag.Ra_T=10**8
-        flag.initial_dt=100/flag.Ra_T
+        flag.initial_dt=50/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
         Ra_S=flag.Ra_S2T/flag.tau
