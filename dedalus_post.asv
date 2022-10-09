@@ -273,6 +273,9 @@ classdef dedalus_post
         Ra_S2T_no_q=0;
         
         Nu_T_t=0; %Nusselt number as a function of t
+    
+        flow_out;
+        checkpoint;
     end
     
     methods
@@ -291,7 +294,7 @@ classdef dedalus_post
             obj.print=flag.print;
             obj.video=flag.video;
             obj.visible=flag.visible;
-            obj.no_ylabel=flag.no_ylabel
+            obj.no_ylabel=flag.no_ylabel;
             %display h5 file
             %h5disp(h5_name);
             
@@ -504,6 +507,14 @@ classdef dedalus_post
                 case {'HB_benard','HB_benard_shear'}
                     obj.u_rms_mid=abs(obj.u_tilde(mid_ind))*sqrt(2);
             end
+            
+            try
+                disp('Also get the time series');
+                obj.t_list=h5read_complex(h5_name,'/scales/sim_time');
+            catch
+                disp('No time series here');
+            end
+            
         end
         
         
@@ -900,19 +911,20 @@ classdef dedalus_post
                     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
 
                     if obj.title_time
-                        plot_config.title_list={1,['$t_ind$',num2str(round(obj.t_list(t_ind)))]};
+                        plot_config.title_list={1,['$t_ind_$',num2str(t_ind)]};
                     else
                         plot_config.title_list={0};
                     end
 
                     plot_config.print_size=[1,1200,1200];
-                    plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind))),'.png'];
+                    plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_ind_',num2str(t_ind),'.png'];
                     plot_config.print=obj.print;
                     plot_config.visible=obj.visible;
+                    plot_config.fontsize=28;
                     plot_contour(data,plot_config);
-                    plot_config.label_list={1,'$x$',''};
-                    plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind))),'_no_ylabel.png'];
-                    plot_contour(data,plot_config);
+                    %plot_config.label_list={1,'$x$',''};
+                    %plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(t_ind),'_no_ylabel.png'];
+                    %plot_contour(data,plot_config);
                 end
             end
         end
@@ -1537,7 +1549,7 @@ classdef dedalus_post
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
                         data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
                         if obj.flux_T
-                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(z_ind,:,:))*obj.z_list(z_ind);
+                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+ones(obj.Nx,1)*transpose(squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(1,:,:))*obj.z_list(z_ind);
                         end
                         if obj.(['dy_',variable_name(1),'_mean'])<0
                            data{1}.z=data{1}.z+1; 
@@ -1682,8 +1694,8 @@ classdef dedalus_post
                     data{2}.x=obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+obj.(['dy_',variable_name,'_mean'])*obj.z_list;
                     if obj.(['flux_',variable_name])
-                        data{2}.x=mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3)*obj.z_list;
-                        data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3))+mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,x_ind_begin:x_ind_end,t_ind_begin:t_ind_end),2),3)*obj.z_list;
+                        data{2}.x=mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end),2),3)*obj.z_list;
+                        data{1}.x=obj.(['Pe_',variable_name])*squeeze(mean(mean(variable_data(:,:,t_ind_begin:t_ind_end),2),3))+mean(mean(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end),2),3)*obj.z_list;
                     end
                     
                     if obj.(['dy_',variable_name,'_mean'])>0

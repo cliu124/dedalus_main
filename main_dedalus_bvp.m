@@ -24,9 +24,10 @@ close all;
 % group_name='HB_benard_salt_finger_tau';
 % group_name='HB_benard_salt_finger_kx'
 % group_name='HB_benard_salt_finger_profile_S1_yang';
-group_name = 'HB_benard_salt_finger_profile';
+% group_name = 'HB_benard_salt_finger_profile';
 % group_name='HB_benard_diffusive_kx';
 %All of these are for porous media
+group_name='HB_porous_mamou_Ra_T_55_SW';
 switch group_name
     case 'HB_porous_thermal_BC'
         %These are results comparing only for the thermal convection
@@ -375,11 +376,11 @@ slurm_num={'13633381',...
 slurm_num={'13633224'};
 slurm_num={'14446324'};
 % group_name=[];
-flag.print=1;
+flag.print=0;
 flag.visible=0;
-flag.video=1;
+flag.video=0;
 flag.no_ylabel=0;
-flag.post_plot=0;
+flag.post_plot=1;
 for slurm_ind=1:length(slurm_num)
     content=dir(['C:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind}]);
@@ -465,6 +466,64 @@ end
 %%plotting
 if flag.post_plot
     switch group_name
+        case 'HB_porous_mamou_Ra_T_55_SW'
+            %post-processing for the standing wave.
+            %Update 2022/10/07
+            folder_name=['C:\Data\dedalus\dedalus_',...
+                        slurm_num{slurm_ind},'/analysis/'];
+%             ind_start=1404;
+%             ind_end=1482;
+            ind_start=1306;
+            ind_end=1463;
+            kx=dedalus_post_my{1}.kx;
+            phi_hat=dedalus_post_my{1}.w_hat/(1i*kx);
+            data{1}.x=dedalus_post_my{1}.t_list(ind_start:ind_end);
+            data{1}.y=dedalus_post_my{1}.Nu(1,ind_start:ind_end);
+            data{2}.x=dedalus_post_my{1}.t_list(ind_start:ind_end);
+            data{2}.y=dedalus_post_my{1}.Nu_S(1,ind_start:ind_end);
+            data{3}.x=dedalus_post_my{1}.t_list(ind_start:ind_end);
+            data{3}.y=2*(imag(phi_hat(64,ind_start:ind_end)));
+            plot_config.legend_list={1,'$nu(t)$','$sh(t)$', '$\psi_{\textrm {mid}}(t)$'};
+            plot_config.name=[folder_name,group_name,'nu_sh_phi_m.png'];
+            plot_config.label_list={1,'$t$',''};
+            plot_config.print=1;
+            plot_config.linewidth=3;
+            plot_line(data,plot_config);
+            
+            ind_interval=ind_end-ind_start;
+            streamfunction_ind_list=[ind_start,...
+                    ind_start+round(0.2697*ind_interval),...
+                    ind_start+round(0.2714*ind_interval),...
+                    ind_start+round(0.27166*ind_interval),...
+                    ind_start+round(0.2723*ind_interval),...
+                    ind_start+round(0.5*ind_interval)];
+       
+            x=linspace(0,2*pi,1000);
+            y=dedalus_post_my{1}.z_list;
+            for streamfunction_ind=streamfunction_ind_list
+
+                data{2}.x=x; data{2}.y=y;
+                data{2}.z=2*real(dedalus_post_my{1}.w_hat(:,streamfunction_ind)/(1i*dedalus_post_my{1}.kx)*exp(1i*x));
+                [data{1}.x,data{1}.y]=meshgrid(x,y);
+                data{1}.z=NaN*ones(size(data{1}.x));
+
+                plot_config.xlim_list=[1,0,2*pi];
+                plot_config.xtick_list=[1,0,pi/2,pi,3*pi/2,2*pi];
+                plot_config.xticklabels_list={1,'$0$','$\frac{\pi}{2}$','$\pi$','$\frac{3\pi}{2}$','$2\pi$'};
+                plot_config.ylim_list=[1,0,1];
+                plot_config.label_list={1,'$x k_x$','$z$'};
+                plot_config.streamline=2;
+                plot_config.user_color_style_marker_list={'k-','r--'};
+                plot_config.panel_num=2;
+                plot_config.arrow_ratio=0.8;
+                plot_config.linewidth=3;
+                plot_config.colorbar=0;
+                plot_config.fontsize=28;
+                plot_config.print_size=[1,500,900];
+                plot_config.name=[folder_name,group_name,'streamfunction_t_ind=',num2str(streamfunction_ind),'.png'];
+                plot_contour(data,plot_config);
+            end
+            
         case 'hewitt_2D'
             %This is plotting the validation of comparison with DNS mean
             %temperature at three different Rayleigh

@@ -3422,15 +3422,15 @@ class flag(object):
                 while solver.ok:
                     dt = cfl.compute_dt()    
                     solver.step(dt)
-                    if solver.iteration % 100 == 0:
+                    if solver.iteration % 1000 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
                         if self.flux_T:
                             #dy_T_mean_q=-(1-np.sum(np.sum(solver.state['w']['g']*solver.state['T']['g']))/self.Nx/self.Nz)
                             flow_out=self.flow_out
                             dy_T_mean_q=flow_out.volume_average('wT')-1
                             logger.info('dy_T_mean_q: {}'.format(dy_T_mean_q))
-                            logger.info('max|w|: {}'.format(flow_out.max('w')))
-                            logger.info('max|T|: {}'.format(flow_out.max('T')))
+                            #logger.info('max|w|: {}'.format(flow_out.max('w')))
+                            #logger.info('max|T|: {}'.format(flow_out.max('T')))
                             logger.info('Nu: {}'.format(-1/dy_T_mean_q))
 
             elif self.flow in ['HB_porous','HB_benard','HB_porous_shear','HB_benard_shear']:
@@ -3575,8 +3575,8 @@ class flag(object):
                 analysis.add_task('-(1-integ(w*T)/Lx/Lz)',layout='g',name='dy_T_mean_q')
                 flow_out = flow_tools.GlobalFlowProperty(solver, cadence=1)
                 flow_out.add_property('w*T',name='wT')
-                flow_out.add_property('w',name='w')
-                flow_out.add_property('T',name='T')
+                #flow_out.add_property('w',name='w')
+                #flow_out.add_property('T',name='T')
                 self.flow_out=flow_out
         elif self.flow in ['porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
