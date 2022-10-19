@@ -2725,8 +2725,8 @@ class flag(object):
                     
                     #Update the elevator mode analytically
                     if self.flux_T:
-                        w0=self.A_elevator*np.real(np.exp(1j*self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2)))
-                        T0=self.k_elevator**2/self.Ra_T*self.A_elevator*np.real(np.exp(1j*self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2)))
+                        w0=self.A_elevator*np.cos(self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2))
+                        T0=self.k_elevator**2/self.Ra_T*self.A_elevator*np.cos(self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2))
                         
                     
                     #print(w0)
@@ -3675,5 +3675,5 @@ class flag(object):
         kx_list=[kx*2*np.pi for kx in kx_list_2pi]
         return Omega_list, kx_list
     
-    def step(x,mid):
+    def step(self,x,mid):
         return 1 * (x > mid)
