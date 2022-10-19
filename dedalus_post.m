@@ -55,6 +55,8 @@ classdef dedalus_post
         A_secondary_U0=0;
         k_secondary=0;
         
+        A_secondary_phase=0;
+        
         
         dy_T_mean=1;
         dy_S_mean=1;

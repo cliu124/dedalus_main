@@ -78,6 +78,9 @@ class flag(object):
         self.A_secondary_U0=0
         self.k_secondary=0
         
+        #Update 2022/10/18, update the phase of the second half domain
+        self.A_secondary_phase=0
+        
         self.flow_sub_double_diffusive_shear_2D='double_diffusive_2D'
         self.shear_Radko2016_reduced='primitive'
         
@@ -2722,8 +2725,8 @@ class flag(object):
                     
                     #Update the elevator mode analytically
                     if self.flux_T:
-                        w0=self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))
-                        T0=self.k_elevator**2/self.Ra_T*self.A_elevator*np.real(np.exp(1j*self.k_elevator*x))
+                        w0=self.A_elevator*np.real(np.exp(1j*self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2)))
+                        T0=self.k_elevator**2/self.Ra_T*self.A_elevator*np.real(np.exp(1j*self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2)))
                         
                     
                     #print(w0)
@@ -3671,3 +3674,6 @@ class flag(object):
                         2.9078, 2.69504, 2.92553]
         kx_list=[kx*2*np.pi for kx in kx_list_2pi]
         return Omega_list, kx_list
+    
+    def step(x,mid):
+        return 1 * (x > mid)

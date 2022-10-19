@@ -27,7 +27,10 @@ close all;
 % group_name = 'HB_benard_salt_finger_profile';
 % group_name='HB_benard_diffusive_kx';
 %All of these are for porous media
-group_name='HB_porous_mamou_Ra_T_55_SW';
+% group_name='HB_porous_mamou_Ra_T_53_SW';
+group_name='HB_porous_rosenberg_Ra_T_100_SW';
+% group_name='HB_porous_mamou_Ra_T_53_SW';
+% group_name='HB_porous_rosenberg_Ra_T_100_SW';
 switch group_name
     case 'HB_porous_thermal_BC'
         %These are results comparing only for the thermal convection
@@ -321,60 +324,140 @@ switch group_name
         %slurm_num={'12760848',%for a range of Ra from 10^4 to 10^6
         %        '12760884'};%for Ra=10^6, but wavenumber from 1 to 20
         
+    case 'HB_porous_mamou_Ra_T_55_SW'
+        %Ra_T=55, Ra_S2T=5.5, Le=5, single-mode DNS of porous medium
+        %oscillatory double-diffusive convection
+%         slurm_num={'14446324'};
+        slurm_num={'14493285'};
+    case 'HB_porous_mamou_Ra_T_53_SW'
+        %Ra_T=53, Le=5, single-mode DNS of oscillatory double-diffusive
+        %convection
+        %'14501184',...Ra_S2T=3.6924243
+        %'14501185',...Ra_S2T=3.6924247
         
+        %'14502039',...Ra_S2T=3.692424135
+        slurm_num={'14502056',...Ra_S2T=3.6924241348
+            '14502037',...Ra_S2T=3.69242414
+            '14502032',...Ra_S2T=3.69242415
+            '14501186',...Ra_S2T=3.6924242
+            '14501183',...Ra_S2T=3.6924245
+            '14501175',...Ra_S2T=3.692425
+            '14501178',...Ra_S2T=3.692427
+            '14501168',...Ra_S2T=3.69243
+            '14501167',...Ra_S2T=3.69244
+            '14500516',...Ra_S2T=3.69245
+            '14500129',...Ra_S2T=3.6925
+            '14500128',...Ra_S2T=3.6926
+            '14500127',...Ra_S2T=3.6928
+            '14500126',...Ra_S2T=3.693
+            '14500125',...Ra_S2T=3.694
+            '14493257',...Ra_S2T=3.695
+            '14450520',...Ra_S2T=3.7
+            '14450521',...Ra_S2T=3.8
+            '14450507',...Ra_S2T=3.9
+            '14451373',...Ra_S2T=4
+            '14451370',...Ra_S2T=4.1
+            '14450502',...Ra_S2T=4.2
+            '14451369',...Ra_S2T=4.3
+            '14451368',...Ra_S2T=4.4
+            '14450501',...Ra_S2T=4.5
+            '14450500',...Ra_S2T=4.6
+            '14450499',...Ra_S2T=4.7
+            '14450477',...Ra_S2T=4.8
+            '14450478',...Ra_S2T=4.9
+            '14450479',...Ra_S2T=5
+            '14450481',...Ra_S2T=5.1
+            '14450482',...Ra_S2T=5.2
+            '14450483',...Ra_S2T=5.3
+            '14450484',...Ra_S2T=5.4
+            '14450506',...Ra_S2T=5.5
+            '14450497'...Ra_S2T=5.6
+            };
+%             '14450487',...Ra_S2T=5.7
+%             '14450489',...Ra_S2T=5.8
+%             '14450491',...Ra_S2T=5.9
+%             '14450492'...Ra_S2T=6.0
+    case 'HB_porous_rosenberg_Ra_T_100_SW'
+        % '14502705',...Ra_S2T=40.52
+%         '14502728',...Ra_S2T=40.512
+        % '14502729',...Ra_S2T=40.511
+    %            '14502719',...Ra_S2T=40.515
+%            '14502705',...Ra_S2T=40.52
+        slurm_num={'14502744',...Ra_S2T=40.5105
+            '14502726',...Ra_S2T=40.513
+            '14502727',...Ra_S2T=40.517
+            '14502659',...Ra_S2T=40.53
+            '14502658',...Ra_S2T=40.55
+            '14502656',...Ra_S2T=40.6
+            '14502655',...Ra_S2T=40.7
+            '14451123',...Ra_S2T=41
+            '14451121',...Ra_S2T=43
+            '14451120',...Ra_S2T=45
+            '14451095',...Ra_S2T=50
+            '14451094'...Ra_S2T=55
+            };
+        %'14451105',...Ra_S2T=5
+        %'14451104',...Ra_S2T=10
+        %'14451103',...Ra_S2T=15
+        %'14451102',...Ra_S2T=20
+        %'14451101',...Ra_S2T=25
+        %'14451100',...Ra_S2T=30
 end
 
 %Update 2022/05/04, single mode DNS
-slurm_num={'13631229',...
-            '13631083',...
-            '13631099'};
-% slurm_num={'13631270',...
-%             '13631271',...
-%             '13631272'};
-slurm_num={'13632918',...
-            '13632920',...
-            '13632921'};
+% slurm_num={'13631229',...
+%             '13631083',...
+%             '13631099'};
+% % slurm_num={'13631270',...
+% %             '13631271',...
+% %             '13631272'};
+% slurm_num={'13632918',...
+%             '13632920',...
+%             '13632921'};
+% 
+% %single mode DNS with initial condition as the traveling wave        
+% slurm_num={'13633162',...: kx=3
+%             '13633163',...: kx=4
+%             '13633164',...: kx=5
+%             '13633165',...: kx=6
+%             '13633176',...: kx=7 
+%             '13633177',...: kx=8
+%             '13633178',...: kx=9
+%             '13633179',...: kx=10
+%             '13633180',...: kx=11
+%             '13633181',...: kx=12
+%             '13633182',...: kx=13
+%             '13633191',...: kx=14
+%             '13633194',...: kx=15
+%             '13633198'...: kx=18
+%             };
+% 
+% % %single mode DNS with initial condition as the tilted finger
+% % slurm_num={'13633210',...: kx=2
+% %         '13633211',...: kx=3
+% %         '13633212',...: kx=4
+% %         '13633213',...: kx=5
+% %         '13633214',...: kx=6
+% %         '13633215',...: kx=7
+% %         '13633216',...: kx=8
+% %         '13633218',...: kx=9
+% %         '13633220',...: kx=10
+% %         '13633221',...: kx=11
+% %         '13633222',...: kx=12
+% %         '13633223',...: kx=13
+% %         '13633224',...: kx=14
+% %         '13633225',...: kx=15
+% %         '13633226',...: kx=16
+% %         '13633227'...: kx=17
+% %         };
+% %         
+% slurm_num={'13633381',...
+%             '13633382'};
+% slurm_num={'13633224'};
 
-%single mode DNS with initial condition as the traveling wave        
-slurm_num={'13633162',...: kx=3
-            '13633163',...: kx=4
-            '13633164',...: kx=5
-            '13633165',...: kx=6
-            '13633176',...: kx=7 
-            '13633177',...: kx=8
-            '13633178',...: kx=9
-            '13633179',...: kx=10
-            '13633180',...: kx=11
-            '13633181',...: kx=12
-            '13633182',...: kx=13
-            '13633191',...: kx=14
-            '13633194',...: kx=15
-            '13633198'...: kx=18
-            };
 
-% %single mode DNS with initial condition as the tilted finger
-% slurm_num={'13633210',...: kx=2
-%         '13633211',...: kx=3
-%         '13633212',...: kx=4
-%         '13633213',...: kx=5
-%         '13633214',...: kx=6
-%         '13633215',...: kx=7
-%         '13633216',...: kx=8
-%         '13633218',...: kx=9
-%         '13633220',...: kx=10
-%         '13633221',...: kx=11
-%         '13633222',...: kx=12
-%         '13633223',...: kx=13
-%         '13633224',...: kx=14
-%         '13633225',...: kx=15
-%         '13633226',...: kx=16
-%         '13633227'...: kx=17
-%         };
-%         
-slurm_num={'13633381',...
-            '13633382'};
-slurm_num={'13633224'};
-slurm_num={'14446324'};
+%standing wave at Ra_T=53..
+
 % group_name=[];
 flag.print=0;
 flag.visible=0;
@@ -466,27 +549,59 @@ end
 %%plotting
 if flag.post_plot
     switch group_name
+        case {'HB_porous_mamou_Ra_T_53_SW',...
+                'HB_porous_rosenberg_Ra_T_100_SW'}
+            for slurm_ind=1:length(slurm_num)
+                Ra_S2T_list(slurm_ind,1)=dedalus_post_my{slurm_ind}.Ra_S2T;
+                Nz=dedalus_post_my{slurm_ind}.Nz;
+                w_hat_diff=diff(dedalus_post_my{slurm_ind}.w_hat(Nz/2,:));
+                ind_change=find(diff(sign(w_hat_diff)));
+                ind_later=2*round(length(ind_change)/4);
+                Nu_mean(slurm_ind,1)=mean(dedalus_post_my{slurm_ind}.Nu(1,ind_change(ind_later):ind_change(end)));
+                Sh_mean(slurm_ind,1)=mean(dedalus_post_my{slurm_ind}.Nu_S(1,ind_change(ind_later):ind_change(end)));
+                period(slurm_ind,1)=(dedalus_post_my{slurm_ind}.t_list(ind_change(end))-dedalus_post_my{slurm_ind}.t_list(ind_change(ind_later)))/((length(ind_change)-ind_later)/2);
+                
+                %new method using fft to get the oscillation frequency
+                t_ind_begin=length(dedalus_post_my{slurm_ind}.t_list)/4;
+                t_list_dedalus=dedalus_post_my{slurm_ind}.t_list(t_ind_begin:end);
+                dt=mean(diff(dedalus_post_my{slurm_ind}.t_list(t_ind_begin:end)));
+                Nt=length(t_list_dedalus);
+                Fs=1/dt;
+                freq=Fs*(0:(Nt/2))/Nt;
+                spec_tmp=abs(fft(dedalus_post_my{slurm_ind}.w_hat(Nz/2,t_ind_begin:end))/Nt);
+                spec_tmp=spec_tmp(1:Nt/2+1);
+                spec_tmp(2:end-1)=2*spec_tmp(2:end-1);
+                [val,ind]=max(spec_tmp);
+                Nu_mean(slurm_ind,1)=mean(dedalus_post_my{slurm_ind}.Nu(1,t_ind_begin:end));
+                Sh_mean(slurm_ind,1)=mean(dedalus_post_my{slurm_ind}.Nu_S(1,t_ind_begin:end));
+                period(slurm_ind,1)=1/freq(ind);
+            end
+            
         case 'HB_porous_mamou_Ra_T_55_SW'
             %post-processing for the standing wave.
             %Update 2022/10/07
             folder_name=['C:\Data\dedalus\dedalus_',...
                         slurm_num{slurm_ind},'/analysis/'];
-%             ind_start=1404;
-%             ind_end=1482;
-            ind_start=1306;
-            ind_end=1463;
+
+%             ind_start=1306;
+%             ind_end=1463; %slurm_num=14446324
+%             
+            ind_start=13076;
+            ind_end=14644; %slurm_num=14493285
+            
             kx=dedalus_post_my{1}.kx;
             phi_hat=dedalus_post_my{1}.w_hat/(1i*kx);
             data{1}.x=dedalus_post_my{1}.t_list(ind_start:ind_end);
-            data{1}.y=dedalus_post_my{1}.Nu(1,ind_start:ind_end);
+            data{1}.y=10*(dedalus_post_my{1}.Nu(1,ind_start:ind_end)-1);
             data{2}.x=dedalus_post_my{1}.t_list(ind_start:ind_end);
             data{2}.y=dedalus_post_my{1}.Nu_S(1,ind_start:ind_end);
             data{3}.x=dedalus_post_my{1}.t_list(ind_start:ind_end);
             data{3}.y=2*(imag(phi_hat(64,ind_start:ind_end)));
-            plot_config.legend_list={1,'$nu(t)$','$sh(t)$', '$\psi_{\textrm {mid}}(t)$'};
+            plot_config.legend_list={1,'$10[nu(t)-1]$','$sh(t)$', '$\psi_{\mathrm {mid}}(t)$'};
             plot_config.name=[folder_name,group_name,'nu_sh_phi_m.png'];
             plot_config.label_list={1,'$t$',''};
             plot_config.print=1;
+            plot_config.fontsize_legend=28;
             plot_config.linewidth=3;
             plot_line(data,plot_config);
             
