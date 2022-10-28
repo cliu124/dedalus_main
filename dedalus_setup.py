@@ -468,7 +468,9 @@ class flag(object):
                     #problem.add_equation("-dy_T_mean_q=1-integ(w*T)/Lx/Lz",condition="(nx==0) and (nz==0)")
                 
                     #Update 2022/10/07, substitute dy_T_mean_q into the T equation
-                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =(1-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                    
+                    #Update 2022/10/24, -w due to the conduction background temperature gradient should be also implicit
+                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
                     problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
                     
                 

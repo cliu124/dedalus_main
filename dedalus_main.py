@@ -710,13 +710,13 @@ elif flag.flow == 'double_diffusive_shear_2D':
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
         Ra_S=flag.Ra_S2T/flag.tau
-        flag.kx=5#2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+        flag.kx=2.5#2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
         flag.ky=0
         kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_2D
         flag.Lz=1
-        flag.Nx=512
+        flag.Nx=1024
         flag.Nz=256
          
         flag.dy_T_mean=-flag.kx**4/flag.Ra_T
@@ -732,7 +732,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.z_bc_w_right='periodic'
         
         flag.kx=10
-        flag.A_secondary_phase=np.np#phase for the second half domain
+        flag.A_secondary_phase=np.pi#phase for the second half domain
         w_hat=np.sqrt((1-flag.kx**4/flag.Ra_T)/(2*flag.kx**2/flag.Ra_T))
         flag.A_elevator=2*w_hat
         flag.k_elevator=flag.kx
@@ -784,10 +784,10 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.post_store_dt=1
         flag.stop_sim_time=5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
-        #flag.post_store_dt=10**4/flag.Ra_T
-        #flag.stop_sim_time=10**7/flag.Ra_T
-        flag.post_store_dt=50/flag.Ra_T
-        flag.stop_sim_time=100/flag.Ra_T 
+        flag.post_store_dt=10**4/flag.Ra_T
+        flag.stop_sim_time=10**7/flag.Ra_T
+        #flag.post_store_dt=50/flag.Ra_T
+        #flag.stop_sim_time=100/flag.Ra_T 
 else:
     print('1')
     #flag.post_store_dt=0.000001/flag.Ra_T;
