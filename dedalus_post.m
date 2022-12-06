@@ -875,8 +875,8 @@ classdef dedalus_post
                     plot_config.label_list={1,'$x$','$z$'};
 
                     plot_config.fontsize=40;
-                    plot_config.ylim_list=[1,0,1];
-                    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+                    plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
+                    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
                     
                     if obj.title_time
                         plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
@@ -909,8 +909,8 @@ classdef dedalus_post
                     plot_config.label_list={1,'$x$','$z$'};
 
                     plot_config.fontsize=40;
-                    plot_config.ylim_list=[1,0,1];
-                    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+                    plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
+                    plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2.0];
 
                     if obj.title_time
                         plot_config.title_list={1,['$t_ind_$',num2str(t_ind)]};
@@ -1427,7 +1427,7 @@ classdef dedalus_post
             plot_config.print_size=[1,900,1200];
             plot_config.Markerindex=3;
             plot_config.xlim_list=[1,-1,2];
-            plot_config.ylim_list=[1,min(data{1}.y),max(data{1}.y)];
+            plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
             plot_config.user_color_style_marker_list={'k-','b--','r-.','bo'};
             plot_config.name=[obj.h5_name(1:end-3),'_u_laminar_normalized_',num2str(obj.u_laminar_normalize),'.png'];
             plot_line(data,plot_config);
@@ -1513,9 +1513,9 @@ classdef dedalus_post
 %             plot_config.ztick_list=[1,-0.001,0.001];
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave.png'];
-            plot_config.ylim_list=[1,0,1];
+            plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
             plot_config.fontsize=28;
-            plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1];
+            plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
             plot_contour(data,plot_config);
             
             
@@ -1573,6 +1573,15 @@ classdef dedalus_post
                 plot_config.print=obj.print;
                 plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'.png'];
                 plot_contour(data,plot_config);
+                
+                %also plot the version that put time in the vertical axis.
+                data{1}.x=obj.x_list;
+                data{1}.y=obj.t_list;
+                data{1}.z=data{1}.z';
+                plot_config.label_list={1,'$x$','$t$'};
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'_time_vertical.png'];
+                plot_contour(data,plot_config);                
+                
                 
                 %add the data for the line plotting
                 data_line{z_plot_ind}.y=data{1}.z(:,end);
@@ -1743,7 +1752,7 @@ classdef dedalus_post
                 data{2}.y=obj.z_list;
 %             end
             plot_config.label_list={1,'','$z$'};
-            plot_config.ylim_list=[1,0,1];
+            plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
 %             plot_config.label_list={1,'','$z/l_{opt}$'};
             plot_config.print_size=[1,1200,1200];
             plot_config.print=obj.print;
@@ -1758,7 +1767,7 @@ classdef dedalus_post
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_profile_only.png'];
             plot_config.fontsize_legend=16;
             plot_config.linewidth=3;
-            plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
+            plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
             plot_line(data,plot_config);
             
             plot_config.print=obj.print;

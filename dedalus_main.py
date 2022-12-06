@@ -705,8 +705,11 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_T=1
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
-        flag.Ra_T=10**8
-        flag.initial_dt=50/flag.Ra_T
+        flag.Ra_T=2*10**4
+        
+        flag.initial_dt=10**(-3)
+        flag.initial_dt=10**(-6)
+        #flag.initial_dt=50/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
         Ra_S=flag.Ra_S2T/flag.tau
@@ -742,7 +745,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.k_secondary=0#2*np.pi
         flag.A_noise=0
         flag.store_variable='T_u_w'#only store S and u variable
-        
+        flag.S_active=0
         
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
@@ -784,8 +787,19 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.post_store_dt=1
         flag.stop_sim_time=5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
-        flag.post_store_dt=10**4/flag.Ra_T
-        flag.stop_sim_time=10**7/flag.Ra_T
+        #low Ra, fixed flux RBC
+        flag.post_store_dt=0.01
+        flag.stop_sim_time=10
+        
+        #high Ra, fixed flux RBC
+        #may need several run
+        flag.post_store_dt=10**(-6)
+        flag.stop_sim_time=3
+        
+        #flag.post_store_dt=10**4/flag.Ra_T
+        #flag.stop_sim_time=10**7/flag.Ra_T
+        
+        
         #flag.post_store_dt=50/flag.Ra_T
         #flag.stop_sim_time=100/flag.Ra_T 
 else:

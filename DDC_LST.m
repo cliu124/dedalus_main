@@ -146,6 +146,8 @@ classdef DDC_LST
         operator='v_omega_y'; %%set the flag for operator..
 
         darcy=0; %%if 1, then we need to change the viscosity term based on the darcy law... Note that this is only for momentum equation
+    
+        flux_T=0;%whether this is for fixed flux results... 
     end
     
     methods
@@ -393,7 +395,7 @@ classdef DDC_LST
                                           zero_bc, zero_bc, Diagterm,     -1i*obj.kz*I_bc, zero_bc, zero_bc; ...
                                           1i*obj.kx*I_bc,D1_bc,1i*obj.kz*I_bc,zero_bc, zero_bc, zero_bc;
                                           -obj.dy_T_mean*I_bc, -diag(obj.d_T_bar_full(:,mean_elevator_W_ind))*obj.Pe_T, zero_bc, zero_bc,-1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_T+obj.kappa_T_elevator*(D2_bc-K2*I_bc), zero_bc;
-                                          -obj.dy_S_mean*I_bc, -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*obj.Pe_S, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*obj.kappa_S_elevator*(D2_bc-K2*I_bc)]; 
+                                          -obj.dy_S_ean*I_bc, -diag(obj.d_S_bar_full(:,mean_elevator_W_ind))*obj.Pe_S, zero_bc, zero_bc, zero_bc, -1i*obj.kx*diag(U_bar(:,mean_elevator_W_ind))*obj.Pe_S+obj.tau*obj.kappa_S_elevator*(D2_bc-K2*I_bc)]; 
                                   
                                 otherwise
                                     error('obj.mean not supported in this case');

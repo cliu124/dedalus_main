@@ -140,6 +140,8 @@ class flag(object):
         
         self.flux_T=0
         self.flux_S=0
+        
+        self.S_active=1
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -289,12 +291,12 @@ class flag(object):
        
         elif self.flow in ['double_diffusive_shear_2D']:
             #This is using the unified formulation, where the velocity and length scale are arbitrary or determined by shear
-            if self.flux_T:
+            if self.S_active:
                 #problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T','dy_T_mean_q'])
                 #Update 2022/10/07, get rid of dy_T_mean_q as a variable, just a post-processing variable
                 problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
             else:
-                problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
+                problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T'])
             
             problem.parameters['Re']=self.Re
             problem.parameters['Pe_T']=self.Pe_T
@@ -312,9 +314,10 @@ class flag(object):
             #Update 2022/02/25, use the first order formulation. This gives the flexibility of doing Periodic/Dirichlet/Neumann B.C. in the vertical direction by just changing the vertical basis.
             problem.add_equation('dz(u)-d_u=0')
             problem.add_equation('dz(w)-d_w=0')
-            problem.add_equation('dz(S)-d_S=0')
             problem.add_equation('dz(T)-d_T=0')
-            
+            if self.S_active:
+                problem.add_equation('dz(S)-d_S=0')
+
             #Update 2021/09/12, change the language to specify the background shear
             #test whether these amplitude of shear is zero....
             
@@ -365,14 +368,23 @@ class flag(object):
                         problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
-    
-                if self.Re ==0:
-                    #no inertial term in the momentum
-                    problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                
+                #Vertical velocity equation, note buoyancy is added here
+                if self.S_active:
+                    if self.Re ==0:
+                        #no inertial term in the momentum
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                    else:
+                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
+                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
                 else:
-                    problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
-                    problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
-
+                    if self.Re ==0:
+                        #no inertial term in the momentum
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
+                    else:
+                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
+                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
+                
     
                 #divergence free and pressure gauge
                 if self.z_basis_mode=='Fourier':
@@ -392,10 +404,10 @@ class flag(object):
                     problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )",condition="(nx<=" + nx_trunc_str + ")")
                     problem.add_equation(" T=0",condition="(nx>" + nx_trunc_str + ")")
 
-    
-                #Add salinity equation
-                problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=" + nx_trunc_str + ")")
-                problem.add_equation("S=0",condition="(nx>" + nx_trunc_str + ")")
+                if self.S_active:
+                    #Add salinity equation
+                    problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=" + nx_trunc_str + ")")
+                    problem.add_equation("S=0",condition="(nx>" + nx_trunc_str + ")")
 
             else:
                 #This is the branch that has the full equation
@@ -441,13 +453,20 @@ class flag(object):
                         #    problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                         #else:
                         #    problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
-    
-                if self.Re ==0:
-                    #no inertial term in the momentum
-                    problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                if self.S_active:
+                    if self.Re ==0:
+                        #no inertial term in the momentum
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                    else:
+                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
                 else:
-                    problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
-    
+                    #get rid of salinity in the buoyancy equation to save time
+                    if self.Re ==0:
+                        #no inertial term in the momentum
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
+                    else:
+                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)")
+                
                 #divergence free and pressure gauge
                 if self.z_basis_mode=='Fourier':
                     problem.add_equation("dx(u)+d_w=0",condition="(nx!=0) or (nz!=0)")
@@ -484,7 +503,8 @@ class flag(object):
         
     
                 #Add salinity equation
-                problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ")
+                if self.S_active:
+                    problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ")
 
             #Add B.C. conditions for non-periodic vertical domain
             
@@ -537,33 +557,34 @@ class flag(object):
                 #problem.add_bc("right(T_0)=0")
                 #problem.add_bc("left(d_T_0)-right(d_T_0)=0")
                 print("Periodic for T")
-               
-            if self.z_bc_S_left=='dirichlet':
-                problem.add_bc("left(S)=0")
-                #problem.add_bc("left(S_0)=0")
-                print("Dirichlet for S left")
-            elif self.z_bc_S_left=='neumann':
-                problem.add_bc("left(d_S)=0")
-                #problem.add_bc("left(d_S_0)=0")
-                print("Neumann for S left")
-                
-            if self.z_bc_S_right=='dirichlet':
-                problem.add_bc("right(S)=0")
-                #problem.add_bc("right(S_0)=0")
-                print("Dirichlet for S right")
-            elif self.z_bc_S_right=='neumann':
-                problem.add_bc("right(d_S)=0")
-                #problem.add_bc("right(d_S_0)=0")
-                print("Neumann for S right")
             
-            if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
-                #problem.add_bc("left(S_hat)-right(S_hat)=0")
-                #problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
-                #problem.add_bc("left(S_0)=0")
-                #problem.add_bc("right(S_0)=0")
-                #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
-                print("Periodic for S")
-           
+            if self.S_active:
+                if self.z_bc_S_left=='dirichlet':
+                    problem.add_bc("left(S)=0")
+                    #problem.add_bc("left(S_0)=0")
+                    print("Dirichlet for S left")
+                elif self.z_bc_S_left=='neumann':
+                    problem.add_bc("left(d_S)=0")
+                    #problem.add_bc("left(d_S_0)=0")
+                    print("Neumann for S left")
+                    
+                if self.z_bc_S_right=='dirichlet':
+                    problem.add_bc("right(S)=0")
+                    #problem.add_bc("right(S_0)=0")
+                    print("Dirichlet for S right")
+                elif self.z_bc_S_right=='neumann':
+                    problem.add_bc("right(d_S)=0")
+                    #problem.add_bc("right(d_S_0)=0")
+                    print("Neumann for S right")
+                
+                if self.z_bc_S_left=='periodic' and self.z_bc_S_right=='periodic':
+                    #problem.add_bc("left(S_hat)-right(S_hat)=0")
+                    #problem.add_bc("left(d_S_hat)-right(d_S_hat)=0")
+                    #problem.add_bc("left(S_0)=0")
+                    #problem.add_bc("right(S_0)=0")
+                    #problem.add_bc("left(d_S_0)-right(d_S_0)=0")
+                    print("Periodic for S")
+               
             if self.z_bc_u_v_left=='dirichlet':
                 problem.add_bc("left(u)=0")
                 #problem.add_bc("left(v_tilde)=0")
