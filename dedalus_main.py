@@ -708,19 +708,19 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Ra_T=2*10**4
         
         flag.initial_dt=10**(-3)
-        flag.initial_dt=10**(-6)
+        #flag.initial_dt=10**(-6)
         #flag.initial_dt=50/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
-        Ra_S=flag.Ra_S2T/flag.tau
-        flag.kx=2.5#2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
+        #Ra_S=flag.Ra_S2T/flag.tau
+        flag.kx=10#2*np.pi#2*np.pi/(2*14.8211*Ra_S**(-0.2428)/R_rho_T2S**(0.25/2))
         flag.ky=0
         kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_2D
         flag.Lz=1
-        flag.Nx=1024
-        flag.Nz=256
+        flag.Nx=128
+        flag.Nz=128
          
         flag.dy_T_mean=-flag.kx**4/flag.Ra_T
         flag.dy_S_mean=0

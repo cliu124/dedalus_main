@@ -2668,9 +2668,12 @@ class flag(object):
                 z = domain.grid(1)
                 u = solver.state['u']
                 w = solver.state['w']
-                S = solver.state['S']
                 p = solver.state['p']
                 T = solver.state['T']
+                
+                if self.S_active:                
+                    S = solver.state['S']
+
                 
                 gshape = domain.dist.grid_layout.global_shape(scales=1)
                 slices = domain.dist.grid_layout.slices(scales=1)
@@ -2771,9 +2774,10 @@ class flag(object):
                 u['g']=u0
                 w['g']=w0
                 T['g']=T0
-                S['g']=S0
                 p['g']=p0
-            
+                if self.S_active:
+                    S['g']=S0
+
             elif self.flow in ['porous_media_2D']:
                 #not fully benchmarked!!
                 x = domain.grid(0)
