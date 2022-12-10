@@ -2,29 +2,33 @@ clear all;
 close all;
 clc;
 
-flag.name='Pr';
+flag.name='growth_rate';
 flag.no_flux_com=0;
 flag.no_shear_com=0;
 flag.solve='eig'; %'finished' if just want to load data and plot
 switch flag.name
     case 'growth_rate'
+        n_elevator=2;
         Ra_T_q_list=10^8;
         Pr_list=1;
         Lx_list=0.1*2*pi;
-        kz_list=(0.01:0.01:2)*2*pi;
-        flag.no_flux_com=1; %compare the growth rate without flux feedback
+        kz_list=(0.01:0.01:2*n_elevator)*2*pi;
+        flag.no_flux_com=0; %compare the growth rate without flux feedback
         flag.no_shear_com=0; %compare the growth rate without shear flow
     case 'Lx'
+        n_elevator=1;
         Ra_T_q_list=10^8;
         Pr_list=1;
         Lx_list=[0.05,0.1:0.1:1]*2*pi;
         kz_list=(0.01:0.01:2)*2*pi;
     case 'Ra_T_q'
-        Ra_T_q_list=[20000,40000,60000,10^5,10^6,10^7,10^8];
+        n_elevator=1;
+        Ra_T_q_list=[20000,30000,40000,60000,10^5,10^6,10^7,10^8];
         Pr_list=1;
         Lx_list=2*pi/10;
         kz_list=(0.01:0.01:2)*2*pi;
     case 'Pr'
+        n_elevator=1;
         Ra_T_q_list=10^8;
         Pr_list=[0.01,0.1,1,7,70,700];
         Lx_list=2*pi/10;
@@ -55,7 +59,7 @@ flux_T=1;
 if ~strcmp(flag.solve,'finished')
     for Lx_ind=1:length(Lx_list)
         Lx=Lx_list(Lx_ind);
-        kx_mean=2*pi/Lx;
+        kx_mean=n_elevator*2*pi/Lx;
         x=x_2pi/2/pi*Lx;
         D1x=D1x_2pi*2*pi/Lx;
         D2x=D2x_2pi*(2*pi/Lx)^2;
@@ -199,14 +203,15 @@ switch flag.name
     case 'growth_rate'
         data{1}.x=kz_list;
         data{1}.y=squeeze(growth_rate);
-        data{2}.x=kz_list;
-        data{2}.y=squeeze(growth_rate_no_flux_com);
+        %data{2}.x=kz_list;
+        %data{2}.y=squeeze(growth_rate_no_flux_com);
         plot_config.Markerindex=3;
         plot_config.user_color_style_marker_list={'k-','b--'};
         plot_config.linewidth=3;
         plot_config.label_list={1,'$k_z$','max[Re($\lambda$)]'};
         plot_config.print_size=[1,1000,900];
-        plot_config.legend_list={1,'With flux feedback','No flux feedback'};
+        plot_config.legend_list={0};
+        %plot_config.legend_list={1,'With flux feedback','No flux feedback'};
         plot_config.fontsize_legend=28;
         plot_config.name=['flux_RBC_',flag.name,'_Ra_Tq=',num2str(Ra_T_q_list),...
             '_Pr=',num2str(Pr_list),'_Lx=',num2str(Lx_list),'_kx_mean=',num2str(kx_mean),...

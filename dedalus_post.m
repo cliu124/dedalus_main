@@ -278,6 +278,8 @@ classdef dedalus_post
     
         flow_out;
         checkpoint;
+        
+        S_active=1;
     end
     
     methods
@@ -830,8 +832,8 @@ classdef dedalus_post
                     +obj.dy_T_mean*z_mesh;
                 
                 if obj.flux_T
+                    obj.T=h5read_complex(obj.h5_name,['/tasks/','T']);
                     for t_ind=1:length(obj.t_list)
-                        obj.T=h5read_complex(obj.h5_name,['/tasks/','T']);
                         obj.(variable_name)(:,:,t_ind)=obj.T(:,:,t_ind)...
                             +mean(mean(obj.dy_T_mean_q(:,:,t_ind)))*z_mesh;
                     end
@@ -1514,7 +1516,7 @@ classdef dedalus_post
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave.png'];
             plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
-            plot_config.fontsize=28;
+            %plot_config.fontsize=28;
             plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
             plot_contour(data,plot_config);
             
@@ -1582,6 +1584,8 @@ classdef dedalus_post
                 plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'_time_vertical.png'];
                 plot_contour(data,plot_config);                
                 
+                %flip back the dimension of data{1}.z
+                data{1}.z=data{1}.z';
                 
                 %add the data for the line plotting
                 data_line{z_plot_ind}.y=data{1}.z(:,end);
