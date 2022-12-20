@@ -8,11 +8,11 @@ flag.no_shear_com=0;
 flag.solve='eig'; %'finished' if just want to load data and plot
 switch flag.name
     case 'growth_rate'
-        n_elevator=2;
-        Ra_T_q_list=10^8;
-        Pr_list=1;
+        n_elevator=1;
+        Ra_T_q_list=8*10^8;
+        Pr_list=700;
         Lx_list=0.1*2*pi;
-        kz_list=(0.01:0.01:2*n_elevator)*2*pi;
+        kz_list=(0.01:0.5:2*n_elevator)*2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
         flag.no_shear_com=0; %compare the growth rate without shear flow
     case 'Lx'
@@ -43,7 +43,7 @@ end
 % kz_list_num=logspace(-4,0,5);
 % kz_list=[kz_list_int,kz_list_num];
 
-Nx=128;
+Nx=256;
 ky_list=0;
 %get the differential matrix. 
 [x_2pi,D1x_2pi] = fourdif(Nx,1);

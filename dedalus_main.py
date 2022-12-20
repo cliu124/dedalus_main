@@ -706,10 +706,10 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         #flag.Ra_T=2*10**4
-        flag.Ra_T=10**8
+        flag.Ra_T=4*10**4
         
-        #flag.initial_dt=10**(-3)
-        flag.initial_dt=10**(-6)
+        flag.initial_dt=10**(-3)
+        #flag.initial_dt=10**(-6)
         #flag.initial_dt=50/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
@@ -722,7 +722,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Lz=1
         flag.Nx=256
         flag.Nz=256
-        n_elevator=1
+        n_elevator=2
          
         flag.dy_T_mean=-flag.kx**4/flag.Ra_T
         flag.dy_S_mean=0
@@ -737,8 +737,9 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.z_bc_w_right='periodic'
         
         flag.k_elevator=n_elevator*flag.kx
-        flag.A_secondary_phase=np.pi#phase for the second half domain
-        w_hat=np.sqrt((1-flag.k_elevator**4/flag.Ra_T)/(2*flag.k_elevator**2/flag.Ra_T))
+        flag.A_secondary_phase=0#phase for the second half domain
+        #w_hat=np.sqrt((1-flag.k_elevator**4/flag.Ra_T)/(2*flag.k_elevator**2/flag.Ra_T))
+        w_hat=np.sqrt((1-flag.kx**4/flag.Ra_T)/(2*flag.kx**2/flag.Ra_T))
         flag.A_elevator=2*w_hat
         flag.dy_T_mean=-flag.k_elevator**4/flag.Ra_T
         

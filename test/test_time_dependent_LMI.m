@@ -9,8 +9,8 @@ t_list=linspace(0,2*pi,10);
 g=9.8;
 % l=sin(t_list);
 T_list=[20:10:100];
-Amp_list=[0.13:-0.01:0.07]/2;
-
+%Amp_list=[0.13:-0.01:0.07]/2;
+Amp_list=1;
 for Amp_ind=1:length(Amp_list)
     for T_ind=1:length(T_list)
         for t_ind=1:length(t_list)
@@ -19,7 +19,8 @@ for Amp_ind=1:length(Amp_list)
         %      -12*sin(6*t)^2+9/2*sin(12*t), -1-9*sin(6*t)^2-6*sin(12*t)];
             T=T_list(T_ind); 
             Amp=Amp_list(Amp_ind);
-            l=1-Amp*sin(2*pi/T*t); %T=2, omega=2pi/T
+            %l=1-Amp*sin(2*pi/T*t); %T=2, omega=2pi/T
+            l=1-2*pi*0.065*t/T;
             c=0;
             A_time=[0,1;
                     -g/l,-c];
@@ -84,7 +85,7 @@ plot_config.name='time_varying_lambda_A_all_legend.png';
 plot_line(data,plot_config);
 
 clear data plot_config
-plot_config.legend_list={1};
+plot_config.legend_list={0};
 for Amp_ind=1:length(Amp_list)
    data{Amp_ind}.x=T_list;
    data{Amp_ind}.y=alpha_list(Amp_ind,:);
@@ -97,3 +98,29 @@ plot_config.user_color_style_marker_list=...
 plot_config.fontsize_legend=16;
 plot_config.name='time_varying_lambda_T_all_legend.png';
 plot_line(data,plot_config);
+
+
+growth_rate_exp_oscillatory=[0.0532
+            0.0397
+            0.0343
+            0.0350
+            0.0198
+            0.0412
+            0.0346
+            0.0249
+            0.0191
+            0.0156
+            0.0268
+            0.0239
+            0.0171
+            0.0142
+            0.0109];
+growth_rate_exp_linear=[0.0532
+                0.0446
+                0.0273
+                0.0249
+                0.0201
+                ];
+            
+           
+
