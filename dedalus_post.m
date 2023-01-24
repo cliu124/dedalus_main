@@ -280,6 +280,10 @@ classdef dedalus_post
         checkpoint;
         
         S_active=1;
+        
+        phase_c_z=0;
+        
+        z_phase_diagram=0;
     end
     
     methods
@@ -910,12 +914,12 @@ classdef dedalus_post
                     data{1}.y=obj.z_list;
                     plot_config.label_list={1,'$x$','$z$'};
 
-                    plot_config.fontsize=40;
+%                     plot_config.fontsize=40;
                     plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
                     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2.0];
 
                     if obj.title_time
-                        plot_config.title_list={1,['$t_ind_$',num2str(t_ind)]};
+                        plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
                     else
                         plot_config.title_list={0};
                     end
@@ -924,7 +928,7 @@ classdef dedalus_post
                     plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_ind_',num2str(t_ind),'.png'];
                     plot_config.print=obj.print;
                     plot_config.visible=obj.visible;
-                    plot_config.fontsize=28;
+                    plot_config.fontsize=35;
                     plot_contour(data,plot_config);
                     %plot_config.label_list={1,'$x$',''};
                     %plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(t_ind),'_no_ylabel.png'];
@@ -1480,17 +1484,30 @@ classdef dedalus_post
 
         
         
-        function obj=x_ave(obj,variable_name)
+        function obj=x_ave(obj,variable_name,t_ind)
             %%plot the streamwise averaged salnity
             %%as a function of z (vertical axis) and time
-
-            data{1}.x=obj.t_list;
+            if nargin<3 || isempty(t_ind)
+                %The default option, just average over the second half of
+                %data...
+                t_ind_begin=1;
+                t_ind_end=length(obj.t_list);
+            else
+                t_ind_begin=t_ind(1);
+                if length(t_ind)==1
+                    t_ind_end=length(obj.t_list);
+                else
+                    t_ind_end=t_ind(2);
+                end
+            end
+            
+            data{1}.x=obj.t_list(t_ind_begin:t_ind_end);
 %             if strcmp(obj.flow(1:7),'IFSC_2D')
 %                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
 %                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
 %             else
-                data{1}.y=obj.z_list;
-                plot_config.label_list={1,'$t$','$z$'};
+            data{1}.y=obj.z_list;
+            plot_config.label_list={1,'$t$','$z$'};
 %             end
             switch variable_name
                 case {'u','v','w','S','T','p','dy_T_mean_q','dy_S_mean_q'}
@@ -1508,34 +1525,195 @@ classdef dedalus_post
                     obj.(variable_name)=var_1_data.*var_2_data;
             end
             
-            data{1}.z=squeeze(mean(obj.(variable_name),2));
+            data{1}.z=squeeze(mean(obj.(variable_name)(:,:,t_ind_begin:t_ind_end),2));
 %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
             plot_config.colormap='bluewhitered';
             plot_config.print_size=[1,1600,1600];
 %             plot_config.ztick_list=[1,-0.001,0.001];
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave.png'];
-            plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
-            %plot_config.fontsize=28;
+            plot_config.ylim_list=[1,round(min(data{1}.y),1),round(max(data{1}.y),1)];
+            plot_config.xlim_list=[1,round(min(data{1}.x),1),round(max(data{1}.x),1)];
             plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
             plot_contour(data,plot_config);
+            
+            if strcmp(variable_name,'u')
+                for t_ind=1:length(data{1}.x)
+                    [val,ind]=mink(abs(data{1}.z(:,t_ind)),5);
+                    
+                    Nz=obj.Nz;
+                    if abs(mod(ind(2),Nz)-mod(ind(1),Nz))>1
+                        z_max(t_ind)=(data{1}.y(ind(1))+data{1}.y(ind(2)))/2;
+                    elseif abs(mod(ind(3),Nz)-mod(ind(1),Nz))>2
+                        z_max(t_ind)=(data{1}.y(ind(1))+data{1}.y(ind(3)))/2;
+                    else
+                        z_max(t_ind)=(data{1}.y(ind(1))+data{1}.y(ind(4)))/2;
+                    end
+                end
+                
+                data_z{1}.x=data{1}.x;
+                data_z{1}.y=z_max';
+                plot_config.label_list={1,'$t$','$z$'};
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_TW_c_z.png'];
+                plot_config.ylim_list=0;
+                plot_line(data_z,plot_config);
+                
+                for t_ind=1:length(z_max)-5
+                    if abs(z_max(t_ind+1)-z_max(t_ind))>0.2
+                         if all(abs(z_max(t_ind+2:t_ind+5)-z_max(t_ind+1))<0.2)
+                             z_max(t_ind+1:end)=z_max(t_ind+1:end)+0.5;
+                         else
+                             z_max(t_ind+1)=z_max(t_ind+1)+0.5;
+                         end
+%                         if abs(z_max(t_ind+2)-z_max(t_ind+1))>0.45
+%                             z_max(t_ind+1)=z_max(t_ind+1)+0.5;
+%                         else
+%                             z_max(t_ind+1:end)=z_max(t_ind+1:end)+0.5;
+%                         end
+                    end
+                end
+                data_z{1}.y=z_max';
+                plot_config.label_list={1,'$t$','$z$'};
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_TW_c_z_processed.png'];
+                plot_config.ytick_list=0;
+                plot_line(data_z,plot_config);
+                
+                coeff=[ones(length(data_z{1}.x),1),data_z{1}.x]\z_max';
+                obj.phase_c_z=coeff(2);
+                
+            end
+            
+        end
+        
+        
+        function obj=phase_diagram(obj,variable_name1,variable_name2,t_ind,option)
+            if nargin<2 || isempty(variable_name1)
+               variable_name1='u'; 
+            end
+            
+            if nargin<3 || isempty(variable_name2)
+               variable_name2='w'; 
+            end
+            
+            if nargin<4 || isempty(t_ind)
+                %The default option, just average over the second half of
+                %data...
+                t_ind_begin=1;
+                t_ind_end=length(obj.t_list);
+            else
+                t_ind_begin=t_ind(1);
+                if length(t_ind)==1
+                    t_ind_end=length(obj.t_list);
+                else
+                    t_ind_end=t_ind(2);
+                end
+            end
+            
+            if nargin<5 || isempty(option)
+                option='max_z';
+            end
+            %large-scale shear
+            obj.(variable_name1)=h5read_complex(obj.h5_name,['/tasks/',variable_name1]);
+                
+            %mean temperature
+            obj.(variable_name2)=h5read_complex(obj.h5_name,['/tasks/',variable_name2]);
+            if strcmp(option(1:5),'max_z')
+                if strcmp(option(6),'2')
+                    x_ave=squeeze(mean(obj.(variable_name2)(:,:,t_ind_begin:t_ind_end),2));
+                elseif strcmp(option(6),'1')
+                    x_ave=squeeze(mean(obj.(variable_name1)(:,:,t_ind_begin:t_ind_end),2));
+                end
+                [val,z_ind]=max(x_ave(:,end));
+                obj.z_phase_diagram=obj.z_list(z_ind);
+                for t_ind=1:length(obj.t_list(t_ind_begin:t_ind_end))
+                    data{1}.x(t_ind)=squeeze(mean(obj.(variable_name1)(z_ind,:,t_ind)));
+                    data{1}.y(t_ind)=squeeze(mean(obj.(variable_name2)(z_ind,:,t_ind)));
+                end
+            end
+            plot_config.name=[obj.h5_name(1:end-3),'_phase_diagram',variable_name1,'_',variable_name2,'_',option,'.png'];
+            plot_config.label_list={1,['$\langle ',variable_name1,'\rangle_h(z_p,t)$'],['$\langle ',variable_name2,'\rangle_h(z_p,t)$']};
+            plot_config.Markerindex=3;
+            plot_config.user_color_style_marker_list={'k*'};
+            plot_line(data,plot_config);
+        end
+        
+        function obj=x_ave_z_max(obj,variable_name,ylim_list,t_ind)
+            %%plot the streamwise averaged salnity
+            %%as a function of z (vertical axis) and time
+            if nargin<4 || isempty(t_ind)
+                %The default option, just average over the second half of
+                %data...
+                t_ind_begin=1;
+                t_ind_end=length(obj.t_list);
+            else
+                t_ind_begin=t_ind(1);
+                if length(t_ind)==1
+                    t_ind_end=length(obj.t_list);
+                else
+                    t_ind_end=t_ind(2);
+                end
+            end
+            data{1}.x=obj.t_list(t_ind_begin:t_ind_end);
+            switch variable_name
+                case {'u','v','w','S','T','p','dy_T_mean_q','dy_S_mean_q'}
+                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                case {'uS','wS','uT','wT','uw','ww'}%%
+                    var_1=variable_name(1);
+                    var_2=variable_name(2);
+                    if strcmp(var_1,'u') %%this require in default, the u is always in the first variable....
+                       obj=obj.u_fluctuation_read();
+                       var_1_data=obj.u_fluctuation;
+                    else
+                       var_1_data=h5read_complex(obj.h5_name,['/tasks/',var_1]);
+                    end
+                    var_2_data=h5read_complex(obj.h5_name,['/tasks/',var_2]);
+                    obj.(variable_name)=var_1_data.*var_2_data;
+            end
+            data_tmp=squeeze(mean(obj.(variable_name)(:,:,t_ind_begin:t_ind_end),2));
+            data{1}.y=max(abs(data_tmp));
+
+%             plot_config.label_list={1,'$t$',['$\underset{z}{max}|\langle ',variable_name,'\rangle_{h}(z,t)|$']};
+            plot_config.label_list={1,'$t$',''};
+%             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+            plot_config.print_size=[1,1600,1600];
+%             plot_config.ztick_list=[1,-0.001,0.001];
+            plot_config.print=obj.print;
+            plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave_z_max.png'];
+            
+            if nargin<3 || isempty(ylim_list)
+                plot_config.ylim_list=[1,round(min(data{1}.y),1),round(max(data{1}.y),1)];
+            else
+                plot_config.ylim_list=[1,ylim_list];
+            end
+            plot_config.xlim_list=[1,round(min(data{1}.x),1),round(max(data{1}.x),1)]
+            %plot_config.fontsize=28;
+            %plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
+            plot_line(data,plot_config);
             
             
         end
         
-        function obj=z_slice(obj,variable_name,z_list)
+        
+        function obj=z_slice(obj,variable_name,z_list,t_inter)
             if nargin<2 || isempty(variable_name)
                variable_name='S_tot'; 
             end
             if nargin<3 || isempty(z_list)
                 z_list=obj.Lz/2; %if not provided, just plot the middle plan x-t contour
             end
+            if nargin<4 || isempty(t_inter)
+                t_begin=1; 
+                t_end=length(obj.t_list);
+            else
+                t_begin=t_inter(1);
+                t_end=t_inter(2);
+            end
             z_list_string=[];
             for z_plot_ind=1:length(z_list)
                 z=z_list(z_plot_ind);
                 [val,z_ind]=min(abs(z-obj.z_list));
 
-                data{1}.x=obj.t_list;
+                data{1}.x=obj.t_list(t_begin:t_end);
     %             if strcmp(obj.flow(1:7),'IFSC_2D')
     %                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
     %                 plot_config.label_list={1,'$t$','$z/l_{opt}$'};
@@ -1546,14 +1724,14 @@ classdef dedalus_post
                 switch variable_name
                     case {'u','v','w','S','T','p'}
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
-                        data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:));
+                        data{1}.z=squeeze(obj.(variable_name)(z_ind,:,t_begin:t_end));
                         plot_config.colormap='bluewhitered';
                         label=['$',variable_name,'$'];
                     case {'S_tot','T_tot'}
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
-                        data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
+                        data{1}.z=squeeze(obj.(variable_name)(z_ind,:,t_begin:t_end))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
                         if obj.flux_T
-                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,:))+ones(obj.Nx,1)*transpose(squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(1,:,:)))*obj.z_list(z_ind);
+                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,t_begin:t_end))+ones(obj.Nx,1)*transpose(squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(1,:,t_begin:t_end)))*obj.z_list(z_ind);
                         end
                         if obj.(['dy_',variable_name(1),'_mean'])<0
                            data{1}.z=data{1}.z+1; 
@@ -1571,6 +1749,7 @@ classdef dedalus_post
                 end
     %             data{1}.z=squeeze(mean(obj.(variable_name),2));
     %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+    
                 plot_config.print_size=[1,1200,1200];
                 plot_config.print=obj.print;
                 plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'.png'];
@@ -1756,9 +1935,10 @@ classdef dedalus_post
                 data{2}.y=obj.z_list;
 %             end
             plot_config.label_list={1,'','$z$'};
+            plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
             plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
 %             plot_config.label_list={1,'','$z/l_{opt}$'};
-            plot_config.print_size=[1,1200,1200];
+            plot_config.print_size=[1,1600,1600];
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave.png'];
             plot_config.linewidth=3;
@@ -1851,7 +2031,7 @@ classdef dedalus_post
                 end
             
             else
-                 d_variable_data_total_xt_ave=1./abs(squeeze(mean(mean(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end),2),3)));
+                 d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end))));
 
                  switch variable_name
                     case 'T'
@@ -1864,7 +2044,7 @@ classdef dedalus_post
                         obj.Ra_S2T_no_q=Ra_S2T_q/mean(obj.Nu_S);
                  end
                  
-                 obj.Nu_T_t=1./abs(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
+                 obj.Nu_T_t=(-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
 
             end
             data{1}.x=obj.t_list(t_ind_begin:t_ind_end);
@@ -2152,6 +2332,7 @@ classdef dedalus_post
             
             
         end
+        
         
         function Nu_kx=get_Nu_kx_Toomre(obj)
             Nu_kx=[0.759282	5.46973

@@ -28,6 +28,7 @@ mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp -r dedalus.cfg "$WORKD
 #ln -s /rc_scratch/chli3324/dedalus_13209996/analysis/analysis_s1.h5 restart.h5
 #ln -s /rc_scratch/chli3324/dedalus_12808427/analysis/analysis_s1.h5 restart.h5
 #ln -s /rc_scratch/chli3324/dedalus_13146434/analysis/analysis_s1.h5 restart.h5
+#ln -s /rc_scratch/chli3324/dedalus_13146434/checkpoint/checkpoint_s1.h5 restart.h5
 
 source /curc/sw/anaconda3/latest
 conda activate dedalus

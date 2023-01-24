@@ -288,6 +288,9 @@ switch plot_config.panel_num
         end
     
     end
+    
+    cb.Ruler.Exponent = 0;
+
 %     set(h, 'Position', [.05 .15 .9 .05]);
 
     

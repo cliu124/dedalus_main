@@ -699,17 +699,27 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.tau=1
         #R_rho_T2S=40
         flag.flux_T=1
-        
-        #map to the extended parameter in double_diffusive_shear_2D
-        flag.Re=1/flag.Pr
-        flag.Pe_T=1
         flag.Pe_S=1
+
+        #finite Prandtl number, map to the extended parameter in double_diffusive_shear_2D
+        #flag.Re=1/flag.Pr
+        #flag.Pe_T=1
+        
+        #zero Prandtl number
+        #flag.Re=1
+        #flag.Pe_T=0
+        
+        #infinite Prandtl number
+        #flag.Re=0
+        #flag.Pe_T=1
+        
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         #flag.Ra_T=2*10**4
-        flag.Ra_T=4*10**4
+        #flag.Ra_T=4*10**4
+        flag.Ra_T=10**8
         
-        flag.initial_dt=10**(-3)
-        #flag.initial_dt=10**(-6)
+        #flag.initial_dt=10**(-3)
+        flag.initial_dt=10**(-6)
         #flag.initial_dt=50/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
@@ -722,7 +732,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Lz=1
         flag.Nx=256
         flag.Nz=256
-        n_elevator=2
+        n_elevator=1
          
         flag.dy_T_mean=-flag.kx**4/flag.Ra_T
         flag.dy_S_mean=0
@@ -798,7 +808,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #high Ra, fixed flux RBC
         #may need several run
         flag.post_store_dt=0.001
-        flag.stop_sim_time=1
+        flag.stop_sim_time=0.1
         
         #flag.post_store_dt=10**4/flag.Ra_T
         #flag.stop_sim_time=10**7/flag.Ra_T

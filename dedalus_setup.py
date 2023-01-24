@@ -374,6 +374,7 @@ class flag(object):
                     if self.Re ==0:
                         #no inertial term in the momentum
                         problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
                         problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
@@ -381,6 +382,7 @@ class flag(object):
                     if self.Re ==0:
                         #no inertial term in the momentum
                         problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
                         problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
@@ -457,6 +459,7 @@ class flag(object):
                     if self.Re ==0:
                         #no inertial term in the momentum
                         problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
                 else:
@@ -464,6 +467,7 @@ class flag(object):
                     if self.Re ==0:
                         #no inertial term in the momentum
                         problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)")
                 
@@ -488,11 +492,15 @@ class flag(object):
                 
                     #Update 2022/10/07, substitute dy_T_mean_q into the T equation
                     
-                    #Update 2022/10/24, -w due to the conduction background temperature gradient should be also implicit
-                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
-                    problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+                    if self.Pe_T ==0:
+                        #Update 2023/01/24, add the branch that filters out the inertial term in temperature equation, for zero Prandtl number convection
+                        problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+                    else:
+                        #Update 2022/10/24, -w due to the conduction background temperature gradient should be also implicit
+                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
                     
-                
                 else: 
                     if self.Pe_T == 0:
                         #no inertial term in the temperature

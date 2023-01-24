@@ -475,7 +475,12 @@ slurm_num={'14680804',...
     '14680814',...
     '14680810',...
     '14680791'};
-slurm_num={'14680806'};
+slurm_num={'14739403',...
+    '14739404',...
+    '14739405',...
+    '14739406',...
+    '14739407'};
+slurm_num={'14739406'};
         %,...
          %   '14672941',...
          %   '14672942',...
@@ -484,7 +489,20 @@ slurm_num={'14680806'};
 %             '14672942',...
 %             '14672943'};
 %         %            '14673894',...
-
+slurm_num={'14741864',...
+            '14741865',...
+            '14741866',...
+            '14741867'};
+slurm_num={'14758590'};
+slurm_num={'14680791'};
+slurm_num={'14741869'};
+slurm_num={'14741864'};
+slurm_num={'14768963','14768964'};
+% slurm_num={'14741864','14741865'};
+slurm_num={'14673046'}; %14739405
+slurm_num={'14739406'};
+slurm_num={'14741865'}; 
+%14768964, 14741865, 14768963
 flag.print=1; 
 flag.video=0;
 flag.visible=0;
@@ -500,14 +518,19 @@ for slurm_ind=1:length(slurm_num)
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('ww');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',10);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[301]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[401,1000]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.phase_diagram('u','T',[200,1000],'max_z2')
 % 
 %      dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=0;
 %      dedalus_post_my{slurm_ind}.video=1;
 %      dedalus_post_my{slurm_ind}.title_time=1;
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',5);
 end
-% error('1');
+error('1');
 for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'12247549'))]%slurm_ind=length(slurm_num)-2:length(slurm_num)-1
     %find(strcmp(slurm_num,'12136034'))
     %length(slurm_num)-1:length(slurm_num)-1
@@ -523,15 +546,16 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T');
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T',[201,1000]);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('p');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[201]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('ww');
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave_z_max('u',[],[]);
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[150]);
@@ -551,13 +575,13 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
 %     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('S');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('S',[],[]);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[21,261]);
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('w');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('T_tot',[0.1,0.3,0.5]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('T_tot',[0.1,0.3,0.5],[1,300]);
 
      dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=0;
      dedalus_post_my{slurm_ind}.video=0;
@@ -568,7 +592,12 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      dedalus_post_my{slurm_ind}.video=0;
      dedalus_post_my{slurm_ind}.title_time=0;
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[],[385,391,399]);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[],[1000]);
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[],[309,313,321]);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[],[126,161]);
+     
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[],590:610);
+
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[],[1000]);
 
      
      dedalus_post_my{slurm_ind}.video=0;

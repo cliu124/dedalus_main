@@ -2,7 +2,7 @@ clear all;
 close all;
 clc;
 
-flag.name='growth_rate';
+flag.name='Lx';
 flag.no_flux_com=0;
 flag.no_shear_com=0;
 flag.solve='eig'; %'finished' if just want to load data and plot
@@ -43,7 +43,7 @@ end
 % kz_list_num=logspace(-4,0,5);
 % kz_list=[kz_list_int,kz_list_num];
 
-Nx=256;
+Nx=128;
 ky_list=0;
 %get the differential matrix. 
 [x_2pi,D1x_2pi] = fourdif(Nx,1);
@@ -228,7 +228,7 @@ switch flag.name
         plot_config.label_list={1,'$L_x$',''};
         plot_config.print_size=[1,1000,900];
         plot_config.legend_list={1,'$k_{z,0}$','$k_{z,max}$'};
-        plot_config.fontsize_legend=28;
+        plot_config.fontsize_legend=36;
         plot_config.name=['flux_RBC_',flag.name,'_Ra_Tq=',num2str(Ra_T_q_list),...
             '_Pr=',num2str(Pr_list),...
             '_flux_T=',num2str(flux_T),'.png'];
