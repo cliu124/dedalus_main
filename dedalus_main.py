@@ -706,8 +706,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.Pe_T=1
         
         #zero Prandtl number
-        #flag.Re=1
-        #flag.Pe_T=0
+        flag.Re=1
+        flag.Pe_T=0
         
         #infinite Prandtl number
         #flag.Re=0
