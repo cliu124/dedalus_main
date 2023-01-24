@@ -716,7 +716,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         #flag.Ra_T=2*10**4
         #flag.Ra_T=4*10**4
-        flag.Ra_T=10**8
+        flag.Ra_T=6*10**4
         
         #flag.initial_dt=10**(-3)
         flag.initial_dt=10**(-6)
@@ -807,8 +807,12 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         #high Ra, fixed flux RBC
         #may need several run
-        flag.post_store_dt=0.001
-        flag.stop_sim_time=0.1
+        #flag.post_store_dt=0.001
+        #flag.stop_sim_time=0.1
+        
+        #test
+        flag.post_store_dt=flag.initial_dt
+        flag.stop_sim_time=2000*flag.post_store_dt
         
         #flag.post_store_dt=10**4/flag.Ra_T
         #flag.stop_sim_time=10**7/flag.Ra_T
