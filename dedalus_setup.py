@@ -458,7 +458,7 @@ class flag(object):
                 if self.S_active:
                     if self.Re ==0:
                         #no inertial term in the momentum
-                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0",condition="(nx!=0) or (nz!=0)")
                         problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
@@ -466,7 +466,7 @@ class flag(object):
                     #get rid of salinity in the buoyancy equation to save time
                     if self.Re ==0:
                         #no inertial term in the momentum
-                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0",condition="(nx!=0) or (nz!=0)")
                         problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)")

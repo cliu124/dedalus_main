@@ -706,12 +706,12 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.Pe_T=1
         
         #zero Prandtl number
-        flag.Re=1
-        flag.Pe_T=0
+        #flag.Re=1
+        #flag.Pe_T=0
         
         #infinite Prandtl number
-        #flag.Re=0
-        #flag.Pe_T=1
+        flag.Re=0
+        flag.Pe_T=1
         
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         #flag.Ra_T=2*10**4
