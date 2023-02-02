@@ -346,7 +346,7 @@ class flag(object):
                         problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="((nx!=0) or (nz!=0)) and (nx<="+nx_trunc_str+") and (nz<="+nz_trunc_str+")")
                         problem.add_equation("u=0",condition="(nx==0) and (nz==0) or (nx>"+nx_trunc_str+") or (nz>"+nz_trunc_str+")")
                     else:
-                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nx_trunc_str+")")
+                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
                         problem.add_equation("u=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                 else:
                     print('with shear')
