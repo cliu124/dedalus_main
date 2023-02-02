@@ -761,6 +761,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.store_variable='T_u_w'#only store S and u variable
         flag.S_active=0
         
+        flag.nx_trunc_num=1
+        flag.nz_trunc_num=2
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
 #--------------setup the background shear

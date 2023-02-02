@@ -137,6 +137,7 @@ class flag(object):
         
         self.store_variable='all'
         self.nx_trunc_num=0
+        self.nz_trunc_num=0
         
         self.flux_T=0
         self.flux_S=0
@@ -331,21 +332,22 @@ class flag(object):
             # else:
             #     z_basis_mode='Chebyshev'
             
-            if self.nx_trunc_num>0:
+            if self.nx_trunc_num>0 or self.nz_trunc_num>0:
                 #Update 2022/06/16, this version make the single mode truncation.
                 ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
                 #firstly set up the x-momentum equation. if Re=0, then no inertial term
                 #Also it needs to distinguish whether we have shear driven by body force or not
                 
                 nx_trunc_str=str(self.nx_trunc_num)
+                nz_trunc_str=str(self.nz_trunc_num)
                 if self.F_sin == 0:
                     print('without shear')
                     if self.Re == 0:
-                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="(nx!=0) or (nz!=0)")
-                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) + dx(p) = 0",condition="((nx!=0) or (nz!=0)) and (nx<="+nx_trunc_str+") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("u=0",condition="(nx==0) and (nz==0) or (nx>"+nx_trunc_str+") or (nz>"+nz_trunc_str+")")
                     else:
-                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)",condition="(nx<=" + nx_trunc_str + ")")
-                        problem.add_equation("u=0",condition="(nx>" + nx_trunc_str + ")")
+                        problem.add_equation("Re*dt(u)- (dx(dx(u))+dz(d_u)) + dx(p) = Re*(-u*dx(u)-w*d_u)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nx_trunc_str+")")
+                        problem.add_equation("u=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                 else:
                     print('with shear')
                     ##specify the background shear... this is kolmogorov type shear... 
@@ -364,52 +366,74 @@ class flag(object):
                     problem.parameters['phase_4ks']=self.phase_4ks
                     
                     if self.Re == 0:
-                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx!=0) or (nz!=0)")
-                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        problem.add_equation("- (dx(dx(u))+dz(d_u) ) +dx(p) =  (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="((nx!=0) or (nz!=0)) and (nx<="+nx_trunc_str+") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("u=0",condition="((nx==0) and (nz==0)) or (nx>"+nx_trunc_str+") or (nz>"+nz_trunc_str+")")
                     else:
-                        problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))")
+                        problem.add_equation("Re*dt(u) - (dx(dx(u))+dz(d_u) ) +dx(p) = Re*( -u*dx(u)-w*d_u )+ (F_sin*sin(ks*z)+F_sin_2ks*sin(2*ks*z+phase_2ks)+F_sin_3ks*sin(3*ks*z+phase_3ks)+F_sin_4ks*sin(4*ks*z+phase_4ks))",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("u=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                 
                 #Vertical velocity equation, note buoyancy is added here
                 if self.S_active:
                     if self.Re ==0:
                         #no inertial term in the momentum
-                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
-                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                     else:
-                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
-                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
+                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                 else:
                     if self.Re ==0:
                         #no inertial term in the momentum
-                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
-                        problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                     else:
-                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ")")
-                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ")")
+                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                 
     
                 #divergence free and pressure gauge
                 if self.z_basis_mode=='Fourier':
-                    problem.add_equation("dx(u)+d_w=0",condition="(((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str + "))")
+                    problem.add_equation("dx(u)+d_w=0",condition="((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str + ") and (nz<="+ nz_trunc_str+")")
                     problem.add_equation("p=0",condition="(nx==0) and (nz==0)")
-                    problem.add_equation("p=0",condition="(nx>" + nx_trunc_str + ")")
+                    problem.add_equation("p=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                 elif self.z_basis_mode=='Chebyshev':
                     problem.add_equation("dx(u)+d_w=0")
                     #problem.add_equation("dx(u)+d_w=0",condition="(nx!=0)")
                     #problem.add_equation("p=0",condition="(nx==0)")
                 
+                if self.flux_T:
+                    #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )")
+                    #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T )",condition="(nx!=0) or (nz!=0)")
+                    
+                    #Update 2022/10/05, try this version to have the time-varying effect of dy_T_mean_q on the right hand size
+                    #problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =-dy_T_mean_q*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                    #problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+                    #problem.add_equation("dy_T_mean_q=0",condition="(nx!=0) or (nz!=0)")
+                    #problem.add_equation("-dy_T_mean_q=1-integ(w*T)/Lx/Lz",condition="(nx==0) and (nz==0)")
                 
-                if self.Pe_T == 0:
-                    #no inertial term in the temperature
-                    problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
-                else:
-                    problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )",condition="(nx<=" + nx_trunc_str + ")")
-                    problem.add_equation(" T=0",condition="(nx>" + nx_trunc_str + ")")
+                    #Update 2022/10/07, substitute dy_T_mean_q into the T equation
+                    
+                    if self.Pe_T ==0:
+                        #Update 2023/01/24, add the branch that filters out the inertial term in temperature equation, for zero Prandtl number convection
+                        problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w",condition="((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str+") and (nz<="+nz_trunc_str+")" )
+                        problem.add_equation("T=0",condition="((nx==0) and (nz==0)) or (nx>"+nx_trunc_str+") or (nz>"+nz_trunc_str+")")                     
+                    else:
+                        #Update 2022/10/24, -w due to the conduction background temperature gradient should be also implicit
+                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="((nx!=0) or (nz!=0)) and (nx<="+nx_trunc_str+") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("T=0",condition="(nx==0) and (nz==0) or (nx>"+nx_trunc_str+") or (nz>"+nz_trunc_str+")")                     
+                    
+                else: 
+                    if self.Pe_T == 0:
+                        #no inertial term in the temperature
+                        problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
+                    else:
+                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )",condition="(nx<=" + nx_trunc_str + ")"+"and (nz<="+nz_trunc_str+")")
+                        problem.add_equation(" T=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
 
                 if self.S_active:
                     #Add salinity equation
-                    problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=" + nx_trunc_str + ")")
-                    problem.add_equation("S=0",condition="(nx>" + nx_trunc_str + ")")
+                    problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                    problem.add_equation("S=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
 
             else:
                 #This is the branch that has the full equation
@@ -467,9 +491,9 @@ class flag(object):
                     #get rid of salinity in the buoyancy equation to save time
                     if self.Re ==0:
                         #no inertial term in the momentum
-                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
-                        #problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0",condition="(nx!=0) or (nz!=0)")
-                        #problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        #problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0")
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("w=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)")
                 
