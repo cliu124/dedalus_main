@@ -718,8 +718,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.Ra_T=4*10**4
         flag.Ra_T=6*10**4
         
-        #flag.initial_dt=10**(-3)
-        flag.initial_dt=10**(-6)
+        flag.initial_dt=10**(-3)
+        #flag.initial_dt=10**(-6)
         #flag.initial_dt=50/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
@@ -762,7 +762,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.S_active=0
         
         flag.nx_trunc_num=1
-        flag.nz_trunc_num=0
+        flag.nz_trunc_num=2
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
 #--------------setup the background shear
