@@ -763,6 +763,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         flag.nx_trunc_num=0
         flag.nz_trunc_num=0
+        flag.timesteppers ='RK443'
     else:
         raise TypeError('flag.flow_sub_double_diffusive_shear_2D is not found')
 #--------------setup the background shear
