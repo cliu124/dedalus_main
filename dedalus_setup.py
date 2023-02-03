@@ -482,9 +482,9 @@ class flag(object):
                 if self.S_active:
                     if self.Re ==0:
                         #no inertial term in the momentum
-                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
-                        #problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0",condition="(nx!=0) or (nz!=0)")
-                        #problem.add_equation("u=0",condition="(nx==0) and (nz==0)")
+                        #problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0")
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  =0",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("w=0",condition="(nx==0) and (nz==0)")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T-Ra_S2T*S)  = Re*(-u*dx(w)-w*d_w)")
                 else:
@@ -530,7 +530,9 @@ class flag(object):
                 else: 
                     if self.Pe_T == 0:
                         #no inertial term in the temperature
-                        problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0")
+                        problem.add_equation(" - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =0",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+
                     else:
                         problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) + dy_T_mean*w =Pe_T*( -u*dx(T)-w*d_T )")
         
