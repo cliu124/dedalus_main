@@ -11,7 +11,7 @@ switch flag.name
         n_elevator=1;
 %         Ra_T_q_list=8*10^8;
         Ra_T_q_list=6*10^4;
-        Pr_list=1e-6;
+        Pr_list=1e-20;
         Lx_list=0.1*2*pi;
         kz_list=(0.01:0.5:2*n_elevator)*2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
@@ -114,7 +114,7 @@ if ~strcmp(flag.solve,'finished')
                             A13=Ra_T_q*Laplacian_inv*(-1i*kz*D1x);
 
                             A21=-1i*ky*diag(d_W_mean);
-                            A22=-1i*kz*diag(W_mean)+Laplacian;
+                            A22=-1i*kz*diag(W_mean)+Pr*Laplacian;
                             A23=Ra_T_q*1i*ky*I;
 
                             A31=-diag(d_T_mean)*Pr+(1-flux_T*wT_int)*1i*kz*D1x/(ky^2+kz^2);
