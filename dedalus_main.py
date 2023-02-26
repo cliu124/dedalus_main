@@ -805,8 +805,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.stop_sim_time=5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
         #low Ra, fixed flux RBC
-        flag.post_store_dt=0.01
-        flag.stop_sim_time=10
+        #flag.post_store_dt=0.01
+        #flag.stop_sim_time=10
         
         #high Ra, fixed flux RBC
         #may need several run
@@ -814,8 +814,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.stop_sim_time=0.1
         
         #test
-        #flag.post_store_dt=flag.initial_dt
-        #flag.stop_sim_time=2000*flag.post_store_dt
+        flag.post_store_dt=flag.initial_dt
+        flag.stop_sim_time=10*flag.initial_dt
         
         #flag.post_store_dt=10**4/flag.Ra_T
         #flag.stop_sim_time=10**7/flag.Ra_T

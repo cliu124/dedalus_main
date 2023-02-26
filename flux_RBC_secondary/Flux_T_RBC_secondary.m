@@ -11,7 +11,7 @@ switch flag.name
         n_elevator=1;
 %         Ra_T_q_list=8*10^8;
         Ra_T_q_list=6*10^4;
-        Pr_list=1e-6;
+        Pr_list=0;
         Lx_list=0.1*2*pi;
         kz_list=(0.01:0.5:2*n_elevator)*2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
