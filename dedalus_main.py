@@ -702,12 +702,12 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_S=1
 
         #finite Prandtl number, map to the extended parameter in double_diffusive_shear_2D
-        #flag.Re=1/flag.Pr
-        #flag.Pe_T=1
+        flag.Re=1/flag.Pr
+        flag.Pe_T=1
         
         #zero Prandtl number
-        flag.Re=1
-        flag.Pe_T=0
+        #flag.Re=1
+        #flag.Pe_T=0
         
         #infinite Prandtl number
         #flag.Re=0
@@ -815,7 +815,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         #test
         flag.post_store_dt=flag.initial_dt
-        flag.stop_sim_time=10*flag.initial_dt
+        flag.stop_sim_time=100*flag.initial_dt
         
         #flag.post_store_dt=10**4/flag.Ra_T
         #flag.stop_sim_time=10**7/flag.Ra_T
