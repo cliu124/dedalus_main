@@ -502,6 +502,7 @@ slurm_num={'14768963','14768964'};
 slurm_num={'14673046'}; %14739405
 slurm_num={'14739406'};
 slurm_num={'14739406'}; 
+slurm_num={'15126885'};
 %14768964, 14741865, 14768963
 flag.print=1; 
 flag.video=0;
@@ -518,12 +519,12 @@ for slurm_ind=1:length(slurm_num)
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('ww');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[301]);
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[401,1000]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.phase_diagram('u','T',[200,1000],'max_z2')
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.phase_diagram('u','T',[],'max_z2')
 % 
 %      dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=0;
 %      dedalus_post_my{slurm_ind}.video=1;

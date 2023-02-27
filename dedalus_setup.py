@@ -415,11 +415,11 @@ class flag(object):
                     
                     if self.Pe_T ==0:
                         #Update 2023/01/24, add the branch that filters out the inertial term in temperature equation, for zero Prandtl number convection
-                        problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w",condition="((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str+") and (nz<="+nz_trunc_str+")" )
+                        problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =0",condition="((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str+") and (nz<="+nz_trunc_str+")" )
                         problem.add_equation("T=0",condition="((nx==0) and (nz==0)) or (nx>"+nx_trunc_str+") or (nz>"+nz_trunc_str+")")                     
                     else:
                         #Update 2022/10/24, -w due to the conduction background temperature gradient should be also implicit
-                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="((nx!=0) or (nz!=0)) and (nx<="+nx_trunc_str+") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =Pe_T*Pe_T*(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="((nx!=0) or (nz!=0)) and (nx<="+nx_trunc_str+") and (nz<="+nz_trunc_str+")")
                         problem.add_equation("T=0",condition="(nx==0) and (nz==0) or (nx>"+nx_trunc_str+") or (nz>"+nz_trunc_str+")")                     
                     
                 else: 
@@ -522,10 +522,10 @@ class flag(object):
                         #Update 2023/01/24, add the branch that filters out the inertial term in temperature equation, for zero Prandtl number convection
                         #problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w",condition="(nx!=0) or (nz!=0)")
                         #problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
-                        problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w")
+                        problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =0")
                     else:
                         #Update 2022/10/24, -w due to the conduction background temperature gradient should be also implicit
-                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =Pe_T*Pe_T*(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
                         problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
                     
                 else: 

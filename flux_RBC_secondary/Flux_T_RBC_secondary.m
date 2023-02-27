@@ -11,12 +11,12 @@ switch flag.name
         n_elevator=1;
 %         Ra_T_q_list=8*10^8;
         Ra_T_q_list=6*10^4;
-        Pr_list=0;
+        Pr_list=1e-10;
         Lx_list=0.1*2*pi;
         kz_list=(0.01:0.5:2*n_elevator)*2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
         flag.no_shear_com=0; %compare the growth rate without shear flow
-        flag.viscous_unit=0;
+        flag.viscous_unit=1;
     case 'Lx'
         n_elevator=1;
         Ra_T_q_list=10^8;
@@ -71,11 +71,11 @@ if ~strcmp(flag.solve,'finished')
             Ra_T_q=Ra_T_q_list(Ra_T_q_ind);
             w_hat=sqrt(-kx_mean^2/2+Ra_T_q/2/kx_mean^2);
             T_hat=kx_mean^2/Ra_T_q*w_hat;
-            dy_T_mean_q=kx_mean^4/Ra_T_q;
+            %dy_T_mean_q=kx_mean^4/Ra_T_q;
             W_mean=2*w_hat*cos(kx_mean*x);
             d_W_mean=-2*w_hat*kx_mean*sin(kx_mean*x);
             dd_W_mean=-2*w_hat*kx_mean^2*cos(kx_mean*x);
-            T_mean=2*T_hat*cos(kx_mean*x);
+            %T_mean=2*T_hat*cos(kx_mean*x);
             d_T_mean=-2*T_hat*kx_mean*sin(kx_mean*x);
             wT_int=1-kx_mean^4/Ra_T_q;
             for Pr_ind=1:length(Pr_list)
@@ -109,6 +109,16 @@ if ~strcmp(flag.solve,'finished')
                         M=blkdiag(I,I,I);
 
                         if flag.viscous_unit
+                            w_hat=sqrt(-kx_mean^2/2+Ra_T_q/2/kx_mean^2)/Pr;
+                            T_hat=kx_mean^2/Ra_T_q*w_hat; %Note that this is computed based on w_hat, so no need to divied by Pr again
+                            %dy_T_mean_q=kx_mean^4/Ra_T_q;
+                            W_mean=2*w_hat*cos(kx_mean*x);
+                            d_W_mean=-2*w_hat*kx_mean*sin(kx_mean*x);
+                            dd_W_mean=-2*w_hat*kx_mean^2*cos(kx_mean*x);
+                            %T_mean=2*T_hat*cos(kx_mean*x);
+                            d_T_mean=-2*T_hat*kx_mean*sin(kx_mean*x);
+                            wT_int=(1-kx_mean^4/Ra_T_q)/Pr^2;
+                            
                             A11=Laplacian_inv*(-1i*kz*diag(W_mean)*Laplacian+1i*kz*diag(dd_W_mean)+Laplacian_square);
                             A12=O;
                             A13=Ra_T_q*Laplacian_inv*(-1i*kz*D1x);
@@ -117,9 +127,9 @@ if ~strcmp(flag.solve,'finished')
                             A22=-1i*kz*diag(W_mean)+Laplacian;
                             A23=Ra_T_q*1i*ky*I;
 
-                            A31=-diag(d_T_mean)*Pr+(1-flux_T*wT_int)*1i*kz*D1x/(ky^2+kz^2);
-                            A32=(1-flux_T*wT_int)*(-1i*ky)/(ky^2+kz^2)*I;
-                            A33=-1i*kz*diag(W_mean)*Pr+Laplacian;
+                            A31=-diag(d_T_mean*Pr)+(1-flux_T*wT_int*Pr^2)*1i*kz*D1x/(ky^2+kz^2);
+                            A32=(1-flux_T*wT_int*Pr^2)*(-1i*ky)/(ky^2+kz^2)*I;
+                            A33=-1i*kz*diag(W_mean*Pr)+Laplacian;
 
                             A=[A11,A12,A13;
                                 A21,A22,A23;

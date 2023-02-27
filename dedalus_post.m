@@ -262,7 +262,8 @@ classdef dedalus_post
         spec_kx_z_w=0;
         
         nx_trunc_num=0;
-        
+        nz_trunc_num=0;
+
         flux_T=0;
         flux_S=0;
         
@@ -284,6 +285,7 @@ classdef dedalus_post
         phase_c_z=0;
         
         z_phase_diagram=0;
+        
     end
     
     methods
