@@ -808,14 +808,17 @@ elif flag.flow == 'double_diffusive_shear_2D':
         #flag.post_store_dt=0.01
         #flag.stop_sim_time=10
         
+        flag.post_store_dt=1
+        flag.stop_sim_time=1000
+        
         #high Ra, fixed flux RBC
         #may need several run
         #flag.post_store_dt=0.001
         #flag.stop_sim_time=0.1
         
         #test
-        flag.post_store_dt=flag.initial_dt
-        flag.stop_sim_time=100*flag.initial_dt
+        #flag.post_store_dt=flag.initial_dt
+        #flag.stop_sim_time=100*flag.initial_dt
         
         #flag.post_store_dt=10**4/flag.Ra_T
         #flag.stop_sim_time=10**7/flag.Ra_T

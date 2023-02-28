@@ -337,9 +337,16 @@ class flag(object):
                 ##Note that this is different from the IFSC,,, here I do not need to constraint that (nx!=0) or (nz!=0) because at nx=nz=0, it is just dt(u)=0, a valid equation.. 
                 #firstly set up the x-momentum equation. if Re=0, then no inertial term
                 #Also it needs to distinguish whether we have shear driven by body force or not
+                if self.nx_trunc_num==0:
+                    nx_trunc_str=str(self.Nx)
+                else:
+                    nx_trunc_str=str(self.nx_trunc_num)
                 
-                nx_trunc_str=str(self.nx_trunc_num)
-                nz_trunc_str=str(self.nz_trunc_num)
+                if self.nz_trunc_num==0:
+                    nz_trunc_str=str(self.Nz)
+                else:
+                    nz_trunc_str=str(self.nz_trunc_num)
+
                 if self.F_sin == 0:
                     print('without shear')
                     if self.Re == 0:
