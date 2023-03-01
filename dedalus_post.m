@@ -1541,6 +1541,7 @@ classdef dedalus_post
                 plot_config.xlim_list=[1,round(min(data{1}.x),1),round(max(data{1}.x),1)];
             end
             plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
+            plot_config.fontsize=28;
             plot_contour(data,plot_config);
             
             if strcmp(variable_name,'u')
