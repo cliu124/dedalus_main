@@ -1535,7 +1535,11 @@ classdef dedalus_post
             plot_config.print=obj.print;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave.png'];
             plot_config.ylim_list=[1,round(min(data{1}.y),1),round(max(data{1}.y),1)];
-            plot_config.xlim_list=[1,round(min(data{1}.x),1),round(max(data{1}.x),1)];
+            if round(min(data{1}.x),1)==round(max(data{1}.x),1)
+                plot_config.xlim_list=[1,min(data{1}.x),max(data{1}.x)];
+            else
+                plot_config.xlim_list=[1,round(min(data{1}.x),1),round(max(data{1}.x),1)];
+            end
             plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
             plot_contour(data,plot_config);
             

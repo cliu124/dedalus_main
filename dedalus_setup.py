@@ -391,8 +391,8 @@ class flag(object):
                 else:
                     if self.Re ==0:
                         #no inertial term in the momentum
-                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
-                        problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
+                        problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0",condition="((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        problem.add_equation("w=0",condition="((nx==0) and (nz==0)) or (nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                     else:
                         problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
                         problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
