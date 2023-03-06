@@ -702,24 +702,24 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_S=1
 
         #finite Prandtl number, map to the extended parameter in double_diffusive_shear_2D
-        #flag.Re=1/flag.Pr
-        #flag.Pe_T=1
+        flag.Re=1/flag.Pr
+        flag.Pe_T=1
         
         #zero Prandtl number
         #flag.Re=1
         #flag.Pe_T=0
         
         #infinite Prandtl number
-        flag.Re=0
-        flag.Pe_T=1
+        #flag.Re=0
+        #flag.Pe_T=1
         
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         #flag.Ra_T=2*10**4
-        #flag.Ra_T=4*10**4
-        flag.Ra_T=10**8
+        flag.Ra_T=4*10**4
+        #flag.Ra_T=10**8
         
-        #flag.initial_dt=10**(-3)
-        flag.initial_dt=10**(-6)
+        flag.initial_dt=10**(-3)
+        #flag.initial_dt=10**(-6)
         #flag.initial_dt=50/flag.Ra_T
 
         flag.Ra_S2T=0#flag.Ra_T#flag.Ra_T/R_rho_T2S
@@ -730,8 +730,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         Lx2d=1
         flag.Lx=Lx2d*2*np.pi/kx_2D
         flag.Lz=1
-        flag.Nx=256
-        flag.Nz=256
+        flag.Nx=128
+        flag.Nz=128
         n_elevator=1
          
         flag.dy_T_mean=-flag.kx**4/flag.Ra_T
@@ -760,6 +760,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_noise=0
         flag.store_variable='T_u_w'#only store S and u variable
         flag.S_active=0
+        flag.A_w_mean=0 #This is mean vertical velocity
         
         flag.nx_trunc_num=0
         flag.nz_trunc_num=0
@@ -805,11 +806,11 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.stop_sim_time=5
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
         #low Ra, fixed flux RBC
-        #flag.post_store_dt=0.01
-        #flag.stop_sim_time=10
+        flag.post_store_dt=0.01
+        flag.stop_sim_time=10
         
-        flag.post_store_dt=0.001
-        flag.stop_sim_time=1
+        #flag.post_store_dt=0.001
+        #flag.stop_sim_time=1
         
         #high Ra, fixed flux RBC
         #may need several run

@@ -143,6 +143,8 @@ class flag(object):
         self.flux_S=0
         
         self.S_active=1
+        
+        self.A_w_mean=0
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -2814,6 +2816,9 @@ class flag(object):
                 T0 = T0 + self.A_secondary_T*np.real(np.exp(1j*self.k_secondary*z))
                 #S0 =S0 + self.A_secondary_S*np.real(np.exp(1j*self.k_secondary*z))
                 S0 = S0 + self.A_secondary_S*np.sin(self.k_secondary*z)    
+                
+                #add the mean vertical velocity, this can trigger the vertical traveling waves
+                w0 = w0+self.A_w_mean
                 
                 u['g']=u0
                 w['g']=w0
