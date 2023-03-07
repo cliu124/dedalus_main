@@ -3821,6 +3821,7 @@ class flag(object):
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
         elif self.flow in ['HB_benard_shear_periodic']:
+            analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_system(solver.state)
 
             if self.flux_T:
