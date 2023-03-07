@@ -3646,10 +3646,11 @@ class flag(object):
                             logger.info('Nu: {}'.format(-1/dy_T_mean_q))
             elif self.flow in ['HB_benard_shear_periodic']:
                 #cfl is required for the IVP
-                cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
-                cfl.add_velocities('w_hat_real')
+                #cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
+                #cfl.add_velocities('w_hat_real')
+                dt=self.initial_dt
                 while solver.ok:
-                    dt = cfl.compute_dt()    
+                    #dt = cfl.compute_dt()    
                     solver.step(dt)
                     if solver.iteration % 1000 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
