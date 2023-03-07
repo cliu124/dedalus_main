@@ -1932,43 +1932,45 @@ class flag(object):
                 problem.parameters['U_bg']=0
                 
                 problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
-                problem.add_equation('-Re*dt(u_tilde_real)+dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=Re*(-kx*(U_bg+U_0)*u_tilde_imag+(d_U_bg+d_U_0)*w_hat_imag)')
+                problem.add_equation('-Re*dt(u_tilde_real)+dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=Re*(-kx*(U_bg+U_0)*u_tilde_imag+(d_U_bg+d_U_0)*w_hat_imag+W_0*d_u_tilde_real)')
                 problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
-                problem.add_equation('-Re*dt(v_tilde_real)+dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=Re*(-kx*(U_bg+U_0)*v_tilde_imag)')
+                problem.add_equation('-Re*dt(v_tilde_real)+dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=Re*(-kx*(U_bg+U_0)*v_tilde_imag+W_0*d_v_tilde_real)')
                 problem.add_equation('dz(w_hat_real)-(kx*u_tilde_real+ky*v_tilde_real)=0')
-                problem.add_equation('-Re*dt(w_hat_real)-dz(p_hat_real)+(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=Re*(-kx*(U_bg+U_0)*w_hat_imag)')
+                problem.add_equation('-Re*dt(w_hat_real)-dz(p_hat_real)+(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=Re*(-kx*(U_bg+U_0)*w_hat_imag+W_0*(kx*u_tilde_real+ky*v_tilde_real))')
                 
                 problem.add_equation('dz(u_tilde_imag)-d_u_tilde_imag=0')
-                problem.add_equation('-Re*dt(u_tilde_imag)+dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=Re*(kx*(U_bg+U_0)*u_tilde_real-(d_U_bg+d_U_0)*w_hat_real)')
+                problem.add_equation('-Re*dt(u_tilde_imag)+dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=Re*(kx*(U_bg+U_0)*u_tilde_real-(d_U_bg+d_U_0)*w_hat_real+W_0*d_u_tilde_imag)')
                 problem.add_equation('dz(v_tilde_imag)-d_v_tilde_imag=0')
-                problem.add_equation('-Re*dt(v_tilde_imag)+dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=Re*(kx*(U_bg+U_0)*v_tilde_real)')
+                problem.add_equation('-Re*dt(v_tilde_imag)+dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=Re*(kx*(U_bg+U_0)*v_tilde_real+W_0*d_v_tilde_imag)')
                 problem.add_equation('dz(w_hat_imag)-(kx*u_tilde_imag+ky*v_tilde_imag)=0')
-                problem.add_equation('-Re*dt(w_hat_imag)-dz(p_hat_imag)+(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=Re*(kx*(U_bg+U_0)*w_hat_real)')
+                problem.add_equation('-Re*dt(w_hat_imag)-dz(p_hat_imag)+(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=Re*(kx*(U_bg+U_0)*w_hat_real+W_0*(kx*u_tilde_imag+ky*v_tilde_imag))')
                 
                 #harmonnic of the temperature and salinity
                 problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
                 problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
                 if self.flux_T:
-                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real-(kx*kx+ky*ky)*T_hat_real=-Pe_T*Pe_T*w_hat_real*integ(2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag)/Lz +Pe_T*w_hat_real*d_T_0-Pe_T*kx*(U_bg+U_0)*T_hat_imag')
-                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag-(kx*kx+ky*ky)*T_hat_imag=-Pe_T*Pe_T*w_hat_imag*integ(2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag)/Lz +Pe_T*w_hat_imag*d_T_0+Pe_T*kx*(U_bg+U_0)*T_hat_real')
+                    problem.add_equation('-Pe_T*dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real-(kx*kx+ky*ky)*T_hat_real=Pe_T*W_0*d_T_hat_real-Pe_T*Pe_T*w_hat_real*integ(2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag)/Lz +Pe_T*w_hat_real*d_T_0-Pe_T*kx*(U_bg+U_0)*T_hat_imag')
+                    problem.add_equation('-Pe_T*dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag-(kx*kx+ky*ky)*T_hat_imag=Pe_T*W_0*d_T_hat_imag-Pe_T*Pe_T*w_hat_imag*integ(2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag)/Lz +Pe_T*w_hat_imag*d_T_0+Pe_T*kx*(U_bg+U_0)*T_hat_real')
                 
                 else:
-                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real=Pe_T*w_hat_real*d_T_0-Pe_T*kx*(U_bg+U_0)*T_hat_imag')
-                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag=Pe_T*w_hat_imag*d_T_0+Pe_T*kx*(U_bg+U_0)*T_hat_real')
+                    problem.add_equation('-Pe_T*dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real=Pe_T*W_0*d_T_hat_real+Pe_T*w_hat_real*d_T_0-Pe_T*kx*(U_bg+U_0)*T_hat_imag')
+                    problem.add_equation('-Pe_T*dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag=Pe_T*W_0*d_T_hat_imag+Pe_T*w_hat_imag*d_T_0+Pe_T*kx*(U_bg+U_0)*T_hat_real')
                 
                 
                 #mean temperature
                 problem.add_equation('dz(T_0)-d_T_0=0')
-                problem.add_equation('-dt(T_0)+dz(d_T_0)=(2*kx*u_tilde_real*T_hat_real+2*kx*u_tilde_imag*T_hat_imag+2*ky*v_tilde_real*T_hat_real+2*ky*v_tilde_imag*T_hat_imag+2*w_hat_real*d_T_hat_real+2*w_hat_imag*d_T_hat_imag)')
+                problem.add_equation('-dt(T_0)+dz(d_T_0)=W_0*d_T_0+(2*kx*u_tilde_real*T_hat_real+2*kx*u_tilde_imag*T_hat_imag+2*ky*v_tilde_real*T_hat_real+2*ky*v_tilde_imag*T_hat_imag+2*w_hat_real*d_T_hat_real+2*w_hat_imag*d_T_hat_imag)')
                     
                 #large scale shear U_0
                 problem.add_equation('dz(U_0)-d_U_0=0')
-                problem.add_equation('-Re*dt(U_0)+dz(d_U_0)=Re*(2*kx*u_tilde_real*(-u_tilde_imag)+2*kx*u_tilde_imag*u_tilde_real+2*ky*v_tilde_real*(-u_tilde_imag)+2*ky*v_tilde_imag*u_tilde_real+2*w_hat_real*(-d_u_tilde_imag)+2*w_hat_imag*d_u_tilde_real)')
+                problem.add_equation('-Re*dt(U_0)+dz(d_U_0)=Re*W_0*d_U_0+Re*(2*kx*u_tilde_real*(-u_tilde_imag)+2*kx*u_tilde_imag*u_tilde_real+2*ky*v_tilde_real*(-u_tilde_imag)+2*ky*v_tilde_imag*u_tilde_real+2*w_hat_real*(-d_u_tilde_imag)+2*w_hat_imag*d_u_tilde_real)')
                 
                 #large scale vertical velocity
                 problem.add_equation('dt(W_0)=0')
                 
                 if self.S_active:
+                    #This branch needs to be further code!!!
+                    raise TypeError('flag.flow is not defined yet') 
                     problem.add_equation('-1/tau*dt(S_hat_real)+dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real=Pe_S/tau*(w_hat_real*d_S_0)-Pe_S/tau*kx*(U_bg+U_0)*S_hat_imag')   
                     problem.add_equation('-1/tau*dt(S_hat_imag)+dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag=Pe_S/tau*(w_hat_imag*d_S_0)+Pe_S/tau*kx*(U_bg+U_0)*S_hat_real')   
                     problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
