@@ -203,7 +203,7 @@ class flag(object):
                 #if all B.C. are periodic, then just use Fourier mode in vertical
                 self.z_basis_mode='Fourier'
                 z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
-                domain = de.Domain([z_basis],grid_dtype=np.float64)
+                domain = de.Domain([z_basis],grid_dtype=np.complex128)
                 print('Fourier basis in the vertical z direction')
                 
             elif self.problem=='EVP':
@@ -1932,7 +1932,8 @@ class flag(object):
                 problem.parameters['U_bg']=0
                 problem.parameters['d_U_bg']=0
                 problem.parameters['Lz']=self.Lz
-                
+                problem.parameters['j']=1j
+
                 problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
                 problem.add_equation('-Re*dt(u_tilde_real)+dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=Re*(-kx*(U_bg+U_0)*u_tilde_imag+(d_U_bg+d_U_0)*w_hat_imag+W_0*d_u_tilde_real)')
                 problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
@@ -1974,7 +1975,7 @@ class flag(object):
                 problem.add_equation('-Re*dt(U_0)+dz(d_U_0)=Re*W_0*d_U_0+Re*(2*kx*u_tilde_real*(-u_tilde_imag)+2*kx*u_tilde_imag*u_tilde_real+2*ky*v_tilde_real*(-u_tilde_imag)+2*ky*v_tilde_imag*u_tilde_real+2*w_hat_real*(-d_u_tilde_imag)+2*w_hat_imag*d_u_tilde_real)')
                 
                 #large scale vertical velocity
-                problem.add_equation('dt(W_0)=0')
+                problem.add_equation('dt(W_0)=j*W_0')
                 
                 if self.S_active:
                     #This branch needs to be further code!!!
