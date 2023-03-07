@@ -1937,15 +1937,21 @@ class flag(object):
                 problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
                 problem.add_equation('-Re*dt(v_tilde_real)+dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=Re*(-kx*(U_bg+U_0)*v_tilde_imag+W_0*d_v_tilde_real)')
                 problem.add_equation('dz(w_hat_real)-(kx*u_tilde_real+ky*v_tilde_real)=0')
-                problem.add_equation('-Re*dt(w_hat_real)-dz(p_hat_real)+(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=Re*(-kx*(U_bg+U_0)*w_hat_imag+W_0*(kx*u_tilde_real+ky*v_tilde_real))')
-                
+                if self.S_active:
+                    problem.add_equation('-Re*dt(w_hat_real)-dz(p_hat_real)+(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=Re*(-kx*(U_bg+U_0)*w_hat_imag+W_0*(kx*u_tilde_real+ky*v_tilde_real))')
+                else:
+                    problem.add_equation('-Re*dt(w_hat_real)-dz(p_hat_real)+(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real)=Re*(-kx*(U_bg+U_0)*w_hat_imag+W_0*(kx*u_tilde_real+ky*v_tilde_real))')
+
                 problem.add_equation('dz(u_tilde_imag)-d_u_tilde_imag=0')
                 problem.add_equation('-Re*dt(u_tilde_imag)+dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=Re*(kx*(U_bg+U_0)*u_tilde_real-(d_U_bg+d_U_0)*w_hat_real+W_0*d_u_tilde_imag)')
                 problem.add_equation('dz(v_tilde_imag)-d_v_tilde_imag=0')
                 problem.add_equation('-Re*dt(v_tilde_imag)+dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=Re*(kx*(U_bg+U_0)*v_tilde_real+W_0*d_v_tilde_imag)')
                 problem.add_equation('dz(w_hat_imag)-(kx*u_tilde_imag+ky*v_tilde_imag)=0')
-                problem.add_equation('-Re*dt(w_hat_imag)-dz(p_hat_imag)+(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=Re*(kx*(U_bg+U_0)*w_hat_real+W_0*(kx*u_tilde_imag+ky*v_tilde_imag))')
-                
+                if self.S_active:
+                    problem.add_equation('-Re*dt(w_hat_imag)-dz(p_hat_imag)+(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=Re*(kx*(U_bg+U_0)*w_hat_real+W_0*(kx*u_tilde_imag+ky*v_tilde_imag))')
+                else:
+                    problem.add_equation('-Re*dt(w_hat_imag)-dz(p_hat_imag)+(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag)=Re*(kx*(U_bg+U_0)*w_hat_real+W_0*(kx*u_tilde_imag+ky*v_tilde_imag))')
+
                 #harmonnic of the temperature and salinity
                 problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
                 problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
