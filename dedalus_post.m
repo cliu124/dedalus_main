@@ -287,6 +287,8 @@ classdef dedalus_post
         z_phase_diagram=0;
         
         A_w_mean=0;
+        
+        A_w_hat=0;
     end
     
     methods
