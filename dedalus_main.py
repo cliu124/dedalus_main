@@ -445,7 +445,7 @@ elif flag.flow == 'HB_benard_shear_periodic':
     flag.A_noise=0
     flag.store_variable='T_u_w'#only store S and u variable
     flag.S_active=0
-    flag.A_w_mean=1 #This is mean vertical velocity
+    flag.A_w_mean=0 #This is mean vertical velocity
     
     flag.timesteppers ='RK443'
 

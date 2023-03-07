@@ -320,6 +320,13 @@ classdef dedalus_post
                    obj.(flag_table.x_Test{table_ind}(3:end))=flag_table.x123_{table_ind}(1:end-1);
                end
             end
+            
+            %add these grid points here. 
+            obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+            obj.Nz=length(obj.z_list);
+            
+            obj.t_list=h5read_complex(h5_name,'/scales/sim_time');
+            
         end
         
         function obj = dedalus_post_ivp(obj)
@@ -1514,24 +1521,33 @@ classdef dedalus_post
             data{1}.y=obj.z_list;
             plot_config.label_list={1,'$t$','$z$'};
 %             end
-            switch variable_name
-                case {'u','v','w','S','T','p','dy_T_mean_q','dy_S_mean_q'}
-                    obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
-                case {'uS','wS','uT','wT','uw','ww'}%%
-                    var_1=variable_name(1);
-                    var_2=variable_name(2);
-                    if strcmp(var_1,'u') %%this require in default, the u is always in the first variable....
-                       obj=obj.u_fluctuation_read();
-                       var_1_data=obj.u_fluctuation;
-                    else
-                       var_1_data=h5read_complex(obj.h5_name,['/tasks/',var_1]);
-                    end
-                    var_2_data=h5read_complex(obj.h5_name,['/tasks/',var_2]);
-                    obj.(variable_name)=var_1_data.*var_2_data;
+            if strcmp(obj.flow,'HB_benard_shear_periodic')
+                switch variable_name
+                    case {'u','w','T'}
+                        obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',upper(variable_name),'_0']);
+                        data{1}.z=obj.(variable_name)(:,t_ind_begin:t_ind_end);
+                end
+            else
+                switch variable_name
+                    case {'u','v','w','S','T','p','dy_T_mean_q','dy_S_mean_q'}
+                        obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                    case {'uS','wS','uT','wT','uw','ww'}%%
+                        var_1=variable_name(1);
+                        var_2=variable_name(2);
+                        if strcmp(var_1,'u') %%this require in default, the u is always in the first variable....
+                           obj=obj.u_fluctuation_read();
+                           var_1_data=obj.u_fluctuation;
+                        else
+                           var_1_data=h5read_complex(obj.h5_name,['/tasks/',var_1]);
+                        end
+                        var_2_data=h5read_complex(obj.h5_name,['/tasks/',var_2]);
+                        obj.(variable_name)=var_1_data.*var_2_data;
+                end
+
+                data{1}.z=squeeze(mean(obj.(variable_name)(:,:,t_ind_begin:t_ind_end),2));
+
             end
-            
-            data{1}.z=squeeze(mean(obj.(variable_name)(:,:,t_ind_begin:t_ind_end),2));
-%             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
+            %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
             plot_config.colormap='bluewhitered';
             plot_config.print_size=[1,1600,1600];
 %             plot_config.ztick_list=[1,-0.001,0.001];
