@@ -3647,7 +3647,7 @@ class flag(object):
             elif self.flow in ['HB_benard_shear_periodic']:
                 #cfl is required for the IVP
                 cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
-                cfl.add_velocities(('u_tilde_real','u_tilde_imag','w_hat_real','w_hat_imag'))
+                cfl.add_velocities(('w_hat_real'))
                 while solver.ok:
                     dt = cfl.compute_dt()    
                     solver.step(dt)
