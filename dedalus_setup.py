@@ -1941,7 +1941,7 @@ class flag(object):
                 problem.add_equation('Re*dt(w_hat)+dz(p_hat)-(dz(dz(w_hat))-kx*kx*w_hat-ky*ky*w_hat)-Ra_T*T_hat=-Re*(U_0*1j*kx*w_hat+W_0*dz(w_hat))')
                 problem.add_equation('1j*kx*u_hat+1j*ky*v_hat+dz(w_hat)=0')
                 if self.flux_T:
-                    problem.add_equation('dt(T_hat)-w_hat-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-w_hat*integ(conj(w_hat)*T_hat+w_hat*conj(T_hat))-(U_0*1j*kx*T_hat+w_hat*dz(T_0))')
+                    problem.add_equation('dt(T_hat)-w_hat-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-w_hat*integ(conj(w_hat)*T_hat+w_hat*conj(T_hat))/Lz-(U_0*1j*kx*T_hat+w_hat*dz(T_0))')
                 else:
                     problem.add_equation('dt(T_hat)+w_hat*dy_T_mean-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-(U_0*1j*kx*T_hat+w_hat*dz(T_0))')
                 problem.add_equation('Re*dt(U_0)-dz(dz(U_0))=-Re*(dz(conj(w_hat)*u_hat+w_hat*conj(u_hat)))')
@@ -3331,9 +3331,9 @@ class flag(object):
                 #d_u_tilde_real = solver.state['d_u_tilde_real']
                 #v_tilde_real = solver.state['v_tilde_real']
                 #d_v_tilde_real = solver.state['d_v_tilde_real']
-                w_hat_real = solver.state['w_hat_real']
+                w_hat_real = solver.state['w_hat']
                 #p_hat_real = solver.state['p_hat_real']
-                T_hat_real = solver.state['T_hat_real']
+                T_hat_real = solver.state['T_hat']
                 #d_T_hat_real = solver.state['d_T_hat_real']
                 
                 
