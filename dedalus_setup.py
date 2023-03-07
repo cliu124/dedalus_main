@@ -67,6 +67,7 @@ class flag(object):
         #self.tau=1 #This tau is not necessary as it has been defined... #This is the diffusivity ratio, \kappa_S/\kappa_T 
         
         self.A_elevator=0
+        self.A_w_hat=0
         self.A_elevator_imag=0
         self.k_elevator=0.5
         self.A_noise=0
@@ -194,8 +195,18 @@ class flag(object):
             #    domain = de.Domain([z_basis],grid_dtype=np.complex128) 
         elif self.flow in ['HB_porous','HB_benard','test_periodic',\
                            'HB_porous_2_layer','HB_porous_3_layer',\
-                           'HB_porous_shear','HB_benard_shear']:
-            if self.problem == 'EVP':
+                           'HB_porous_shear','HB_benard_shear','HB_benard_shear_periodic']:
+            if self.z_bc_u_v_left=='periodic' and self.z_bc_T_left=='periodic' and \
+                self.z_bc_S_left=='periodic' and self.z_bc_w_left=='periodic' and \
+                self.z_bc_u_v_right=='periodic' and self.z_bc_T_right=='periodic' and \
+                self.z_bc_S_right=='periodic' and self.z_bc_w_right=='periodic':
+                #if all B.C. are periodic, then just use Fourier mode in vertical
+                self.z_basis_mode='Fourier'
+                z_basis = de.Fourier('z', self.Nz, interval=(0,self.Lz), dealias=3/2)
+                domain = de.Domain([z_basis],grid_dtype=np.float64)
+                print('Fourier basis in the vertical z direction')
+                
+            elif self.problem=='EVP':
                 z_basis = de.Chebyshev('z', self.Nz, interval=(0, self.Lz), dealias=1)
                 domain = de.Domain([z_basis],grid_dtype=np.complex128) 
             else:
@@ -1125,7 +1136,6 @@ class flag(object):
             problem.add_bc('right(d_S_0_mid)-left(d_S_0_top)=0')
 
             
-            
         elif self.flow =='HB_porous_shear':
             #harmonic balance for the porous media
             #For different problem, we need to claim different dedalus problem.
@@ -1886,7 +1896,85 @@ class flag(object):
             problem.add_bc('right(d_S_0)-left(d_S_0_top)=0')
     
             
-
+        elif self.flow=='HB_benard_shear_periodic':
+            if self.problem =='IVP':
+                if self.S_active:
+                    problem = de.IVP(domain, variables=\
+                    ['u_tilde_real','d_u_tilde_real','v_tilde_real','d_v_tilde_real', \
+                    'u_tilde_imag','d_u_tilde_imag','v_tilde_imag','d_v_tilde_imag', \
+                     'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real', \
+                     'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag', \
+                    'S_hat_real','d_S_hat_real','S_hat_imag','d_S_hat_imag', \
+                        'T_0','d_T_0','S_0','d_S_0',\
+                            'U_0','d_U_0','W_0']) # add large scale shear, 2022/05/04
+            
+                else:
+                    problem = de.IVP(domain, variables=\
+                    ['u_tilde_real','d_u_tilde_real','v_tilde_real','d_v_tilde_real', \
+                    'u_tilde_imag','d_u_tilde_imag','v_tilde_imag','d_v_tilde_imag', \
+                     'w_hat_real','p_hat_real','T_hat_real','d_T_hat_real', \
+                     'w_hat_imag','p_hat_imag','T_hat_imag','d_T_hat_imag', \
+                        'T_0','d_T_0',\
+                            'U_0','d_U_0','W_0']) # add large scale shear, 2022/05/04
+            
+                    
+                problem.parameters['Re'] = self.Re 
+                problem.parameters['Ra_T'] = self.Ra_T
+                problem.parameters['Ra_S2T'] = self.Ra_S2T
+                problem.parameters['tau']=self.tau
+                problem.parameters['dy_T_mean']=self.dy_T_mean
+                problem.parameters['dy_S_mean']=self.dy_S_mean
+                problem.parameters['kx']=self.kx
+                problem.parameters['ky']=self.ky
+                problem.parameters['Pe_T']=self.Pe_T
+                problem.parameters['Pe_S']=self.Pe_S
+                problem.parameters['ks']=self.ks
+                problem.parameters['U_bg']=0
+                
+                problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
+                problem.add_equation('-Re*dt(u_tilde_real)+dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=Re*(-kx*(U_bg+U_0)*u_tilde_imag+(d_U_bg+d_U_0)*w_hat_imag)')
+                problem.add_equation('dz(v_tilde_real)-d_v_tilde_real=0')
+                problem.add_equation('-Re*dt(v_tilde_real)+dz(d_v_tilde_real)-(ky*p_hat_real+(kx*kx+ky*ky)*v_tilde_real)=Re*(-kx*(U_bg+U_0)*v_tilde_imag)')
+                problem.add_equation('dz(w_hat_real)-(kx*u_tilde_real+ky*v_tilde_real)=0')
+                problem.add_equation('-Re*dt(w_hat_real)-dz(p_hat_real)+(kx*d_u_tilde_real+ky*d_v_tilde_real-(kx*kx+ky*ky)*w_hat_real+Ra_T*T_hat_real-Ra_S2T*S_hat_real)=Re*(-kx*(U_bg+U_0)*w_hat_imag)')
+                
+                problem.add_equation('dz(u_tilde_imag)-d_u_tilde_imag=0')
+                problem.add_equation('-Re*dt(u_tilde_imag)+dz(d_u_tilde_imag)-(kx*p_hat_imag+(kx*kx+ky*ky)*u_tilde_imag)=Re*(kx*(U_bg+U_0)*u_tilde_real-(d_U_bg+d_U_0)*w_hat_real)')
+                problem.add_equation('dz(v_tilde_imag)-d_v_tilde_imag=0')
+                problem.add_equation('-Re*dt(v_tilde_imag)+dz(d_v_tilde_imag)-(ky*p_hat_imag+(kx*kx+ky*ky)*v_tilde_imag)=Re*(kx*(U_bg+U_0)*v_tilde_real)')
+                problem.add_equation('dz(w_hat_imag)-(kx*u_tilde_imag+ky*v_tilde_imag)=0')
+                problem.add_equation('-Re*dt(w_hat_imag)-dz(p_hat_imag)+(kx*d_u_tilde_imag+ky*d_v_tilde_imag-(kx*kx+ky*ky)*w_hat_imag+Ra_T*T_hat_imag-Ra_S2T*S_hat_imag)=Re*(kx*(U_bg+U_0)*w_hat_real)')
+                
+                #harmonnic of the temperature and salinity
+                problem.add_equation('dz(T_hat_imag)-d_T_hat_imag=0')
+                problem.add_equation('dz(T_hat_real)-d_T_hat_real=0')
+                if self.flux_T:
+                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real-(kx*kx+ky*ky)*T_hat_real=-Pe_T*Pe_T*w_hat_real*integ(2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag)/Lz +Pe_T*w_hat_real*d_T_0-Pe_T*kx*(U_bg+U_0)*T_hat_imag')
+                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag-(kx*kx+ky*ky)*T_hat_imag=-Pe_T*Pe_T*w_hat_imag*integ(2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag)/Lz +Pe_T*w_hat_imag*d_T_0+Pe_T*kx*(U_bg+U_0)*T_hat_real')
+                
+                else:
+                    problem.add_equation('-dt(T_hat_real)+dz(d_T_hat_real)-w_hat_real*dy_T_mean-(kx*kx+ky*ky)*T_hat_real=Pe_T*w_hat_real*d_T_0-Pe_T*kx*(U_bg+U_0)*T_hat_imag')
+                    problem.add_equation('-dt(T_hat_imag)+dz(d_T_hat_imag)-w_hat_imag*dy_T_mean-(kx*kx+ky*ky)*T_hat_imag=Pe_T*w_hat_imag*d_T_0+Pe_T*kx*(U_bg+U_0)*T_hat_real')
+                
+                
+                #mean temperature
+                problem.add_equation('dz(T_0)-d_T_0=0')
+                problem.add_equation('-dt(T_0)+dz(d_T_0)=(2*kx*u_tilde_real*T_hat_real+2*kx*u_tilde_imag*T_hat_imag+2*ky*v_tilde_real*T_hat_real+2*ky*v_tilde_imag*T_hat_imag+2*w_hat_real*d_T_hat_real+2*w_hat_imag*d_T_hat_imag)')
+                    
+                #large scale shear U_0
+                problem.add_equation('dz(U_0)-d_U_0=0')
+                problem.add_equation('-Re*dt(U_0)+dz(d_U_0)=Re*(2*kx*u_tilde_real*(-u_tilde_imag)+2*kx*u_tilde_imag*u_tilde_real+2*ky*v_tilde_real*(-u_tilde_imag)+2*ky*v_tilde_imag*u_tilde_real+2*w_hat_real*(-d_u_tilde_imag)+2*w_hat_imag*d_u_tilde_real)')
+                
+                #large scale vertical velocity
+                problem.add_equation('dt(W_0)=0')
+                
+                if self.S_active:
+                    problem.add_equation('-1/tau*dt(S_hat_real)+dz(d_S_hat_real)-1/tau*w_hat_real*dy_S_mean-(kx*kx+ky*ky)*S_hat_real=Pe_S/tau*(w_hat_real*d_S_0)-Pe_S/tau*kx*(U_bg+U_0)*S_hat_imag')   
+                    problem.add_equation('-1/tau*dt(S_hat_imag)+dz(d_S_hat_imag)-1/tau*w_hat_imag*dy_S_mean-(kx*kx+ky*ky)*S_hat_imag=Pe_S/tau*(w_hat_imag*d_S_0)+Pe_S/tau*kx*(U_bg+U_0)*S_hat_real')   
+                    problem.add_equation('dz(S_hat_imag)-d_S_hat_imag=0')
+                    problem.add_equation('dz(S_hat_real)-d_S_hat_real=0')
+                    problem.add_equation('dz(S_0)-d_S_0=0')
+                    problem.add_equation('-1/tau*dt(S_0)+dz(d_S_0)=1/tau*(2*kx*u_tilde_real*S_hat_real+2*kx*u_tilde_imag*S_hat_imag+2*ky*v_tilde_real*S_hat_real+2*ky*v_tilde_imag*S_hat_imag+2*w_hat_real*d_S_hat_real+2*w_hat_imag*d_S_hat_imag)')
 
 
         elif self.flow =='HB_benard_shear':
@@ -3198,8 +3286,6 @@ class flag(object):
                         S_0['g'] = W0*np.sin(self.initial_kz*z)+self.A_noise*noise
                         d_S_0['g'] = W0*self.initial_kz*np.cos(self.initial_kz*z)+self.A_noise*noise
                     
-                    
-                    
             elif self.flow =='test_periodic':
                 z = domain.grid(0)
                 w_hat =solver.state['w_hat']
@@ -3210,6 +3296,60 @@ class flag(object):
                 p_hat['g']=self.F_sin*np.cos(self.ks*z)
                 T_hat['g']=self.F_sin*np.sin(self.ks*z)
                 d_T_hat['g']=self.F_sin*np.cos(self.ks*z)
+            elif self.flow=='HB_benard_shear_periodic':
+                z = domain.grid(0)
+
+                #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
+                u_tilde_real = solver.state['u_tilde_real']
+                d_u_tilde_real = solver.state['d_u_tilde_real']
+                v_tilde_real = solver.state['v_tilde_real']
+                d_v_tilde_real = solver.state['d_v_tilde_real']
+                w_hat_real = solver.state['w_hat_real']
+                p_hat_real = solver.state['p_hat_real']
+                T_hat_real = solver.state['T_hat_real']
+                d_T_hat_real = solver.state['d_T_hat_real']
+                S_hat_real = solver.state['S_hat_real']
+                d_S_hat_real = solver.state['d_S_hat_real']
+                
+                u_tilde_imag = solver.state['u_tilde_imag']
+                d_u_tilde_imag = solver.state['d_u_tilde_imag']
+                v_tilde_imag = solver.state['v_tilde_imag']
+                d_v_tilde_imag = solver.state['d_v_tilde_imag']
+                w_hat_imag = solver.state['w_hat_imag']
+                p_hat_imag = solver.state['p_hat_imag']
+                T_hat_imag = solver.state['T_hat_imag']
+                d_T_hat_imag = solver.state['d_T_hat_imag']
+                S_hat_imag = solver.state['S_hat_imag']
+                d_S_hat_imag = solver.state['d_S_hat_imag']
+                
+                T_0 = solver.state['T_0']
+                d_T_0 = solver.state['d_T_0']
+                S_0 = solver.state['S_0']
+                d_S_0 = solver.state['d_S_0']
+                
+                
+                gshape = domain.dist.grid_layout.global_shape(scales=1)
+                slices = domain.dist.grid_layout.slices(scales=1)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
+                
+                #A_w_hat=self.A_w_hat;
+
+                #without shear...
+                #u_tilde_real['g'] = self.kx*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                #d_u_tilde_real['g'] = self.kx*np.pi*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                #v_tilde_real['g'] = self.ky*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                #d_v_tilde_real['g'] = self.ky*W0*np.cos(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                w_hat_real['g'] = self.A_w_hat +self.A_noise*noise
+                #p_hat_real['g'] = (-np.pi*np.pi-self.kx*self.kx-self.ky*self.ky)*W0*np.sin(np.pi*z)/((self.kx*self.kx+self.ky*self.ky))+self.A_noise*noise
+                T_hat_real['g'] = self.k_elevator**2/self.Ra_T*self.A_w_hat +self.A_noise*noise
+                #d_T_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                #S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
+                #d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                
+                W_0=solver.state['W_0']
+                W_0['g']=self.A_w_mean
+                
             elif self.flow=='HB_benard_shear':
                 z = domain.grid(0)
 
@@ -3511,7 +3651,24 @@ class flag(object):
                             #logger.info('max|w|: {}'.format(flow_out.max('w')))
                             #logger.info('max|T|: {}'.format(flow_out.max('T')))
                             logger.info('Nu: {}'.format(-1/dy_T_mean_q))
-
+            elif self.flow in ['HB_benard_shear_periodic']:
+                #cfl is required for the IVP
+                cfl = flow_tools.CFL(solver,self.initial_dt,safety=0.8,max_change=1,cadence=8)
+                cfl.add_velocities(('u_tilde_real','u_tilde_imag','w_hat_real','w_hat_imag'))
+                while solver.ok:
+                    dt = cfl.compute_dt()    
+                    solver.step(dt)
+                    if solver.iteration % 1000 == 0:
+                        logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
+                        if self.flux_T:
+                            #dy_T_mean_q=-(1-np.sum(np.sum(solver.state['w']['g']*solver.state['T']['g']))/self.Nx/self.Nz)
+                            flow_out=self.flow_out
+                            dy_T_mean_q=flow_out.volume_average('wT')-1
+                            logger.info('dy_T_mean_q: {}'.format(dy_T_mean_q))
+                            #logger.info('max|w|: {}'.format(flow_out.max('w')))
+                            #logger.info('max|T|: {}'.format(flow_out.max('T')))
+                            logger.info('Nu: {}'.format(-1/dy_T_mean_q))
+                
             elif self.flow in ['HB_porous','HB_benard','HB_porous_shear','HB_benard_shear']:
                 #This harmonic balance is 1D simulation and thus no CFL condition is required.... 
                 while solver.ok:
@@ -3670,6 +3827,17 @@ class flag(object):
             analysis.add_task("u",layout='c',name='u_coeff')
             analysis.add_task("w",layout='c',name='w_coeff')
             analysis.add_task("p",layout='c',name='p_coeff')
+        elif self.flow in ['HB_benard_shear_periodic']:
+            analysis.add_system(solver.state)
+
+            if self.flux_T:
+                analysis.add_task('-(1-integ(2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag)/Lz)',layout='g',name='dy_T_mean_q')
+                flow_out = flow_tools.GlobalFlowProperty(solver, cadence=1)
+                flow_out.add_property('2*w_hat_real*T_hat_real+2*w_hat_imag*T_hat_imag',name='wT')
+                #flow_out.add_property('w',name='w')
+                #flow_out.add_property('T',name='T')
+                self.flow_out=flow_out
+            
         elif self.flow in ['HB_porous','HB_porous_shear','HB_benard','test_periodic','HB_benard_shear','HB_porous_2_layer','HB_porous_3_layer']:
             #For IVP and BVP, they have some small difference. IVP can also set the dt for storage.
             if self.problem == 'IVP':

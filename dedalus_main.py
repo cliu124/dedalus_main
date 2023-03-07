@@ -26,7 +26,8 @@ flag=dedalus_setup.flag()
 #flag.flow='test_periodic'
 
 #This is runing 2D DNS general formulation
-flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+flag.flow='HB_benard_shear_periodic'
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
@@ -396,6 +397,58 @@ elif flag.flow == 'porous_media_2D':
     flag.A_secondary_T=1
     flag.k_secondary=0.1795
     
+    
+elif flag.flow == 'HB_benard_shear_periodic':   
+    flag.Nz=128
+    flag.Lz=1
+    flag.tau=1
+    flag.Pr=1
+    flag.flux_T=1
+    flag.Pe_S=1
+    
+    flag.Re=1/flag.Pr
+    flag.Pe_T=1
+    
+    flag.Ra_T=4*10**4
+    flag.Ra_S2T=0#flag.Ra_T/R_rho_T2S
+    
+    #flag.kx=0.48*flag.Ra_T**0.4
+    flag.kx=10
+    flag.ky=0
+    flag.problem='IVP'
+    flag.z_bc_T_left='periodic'
+    flag.z_bc_T_right='periodic'
+    flag.z_bc_S_left='periodic'
+    flag.z_bc_S_right='periodic'
+    flag.z_bc_w_left='periodic'
+    flag.z_bc_w_right='periodic'
+    flag.z_bc_u_v_left='periodic'
+    flag.z_bc_u_v_right='periodic'
+    flag.z_basis_mode='Fourier'
+    if flag.problem =='IVP':
+        flag.initial_dt=1e-3
+        flag.post_store_dt=0.01
+        flag.stop_sim_time=10
+    
+    kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
+    Lx2d=1
+    n_elevator=1
+     
+    flag.k_elevator=n_elevator*flag.kx
+    flag.A_secondary_phase=0#phase for the second half domain
+    #w_hat=np.sqrt((1-flag.k_elevator**4/flag.Ra_T)/(2*flag.k_elevator**2/flag.Ra_T))
+    w_hat=np.sqrt((1-flag.kx**4/flag.Ra_T)/(2*flag.kx**2/flag.Ra_T))
+    #flag.A_elevator=2*w_hat
+    flag.A_w_hat=w_hat
+    #flag.dy_T_mean=-flag.k_elevator**4/flag.Ra_T
+
+    flag.A_noise=0
+    flag.store_variable='T_u_w'#only store S and u variable
+    flag.S_active=0
+    flag.A_w_mean=0 #This is mean vertical velocity
+    
+    flag.timesteppers ='RK443'
+
 
 elif flag.flow == 'double_diffusive_shear_2D':
     ##These are setup for testing the layering based on Radko (2016)
