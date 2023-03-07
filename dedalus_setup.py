@@ -1931,6 +1931,7 @@ class flag(object):
                 problem.parameters['ks']=self.ks
                 problem.parameters['U_bg']=0
                 problem.parameters['d_U_bg']=0
+                problem.parameters['Lz']=self.Lz
                 
                 problem.add_equation('dz(u_tilde_real)-d_u_tilde_real=0')
                 problem.add_equation('-Re*dt(u_tilde_real)+dz(d_u_tilde_real)-(kx*p_hat_real+(kx*kx+ky*ky)*u_tilde_real)=Re*(-kx*(U_bg+U_0)*u_tilde_imag+(d_U_bg+d_U_0)*w_hat_imag+W_0*d_u_tilde_real)')
