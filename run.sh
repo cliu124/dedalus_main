@@ -1,10 +1,10 @@
 conda activate dedalus2
 now=$(date +"%Y%m%d%H%M%S")
 WORKDIR= dedalus_$now
-mkdir -p "$WORKDIR"
-cp -r dedalus*.py "$WORKDIR"
-cp -r dedalus.cfg "$WORKDIR" 
-cd "$WORKDIR"
+mkdir $WORKDIR
+cp -r dedalus*.py $WORKDIR
+cp -r dedalus.cfg $WORKDIR 
+cd $WORKDIR
 mpiexec -n 1 python3 dedalus_main.py
 cd ..
 cp -r "$WORKDIR" /mnt/d/Data/dedalus
