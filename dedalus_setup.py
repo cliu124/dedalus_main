@@ -3310,32 +3310,15 @@ class flag(object):
                 z = domain.grid(0)
 
                 #initial guess for the HB_porous, harmonic balance method for double-diffusive convection within porous media
-                u_tilde_real = solver.state['u_tilde_real']
-                d_u_tilde_real = solver.state['d_u_tilde_real']
-                v_tilde_real = solver.state['v_tilde_real']
-                d_v_tilde_real = solver.state['d_v_tilde_real']
+                #u_tilde_real = solver.state['u_tilde_real']
+                #d_u_tilde_real = solver.state['d_u_tilde_real']
+                #v_tilde_real = solver.state['v_tilde_real']
+                #d_v_tilde_real = solver.state['d_v_tilde_real']
                 w_hat_real = solver.state['w_hat_real']
-                p_hat_real = solver.state['p_hat_real']
+                #p_hat_real = solver.state['p_hat_real']
                 T_hat_real = solver.state['T_hat_real']
-                d_T_hat_real = solver.state['d_T_hat_real']
-                S_hat_real = solver.state['S_hat_real']
-                d_S_hat_real = solver.state['d_S_hat_real']
+                #d_T_hat_real = solver.state['d_T_hat_real']
                 
-                u_tilde_imag = solver.state['u_tilde_imag']
-                d_u_tilde_imag = solver.state['d_u_tilde_imag']
-                v_tilde_imag = solver.state['v_tilde_imag']
-                d_v_tilde_imag = solver.state['d_v_tilde_imag']
-                w_hat_imag = solver.state['w_hat_imag']
-                p_hat_imag = solver.state['p_hat_imag']
-                T_hat_imag = solver.state['T_hat_imag']
-                d_T_hat_imag = solver.state['d_T_hat_imag']
-                S_hat_imag = solver.state['S_hat_imag']
-                d_S_hat_imag = solver.state['d_S_hat_imag']
-                
-                T_0 = solver.state['T_0']
-                d_T_0 = solver.state['d_T_0']
-                S_0 = solver.state['S_0']
-                d_S_0 = solver.state['d_S_0']
                 
                 
                 gshape = domain.dist.grid_layout.global_shape(scales=1)
