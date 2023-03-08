@@ -5,4 +5,5 @@ mpiexec -n 1 python3 dedalus_main.py
 mkdir -p "$now"
 cp -r analysis "$now"
 cp -r "$now" /mnt/d/Data/dedalus
+echo $now
 echo "finished"

@@ -1941,11 +1941,11 @@ class flag(object):
                 problem.add_equation('Re*dt(w_hat)+dz(p_hat)-(dz(dz(w_hat))-kx*kx*w_hat-ky*ky*w_hat)-Ra_T*T_hat=-Re*(U_0*1j*kx*w_hat+W_0*dz(w_hat))')
                 problem.add_equation('1j*kx*u_hat+1j*ky*v_hat+dz(w_hat)=0')
                 if self.flux_T:
-                    problem.add_equation('dt(T_hat)-w_hat-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-w_hat*integ(conj(w_hat)*T_hat+w_hat*conj(T_hat))/Lz-(U_0*1j*kx*T_hat+w_hat*dz(T_0))')
+                    problem.add_equation('dt(T_hat)-w_hat-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-w_hat*integ(conj(w_hat)*T_hat+w_hat*conj(T_hat))/Lz-(U_0*1j*kx*T_hat+w_hat*dz(T_0))-W_0*dz(T_hat)')
                 else:
-                    problem.add_equation('dt(T_hat)+w_hat*dy_T_mean-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-(U_0*1j*kx*T_hat+w_hat*dz(T_0))')
-                problem.add_equation('Re*dt(U_0)-dz(dz(U_0))=-Re*(dz(conj(w_hat)*u_hat+w_hat*conj(u_hat)))')
-                problem.add_equation('dt(T_0)-dz(dz(T_0))=-dz(conj(w_hat)*T_hat+w_hat*conj(T_hat))')
+                    problem.add_equation('dt(T_hat)+w_hat*dy_T_mean-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-(U_0*1j*kx*T_hat+w_hat*dz(T_0))-W_0*dz(T_hat)')
+                problem.add_equation('Re*dt(U_0)-dz(dz(U_0))=-Re*(dz(conj(w_hat)*u_hat+w_hat*conj(u_hat))+W_0*dz(U_0))')
+                problem.add_equation('dt(T_0)-dz(dz(T_0))=-dz(conj(w_hat)*T_hat+w_hat*conj(T_hat))-W_0*dz(T_0)')
                 problem.add_equation('dt(W_0)=0')
                 
                 

@@ -1,7 +1,10 @@
 clear all;
 close all;
 
-slurm_num={'20230307130932'};
+slurm_num={'20230307231811',...
+    '20230307232436',...
+    '20230307232924'};
+slurm_num={'20230307232924'};
 flag.print=1;
 flag.visible=0;
 flag.video=0;
@@ -16,8 +19,8 @@ for slurm_ind=1:length(slurm_num)
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[]);
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
