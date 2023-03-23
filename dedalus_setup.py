@@ -146,6 +146,8 @@ class flag(object):
         self.S_active=1
         
         self.A_w_mean=0
+        self.A_u_mean=0
+        
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -3335,7 +3337,7 @@ class flag(object):
                 #p_hat_real = solver.state['p_hat_real']
                 T_hat_real = solver.state['T_hat']
                 #d_T_hat_real = solver.state['d_T_hat_real']
-                
+                U_0 = solver.state['U_0']
                 
                 
                 gshape = domain.dist.grid_layout.global_shape(scales=1)
@@ -3356,6 +3358,7 @@ class flag(object):
                 #d_T_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_T_mean* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
                 #S_hat_real['g'] = 1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau*W0*np.sin(np.pi*z)+self.A_noise*noise
                 #d_S_hat_real['g'] =1/(-np.pi**2-(self.kx*self.kx+self.ky*self.ky))*self.dy_S_mean/self.tau* W0*np.pi*np.cos(np.pi*z)+self.A_noise*noise
+                U_0['g'] = self.A_u_mean*np.sin(2*np.pi*z)
                 
                 W_0=solver.state['W_0']
                 W_0['g']=self.A_w_mean

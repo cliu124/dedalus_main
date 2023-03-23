@@ -428,7 +428,7 @@ elif flag.flow == 'HB_benard_shear_periodic':
     if flag.problem =='IVP':
         flag.initial_dt=1e-3
         flag.post_store_dt=0.01
-        flag.stop_sim_time=10
+        flag.stop_sim_time=20
     
     kx_2D=np.sqrt(flag.kx*flag.kx+flag.ky*flag.ky)
     Lx2d=1
@@ -446,7 +446,7 @@ elif flag.flow == 'HB_benard_shear_periodic':
     flag.store_variable='T_u_w'#only store S and u variable
     flag.S_active=0
     flag.A_w_mean=0 #This is mean vertical velocity
-    
+    flag.A_u_mean=0 #This is the mean horizontal velocity
     flag.timesteppers ='RK443'
 
 
@@ -885,14 +885,17 @@ else:
     #flag.post_store_dt=0.000001/flag.Ra_T;
     #flag.stop_sim_time=0.00001/flag.Ra_T;
 
-domain=flag.build_domain()
-solver=flag.governing_equation(domain)
-flag.print_screen(logger)
-flag.initial_condition(domain,solver)
-flag.post_store(solver)
-flag.print_file() #move print file to here.
-flag.run(solver,domain,logger)
-flag.post_store_after_run(solver)
+for flag.Ra_T in [4,3.5,3.3,3.2,3.15,3.1,3.05,3]*10**4:
+#for Ra_T in reverse([4,3.5,3.3,3.2,3.15,3.1,3.05,3]*10**4):
+    domain=flag.build_domain()
+    solver=flag.governing_equation(domain)
+    flag.print_screen(logger)
+    flag.initial_condition(domain,solver)
+    flag.post_store(solver)
+    flag.print_file() #move print file to here.
+    flag.run(solver,domain,logger)
+    flag.post_store_after_run(solver)
+    flag.continuation=flag.continuation+1
 
 #------------ print these parameters in the screen
 #flag.ky=flag.kx                        

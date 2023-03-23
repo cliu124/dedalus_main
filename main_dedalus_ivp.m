@@ -504,13 +504,59 @@ slurm_num={'14739406'};
 slurm_num={'14739406'}; 
 slurm_num={'15144692'};
 % slurm_num={'15155150','15155156','15155162'};
-slurm_num={'15155148'};
+% slurm_num={'15192717'};
+% slurm_num={}
 %14768964, 14741865, 14768963
+slurm_num={'907867',
+'907878',
+'15154914',
+'15156185',
+'15156187',
+'15156193',
+'15156832',
+'15156833',
+'15156834',
+'15156835',
+'15157523',
+'15159128',
+'15159132',
+'15159726',
+'15163269',
+'15163270'
+};
+slurm_num={'15155309','15155314'};
+% slurm_num=slurm_num(end);
 flag.print=1; 
 flag.video=0;
 flag.visible=0;
 flag.no_ylabel=0;
 % 
+% 
+% for slurm_ind=1:length(slurm_num)
+%     h5_name=['D:\Data\dedalus\dedalus_',...
+%         slurm_num{slurm_ind},...
+%         '\analysis\analysis_s1.h5'];
+% 
+%      set(0,'DefaultFigureVisible','on')
+%      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
+%      dedalus_post_my{slurm_ind}.print=0; dedalus_post_my{slurm_ind}.visible=0;
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('u_x_ave',[0.25],[],[2]);
+%      
+%      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+%      data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
+%      data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+%      
+% end
+% data{1}.y=data{1}.y*2*pi;
+% plot_config.label_list={1,'$Ra_{T,q}$','$\omega$'};
+% plot_config.name='RBC_Ra_global_Ra_Tq_omega.png';
+% plot_line(data,plot_config);
+
+% data{2}.x=data{1}.x;
+% data{2}.y=1./(-log(abs(data{2}.x-46892.05)));
+
+% error('1');
 for slurm_ind=1:length(slurm_num)
     h5_name=['D:\Data\dedalus\dedalus_',...
         slurm_num{slurm_ind},...
@@ -533,7 +579,7 @@ for slurm_ind=1:length(slurm_num)
 %      dedalus_post_my{slurm_ind}.title_time=1;
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',5);
 end
-error('1');
+% error('1');
 for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'12247549'))]%slurm_ind=length(slurm_num)-2:length(slurm_num)-1
     %find(strcmp(slurm_num,'12136034'))
     %length(slurm_num)-1:length(slurm_num)-1
@@ -549,14 +595,14 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T',0);
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.E_time('T');
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T',[201,1000]);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T',[201,1000]);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('p');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('w');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[201]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('ww');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave_z_max('u',[],[]);
 
@@ -586,8 +632,8 @@ for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'1
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('rho');
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('T_tot',[0.1,0.3,0.5],[1,300]);
 
-     dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=0;
-     dedalus_post_my{slurm_ind}.video=1;
+     dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=1;
+     dedalus_post_my{slurm_ind}.video=0;
      dedalus_post_my{slurm_ind}.title_time=1;
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',5);
 

@@ -10,13 +10,14 @@ switch flag.name
     case 'growth_rate'
         n_elevator=1;
 %         Ra_T_q_list=8*10^8;
-        Ra_T_q_list=6*10^4;
-        Pr_list=1e-10;
+        Ra_T_q_list=1.98*10^4;
+        Pr_list=1;
         Lx_list=0.1*2*pi;
-        kz_list=(0.01:0.5:2*n_elevator)*2*pi;
+%         kz_list=(0.01:0.5:2*n_elevator)*2*pi;
+        kz_list=(0.01:1:3)*2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
         flag.no_shear_com=0; %compare the growth rate without shear flow
-        flag.viscous_unit=1;
+        flag.viscous_unit=0;
     case 'Lx'
         n_elevator=1;
         Ra_T_q_list=10^8;

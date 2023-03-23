@@ -287,6 +287,7 @@ classdef dedalus_post
         z_phase_diagram=0;
         
         A_w_mean=0;
+        A_u_mean=0;
         
         A_w_hat=0;
     end
@@ -967,8 +968,11 @@ classdef dedalus_post
             end
             if nargin<5 || isempty(t_range)
                t_range(1)=obj.t_list(1);
-               t_range(2)=obj.t_list(end); 
+               t_range(2)=obj.t_list(end);
+            elseif length(t_range)<2
+                t_range(2)=obj.t_list(end);
             end
+            
             if strcmp(x,'ave')
                 x_ind_list=1:length(obj.x_list);
             else
@@ -1000,12 +1004,19 @@ classdef dedalus_post
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
                         variable=squeeze(obj.(variable_name)(z_ind,x_ind,t_ind_begin:t_ind_end));
                         %plot_config.colormap='bluewhitered';
+                    case {'u_x_ave'}
+                        obj.(variable_name(1))=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
+                        variable=squeeze(mean(obj.(variable_name(1))(z_ind,:,t_ind_begin:t_ind_end),2));
+                    case 'U_0'    
+                        obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                        variable=obj.(variable_name)(z_ind,t_ind_begin:t_ind_end);
                     case {'S_tot','T_tot'}
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
                         variable=squeeze(obj.(variable_name)(z_ind,x_ind,t_ind_begin:t_ind_end))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
                         %plot_config.colormap='jet';
                 end
-                variable_uniform=interp1(t_list_dedalus,variable,t_list_uniform,'linear');
+                variable_uniform=variable;
+                %variable_uniform=interp1(t_list_dedalus,variable,t_list_uniform,'linear');
                 %variable_uniform=sin(2*pi*1/10*Fs*t_list_uniform); %This is to
                 %test fft results using sinusoidal functino
                 spec_tmp=abs(fft(variable_uniform)/Nt);
@@ -1023,7 +1034,23 @@ classdef dedalus_post
             else
                 plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_spectrum_t_at_z=',num2str(round(z,2)),'_x=',num2str(round(x,2)),'.png'];
             end
-            plot_config.xlim_list=[1,0,10];
+            %plot_config.xlim_list=[1,0,10];
+            plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
+            plot_line(data,plot_config);
+            
+            data{1}.x=t_list_dedalus;
+            data{1}.y=variable_uniform;
+            plot_config.label_list={1,'$t $','Var'};
+
+            if strcmp(x,'ave')
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_spectrum_t_history_at_z=',num2str(round(z,2)),'_x=',x,'.png'];
+            else
+                plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_spectrum_t_history_at_z=',num2str(round(z,2)),'_x=',num2str(round(x,2)),'.png'];
+            end
+            plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
+
             plot_line(data,plot_config);
             
             obj.freq=freq;
