@@ -885,8 +885,8 @@ else:
     #flag.post_store_dt=0.000001/flag.Ra_T;
     #flag.stop_sim_time=0.00001/flag.Ra_T;
 
-for flag.Ra_T in [4,3.5,3.3,3.2,3.15,3.1,3.05,3]*10**4:
-#for Ra_T in reverse([4,3.5,3.3,3.2,3.15,3.1,3.05,3]*10**4):
+for flag.Ra_T in [40000,35000,33000,32260,32255,32250,32000,31500,31000,30500,30000]:
+#for flag.Ra_T in reverse([40000,35000,33000,32260,32255,32250,32000,31500,31000,30500,30000]):
     domain=flag.build_domain()
     solver=flag.governing_equation(domain)
     flag.print_screen(logger)
