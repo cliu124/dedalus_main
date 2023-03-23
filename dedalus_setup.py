@@ -3628,8 +3628,10 @@ class flag(object):
             
             #Then load_state as the initial condition of IVP/initial guess of BVP
             write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
-              
-                    
+            
+            #also setup the sim_time=0
+            if self.problem=='IVP':
+                solver.sim_time=0
         
     def run(self,solver,domain,logger):
         ##This CFL condition need to be modified for different simulation configuration.
