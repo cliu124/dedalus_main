@@ -409,7 +409,7 @@ elif flag.flow == 'HB_benard_shear_periodic':
     flag.Re=1/flag.Pr
     flag.Pe_T=1
     
-    flag.Ra_T=4*10**4
+    flag.Ra_T=3.3*10**4
     flag.Ra_S2T=0#flag.Ra_T/R_rho_T2S
     
     #flag.kx=0.48*flag.Ra_T**0.4
@@ -885,17 +885,17 @@ else:
     #flag.post_store_dt=0.000001/flag.Ra_T;
     #flag.stop_sim_time=0.00001/flag.Ra_T;
 
-for flag.Ra_T in [40000,35000,33000,32260,32255,32250,32000,31500,31000,30500,30000]:
-#for flag.Ra_T in reverse([40000,35000,33000,32260,32255,32250,32000,31500,31000,30500,30000]):
-    domain=flag.build_domain()
-    solver=flag.governing_equation(domain)
-    flag.print_screen(logger)
-    flag.initial_condition(domain,solver)
-    flag.post_store(solver)
-    flag.print_file() #move print file to here.
-    flag.run(solver,domain,logger)
-    flag.post_store_after_run(solver)
-    flag.continuation=flag.continuation+1
+#for flag.Ra_T in [40000,35000,33000,32260,32255,32250,32000,31500,31000,30500,30000]:
+#for flag.Ra_T in reversed([40000,35000,33000,32260,32255,32250,32000,31500,31000,30500,30000]):
+domain=flag.build_domain()
+solver=flag.governing_equation(domain)
+flag.print_screen(logger)
+flag.initial_condition(domain,solver)
+flag.post_store(solver)
+flag.print_file() #move print file to here.
+flag.run(solver,domain,logger)
+flag.post_store_after_run(solver)
+    #flag.continuation=flag.continuation+1
 
 #------------ print these parameters in the screen
 #flag.ky=flag.kx                        
