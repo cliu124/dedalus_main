@@ -3574,7 +3574,6 @@ class flag(object):
                 z = domain.grid(1)
                 u = solver.state['u']
                 w = solver.state['w']
-                S = solver.state['S']
                 p = solver.state['p']
                 T = solver.state['T']
                 
@@ -3587,10 +3586,13 @@ class flag(object):
                 ##Add the random noise
                 u['g']=u['g']+self.A_noise*noise
                 w['g']=w['g']+self.A_noise*noise
-                S['g']=S['g']+self.A_noise*noise
                 T['g']=S['g']+self.A_noise*noise
                 p['g']=p['g']+self.A_noise*noise
                   
+                if self.S_active:
+                    S = solver.state['S']
+                    S['g']=S['g']+self.A_noise*noise
+
               
             if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
                 z = domain.grid(0)
