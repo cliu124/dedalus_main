@@ -3472,6 +3472,9 @@ class flag(object):
             print('restart')
             #self.EVP_trivial=0
             write, last_dt = solver.load_state('restart.h5', -1)
+            if self.problem=='IVP':
+                solver.sim_time=0
+                
             if self.A_noise !=0 and self.flow in ['HB_benard']:
                 gshape = domain.dist.grid_layout.global_shape(scales=1.5)
                 slices = domain.dist.grid_layout.slices(scales=1.5)
