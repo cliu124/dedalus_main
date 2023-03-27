@@ -148,6 +148,8 @@ class flag(object):
         self.A_w_mean=0
         self.A_u_mean=0
         
+        self.restart_t0=1
+        
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -3472,7 +3474,7 @@ class flag(object):
             print('restart')
             #self.EVP_trivial=0
             write, last_dt = solver.load_state('restart.h5', -1)
-            if self.problem=='IVP':
+            if self.restart_t0==1:
                 solver.sim_time=0
                 
             if self.A_noise !=0 and self.flow in ['HB_benard']:
@@ -3633,7 +3635,7 @@ class flag(object):
             write, last_dt = solver.load_state('./analysis/analysis_s1.h5', -1)
             
             #also setup the sim_time=0
-            if self.problem=='IVP':
+            if self.restart_t0==1:
                 solver.sim_time=0
         
     def run(self,solver,domain,logger):
