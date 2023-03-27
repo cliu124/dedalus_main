@@ -3593,7 +3593,31 @@ class flag(object):
                     S = solver.state['S']
                     S['g']=S['g']+self.A_noise*noise
 
-              
+             
+            if self.A_noise !=0 and self.flow in ['HB_benard_shear_periodic']:
+                x = domain.grid(0)
+                z = domain.grid(1)
+                u_hat = solver.state['u_hat']
+                w_hat = solver.state['w_hat']
+                p_hat = solver.state['p_hat']
+                T_hat = solver.state['T_hat']
+                
+                #Update 2022/05/05, we should use the same dealizing scales for all direction. the scales here should also be the same, thus 1.5
+                gshape = domain.dist.grid_layout.global_shape(scales=1.5)
+                slices = domain.dist.grid_layout.slices(scales=1.5)
+                rand = np.random.RandomState(seed=23)
+                noise = rand.standard_normal(gshape)[slices]
+                
+                ##Add the random noise
+                u_hat['g']=u_hat['g']+self.A_noise*noise
+                w_hat['g']=w_hat['g']+self.A_noise*noise
+                T_hat['g']=S_hat['g']+self.A_noise*noise
+                p_hat['g']=p_hat['g']+self.A_noise*noise
+                  
+                if self.S_active:
+                    S_hat = solver.state['S_hat']
+                    S_hat['g']=S_hat['g']+self.A_noise*noise
+
             if self.continuation_asymmetric ==1 and self.flow =='HB_benard':
                 z = domain.grid(0)
 
