@@ -8,3 +8,4 @@ cp -r analysis* "$now"
 cp -r "$now" /mnt/d/Data/dedalus
 echo $now
 echo "finished"
+rm -rf restart.h5
