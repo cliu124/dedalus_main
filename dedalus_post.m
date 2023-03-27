@@ -290,6 +290,7 @@ classdef dedalus_post
         A_u_mean=0;
         
         A_w_hat=0;
+        restart_t0=1;
     end
     
     methods

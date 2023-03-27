@@ -30,33 +30,34 @@ slurm_num={'20230314185834',
 '20230314233351',
 '20230315000200'
 };
+slurm_num={'20230326222249'};
 flag.print=1;
 flag.visible=0;
 flag.video=0;
 flag.no_ylabel=0;
 flag.post_plot=1;
 
-for slurm_ind=[15,20,21]%1:length(slurm_num)
-    h5_name=['D:\Data\dedalus\dedalus_',...
-        slurm_num{slurm_ind},...
-        '\analysis\analysis_s1.h5'];
-
-     set(0,'DefaultFigureVisible','on')
-     dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
-     dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=1;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
-     
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
-     data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
-     data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
-     
-end
-data{1}.y=data{1}.y*2*pi;
-plot_config.label_list={1,'$Ra_{T,q}$','$\omega$'};
-plot_config.name='RBC_Ra_global_SM_Ra_Tq_omega.png';
-plot_line(data,plot_config);
-error('1');
+% for slurm_ind=1:length(slurm_num)
+%     h5_name=['D:\Data\dedalus\dedalus_',...
+%         slurm_num{slurm_ind},...
+%         '\analysis\analysis_s1.h5'];
+% 
+%      set(0,'DefaultFigureVisible','on')
+%      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
+% %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
+%      dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=1;
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
+%      
+%      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+%      data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
+%      data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+%      
+% end
+% data{1}.y=data{1}.y*2*pi;
+% plot_config.label_list={1,'$Ra_{T,q}$','$\omega$'};
+% plot_config.name='RBC_Ra_global_SM_Ra_Tq_omega.png';
+% plot_line(data,plot_config);
+% error('1');
 
 for slurm_ind=1:length(slurm_num)
     h5_name=['D:\Data\dedalus\dedalus_',...
