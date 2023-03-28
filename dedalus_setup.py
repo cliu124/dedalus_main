@@ -3595,8 +3595,8 @@ class flag(object):
 
              
             if self.A_noise !=0 and self.flow in ['HB_benard_shear_periodic']:
-                x = domain.grid(0)
-                z = domain.grid(1)
+                #x = domain.grid(0)
+                z = domain.grid(0)
                 u_hat = solver.state['u_hat']
                 w_hat = solver.state['w_hat']
                 p_hat = solver.state['p_hat']
@@ -3611,7 +3611,7 @@ class flag(object):
                 ##Add the random noise
                 u_hat['g']=u_hat['g']+self.A_noise*noise
                 w_hat['g']=w_hat['g']+self.A_noise*noise
-                T_hat['g']=S_hat['g']+self.A_noise*noise
+                T_hat['g']=T_hat['g']+self.A_noise*noise
                 p_hat['g']=p_hat['g']+self.A_noise*noise
                   
                 if self.S_active:
