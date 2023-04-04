@@ -3715,7 +3715,8 @@ class flag(object):
                             #logger.info('max|w|: {}'.format(flow_out.max('w')))
                             #logger.info('max|T|: {}'.format(flow_out.max('T')))
                             logger.info('Nu: {}'.format(-1/dy_T_mean_q))
-                
+                            logger.info('U_0(z=0.25): {}'.format(solver.state['U_0']['g'][round(self.Nz/4)]))
+            
             elif self.flow in ['HB_porous','HB_benard','HB_porous_shear','HB_benard_shear']:
                 #This harmonic balance is 1D simulation and thus no CFL condition is required.... 
                 while solver.ok:

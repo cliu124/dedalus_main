@@ -291,6 +291,8 @@ classdef dedalus_post
         
         A_w_hat=0;
         restart_t0=1;
+        
+        period_t=0;
     end
     
     methods
@@ -999,6 +1001,7 @@ classdef dedalus_post
 %                 plot_config.label_list={1,'$t$','$x$'};
 %             end
             spec_t=0;
+            period_t=0;
             for x_ind=x_ind_list
                 switch variable_name
                     case {'u','v','w','S','T','p'}
@@ -1024,8 +1027,12 @@ classdef dedalus_post
                 spec_tmp=spec_tmp(1:Nt/2+1);
                 spec_tmp(2:end-1)=2*spec_tmp(2:end-1);
                 spec_t=spec_t+spec_tmp;
+                
+                ind_local_max=islocalmax(real(variable_uniform));
+                period_t=period_t+mean(diff(t_list_uniform(ind_local_max)));
             end
             spec_t=spec_t/length(x_ind_list);
+            period_t=period_t/length(x_ind_list);
             data{1}.x=freq;
             data{1}.y=spec_t;
             plot_config.label_list={1,'$f $','PSD'};
@@ -1058,6 +1065,8 @@ classdef dedalus_post
             obj.spec_t=spec_t;
             [spec_t_sort,ind]=sort(spec_t,'descend');
             obj.freq_sort=obj.freq(ind); %the corresponding frequency in descending way... 
+        
+            obj.period_t=period_t;
         end
         
         
