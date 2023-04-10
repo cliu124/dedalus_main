@@ -3854,7 +3854,14 @@ class flag(object):
                 analysis.add_task('T',layout='g',name='T')
                 analysis.add_task('u',layout='g',name='u')
                 analysis.add_task('w',layout='g',name='w')
-              
+            elif self.store_variable =='T_u_w_coeff':
+                analysis.add_task('T',layout='g',name='T')
+                analysis.add_task('u',layout='g',name='u')
+                analysis.add_task('w',layout='g',name='w')
+                analysis.add_task('T',layout='c',name='T_coeff')
+                analysis.add_task('u',layout='c',name='u_coeff')
+                analysis.add_task('w',layout='c',name='w_coeff')
+                                
             if (self.flux_T):
                 analysis.add_task('-(1-integ(w*T)/Lx/Lz)',layout='g',name='dy_T_mean_q')
                 flow_out = flow_tools.GlobalFlowProperty(solver, cadence=1)

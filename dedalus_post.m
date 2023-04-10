@@ -916,7 +916,7 @@ classdef dedalus_post
                     %plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(round(obj.t_list(t_ind))),'_no_ylabel.png'];
                     %plot_contour(data,plot_config);
                 end
-               plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_video.avi'];
+               plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_video.mp4'];
                plot_video(snapshot,plot_config);
             end
             
@@ -1116,9 +1116,9 @@ classdef dedalus_post
                     plot_config.visible=obj.visible;
                     frame_spectrum_1D(t_ind)=plot_line(data,plot_config);
                 end
-               plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_2D_t_video.avi'];
+               plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_2D_t_video.mp4'];
                plot_video(frame_spectrum_2D,plot_config);
-               plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_1D_t_video.avi'];
+               plot_config.name=[obj.h5_name(1:end-3),'_spectrum_',variable_name,'_1D_t_video.mp4'];
                plot_video(frame_spectrum_1D,plot_config);
            end
         end
@@ -1424,7 +1424,7 @@ classdef dedalus_post
 
                     E_time(t_ind)=plot_line(data,plot_config);
                 end
-               plot_config.name=[obj.h5_name(1:end-3),'_E_',variable_name,'_t_video.avi'];
+               plot_config.name=[obj.h5_name(1:end-3),'_E_',variable_name,'_t_video.mp4'];
                plot_video(E_time,plot_config);
             end
             
@@ -1592,6 +1592,7 @@ classdef dedalus_post
             plot_config.print_size=[1,1600,1600];
 %             plot_config.ztick_list=[1,-0.001,0.001];
             plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_x_ave.png'];
             plot_config.ylim_list=[1,round(min(data{1}.y),1),round(max(data{1}.y),1)];
             if round(min(data{1}.x),1)==round(max(data{1}.x),1)
@@ -2052,7 +2053,7 @@ classdef dedalus_post
                         plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_x_ave_',num2str(round(obj.t_list(t_ind))),'.png'];
                         snapshot(t_ind)=plot_line(data,plot_config);
                     end
-                   plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_video.avi'];
+                   plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_video.mp4'];
                    plot_video(snapshot,plot_config);
                 end
                 otherwise
@@ -2106,12 +2107,22 @@ classdef dedalus_post
                 end
             
             else
+                %Update 2023/04/07, take the average over the first and the
+                %end of the local maximum. 
                 if strcmp(obj.flow,'HB_benard_shear_periodic')
-                    d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,t_ind_begin:t_ind_end))));
                     obj.Nu_T_t=(-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,t_ind_begin:t_ind_end)));
+                    Nu_mid=(max(obj.Nu_T_t)+min(obj.Nu_T_t))/2;
+                    ind_local_min=find(islocalmin(obj.Nu_T_t).*(obj.Nu_T_t<Nu_mid));
+                    obj.Nu_T_t=obj.Nu_T_t(ind_local_min(1):ind_local_min(end));
+                    %d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,t_ind_begin:t_ind_end))));
+                    d_variable_data_total_xt_ave=mean(obj.Nu_T_t);
                 else
-                    d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end))));
                     obj.Nu_T_t=(-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
+                    Nu_mid=(max(obj.Nu_T_t)+min(obj.Nu_T_t))/2;
+                    ind_local_min=find(islocalmin(obj.Nu_T_t).*(obj.Nu_T_t<Nu_mid));
+                    obj.Nu_T_t=obj.Nu_T_t(ind_local_min(1):ind_local_min(end));
+                    %d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end))));
+                    d_variable_data_total_xt_ave=mean(obj.Nu_T_t);
                 end
                  switch variable_name
                     case 'T'
@@ -2126,9 +2137,15 @@ classdef dedalus_post
                  
             end
             data{1}.x=obj.t_list(t_ind_begin:t_ind_end);
+            
+            %Update 2023/04/07, take from one local max to the end of local
+            %maximum. 
+            data{1}.x=data{1}.x(ind_local_min(1):ind_local_min(end));
             data{1}.y=obj.Nu_T_t;
             plot_config.label_list={1,'$t$','$nu(t)$'};
             plot_config.name=[obj.h5_name(1:end-3),'Nu_T_t.png'];
+            plot_config.print=obj.print;
+            plot_config.visible=obj.visible;
             plot_line(data,plot_config);
             
         end

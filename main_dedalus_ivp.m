@@ -525,7 +525,8 @@ slurm_num={'907867',
 '15163270'
 };
 slurm_num={'15155309','15155314'};
-slurm_num={'15163270'};
+slurm_num={'15263842'};
+% slurm_num={};
 % slurm_num=slurm_num(end);
 flag.print=1; 
 flag.video=0;
@@ -580,7 +581,7 @@ for slurm_ind=1:length(slurm_num)
 %      dedalus_post_my{slurm_ind}.title_time=1;
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',5);
 end
-% error('1');
+error('1');
 for slurm_ind=1:length(slurm_num)%:length(slurm_num)-1%[find(strcmp(slurm_num,'12247549'))]%slurm_ind=length(slurm_num)-2:length(slurm_num)-1
     %find(strcmp(slurm_num,'12136034'))
     %length(slurm_num)-1:length(slurm_num)-1

@@ -28,8 +28,39 @@ slurm_num={'20230314185834',
 '20230314231644',
 '20230314232329',
 '20230314233351',
-'20230315000200'
+'20230315000200',
+'20230403232615',
+'20230404164722',
+'20230404181136',
+'20230404181720',
+'20230404182254',
+'20230404183245'
 };
+slurm_num={'15245854',
+'15287990',
+'15287991',
+'15287998',
+'14739406',
+% '907837',
+'907867',
+'907878',
+'15154914',
+'15156185',
+'15156187',
+'15156193',
+'15156832',
+'15156833',
+'15156834',
+'15156835',
+'15157523',
+'15159128',
+'15159132',
+'15159726',
+'15163269',
+'15163270'
+};
+% slurm_num={'15295279'}
+% slurm_num=slurm_num(end);
 % slurm_num={'20230326211527'};
 % slurm_num={'15241562'};
 % slurm_num={'15243701',
@@ -66,7 +97,7 @@ slurm_num={'20230314185834',
 % '15247418',
 % '15247419'};
 % slurm_num=slurm_num(5:end);
-% slurm_num={'15249573'};
+% slurm_num={'20230404181720'};
 flag.print=0;
 flag.visible=0;
 flag.video=0;
@@ -81,19 +112,34 @@ for slurm_ind=1:length(slurm_num)
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
-     dedalus_post_my{slurm_ind}.print=1; dedalus_post_my{slurm_ind}.visible=1;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
+     dedalus_post_my{slurm_ind}.print=0;
+     dedalus_post_my{slurm_ind}.visible=1;
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
      
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
      %data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
-     data{1}.y(slurm_ind)=1/dedalus_post_my{slurm_ind}.period_t;
+     data{1}.y(slurm_ind)=2*pi/dedalus_post_my{slurm_ind}.period_t;
      data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[200]);
+     data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.Nu;
      
 end
-data{1}.y=data{1}.y*2*pi;
+% data{2}.x=data{1}.x;
+data_Nu{1}.x=data{1}.x;
+data{2}.x=data{1}.x(11:end);
+Ra_g=46761.08197624250000;
+data{2}.y=50./(-log(Ra_g-data{2}.x));
+% data{2}.y=data{2}.y/data{2}.y(end)*data{1}.y(end);
 plot_config.label_list={1,'$Ra_{T,q}$','$\omega$'};
 plot_config.name='RBC_Ra_global_SM_Ra_Tq_omega.png';
+plot_config.user_color_style_marker_list={'msquare','k*'};
+plot_config.Markerindex=3;
+plot_config.print=1;
+plot_config.xlim_list=[1,Ra_g-0.01,Ra_g];
 plot_line(data,plot_config);
+
+
 error('1');
 
 for slurm_ind=1:length(slurm_num)
