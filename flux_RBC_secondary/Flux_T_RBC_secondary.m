@@ -10,14 +10,14 @@ switch flag.name
     case 'growth_rate'
         n_elevator=1;
 %         Ra_T_q_list=8*10^8;
-        Ra_T_q_list=1.98*10^4;
-        Pr_list=1;
+        Ra_T_q_list=4*10^4;
+        Pr_list=0;
         Lx_list=0.1*2*pi;
 %         kz_list=(0.01:0.5:2*n_elevator)*2*pi;
         kz_list=(0.01:1:3)*2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
         flag.no_shear_com=0; %compare the growth rate without shear flow
-        flag.viscous_unit=0;
+        flag.viscous_unit=1;
     case 'Lx'
         n_elevator=1;
         Ra_T_q_list=10^8;
@@ -110,7 +110,14 @@ if ~strcmp(flag.solve,'finished')
                         M=blkdiag(I,I,I);
 
                         if flag.viscous_unit
-                            w_hat=sqrt(-kx_mean^2/2+Ra_T_q/2/kx_mean^2)/Pr;
+                            if Pr~=0
+                                w_hat=sqrt(-kx_mean^2/2+Ra_T_q/2/kx_mean^2)/Pr;
+                                wT_int=(1-kx_mean^4/Ra_T_q)/Pr^2;
+                            else
+                                %Pr=0, this is singular limit.
+                                w_hat=sqrt(-kx_mean^2/2+Ra_T_q/2/kx_mean^2);
+                                wT_int=(1-kx_mean^4/Ra_T_q);
+                            end
                             T_hat=kx_mean^2/Ra_T_q*w_hat; %Note that this is computed based on w_hat, so no need to divied by Pr again
                             %dy_T_mean_q=kx_mean^4/Ra_T_q;
                             W_mean=2*w_hat*cos(kx_mean*x);
@@ -118,7 +125,6 @@ if ~strcmp(flag.solve,'finished')
                             dd_W_mean=-2*w_hat*kx_mean^2*cos(kx_mean*x);
                             %T_mean=2*T_hat*cos(kx_mean*x);
                             d_T_mean=-2*T_hat*kx_mean*sin(kx_mean*x);
-                            wT_int=(1-kx_mean^4/Ra_T_q)/Pr^2;
                             
                             A11=Laplacian_inv*(-1i*kz*diag(W_mean)*Laplacian+1i*kz*diag(dd_W_mean)+Laplacian_square);
                             A12=O;

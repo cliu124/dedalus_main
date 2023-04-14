@@ -70,8 +70,9 @@ slurm_num={
 % slurm_num=slurm_num(5:end);
 % slurm_num={'20230404181720'};
 % slurm_num={'20230410120319'};
-flag.print=0;
-flag.visible=0;
+slurm_num={'20230413221427'};
+flag.print=1;
+flag.visible=1;
 flag.video=0;
 flag.no_ylabel=0;
 flag.post_plot=1;
@@ -84,16 +85,18 @@ for slurm_ind=1:length(slurm_num)
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
-     dedalus_post_my{slurm_ind}.print=0;
-     dedalus_post_my{slurm_ind}.visible=1;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
+%      dedalus_post_my{slurm_ind}.print=0;
+%      dedalus_post_my{slurm_ind}.visible=1;
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
      
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T',[]);
+
      %data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
-     data{1}.y(slurm_ind)=2*pi/dedalus_post_my{slurm_ind}.period_t;
-     data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[200]);
+     %data{1}.y(slurm_ind)=2*pi/dedalus_post_my{slurm_ind}.period_t;
+%      data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[1]);
      %data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.Nu;
      
 end

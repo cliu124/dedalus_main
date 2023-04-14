@@ -70,8 +70,9 @@ slurm_num={
 % slurm_num=slurm_num(5:end);
 % slurm_num={'20230404181720'};
 % slurm_num={'20230410120319'};
-flag.print=0;
-flag.visible=0;
+slurm_num={'20230413203233'};
+flag.print=1;
+flag.visible=1;
 flag.video=0;
 flag.no_ylabel=0;
 flag.post_plot=1;
@@ -84,38 +85,44 @@ for slurm_ind=1:length(slurm_num)
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
-     dedalus_post_my{slurm_ind}.print=0;
-     dedalus_post_my{slurm_ind}.visible=1;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
+%      dedalus_post_my{slurm_ind}.print=0;
+%      dedalus_post_my{slurm_ind}.visible=1;
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
      
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[]);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[]);
      %data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
      data{1}.y(slurm_ind)=2*pi/dedalus_post_my{slurm_ind}.period_t;
      data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[200]);
-     data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.Nu;
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[200]);
+     %data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.Nu;
      
 end
 % data{2}.x=data{1}.x;
 data_Nu{1}.x=data{1}.x;
 % data{2}.x=data{1}.x(11:end);
-Ra_g=46761.0819762430000;
-modelfun = @(b,x)(b(1)./(-log(Ra_g-x)));
-mdl = fitnlm(data{1}.x(5:end),data{1}.y(5:end),modelfun,[80]);
+Ra_g=46761.08197624290000;
+fit_ind=8:length(data{1}.x);
+modelfun = @(b,x)(b(1)./(-log(b(2)-x)));
+mdl = fitnlm(data{1}.x(fit_ind),data{1}.y(fit_ind),modelfun,[80,Ra_g]);
 
-data{2}.x=data{1}.x(7:end);
-data{2}.y=43.5318550398883./(-log(Ra_g-data{2}.x));
+data{2}.x=data{1}.x(fit_ind);
+data{2}.y=80./(-log(Ra_g-data{2}.x));
 % factor=data{1}.y(end-1)/data{2}.y(end-1);
 % data{2}.y=factor*data{2}.y;
 plot_config.label_list={1,'$Ra_{T,q}$','$\omega$'};
 plot_config.name='RBC_Ra_global_SM_Ra_Tq_omega.png';
-plot_config.user_color_style_marker_list={'msquare','k*'};
+plot_config.user_color_style_marker_list={'msquare','k--'};
 plot_config.Markerindex=3;
 plot_config.print=1;
 plot_config.xlim_list=[1,Ra_g-0.01,Ra_g];
 plot_line(data,plot_config);
+% 
+% data{1}.x=data{1}.x(fit_ind);
+% data{1}.y=data{1}.y(fit_ind);
+% plot_config.user_color_style_marker_list={'msquare','k--'};
 
+plot_line(data,plot_config);
 
 error('1');
 

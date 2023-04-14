@@ -3690,7 +3690,8 @@ class flag(object):
             #elif self.flow =='HB_benard':
             #    cfl.add_velocities(('w_hat','u_tilde','v_tilde'))
                 while solver.ok:
-                    dt = cfl.compute_dt()    
+                    if self.Pe_T!=0:
+                        dt = cfl.compute_dt()    
                     solver.step(dt)
                     if solver.iteration % 1000 == 0:
                         logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
