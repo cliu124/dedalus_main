@@ -406,8 +406,18 @@ elif flag.flow == 'HB_benard_shear_periodic':
     flag.flux_T=1
     flag.Pe_S=1
     
-    flag.Re=1/flag.Pr
-    flag.Pe_T=1
+    #Thermal diffusivity unit
+    #flag.Re=1/flag.Pr
+    #flag.Pe_T=1
+    
+    #Thermal diffusivity unit, infinite Prandtl number
+    #flag.Re=0
+    #flag.Pe_T=1
+    
+    #Viscous unit, zero Prandtl number
+    flag.Re=1
+    flag.Pe_T=0
+    
     
     flag.Ra_T=3.3*10**4
     flag.Ra_S2T=0#flag.Ra_T/R_rho_T2S

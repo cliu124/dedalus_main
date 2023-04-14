@@ -8,15 +8,7 @@ slurm_num={'20230320172744'};
 % slurm_num={'20230308000459'};
 % slurm_num={'20230308101259'};
 slurm_num={'20230320172744'};
-slurm_num={'20230314185834',
-'20230314190117',
-'20230314190403',
-'20230314190655',
-'20230314190928',
-'20230314191201',
-'20230314191934',
-'20230314193155',
-'20230314200855',
+slurm_num={
 '20230314201731',
 '20230314211543',
 '20230314213422',
@@ -36,29 +28,8 @@ slurm_num={'20230314185834',
 '20230404182254',
 '20230404183245'
 };
-slurm_num={'15245854',
-'15287990',
-'15287991',
-'15287998',
-'14739406',
-% '907837',
-'907867',
-'907878',
-'15154914',
-'15156185',
-'15156187',
-'15156193',
-'15156832',
-'15156833',
-'15156834',
-'15156835',
-'15157523',
-'15159128',
-'15159132',
-'15159726',
-'15163269',
-'15163270'
-};
+% slurm_num=slurm_num(end-6:end-7);
+% slurm_num={'15249573'};
 % slurm_num={'15295279'}
 % slurm_num=slurm_num(end);
 % slurm_num={'20230326211527'};
@@ -98,6 +69,7 @@ slurm_num={'15245854',
 % '15247419'};
 % slurm_num=slurm_num(5:end);
 % slurm_num={'20230404181720'};
+% slurm_num={'20230410120319'};
 flag.print=0;
 flag.visible=0;
 flag.video=0;
@@ -114,31 +86,42 @@ for slurm_ind=1:length(slurm_num)
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
      dedalus_post_my{slurm_ind}.print=0;
      dedalus_post_my{slurm_ind}.visible=1;
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
      
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[]);
      %data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
      data{1}.y(slurm_ind)=2*pi/dedalus_post_my{slurm_ind}.period_t;
      data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[200]);
-     data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.Nu;
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
+%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[200]);
+     %data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.Nu;
      
 end
 % data{2}.x=data{1}.x;
 data_Nu{1}.x=data{1}.x;
-data{2}.x=data{1}.x(11:end);
-Ra_g=46761.08197624250000;
-data{2}.y=50./(-log(Ra_g-data{2}.x));
-% data{2}.y=data{2}.y/data{2}.y(end)*data{1}.y(end);
+% data{2}.x=data{1}.x(11:end);
+Ra_g=46761.08197624290000;
+fit_ind=8:length(data{1}.x);
+modelfun = @(b,x)(b(1)./(-log(b(2)-x)));
+mdl = fitnlm(data{1}.x(fit_ind),data{1}.y(fit_ind),modelfun,[80,Ra_g]);
+
+data{2}.x=data{1}.x(fit_ind);
+data{2}.y=80./(-log(Ra_g-data{2}.x));
+% factor=data{1}.y(end-1)/data{2}.y(end-1);
+% data{2}.y=factor*data{2}.y;
 plot_config.label_list={1,'$Ra_{T,q}$','$\omega$'};
 plot_config.name='RBC_Ra_global_SM_Ra_Tq_omega.png';
-plot_config.user_color_style_marker_list={'msquare','k*'};
+plot_config.user_color_style_marker_list={'msquare','k--'};
 plot_config.Markerindex=3;
 plot_config.print=1;
 plot_config.xlim_list=[1,Ra_g-0.01,Ra_g];
 plot_line(data,plot_config);
+% 
+% data{1}.x=data{1}.x(fit_ind);
+% data{1}.y=data{1}.y(fit_ind);
+% plot_config.user_color_style_marker_list={'msquare','k--'};
 
+plot_line(data,plot_config);
 
 error('1');
 

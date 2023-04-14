@@ -293,6 +293,10 @@ classdef dedalus_post
         restart_t0=1;
         
         period_t=0;
+        
+        %u_coeff;
+        %w_coeff;
+        T_coeff;
     end
     
     methods
@@ -901,7 +905,7 @@ classdef dedalus_post
                     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
                     
                     if obj.title_time
-                        plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
+                        plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind),2))]};
                     else
                         plot_config.title_list={0};
                     end
@@ -1199,8 +1203,15 @@ classdef dedalus_post
                 plot_contour(data,plot_config);
 
             elseif strcmp(obj.z_basis_mode,'Fourier')
-                obj.([variable_name,'_coeff'])=h5read_complex(obj.h5_name,['/tasks/',variable_name,'_coeff']);
-
+                try 
+                    obj.([variable_name,'_coeff'])=h5read_complex(obj.h5_name,['/tasks/',variable_name,'_coeff']);
+                catch
+                    obj.([variable_name])=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                    for t_ind=1:length(obj.t_list)
+                        spectrum_tmp=fft2(obj.(variable_name)(:,:,t_ind));
+                    end
+                    obj.([variable_name,'_coeff'])=spectrum_tmp(1:obj.Nz-1,1:obj.Nx/2)/obj.Nx/obj.Nz;
+                end
                 data{1}.x=obj.kx_list;
                 data{1}.y=obj.kz_list(1:obj.Nz/2);
                 plot_config.label_list={1,'$k_x$','$k_z$'};
