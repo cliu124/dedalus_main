@@ -1949,7 +1949,12 @@ class flag(object):
                 else:
                     problem.add_equation('dt(T_hat)+w_hat*dy_T_mean-(dz(dz(T_hat))-kx*kx*T_hat-ky*ky*T_hat)=-(U_0*1j*kx*T_hat+w_hat*dz(T_0))-W_0*dz(T_hat)')
                 problem.add_equation('Re*dt(U_0)-dz(dz(U_0))=-Re*(dz(conj(w_hat)*u_hat+w_hat*conj(u_hat))+W_0*dz(U_0))')
-                problem.add_equation('Pe_T*dt(T_0)-dz(dz(T_0))=-Pe_T*dz(conj(w_hat)*T_hat+w_hat*conj(T_hat))-Pe_T*W_0*dz(T_0)')
+                if self.Pe_T==0:
+                    problem.add_equation('Pe_T*dt(T_0)-dz(dz(T_0))=-Pe_T*dz(conj(w_hat)*T_hat+w_hat*conj(T_hat))-Pe_T*W_0*dz(T_0)',condition="nz!=0")
+                    problem.add_equation('T_0',condition="nz==0")
+                else:
+                    problem.add_equation('Pe_T*dt(T_0)-dz(dz(T_0))=-Pe_T*dz(conj(w_hat)*T_hat+w_hat*conj(T_hat))-Pe_T*W_0*dz(T_0)')
+                
                 problem.add_equation('dt(W_0)=0')
                 
                 

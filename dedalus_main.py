@@ -419,7 +419,7 @@ elif flag.flow == 'HB_benard_shear_periodic':
     flag.Pe_T=0
     
     
-    flag.Ra_T=3.3*10**4
+    flag.Ra_T=4*10**4
     flag.Ra_S2T=0#flag.Ra_T/R_rho_T2S
     
     #flag.kx=0.48*flag.Ra_T**0.4
