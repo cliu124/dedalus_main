@@ -297,6 +297,8 @@ classdef dedalus_post
         %u_coeff;
         %w_coeff;
         T_coeff;
+        
+        growth_rate;
     end
     
     methods
@@ -2126,7 +2128,7 @@ classdef dedalus_post
                     ind_local_min=find(islocalmin(obj.Nu_T_t).*(obj.Nu_T_t<Nu_mid));
                     obj.Nu_T_t=obj.Nu_T_t(ind_local_min(1):ind_local_min(end));
                     %d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,t_ind_begin:t_ind_end))));
-                    d_variable_data_total_xt_ave=mean(obj.Nu_T_t);
+                   d_variable_data_total_xt_ave=mean(obj.Nu_T_t);
                 else
                     obj.Nu_T_t=(-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
                     Nu_mid=(max(obj.Nu_T_t)+min(obj.Nu_T_t))/2;
@@ -2161,7 +2163,40 @@ classdef dedalus_post
             
         end
         
-        
+        function obj=elevator_growing(obj,variable_name)
+            if strcmp(obj.flow,'HB_benard_shear_periodic')
+                variable_name=[variable_name,'_hat'];
+                obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                data{1}.y=squeeze(max(obj.(variable_name)));
+            else
+                obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name]);
+                data{1}.y=squeeze(max(max(obj.(variable_name))));
+            end
+            data{1}.x=obj.t_list;
+            plot_config.loglog=[0,1];
+            switch variable_name
+                case 'w_hat'
+                    ylabel=['$max_z \;\hat{w}$'];
+                case 'T_hat'
+                    ylabel=['$max_z \; \hat{T}$'];
+                case 'T'
+                    ylabel=['$max_{z,x}\;T$'];
+                case 'w'
+                    ylabel=['$max_{z,x}\;w$'];
+            end
+            plot_config.label_list={1,'$t$',ylabel};
+            plot_config.ytick_list=[1,0.1,1,10,10^2,10^3,10^4,10^5,10^6,10^7,10^8,10^9,10^10];
+            plot_config.name=[obj.h5_name(1:end-3),variable_name,'_elevator_growing.png'];
+            plot_line(data,plot_config);
+            X=[data{1}.x(2:end),ones(size(data{1}.x(2:end)))];
+            if size(data{1}.y,2)>1
+                Y=log(data{1}.y(2:end))';
+            else
+                Y=log(data{1}.y(2:end));
+            end
+            fit=X\Y;
+            obj.growth_rate=fit(1);
+        end
         
         function obj=get_G(obj)
             %This is checking the residue

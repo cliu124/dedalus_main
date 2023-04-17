@@ -3591,7 +3591,7 @@ class flag(object):
                 ##Add the random noise
                 u['g']=u['g']+self.A_noise*noise
                 w['g']=w['g']+self.A_noise*noise
-                T['g']=S['g']+self.A_noise*noise
+                T['g']=T['g']+self.A_noise*noise
                 p['g']=p['g']+self.A_noise*noise
                   
                 if self.S_active:

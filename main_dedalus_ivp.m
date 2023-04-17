@@ -526,12 +526,12 @@ slurm_num={'907867',
 };
 slurm_num={'15155309','15155314'};
 slurm_num={'15295430'};
-
+slurm_num={'15313466'}
 % slurm_num={'15249573'};
 % slurm_num={};
 % slurm_num=slurm_num(end);
 flag.print=1; 
-flag.video=1;
+flag.video=0;
 flag.visible=1;
 flag.no_ylabel=0;
 % 
@@ -569,11 +569,12 @@ for slurm_ind=1:length(slurm_num)
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
-%      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('ww');
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',5);
-     
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     dedalus_post_my{slurm_ind}.title_time=0;
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[],[7670:1:7900]);
+%      error('1');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_snapshot('T');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('T',[0.1,0.3]);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('T',[0.1,0.3]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[]);
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[]);
