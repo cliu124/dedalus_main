@@ -865,8 +865,8 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.post_store_dt=0.001
         flag.stop_sim_time=0.01
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_salt_finger':
-        flag.post_store_dt=1
-        flag.stop_sim_time=5
+        flag.post_store_dt=0.3
+        flag.stop_sim_time=30
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
         #low Ra, fixed flux RBC
         flag.post_store_dt=0.01
