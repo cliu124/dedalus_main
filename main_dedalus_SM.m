@@ -70,8 +70,80 @@ slurm_num={
 % slurm_num=slurm_num(5:end);
 % slurm_num={'20230404181720'};
 % slurm_num={'20230410120319'};
-slurm_num={'20230416120557'};
-flag.print=1;
+% slurm_num={'20230426103247'};
+slurm_num={'15245892',
+'15294380',
+'15294381',
+'15294388',
+'15294389',
+'15294390',
+'15294391',
+'15295118',
+'15295279',
+'20230314201731',
+'20230314211543',
+'20230314213422',
+'20230314220008',
+'20230314221032',
+'20230314224402',
+'20230314224941',
+'20230314225825',
+'20230314231644',
+'20230314232329',
+'20230314233351',
+'20230315000200',
+'20230403232615',
+'20230404164722',
+'20230404181136',
+'20230404181720',
+'20230404182254',
+'20230404183245'};
+
+slurm_num={'20230404183725',
+'20230404182759',
+'20230404165131',
+'20230403235047',
+'20230314235808',
+'20230314235258',
+'20230314234258',
+'20230314233927',
+'20230314232011',
+'20230314231329',
+'20230314225530',
+'20230314225234',
+'20230314224654',
+'20230314224044',
+'20230314222713',
+'20230314212929',
+'15295450',
+'15295451',
+'15295459',
+'15295468',
+'15295516',
+'15295517',
+'20230308101259'
+};
+
+slurm_num={'15247077',
+'15241085',
+'15241086',
+'15241089',
+'15241094',
+'15241095'
+};
+slurm_num={'15241562'};
+slurm_num={'15245892',
+'15246137',
+'15246172',
+'15246208',
+'15246314',
+'15246387',
+'15246421',
+'15247053'
+};
+slurm_num={'20230526212604'};
+% slurm_num={'15247053'};
+flag.print=0;
 flag.visible=1;
 flag.video=0;
 flag.no_ylabel=0;
@@ -87,24 +159,30 @@ for slurm_ind=1:length(slurm_num)
 %      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
 %      dedalus_post_my{slurm_ind}.print=0;
 %      dedalus_post_my{slurm_ind}.visible=1;
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.25],[],[2]);
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.elevator_growing('T');
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[]);
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T',[]);
-
-     %data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
-     %data{1}.y(slurm_ind)=2*pi/dedalus_post_my{slurm_ind}.period_t;
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u',[]);
+%      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T',[]);
+% 
+%      data{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.freq_sort(1);
+%      data{1}.y(slurm_ind)=2*pi/dedalus_post_my{slurm_ind}.period_t;
 %      data{1}.x(slurm_ind)=dedalus_post_my{slurm_ind}.Ra_T;
+%      
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');     
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[200]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[1]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_t('U_0',[0.3],[],[100,500]);
+
      %data_Nu{1}.y(slurm_ind)=dedalus_post_my{slurm_ind}.Nu;
      
+end
+% error('1');
+for slurm_ind=1:length(slurm_num)
+    Nu(slurm_ind,1)=dedalus_post_my{slurm_ind}.Nu;
 end
 error('1');
 % data{2}.x=data{1}.x;
 % data_Nu{1}.x=data{1}.x;
 % data{2}.x=data{1}.x(11:end);
-Ra_g=46761.08197624290000;
+Ra_g=46761.0819762429;
 fit_ind=8:length(data{1}.x);
 modelfun = @(b,x)(b(1)./(-log(b(2)-x)));
 mdl = fitnlm(data{1}.x(fit_ind),data{1}.y(fit_ind),modelfun,[80,Ra_g]);

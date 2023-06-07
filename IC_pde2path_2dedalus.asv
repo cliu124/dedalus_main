@@ -48,7 +48,7 @@ switch group_name
         branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3'};%,'tr/bpt4'
     case 'HB_benard_salt_finger_kx'
 %         folder_name='RBC_Ra_low_Ra_S2T_MM_periodic';
-        folder_name='salt_finger_kx_R_rho_90_MM_periodic';
+        folder_name='salt_finger_kx_R_rho_40_MM_periodic';
         switch folder_name
             case 'salt_finger_kx_low_Ra_S2T_2D_no_slip'
                 branch_name_list={'tr/bpt1','tr/bpt2','tr/bpt3','tr/bpt1/bpt1'};%,'tr/bpt4'
@@ -112,7 +112,7 @@ switch group_name
 %         point_list=[2500,5000,7500,10000,12500,15000,17500,20000,22500,25000,27500];
 %         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=-16;
-%         point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
+        point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
         %point_list=[-18,-16,-14,-12,-10,-8,-6,-4,-2,-1];
 %         point_list=[-0.5];
         %point_list=[-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6.873,-6,-5,-4,-3,-2,-1,-0.01];

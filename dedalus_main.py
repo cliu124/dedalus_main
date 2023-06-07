@@ -31,8 +31,8 @@ flag.flow='HB_benard_shear_periodic'
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
-#flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
-flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
+flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
+#flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
 
 
 #flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -726,7 +726,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.Pe_S=1
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         flag.Ra_T=10**5
-        flag.Ra_S2T=2500#flag.Ra_T#flag.Ra_T/R_rho_T2S
+        flag.Ra_S2T=flag.Ra_T/40#flag.Ra_T#flag.Ra_T/R_rho_T2S
         R_rho_T2S=flag.Ra_T/flag.Ra_S2T
         #I need to overwrite these domain setup here
         Ra_S=flag.Ra_S2T/flag.tau

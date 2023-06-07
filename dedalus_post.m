@@ -299,6 +299,10 @@ classdef dedalus_post
         T_coeff;
         
         growth_rate;
+        
+        Nu_average_after;
+        
+        freq_local_max;
     end
     
     methods
@@ -941,7 +945,7 @@ classdef dedalus_post
                     plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2.0];
 
                     if obj.title_time
-                        plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind)))]};
+                        plot_config.title_list={1,['$t=$',num2str(round(obj.t_list(t_ind),2))]};
                     else
                         plot_config.title_list={0};
                     end
@@ -993,9 +997,7 @@ classdef dedalus_post
             t_list_dedalus=obj.t_list(t_ind_begin:t_ind_end);
             dt=mean(diff(obj.t_list(t_ind_begin:t_ind_end)));
             t_list_uniform=obj.t_list(t_ind_begin):dt:obj.t_list(t_ind_end);
-            Nt=length(t_list_uniform);
-            Fs=1/dt;
-            freq=Fs*(0:(Nt/2))/Nt;
+            
             %             [val,z_ind]=min(abs(z-obj.z_list));
             
 %             data{1}.x=obj.t_list;
@@ -1008,6 +1010,7 @@ classdef dedalus_post
 %             end
             spec_t=0;
             period_t=0;
+            
             for x_ind=x_ind_list
                 switch variable_name
                     case {'u','v','w','S','T','p'}
@@ -1024,8 +1027,19 @@ classdef dedalus_post
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
                         variable=squeeze(obj.(variable_name)(z_ind,x_ind,t_ind_begin:t_ind_end))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
                         %plot_config.colormap='jet';
+                    case {'Nu_T_t'}
+                        variable=obj.(variable_name)(t_ind_begin:t_ind_end);
                 end
-                variable_uniform=variable;
+                variable_uniform=real(variable);
+                
+                ind_local_min=find(islocalmin(variable_uniform));
+                if ~isempty(ind_local_min) && length(ind_local_min)>=2
+                    variable_uniform=variable_uniform(ind_local_min(1):ind_local_min(end));
+                    t_list_uniform=t_list_uniform(ind_local_min(1):ind_local_min(end));
+                end
+                Nt=length(t_list_uniform);
+                Fs=1/dt;
+                freq=Fs*(0:(Nt/2))/Nt;
                 %variable_uniform=interp1(t_list_dedalus,variable,t_list_uniform,'linear');
                 %variable_uniform=sin(2*pi*1/10*Fs*t_list_uniform); %This is to
                 %test fft results using sinusoidal functino
@@ -1051,9 +1065,14 @@ classdef dedalus_post
             %plot_config.xlim_list=[1,0,10];
             plot_config.print=obj.print;
             plot_config.visible=obj.visible;
+            plot_config.ylim_list=[1,0,1.1*max(spec_t(2:end))];
+            plot_config.xlim_list=[1,0,0.4*max(freq)];
             plot_line(data,plot_config);
             
-            data{1}.x=t_list_dedalus;
+            ind_local_max=islocalmax(data{1}.y);
+            obj.freq_local_max=data{1}.x(ind_local_max);
+            
+            data{1}.x=t_list_uniform;
             data{1}.y=variable_uniform;
             plot_config.label_list={1,'$t $','Var'};
 
@@ -1064,7 +1083,11 @@ classdef dedalus_post
             end
             plot_config.print=obj.print;
             plot_config.visible=obj.visible;
-
+            plot_config.xlim_list=0;
+            plot_config.ylim_list=0;
+            if strcmp(variable_name,'Nu_T_t')
+                plot_config.label_list={1,'$t$','$nu(t)$'};
+            end
             plot_line(data,plot_config);
             
             obj.freq=freq;
@@ -1613,8 +1636,10 @@ classdef dedalus_post
             else
                 plot_config.xlim_list=[1,round(min(data{1}.x),1),round(max(data{1}.x),1)];
             end
-            plot_config.ytick_list=[1,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
-            plot_config.fontsize=28;
+            plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
+            %plot_config.fontsize=28;
+            %plot_config.xlim_list=[1,150,300];
+            %plot_config.xtick_list=[1,5,10,15];
             plot_contour(data,plot_config);
             
             if strcmp(variable_name,'u')
@@ -1988,9 +2013,11 @@ classdef dedalus_post
                         data{1}.x=data{1}.x+1;
                         plot_config.legend_list={1,['$1-z+\langle ',variable_name,'\rangle_{h,t}$'],['$1-z$']};
                         if obj.(['flux_',variable_name])
-                            plot_config.legend_list={1,['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z+\langle ',variable_name,'\rangle_{h,t}$'],['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z$']};
+                            plot_config.legend_list={1,['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z+\langle ',variable_name,'\rangle_{h,t}(z)$'],['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z$']};
                         end
                     end
+                    plot_config.label_list={1,'','$z$'};
+
                 case {'rho'}
                     %error('not ready');
                     variable_data_T=h5read_complex(obj.h5_name,['/tasks/T']);
@@ -2002,6 +2029,8 @@ classdef dedalus_post
                         +1/R_rho_T2S*(obj.Pe_S*squeeze(mean(mean(variable_data_S,2),3))+obj.dy_S_mean*obj.z_list);
                     plot_config.legend_list={1,['$-(\bar{\mathcal{T}}_z z+Pe_T \langle ','T','\rangle_h)+R_\rho^{-1}(\bar{\mathcal{S}}_z z+Pe_S \langle ','S','\rangle_h)$'],['$-\bar{\mathcal{T}}_z z+R_\rho^{-1}\bar{\mathcal{S}}_z z$']};
                     plot_config.fontsize_legend=24;
+                    plot_config.label_list={1,'','$z$'};
+
                 case 'u'
                     u=h5read_complex(obj.h5_name,'/tasks/u');
                     syms z;
@@ -2013,7 +2042,16 @@ classdef dedalus_post
                     data{1}.x=u_laminar_num;
                     data{2}.x=squeeze(mean(mean(u,2),3));
                     plot_config.legend_list={1,['$\bar{',variable_name,'}$'],['$\bar{',variable_name,'} +''\langle ',variable_name,'''\rangle_h$']};
+                    plot_config.label_list={1,'','$z$'};
 
+                case 'ww'
+                    w=h5read_complex(obj.h5_name,'/tasks/w');
+                    w=w(:,:,t_ind_begin:t_ind_end);
+                    ww=w.*w;
+                    data{1}.x=sqrt(mean(mean(ww,2),3));
+                    data{2}.x=NaN*ones(size(obj.z_list));
+                    %plot_config.label_list={1,'$\sqrt{\langle ww\rangle_{h,t}}$','$z$'};
+                    plot_config.label_list={1,'','$z$'};
             end
 %             if strcmp(obj.flow(1:7),'IFSC_2D')
 %                 data{1}.y=obj.z_list/(2*pi/obj.k_opt);
@@ -2023,7 +2061,6 @@ classdef dedalus_post
                 data{1}.y=obj.z_list;
                 data{2}.y=obj.z_list;
 %             end
-            plot_config.label_list={1,'','$z$'};
             plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1];
             plot_config.ylim_list=[1,round(min(data{1}.y)),round(max(data{1}.y))];
 %             plot_config.label_list={1,'','$z/l_{opt}$'};
@@ -2040,6 +2077,7 @@ classdef dedalus_post
             plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_total_xt_ave_profile_only.png'];
             plot_config.fontsize_legend=16;
             plot_config.linewidth=3;
+            plot_config.legend_list={0};
             plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
             plot_line(data,plot_config);
             
@@ -2124,22 +2162,48 @@ classdef dedalus_post
                 %end of the local maximum. 
                 if strcmp(obj.flow,'HB_benard_shear_periodic')
                     obj.Nu_T_t=(-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,t_ind_begin:t_ind_end)));
-                    Nu_mid=(max(obj.Nu_T_t)+min(obj.Nu_T_t))/2;
-                    ind_local_min=find(islocalmin(obj.Nu_T_t).*(obj.Nu_T_t<Nu_mid));
-                    obj.Nu_T_t=obj.Nu_T_t(ind_local_min(1):ind_local_min(end));
+                    dy_T_mean_q_tmp=(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,t_ind_begin:t_ind_end)));
+                    t_ind_local_min=obj.t_list(t_ind_begin:t_ind_end);
+                    
+                    dy_T_mean_q_mid=(max(dy_T_mean_q_tmp)+min(dy_T_mean_q_tmp))/2;
+                    ind_local_min=find(islocalmin(dy_T_mean_q_tmp).*(dy_T_mean_q_tmp<dy_T_mean_q_mid));
+                    
+                    t_ind_local_min=obj.t_list(t_ind_begin:t_ind_end);
+                    if (~isempty(ind_local_min)) && length(ind_local_min)>2
+                        obj.Nu_T_t=obj.Nu_T_t(ind_local_min(1):ind_local_min(end));
+                        t_ind_local_min=t_ind_local_min(ind_local_min(1):ind_local_min(end));
+                        dy_T_mean_q_tmp=dy_T_mean_q_tmp(ind_local_min(1):ind_local_min(end));
+
+                    end
                     %d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,t_ind_begin:t_ind_end))));
                    d_variable_data_total_xt_ave=mean(obj.Nu_T_t);
                 else
                     obj.Nu_T_t=(-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
-                    Nu_mid=(max(obj.Nu_T_t)+min(obj.Nu_T_t))/2;
-                    ind_local_min=find(islocalmin(obj.Nu_T_t).*(obj.Nu_T_t<Nu_mid));
-                    obj.Nu_T_t=obj.Nu_T_t(ind_local_min(1):ind_local_min(end));
+                    dy_T_mean_q_tmp=(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
+                    t_ind_local_min=obj.t_list(t_ind_begin:t_ind_end);
+
+                    %get the index of several local minimum, use
+                    %dy_T_mean_q to identify that is better than Nu. 
+                    dy_T_mean_q_mid=(max(dy_T_mean_q_tmp)+min(dy_T_mean_q_tmp))/2;
+                    ind_local_min=find(islocalmin(dy_T_mean_q_tmp).*(dy_T_mean_q_tmp<dy_T_mean_q_mid));
+                    
+                    if (~isempty(ind_local_min)) && length(ind_local_min)>=2
+                        obj.Nu_T_t=obj.Nu_T_t(ind_local_min(1):ind_local_min(end));
+                        t_ind_local_min=t_ind_local_min(ind_local_min(1):ind_local_min(end));
+                        
+                        %compute the Nusselt number by firstly computing
+                        %time averaged mean temperature gradient and then
+                        %take the recipocal. 
+                        dy_T_mean_q_tmp=dy_T_mean_q_tmp(ind_local_min(1):ind_local_min(end));
+                    end
                     %d_variable_data_total_xt_ave=mean((-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(:,:,t_ind_begin:t_ind_end))));
                     d_variable_data_total_xt_ave=mean(obj.Nu_T_t);
                 end
                  switch variable_name
                     case 'T'
-                        obj.Nu=d_variable_data_total_xt_ave;
+                        obj.Nu_average_after=d_variable_data_total_xt_ave;
+                        obj.Nu=-1/mean(dy_T_mean_q_tmp);
+
                         Ra_T_q=obj.Ra_T;
                         obj.Ra_T_no_q=Ra_T_q/mean(obj.Nu);
                     case 'S'
@@ -2149,17 +2213,54 @@ classdef dedalus_post
                  end
                  
             end
-            data{1}.x=obj.t_list(t_ind_begin:t_ind_end);
             
             %Update 2023/04/07, take from one local max to the end of local
             %maximum. 
-            data{1}.x=data{1}.x(ind_local_min(1):ind_local_min(end));
+            data{1}.x=t_ind_local_min; 
             data{1}.y=obj.Nu_T_t;
+            
+            %some markers for Pr=7, Ra_{T,q}=300000 case
+%             data{2}.x=data{1}.x(362);
+%             data{2}.y=data{1}.y(362);
+%             data{3}.x=data{1}.x(366);
+%             data{3}.y=data{1}.y(366);
+%             data{4}.x=data{1}.x(367);
+%             data{4}.y=data{1}.y(367);
+%             data{5}.x=data{1}.x(368);
+%             data{5}.y=data{1}.y(368);
+%             plot_config.xlim_list=[1,3,4];
+
+
+            %some markers for Pr=0.1, Ra_{T,q}=10800 case
+%             [~,ind160]=min(abs(data{1}.x-160));
+%             [~,ind166]=min(abs(data{1}.x-166));
+%             [~,ind166p5]=min(abs(data{1}.x-166.5));
+%             [~,ind167]=min(abs(data{1}.x-167));
+%             data{2}.x=data{1}.x(ind160);
+%             data{2}.y=data{1}.y(ind160);
+%             data{3}.x=data{1}.x(ind166);
+%             data{3}.y=data{1}.y(ind166);
+%             data{4}.x=data{1}.x(ind166p5);
+%             data{4}.y=data{1}.y(ind166p5);
+%             data{5}.x=data{1}.x(ind167);
+%             data{5}.y=data{1}.y(ind167);
+%             plot_config.xlim_list=[1,150,300];
+%             
+            
+            plot_config.user_color_style_marker_list={'k-','k*','bo','msquare','rx'};
+            plot_config.Markerindex=3;
+            plot_config.markersize=26;
             plot_config.label_list={1,'$t$','$nu(t)$'};
             plot_config.name=[obj.h5_name(1:end-3),'Nu_T_t.png'];
             plot_config.print=obj.print;
             plot_config.visible=obj.visible;
             plot_line(data,plot_config);
+            
+            data{1}.y=dy_T_mean_q_tmp;
+            plot_config.label_list={1,'$t$','$\bar{\mathcal{T}}_{z,q}(t)$'};
+            plot_config.name=[obj.h5_name(1:end-3),'dy_T_mean_q_T_t.png'];
+            plot_line(data,plot_config);
+
             
         end
         

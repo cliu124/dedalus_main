@@ -2,23 +2,29 @@ clear all;
 close all;
 clc;
 
-flag.name='ke';
+flag.name='growth_rate';
 flag.no_flux_com=0;
 flag.no_shear_com=0;
-flag.solve='finished'; %'finished' if just want to load data and plot
+flag.solve='eig'; %'finished' if just want to load data and plot
 flag.viscous_unit=0;
 switch flag.name
     case 'growth_rate'
         n_elevator_list=1;
 %         Ra_T_q_list=8*10^8;
-        Ra_T_q_list=2*10^4;
+        %Ra_T_q_list=46892.1;
+        %Pr_list=1;
+
+        Ra_T_q_list=46892;
         Pr_list=1;
         Lx_list=0.1*2*pi;
 %         kz_list=(0.01:0.5:2*n_elevator)*2*pi;
-        kz_list=(0.01:0.01:2)*2*pi;
+%         kz_list=(0.01:0.1:2)*2*pi;
+        kz_list=[1]*2*pi;
+%         kz_list=2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
         flag.no_shear_com=0; %compare the growth rate without shear flow
         flag.viscous_unit=0;
+        flag.plot_spectrum=1;
     case 'Lx'
         n_elevator_list=1;
         Ra_T_q_list=10^8;
@@ -189,6 +195,20 @@ if ~strcmp(flag.solve,'finished')
                             eig_val_max{Lx_ind,n_elevator_ind,Ra_T_q_ind,Pr_ind,ky_ind,kz_ind}=eig_val(max_ind);
                             eig_vec_max{Lx_ind,n_elevator_ind,Ra_T_q_ind,Pr_ind,ky_ind,kz_ind}=eig_vec(:,max_ind);
 
+                            if flag.plot_spectrum
+                                data{1}.x=real(eig_val);
+                                data{1}.y=imag(eig_val);
+                                data{2}.x=0;
+                                data{2}.y=0;
+                                plot_config.xlim_list=[1,-200,50];
+                                plot_config.ylim_list=[1,-150,150];
+                                plot_config.Markerindex=3;
+                                plot_config.user_color_style_marker_list={'k*','bo'};
+                                plot_config.label_list={1,'Re($\lambda)$','Im($\lambda$)'};
+                                plot_config.name=['spectrum',flag.name,'.png'];
+                                plot_line(data,plot_config);
+                            end
+                            
                             if flag.no_flux_com
                                 flux_T=0;
 
