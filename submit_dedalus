@@ -24,6 +24,10 @@ mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp -r dedalus.cfg "$WORKD
 #ln -s /projects/chli3324/dedalus_main/IC/flux_T_periodic_RBC_kx_2pi_Ra_T_20000/flux_T_periodic_analysis_s1_Nx128_Nz128_tr_bpt1_bpt1_Lx2d_1.h5 restart.h5
 #ln -s /projects/chli3324/dedalus_main/IC/stress_free_2D_tau_0p01_Ra_S2T_2500_Pr_7_kx_14/analysis_s1_Nx256_Nz256_tr_bpt1_Lx2d_1.h5 restart.h5
 #ln -s /projects/chli3324/dedalus_main/IC/tau_0p01_Ra_S2T1500/analysis_s1_Nx64_Nz128tr_bpt1.h5 restart.h5
+
+#####Update 2023/06/06 IC from 2D continuation.
+#ln -s /projects/chli3324/dedalus_main/IC/periodic_MM_tau_R_rho_40_Ra_T_1e5_tau_0p01_Pr_7_kx_18/periodic_analysis_s1_Nx128_Nz128_tr_bpt1_last_pt_last_pt_p_ds_Lx2d_1.h5 restart.h5
+
 #ln -s /projects/chli3324/dedalus_main/analysis_s1.h5 restart.h5
 #ln -s /rc_scratch/chli3324/dedalus_13209996/analysis/analysis_s1.h5 restart.h5
 #ln -s /rc_scratch/chli3324/dedalus_12808427/analysis/analysis_s1.h5 restart.h5
