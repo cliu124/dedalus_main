@@ -31,8 +31,8 @@ flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_d
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
-flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
-#flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
+#flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_salt_finger'
+flag.flow_sub_double_diffusive_shear_2D='primitive_periodic_RBC'
 
 
 #flag.flow_sub_double_diffusive_shear_2D='double_diffusive'
@@ -779,7 +779,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
         #flag.tau=tau #Set this as zero if remove salinity diffusivity
         #flag.Ra_T=2*10**4
-        flag.Ra_T=4*10**4
+        flag.Ra_T=3*10**4
         #flag.Ra_T=10**8
         
         flag.initial_dt=10**(-3)
@@ -821,7 +821,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_secondary_U0=0#10
         flag.A_secondary_T=0#1
         flag.k_secondary=0#2*np.pi
-        flag.A_noise=0
+        flag.A_noise=0.1
         flag.store_variable='T_u_w'#only store S and u variable
         flag.S_active=0
         flag.A_w_mean=0 #This is mean vertical velocity

@@ -143,7 +143,7 @@ class flag(object):
         self.flux_T=0
         self.flux_S=0
         
-        self.flux_1_beta=0 #the damping coefficient for implementing the fixed flux.
+        self.damping_1_beta=0 #the damping coefficient for implementing the fixed flux.
         
         self.S_active=1
         
