@@ -2935,8 +2935,10 @@ class flag(object):
                     if self.flux_T:
                         w0=self.A_elevator*np.real(np.exp(1j*(self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2))))
                         T0=self.k_elevator**2/self.Ra_T*self.A_elevator*np.real(np.exp(1j*(self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2))))
-                        
-                    
+                        if self.damping_1_beta:
+                            Q0=self.A_noise*noise
+                            Q=solver.state['Q']
+                            Q['g']=Q0
                     #print(w0)
                     ##This is sample code to setup the initial condition as whatever I want...
                     #S0=np.array([1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16])
