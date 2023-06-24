@@ -143,6 +143,8 @@ class flag(object):
         self.flux_T=0
         self.flux_S=0
         
+        self.flux_1_beta=0 #the damping coefficient for implementing the fixed flux.
+        
         self.S_active=1
         
         self.A_w_mean=0
@@ -313,6 +315,8 @@ class flag(object):
                 #problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T','dy_T_mean_q'])
                 #Update 2022/10/07, get rid of dy_T_mean_q as a variable, just a post-processing variable
                 problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
+            elif self.flux_T==1 and self.damping_1_beta!=0:
+                problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T','Q'])
             else:
                 problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T'])
             
@@ -328,6 +332,9 @@ class flag(object):
             
             problem.parameters['Lx']=self.Lx
             problem.parameters['Lz']=self.Lz
+            
+            if self.damping_1_beta!=0:
+                problem.parameters['beta']=1/self.damping_1_beta
             
             #Update 2022/02/25, use the first order formulation. This gives the flexibility of doing Periodic/Dirichlet/Neumann B.C. in the vertical direction by just changing the vertical basis.
             problem.add_equation('dz(u)-d_u=0')
@@ -549,9 +556,14 @@ class flag(object):
                         problem.add_equation("- ( dx(dx(T)) + dz(d_T) ) -w =0")
                     else:
                         #Update 2022/10/24, -w due to the conduction background temperature gradient should be also implicit
-                        problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =Pe_T*Pe_T*(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
-                        problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
-                    
+                        if self.damping_1_beta==0:
+                            problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) ) -w =Pe_T*Pe_T*(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                            problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+                        elif self.damping_1_beta!=0:
+                            problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =Q*w+Pe_T*Pe_T*(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
+                            problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
+                            problem.add_equation("dt(Q)+beta*(Q-1)=0",condition="(nx==0) and (nz==0)")
+                            problem.add_equation("Q=0",condition="(nx!=0) or (nz!=0)")
                 else: 
                     if self.Pe_T == 0:
                         #no inertial term in the temperature

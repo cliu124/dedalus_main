@@ -267,6 +267,8 @@ classdef dedalus_post
         flux_T=0;
         flux_S=0;
         
+        damping_1_beta=0;
+        
         dy_T_mean_q=0;
         dy_S_mean_q=0;
         
@@ -337,6 +339,8 @@ classdef dedalus_post
             
             %add these grid points here. 
             obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
+            obj.x_list=h5read_complex(h5_name,'/scales/x/1.0');
+
             obj.Nz=length(obj.z_list);
             
             obj.t_list=h5read_complex(h5_name,'/scales/sim_time');
@@ -954,7 +958,7 @@ classdef dedalus_post
                     plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_ind_',num2str(t_ind),'.png'];
                     plot_config.print=obj.print;
                     plot_config.visible=obj.visible;
-                    plot_config.fontsize=35;
+                    plot_config.fontsize=40;
                     plot_contour(data,plot_config);
                     %plot_config.label_list={1,'$x$',''};
                     %plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(t_ind),'_no_ylabel.png'];
@@ -1691,6 +1695,7 @@ classdef dedalus_post
         end
         
         
+        
         function obj=phase_diagram(obj,variable_name1,variable_name2,t_ind,option)
             if nargin<2 || isempty(variable_name1)
                variable_name1='u'; 
@@ -1836,7 +1841,14 @@ classdef dedalus_post
                         obj.(variable_name)=h5read_complex(obj.h5_name,['/tasks/',variable_name(1)]);
                         data{1}.z=squeeze(obj.(variable_name)(z_ind,:,t_begin:t_end))+obj.(['dy_',variable_name(1),'_mean'])*obj.z_list(z_ind);
                         if obj.flux_T
-                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,t_begin:t_end))+ones(obj.Nx,1)*transpose(squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(1,:,t_begin:t_end)))*obj.z_list(z_ind);
+                            %old version use the instanteous mean
+                            %temperature gradient
+                            %data{1}.z=squeeze(obj.(variable_name)(z_ind,:,t_begin:t_end))+ones(obj.Nx,1)*transpose(squeeze(obj.(['dy_',variable_name(1),'_mean_q'])(1,:,t_begin:t_end)))*obj.z_list(z_ind);
+                            
+                            %new version that use time-averaged mean
+                            %temperature gradient
+                            data{1}.z=squeeze(obj.(variable_name)(z_ind,:,t_begin:t_end))+ones(obj.Nx,1)*ones(1,length(obj.t_list(t_begin:t_end)))*mean(obj.(['dy_',variable_name(1),'_mean_q'])(1,:,t_begin:t_end))*obj.z_list(z_ind);
+
                         end
                         if obj.(['dy_',variable_name(1),'_mean'])<0
                            data{1}.z=data{1}.z+1; 
@@ -2013,7 +2025,7 @@ classdef dedalus_post
                         data{1}.x=data{1}.x+1;
                         plot_config.legend_list={1,['$1-z+\langle ',variable_name,'\rangle_{h,t}$'],['$1-z$']};
                         if obj.(['flux_',variable_name])
-                            plot_config.legend_list={1,['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z+\langle ',variable_name,'\rangle_{h,t}(z)$'],['$1+\langle\bar{\mathcal{T}}_{z,q}\rangle_t z$']};
+                            plot_config.legend_list={1,['$1+\bar{\mathcal{T}}_{z,q} z+\langle ',variable_name,'\rangle_{h,t}(z)$'],['$1+\bar{\mathcal{T}}_{z,q} z$']};
                         end
                     end
                     plot_config.label_list={1,'','$z$'};
@@ -2113,6 +2125,15 @@ classdef dedalus_post
             
         end
 
+        function obj=flux_check(obj)
+            w=h5read_complex(obj.h5_name,['/tasks/w']);
+            T=h5read_complex(obj.h5_name,['/tasks/T']);
+            obj.t_list=h5read_complex(obj.h5_name,'/scales/sim_time');
+
+
+        end
+        
+        
         function obj=get_Nu(obj,variable_name,t_ind)
             obj.t_list=h5read_complex(obj.h5_name,'/scales/sim_time');
             time_len=length(obj.t_list);

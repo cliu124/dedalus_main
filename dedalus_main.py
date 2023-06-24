@@ -26,8 +26,8 @@ flag=dedalus_setup.flag()
 #flag.flow='test_periodic'
 
 #This is runing 2D DNS general formulation
-#flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
-flag.flow='HB_benard_shear_periodic'
+flag.flow='double_diffusive_shear_2D'#['IFSC_2D','double_diffusive_2D','double_diffusive_shear_2D','porous_media_2D']
+#flag.flow='HB_benard_shear_periodic'
 #flag.flow='porous_media_2D'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_dirichlet_salt_finger'
 #flag.flow_sub_double_diffusive_shear_2D='primitive_stress_free_salt_finger'
@@ -758,6 +758,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
         ##parameter for Radko (2013) type
+        flag.damping_1_beta=0.0001
         flag.Pr=1
         flag.tau=1
         #R_rho_T2S=40
