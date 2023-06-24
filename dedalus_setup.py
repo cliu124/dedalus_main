@@ -562,7 +562,7 @@ class flag(object):
                         elif self.damping_1_beta!=0:
                             problem.add_equation(" Pe_T*dt(T) - ( dx(dx(T)) + dz(d_T) )  =Q*w+Pe_T*Pe_T*(-integ(w*T)/Lx/Lz)*w+Pe_T*( -u*dx(T)-w*d_T)",condition="(nx!=0) or (nz!=0)")
                             problem.add_equation("T=0",condition="(nx==0) and (nz==0)")                     
-                            problem.add_equation("dt(Q)+beta*(Q-1)=0",condition="(nx==0) and (nz==0)")
+                            problem.add_equation("dt(Q)+beta*Q=beta",condition="(nx==0) and (nz==0)")
                             problem.add_equation("Q=0",condition="(nx!=0) or (nz!=0)")
                 else: 
                     if self.Pe_T == 0:
