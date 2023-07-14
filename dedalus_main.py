@@ -758,7 +758,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         
     elif flag.flow_sub_double_diffusive_shear_2D=='primitive_periodic_RBC':
         ##parameter for Radko (2013) type
-        flag.damping_1_beta=0.0001
+        flag.damping_1_beta=10
         flag.Pr=1
         flag.tau=1
         #R_rho_T2S=40
@@ -822,7 +822,7 @@ elif flag.flow == 'double_diffusive_shear_2D':
         flag.A_secondary_T=0#1
         flag.k_secondary=0#2*np.pi
         flag.A_noise=0
-        flag.store_variable='all'#only store S and u variable
+        flag.store_variable='T_u_w'#only store S and u variable
         flag.S_active=0
         flag.A_w_mean=0 #This is mean vertical velocity
         

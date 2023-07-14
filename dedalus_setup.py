@@ -3891,6 +3891,10 @@ class flag(object):
                 #flow_out.add_property('w',name='w')
                 #flow_out.add_property('T',name='T')
                 self.flow_out=flow_out
+                
+                if self.damping_1_beta!=0:
+                    analysis.add_task('Q',layout='g',name='Q')
+                    
         elif self.flow in ['porous_media_2D']:
             analysis = solver.evaluator.add_file_handler('analysis',sim_dt=self.post_store_dt)
             analysis.add_system(solver.state)
