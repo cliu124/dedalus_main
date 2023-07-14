@@ -662,7 +662,7 @@ for slurm_ind=1:length(slurm_num)
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
 error('1');
      dedalus_post_my{slurm_ind}.title_time=0;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[3],[],[1000]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[3],[],[457,458,]);
 %      error('1');
 %      error('1');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_snapshot('T');

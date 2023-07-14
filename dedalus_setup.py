@@ -152,6 +152,8 @@ class flag(object):
         
         self.restart_t0=1
         
+        self.Q0=0
+        
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
@@ -2936,7 +2938,7 @@ class flag(object):
                         w0=self.A_elevator*np.real(np.exp(1j*(self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2))))
                         T0=self.k_elevator**2/self.Ra_T*self.A_elevator*np.real(np.exp(1j*(self.k_elevator*x+self.A_secondary_phase*self.step(x,self.Lx/2))))
                         if self.damping_1_beta:
-                            Q0=self.A_noise*noise
+                            Q0=self.Q0+self.A_noise*noise
                             Q=solver.state['Q']
                             Q['g']=Q0
                     #print(w0)

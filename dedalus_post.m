@@ -954,7 +954,7 @@ classdef dedalus_post
                         plot_config.title_list={0};
                     end
 
-                    plot_config.print_size=[1,1200,1200];
+                    plot_config.print_size=[1,1600,900];
                     plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_ind_',num2str(t_ind),'.png'];
                     plot_config.print=obj.print;
                     plot_config.visible=obj.visible;
@@ -1629,7 +1629,7 @@ classdef dedalus_post
             end
             %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
             plot_config.colormap='bluewhitered';
-            plot_config.print_size=[1,1600,1600];
+            plot_config.print_size=[1,1600,900];
 %             plot_config.ztick_list=[1,-0.001,0.001];
             plot_config.print=obj.print;
             plot_config.visible=obj.visible;
@@ -1640,7 +1640,7 @@ classdef dedalus_post
             else
                 plot_config.xlim_list=[1,round(min(data{1}.x),1),round(max(data{1}.x),1)];
             end
-            plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
+%             plot_config.ytick_list=[1,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,2];
             %plot_config.fontsize=28;
             %plot_config.xlim_list=[1,150,300];
             %plot_config.xtick_list=[1,5,10,15];
@@ -1867,7 +1867,7 @@ classdef dedalus_post
     %             data{1}.z=squeeze(mean(obj.(variable_name),2));
     %             plot_config.label_list={1,'$t$','$z/l_{opt}$'};
     
-                plot_config.print_size=[1,1200,1200];
+                plot_config.print_size=[1,1600,900];
                 plot_config.print=obj.print;
                 plot_config.name=[obj.h5_name(1:end-3),'_',variable_name,'_z_slice_at_z=',num2str(z),'.png'];
                 plot_contour(data,plot_config);
