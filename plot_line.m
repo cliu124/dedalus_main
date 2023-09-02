@@ -3,7 +3,7 @@ function frame=plot_line(data,plot_config)
 %   Detailed explanation goes here
 
 %%Chang Liu
-%%2018/12/15
+%%2018/12/15f
 %%Updated: 2019/03/04, I add the input to specify the printed figure size.
 %%Update: 2019/03/15, simplify the input as the struct of data and
 %%plot_config

@@ -605,6 +605,11 @@ slurm_num={'15394862',
 '15379754'
 };
 slurm_num={'15565226'};
+
+slurm_num={'15597576',...
+    '15597577',...
+    '15597578',...
+    '15597579'};
 % slurm_num={};
 % slurm_num=slurm_num(end);
 flag.print=1; 
@@ -645,24 +650,25 @@ for slurm_ind=1:length(slurm_num)
 
      set(0,'DefaultFigureVisible','on')
      dedalus_post_my{slurm_ind}=dedalus_post(h5_name,flag);
-      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');   
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('dy_T_mean_q');   
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.z_slice('T',[0.1,0.3,0.5],[1,300]);
 
      dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');   
 
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[276,466]);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[276,466]);
 
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[1,1000]);
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
-error('1');
-     dedalus_post_my{slurm_ind}.title_time=0;
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[3],[],[1000]);
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
+     
+     % error('1');
+     %dedalus_post_my{slurm_ind}.title_time=0;
+     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[3],[],[1000]);
 %      error('1');
 %      error('1');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_snapshot('T');
@@ -687,6 +693,31 @@ error('1');
 %      dedalus_post_my{slurm_ind}.video=1;
 %      dedalus_post_my{slurm_ind}.title_time=1;
 end
+error('1');
+for slurm_ind=1:2
+    data{slurm_ind}.x=dedalus_post_my{slurm_ind}.t_list;
+    data{slurm_ind}.y=dedalus_post_my{slurm_ind}.Nu_T_t_full;
+end
+plot_config.Markerindex=3;
+plot_config.user_color_style_marker_list={'k-','b--'};%,'r-.','m:'};
+plot_config.label_list={1,'$t$','$nu(t)$'};
+plot_config.legend_list={1,'$\beta=1$','$\beta=10$'};%,'$\beta=100$','$\beta=1000$'};
+plot_config.name='Nu_t_Ra_Tq_6e4_beta_1_10.png';
+plot_line(data,plot_config);
+
+for slurm_ind=3:4
+    data{slurm_ind-2}.x=dedalus_post_my{slurm_ind}.t_list;
+    data{slurm_ind-2}.y=dedalus_post_my{slurm_ind}.Nu_T_t_full;
+end
+plot_config.Markerindex=3;
+plot_config.user_color_style_marker_list={'k-','b--'};%,'r-.','m:'};
+plot_config.label_list={1,'$t$','$nu(t)$'};
+plot_config.legend_list={1,'$\beta=100$','$\beta=1000$'};%,'$\beta=100$','$\beta=1000$'};
+plot_config.name='Nu_t_Ra_Tq_6e4_beta_100_1000.png';
+plot_line(data,plot_config);
+
+
+
 error('1');
 for slurm_ind=1:length(slurm_num)
     Nu(slurm_ind,1)=dedalus_post_my{slurm_ind}.Nu;

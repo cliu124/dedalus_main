@@ -279,6 +279,8 @@ classdef dedalus_post
         
         Nu_T_t=0; %Nusselt number as a function of t
     
+        Nu_T_t_full=0;
+        
         flow_out;
         checkpoint;
         
@@ -305,6 +307,8 @@ classdef dedalus_post
         Nu_average_after;
         
         freq_local_max;
+        
+        Q0;
     end
     
     methods
@@ -2202,7 +2206,10 @@ classdef dedalus_post
                     obj.Nu_T_t=(-1)./(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
                     dy_T_mean_q_tmp=(squeeze(obj.(['dy_',variable_name,'_mean_q'])(1,1,t_ind_begin:t_ind_end)));
                     t_ind_local_min=obj.t_list(t_ind_begin:t_ind_end);
-
+                    
+                    %get the full time-history of the nu(t)
+                    obj.Nu_T_t_full=obj.Nu_T_t;
+                    
                     %get the index of several local minimum, use
                     %dy_T_mean_q to identify that is better than Nu. 
                     dy_T_mean_q_mid=(max(dy_T_mean_q_tmp)+min(dy_T_mean_q_tmp))/2;
