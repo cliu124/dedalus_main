@@ -13,8 +13,8 @@ export SLURM_EXPORT_ENV=ALL
 
 ##the slurm number to restart simulation... This need full state to be stored.
 SUBMITDIR=$SLURM_SUBMIT_DIR
-WORKDIR=/scratch/chl20326/chl23026/dedalus_$SLURM_JOB_ID
-mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp -r dedalus.cfg "$WORKDIR" && cp submit_dedalus "$WORKDIR" && cd "$WORKDIR" || exit -1
+WORKDIR=/scratch/chl23026/chl23026/dedalus_$SLURM_JOB_ID
+mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp submit_dedalus "$WORKDIR" && cd "$WORKDIR" || exit -1
 
 ###uncomment this line and change the folder number to select which simulation to restart
 #ln -s /projects/chli3324/dedalus_main/IC/2D_tau_0p01_Ra_S2T_2500_Pr_0p05_kx_12/HB_benard_shear_analysis_s1_Nz128_tr_bpt1_Lx2d_1.h5 restart.h5
@@ -32,8 +32,7 @@ mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp -r dedalus.cfg "$WORKD
 #ln -s /rc_scratch/chli3324/dedalus_13146434/analysis/analysis_s1.h5 restart.h5
 #ln -s /rc_scratch/chli3324/dedalus_13146434/checkpoint/checkpoint_s1.h5 restart.h5
 
-source /curc/sw/anaconda3/latest
-conda activate dedalus
+conda activate dedalus2
 
 ##For IVP simulation
 mpiexec -n $SLURM_NTASKS python3 dedalus_main.py
