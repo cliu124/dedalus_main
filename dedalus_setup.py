@@ -318,9 +318,16 @@ class flag(object):
                 #Update 2022/10/07, get rid of dy_T_mean_q as a variable, just a post-processing variable
                 problem = de.IVP(domain,variables=['p','u','w','S','T','d_u','d_w','d_S','d_T'])
             elif self.flux_T==1 and self.damping_1_beta!=0:
-                problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T','Q'])
+                if self.Ta_sqrt_z==0:
+                    problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T','Q'])
+                else: 
+                    problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T','Q','v'])
             else:
-                problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T'])
+                if self.Ta_sqrt_z==0:
+                    problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T'])
+                else:
+                    problem = de.IVP(domain,variables=['p','u','w','T','d_u','d_w','d_T','v'])
+
             
             problem.parameters['Re']=self.Re
             problem.parameters['Pe_T']=self.Pe_T
@@ -338,6 +345,9 @@ class flag(object):
             if self.damping_1_beta!=0:
                 problem.parameters['beta']=1/self.damping_1_beta
             
+            if self.Ta_sqrt_z!=0:
+                problem.parameters['Ta_sqrt_z']=self.Ta_sqrt_z
+                
             #Update 2022/02/25, use the first order formulation. This gives the flexibility of doing Periodic/Dirichlet/Neumann B.C. in the vertical direction by just changing the vertical basis.
             problem.add_equation('dz(u)-d_u=0')
             problem.add_equation('dz(w)-d_w=0')
@@ -420,7 +430,11 @@ class flag(object):
                         problem.add_equation("- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  =0",condition="((nx!=0) or (nz!=0)) and (nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
                         problem.add_equation("w=0",condition="((nx==0) and (nz==0)) or (nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                     else:
-                        problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        if self.Ta_sqrt_z==0:
+                            problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T)  = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                        else:
+                            #Only add this branch for the case with rotation. Other branch to be finished
+                            problem.add_equation("Re*dt(w)- ( dx(dx(w)) + dz(d_w) ) + dz(p) -(Ra_T*T) -Ta_sqrt_z*v = Re*(-u*dx(w)-w*d_w)",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
                         problem.add_equation("w=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
                 
     
@@ -467,7 +481,12 @@ class flag(object):
                     #Add salinity equation
                     problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
                     problem.add_equation("S=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
-
+                
+                if self.Ta_sqrt_z!=0:
+                    #Add equation for the rotation
+                    problem.add_equation("Re*dt(v) -( dx(dx(v))+dz(dz(v)) )+Ta_sqrt_z*u=-Re*(u*dx(v)+w*dz(v)) ",condition="(nx<=" + nx_trunc_str + ") and (nz<="+nz_trunc_str+")")
+                    problem.add_equation("v=0",condition="(nx>" + nx_trunc_str + ") or (nz>"+nz_trunc_str+")")
+            
             else:
                 #This is the branch that has the full equation
                 
@@ -581,6 +600,10 @@ class flag(object):
                 if self.S_active:
                     problem.add_equation("Pe_S*dt(S) - tau*(dx(dx(S)) + dz(d_S)) + dy_S_mean*w =Pe_S*( -u*dx(S)-w*d_S ) ")
 
+                if self.Ta_sqrt_z!=0:
+                    #Add equation for the rotation
+                    problem.add_equation("Re*dt(v) -( dx(dx(v))+dz(dz(v)) )+Ta_sqrt_z*u=-Re*(u*dx(v)+w*dz(v)) ")
+            
             #Add B.C. conditions for non-periodic vertical domain
             
             if self.z_bc_w_left=='dirichlet':
@@ -3876,6 +3899,12 @@ class flag(object):
                 analysis.add_task('T',layout='g',name='T')
                 analysis.add_task('u',layout='g',name='u')
                 analysis.add_task('w',layout='g',name='w')
+            elif self.store_variable == 'T_u_v_w':
+                analysis.add_task('T',layout='g',name='T')
+                analysis.add_task('u',layout='g',name='u')
+                analysis.add_task('v',layout='g',name='v')
+                analysis.add_task('w',layout='g',name='w')
+            
             elif self.store_variable =='T_u_w_coeff':
                 analysis.add_task('T',layout='g',name='T')
                 analysis.add_task('u',layout='g',name='u')
