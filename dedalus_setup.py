@@ -154,6 +154,7 @@ class flag(object):
         
         self.Q0=0
         
+        self.Ta_sqrt_z=0 #vertical rotation
     def print_screen(self,logger):
         #print the flag onto the screen
         flag_attrs=vars(self)
