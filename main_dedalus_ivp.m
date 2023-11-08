@@ -612,7 +612,7 @@ slurm_num={'15597576',...
     '15597579'};
 % slurm_num={};
 % slurm_num=slurm_num(end);
-slurm_num={'3590942'};
+slurm_num={'4057882'};
 flag.print=1; 
 flag.video=0;
 flag.visible=1;
@@ -661,7 +661,7 @@ for slurm_ind=1:length(slurm_num)
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.total_xt_ave('T',[],[276,466]);
 
 
-     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[1,1000]);
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.get_Nu('T',[1,500]);
 
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.dedalus_post_ivp();
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('u');

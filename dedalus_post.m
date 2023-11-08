@@ -309,6 +309,8 @@ classdef dedalus_post
         freq_local_max;
         
         Q0;
+        
+        Ta_sqrt_z;
     end
     
     methods
