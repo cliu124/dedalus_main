@@ -1,5 +1,6 @@
 #!/bin/bash
-#SBATCH --partition=lo-core
+#SBATCH --partition=general
+###SBATCH --partition=lo-core # This can be as long as 7 days
 #SBATCH --nodes=1
 #SBATCH --ntasks=64
 #SBATCH --time=100:00:00
@@ -32,11 +33,13 @@ mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp submit_dedalus "$WORKD
 #ln -s /rc_scratch/chli3324/dedalus_13146434/analysis/analysis_s1.h5 restart.h5
 #ln -s /rc_scratch/chli3324/dedalus_13146434/checkpoint/checkpoint_s1.h5 restart.h5
 
-ln -s /home/chl23026/dedalus_main/IC/flux_T_periodic_RBC_kx_10_Ra_T_1e8/checkpoint_Nx512_Nz512.h5
+#ln -s /home/chl23026/dedalus_main/IC/flux_T_periodic_RBC_kx_10_Ra_T_1e8/checkpoint_Nx512_Nz512.h5 restart.h5
 conda activate dedalus2
 
 ##For IVP simulation
 mpiexec -n $SLURM_NTASKS python3 dedalus_main.py
+#mpiexec -n $SLURM_NTASKS python3 fixed_flux_3D.py
+
 
 cd "$SUBMITDIR" && cp dedalus_output_$SLURM_JOB_ID "$WORKDIR"
 
