@@ -3,7 +3,7 @@
 ###SBATCH --partition=lo-core # This can be as long as 7 days
 #SBATCH --nodes=1
 #SBATCH --ntasks=64
-#SBATCH --time=12:00:00
+#SBATCH --time=00:30:00
 #SBATCH --job-name=dedalus
 #SBATCH --output=dedalus_output_%j
 ####SBATCH --mail-type=begin
