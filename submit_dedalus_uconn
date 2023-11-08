@@ -37,8 +37,8 @@ mkdir -p "$WORKDIR" && cp -r dedalus*.py "$WORKDIR" && cp submit_dedalus "$WORKD
 conda activate dedalus2
 
 ##For IVP simulation
-mpiexec -n $SLURM_NTASKS python3 dedalus_main.py
-#mpiexec -n $SLURM_NTASKS python3 fixed_flux_3D.py
+#mpiexec -n $SLURM_NTASKS python3 dedalus_main.py
+mpiexec -n $SLURM_NTASKS python3 fixed_flux_3D.py
 
 
 cd "$SUBMITDIR" && cp dedalus_output_$SLURM_JOB_ID "$WORKDIR"
