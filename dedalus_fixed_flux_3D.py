@@ -154,7 +154,7 @@ try:
         if (solver.iteration-1) % 1000 == 0:
             logger.info('Iteration: %i, Time: %e, dt: %e' %(solver.iteration, solver.sim_time, dt))
             logger.info('dy_T_mean_q = %f' %flow.max('dy_T_mean_q'))
-            logger.info('Nu = %f' %-1/flow.max('dy_T_mean_q'))
+            #logger.info('Nu = %f' %-1/flow.max('dy_T_mean_q'))
 
     #add check point, only store one snapshot
     checkpoint=solver.evaluator.add_file_handler('checkpoint')
