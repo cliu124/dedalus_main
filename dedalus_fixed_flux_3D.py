@@ -49,7 +49,7 @@ problem.add_equation("dt(v) + dy(p) - Pr*(dx(dx(v))+dy(dy(v))+dz(dz(v)))= -u*dx(
 problem.add_equation("dt(w) + dz(p) - Pr*(dx(dx(w))+dy(dy(w))+dz(dz(w))) - Pr*Ra*T= -u*dx(w)-v*dy(w)-w*dz(w)")
 problem.add_equation("dx(u) + dy(v) + dz(w) = 0", condition="(nx!=0) or (ny!=0) or (nz!=0)")
 problem.add_equation("p=0", condition="(nx==0) and (ny==0) and (nz==0)")
-problem.add_equation("dt(T) - (dx(dx(T))+dy(dy(T))+dz(dz(T)))-w  = - w*integ(w*T)/vol -u*dx(T)-v*dy(T)-w*dz(T)",condition="(nx!=0) or (nz!=0)")
+problem.add_equation("dt(T) - (dx(dx(T))+dy(dy(T))+dz(dz(T)))-w  = - w*integ(w*T)/vol -u*dx(T)-v*dy(T)-w*dz(T)",condition="(nx!=0) or (ny!=0) or (nz!=0)")
 problem.add_equation("T=0", condition="(nx==0) and (ny==0) and (nz==0)")
 
 # Build solver
