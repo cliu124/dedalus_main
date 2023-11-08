@@ -37,7 +37,7 @@ flag.A_elevator=np.sqrt(flag.Ra_T/2/k_perp_square-k_perp_square/2)
 x_basis = de.Fourier('x', flag.Nx, interval=(0, flag.Lx), dealias=3/2)
 y_basis = de.Fourier('y', flag.Ny, interval=(0, flag.Ly), dealias=3/2)
 z_basis = de.Fourier('z', flag.Nz, interval=(0, flag.Lz), dealias=3/2)
-domain = de.Domain([x_basis, z_basis], grid_dtype=np.float64)
+domain = de.Domain([x_basis, y_basis, z_basis], grid_dtype=np.float64)
 
 # 3D Boussinesq hydrodynamics
 problem = de.IVP(domain, variables=['p','T','u','v','w'])
