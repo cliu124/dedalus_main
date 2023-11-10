@@ -22,8 +22,9 @@ flag.Nx, flag.Ny, flag.Nz = (128,128,128)
 
 #parameter to control simulation and storage time
 flag.initial_dt=0.001 #the initial time step
-flag.stop_sim_time=10 #The simulation time to stop
 flag.post_store_dt=0.01 #The time step to store the data
+flag.stop_sim_time=10 #The simulation time to stop
+
 flag.k_elevator=10
 flag.k_elevator_y=10
 

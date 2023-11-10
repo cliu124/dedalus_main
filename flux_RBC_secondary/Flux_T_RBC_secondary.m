@@ -2,11 +2,12 @@ clear all;
 close all;
 clc;
 
-flag.name='growth_rate';
+flag.name='Lx';
 flag.no_flux_com=0;
 flag.no_shear_com=0;
 flag.solve='eig'; %'finished' if just want to load data and plot
 flag.viscous_unit=0;
+flag.plot_spectrum=0;
 switch flag.name
     case 'growth_rate'
         n_elevator_list=1;
@@ -27,7 +28,7 @@ switch flag.name
         flag.plot_spectrum=1;
     case 'Lx'
         n_elevator_list=1;
-        Ra_T_q_list=10^8;
+        Ra_T_q_list=10^10;
         Pr_list=1;
         Lx_list=[0.05,0.1:0.1:1]*2*pi;
         kz_list=(0.01:0.01:2)*2*pi;
