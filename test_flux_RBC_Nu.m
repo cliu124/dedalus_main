@@ -31,12 +31,18 @@ Ra_T_q=[10^8;
     10^10;
     ];
     
-Nu=[11.85;
-    12.03;
-    15.26;
-    22.67;
-    43.076
-    ];
+% Nu=[11.85;
+%     12.03;
+%     15.26;
+%     22.67;
+%     43.076
+%     ];
+Nu=[11.3095
+12.8131
+15.1509
+20.1041
+31.4387
+];
 
 Ra_T=Ra_T_q./Nu;
 [eta_Ra_T,c0_Ra_T]=scaling(Ra_T,Nu);
@@ -62,4 +68,5 @@ plot_config.user_color_style_marker_list={'k*','k--'};
 plot_config.loglog=[1,1];
 plot_config.label_list={1,'$Ra_{T,q}$','$Nu$'};
 plot_config.name='Ra_T_q_Nu_scaling.png';
+plot_config.legend_list={1,'DNS','$Nu=0.189\;Ra_{T,q}^{0.217}$'};
 plot_line(data,plot_config);

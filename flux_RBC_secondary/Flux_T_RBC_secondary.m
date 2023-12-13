@@ -2,7 +2,7 @@ clear all;
 close all;
 clc;
 
-flag.name='Lx';
+flag.name='growth_rate';
 flag.no_flux_com=0;
 flag.no_shear_com=0;
 flag.solve='eig'; %'finished' if just want to load data and plot
@@ -15,17 +15,17 @@ switch flag.name
         %Ra_T_q_list=46892.1;
         %Pr_list=1;
 
-        Ra_T_q_list=46892;
+        Ra_T_q_list=10^10;
         Pr_list=1;
-        Lx_list=0.1*2*pi;
+        Lx_list=2*pi/10;
 %         kz_list=(0.01:0.5:2*n_elevator)*2*pi;
 %         kz_list=(0.01:0.1:2)*2*pi;
-        kz_list=[1]*2*pi;
+        kz_list=(0.01:0.1:2)*2*pi;
 %         kz_list=2*pi;
         flag.no_flux_com=0; %compare the growth rate without flux feedback
         flag.no_shear_com=0; %compare the growth rate without shear flow
         flag.viscous_unit=0;
-        flag.plot_spectrum=1;
+        flag.plot_spectrum=0;
     case 'Lx'
         n_elevator_list=1;
         Ra_T_q_list=10^10;
@@ -34,7 +34,7 @@ switch flag.name
         kz_list=(0.01:0.01:2)*2*pi;
     case 'Ra_T_q'
         n_elevator_list=1;
-        Ra_T_q_list=[20000,30000,40000,60000,10^5,10^6,10^7,10^8];
+        Ra_T_q_list=[20000,30000,40000,60000,10^5,10^6,10^7,10^8,10^9,10^10];
         Pr_list=1;
         Lx_list=2*pi/10;
         kz_list=(0.01:0.01:2)*2*pi;

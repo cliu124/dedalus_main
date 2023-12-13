@@ -345,8 +345,9 @@ classdef dedalus_post
             
             %add these grid points here. 
             obj.z_list=h5read_complex(h5_name,'/scales/z/1.0');
-            obj.x_list=h5read_complex(h5_name,'/scales/x/1.0');
-
+            if ~strcmp(obj.flow,'HB_benard_shear_periodic')
+                obj.x_list=h5read_complex(h5_name,'/scales/x/1.0');
+            end
             obj.Nz=length(obj.z_list);
             
             obj.t_list=h5read_complex(h5_name,'/scales/sim_time');
@@ -964,7 +965,7 @@ classdef dedalus_post
                     plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_ind_',num2str(t_ind),'.png'];
                     plot_config.print=obj.print;
                     plot_config.visible=obj.visible;
-                    plot_config.fontsize=40;
+                    plot_config.fontsize=38;
                     plot_contour(data,plot_config);
                     %plot_config.label_list={1,'$x$',''};
                     %plot_config.name=[obj.h5_name(1:end-3),'_snapshot_',variable_name,'_t_',num2str(t_ind),'_no_ylabel.png'];

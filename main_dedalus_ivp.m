@@ -612,7 +612,7 @@ slurm_num={'15597576',...
     '15597579'};
 % slurm_num={};
 % slurm_num=slurm_num(end);
-slurm_num={'4603881'};
+slurm_num={'4694105'};
 flag.print=1; 
 flag.video=0;
 flag.visible=1;
@@ -670,9 +670,10 @@ for slurm_ind=1:length(slurm_num)
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.x_ave('T');
      
      % error('1');
-     %dedalus_post_my{slurm_ind}.title_time=0;
-     %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[3],[],[1000]);
-%      error('1');
+     dedalus_post_my{slurm_ind}.title_time=0;
+     dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.snapshot('T',[],[1,-0.08,0.08],[31]);
+
+     %      error('1');
 %      error('1');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_snapshot('T');
      %dedalus_post_my{slurm_ind}=dedalus_post_my{slurm_ind}.spectrum_average('T',[0.1,0.3]);
